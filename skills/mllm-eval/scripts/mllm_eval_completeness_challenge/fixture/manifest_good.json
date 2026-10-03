@@ -1,0 +1,18 @@
+{
+  "task": "report_generation",
+  "metrics": {
+    "lexical": ["bleu", "rouge_l"],
+    "clinical": ["radgraph_f1", "chexbert_f1"]
+  },
+  "faithfulness": {"methods": ["atomic_fact_check", "false_premise_probe"]},
+  "reference_standard": {"type": "radiologist_report"},
+  "benchmarks": ["MIMIC-CXR"],
+  "contamination": {"methods": ["post_cutoff_split"]},
+  "reader_study": {"performed": true, "n_readers": 3, "blinded": true},
+  "prompt": {"template_released": true},
+  "decoding": {"temperature": 0, "seed": 42},
+  "runs": {"n": 3},
+  "answer_matching": {"method": "none"},
+  "claims": {"clinical_deployment": false},
+  "notes": "Replace every value with what the study actually does. Use \"none\" for an axis that is not done, and \"other:<description>\" for a method not on the list."
+}

@@ -35,12 +35,17 @@
 
 **References** (`skills/mllm-eval/references/`):
 
+- `eval_manifest_schema.md`
 - `evaluation_axes.md`
 
 **Scripts** (`skills/mllm-eval/scripts/`):
 
 - `check_mllm_eval_completeness.py`
-- `mllm_eval_completeness_challenge/` (4 files)
+- `mllm_eval_completeness_challenge/` (6 files)
+
+**Templates** (`skills/mllm-eval/templates/`):
+
+- `eval_manifest.json`
 
 ## Source
 

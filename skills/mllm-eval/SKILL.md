@@ -65,10 +65,15 @@ check. For a deployment/utility claim, design a **blinded reader study** with an
 the rubric/IRR to `/design-ai-benchmarking`, ICC/κ to `/analyze-stats`, sizing to `/calc-sample-size`).
 
 ### Phase 5 — Gate the plan (deterministic)
+Declare the axes in `eval_manifest.json` (copy `${CLAUDE_SKILL_DIR}/templates/eval_manifest.json`;
+fields and allowed values in `references/eval_manifest_schema.md`), then:
 ```bash
 python3 ${CLAUDE_SKILL_DIR}/scripts/check_mllm_eval_completeness.py \
-  --plan plan.md --task report_generation|vqa|classification --strict
+  --manifest eval_manifest.json --strict
 ```
+Use `"none"` for an axis not done and `"other:<description>"` for a method not listed; any other
+value exits 2. `--plan plan.md --task report_generation|vqa|classification` still runs the older
+keyword check on prose (see Known limits).
 `NGRAM_ONLY` / `FAITHFULNESS_MISSING` / `REFERENCE_STANDARD_MISSING` / `CONTAMINATION_UNADDRESSED` /
 `READER_STUDY_MISSING` must be resolved.
 
@@ -91,7 +96,9 @@ audit → `/self-review` (loads ME0–ME8).
 network-free). Reproducible challenge:
 `bash ${CLAUDE_SKILL_DIR}/scripts/mllm_eval_completeness_challenge/verify.sh`.
 
-**Known limits.** The gate checks that a term is present; it does not read negation or sense.
+**Known limits.** Manifest mode checks what is declared, not that the work was done; keep the
+manifest in step with the Methods. Prose mode (`--plan`) checks that a term is present; it does
+not read negation or sense.
 "No human evaluation was performed" or "hallucination was not assessed" still counts as covering
 that axis, and a word used in another sense still clears it: "green" anywhere clears the clinical-metric check, "unsupported"
 clears faithfulness, "data leakage" from a patient split clears contamination, and "ground truth"

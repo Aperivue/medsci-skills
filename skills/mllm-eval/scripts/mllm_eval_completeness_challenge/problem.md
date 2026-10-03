@@ -22,8 +22,13 @@ weights).
   faithfulness, no adjudicated reference, no contamination check.
 - `fixture/plan_good.md` — RadGraph-F1/CheXbert-F1 + faithfulness + adjudicated reference +
   contamination check + prompt/temperature/multi-run + reader study.
+- `fixture/manifest_bad.json` / `fixture/manifest_good.json` — the same two studies declared as
+  `eval_manifest.json` fields (`--manifest`), where "none" and `performed: false` are read as
+  declared absent, which a keyword search cannot do.
 
 ## Expected (`verify.sh`, network-free)
 - `plan_bad` flags `NGRAM_ONLY` + `FAITHFULNESS_MISSING` + `REFERENCE_STANDARD_MISSING` +
   `CONTAMINATION_UNADDRESSED` (exit 1).
 - `plan_good` passes (exit 0).
+- `manifest_bad` flags the same four plus `READER_STUDY_MISSING` (exit 1); `manifest_good`
+  passes (exit 0); a value off a field's allow-list exits 2.

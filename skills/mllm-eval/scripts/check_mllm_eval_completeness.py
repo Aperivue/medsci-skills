@@ -26,12 +26,23 @@ CHECKS (verdicts; which apply depends on --task):
                                         rule (exact / normalised / LLM-judge).
 
 INPUTS
-  --plan   the evaluation plan / methods markdown (required).
-  --task   report_generation | vqa | classification (required).
+  --manifest  eval_manifest.json: the axes DECLARED as structured fields (preferred;
+              template in templates/eval_manifest.json, schema in
+              references/eval_manifest_schema.md). Each value must come from the
+              field's allow-list, or be "other:<description>"; anything else, a wrong
+              type or an unknown key exits 2 and names the field. The verdicts above
+              fire on what is declared (a missing field or "none" = not covered).
+              The gate checks the declaration, not that the work was done.
+  --plan      the evaluation plan / methods markdown (prose mode). Prose mode only
+              tests that a keyword is present (no negation or sense), and says so.
+              With --manifest, --plan is not read.
+  --task      report_generation | vqa | classification (required in prose mode; in
+              manifest mode it must match the manifest's "task" if given).
 
 OUTPUT
   A table (stdout) and, with --out, a JSON artifact:
-    {plan, task, claims[{verdict, severity, detail, where}], summary}
+    {plan|manifest, mode, task, claims[{verdict, severity, detail, where}], summary}
+  Manifest mode adds UNLISTED_METHOD (Minor) for each "other:<description>" value.
 
 Stdlib-only (re / json / argparse / pathlib). Exit codes: 0 clean (or report-only),
 1 Major claim(s) found (with --strict), 2 input/usage error.
@@ -87,6 +98,7 @@ def has(text: str, concept: str) -> bool:
 
 
 def analyze(plan: str, task: str) -> dict:
+    """Prose mode: keyword presence over the whole plan text."""
     text = Path(plan).read_text(encoding="utf-8")
     claims = []
 
@@ -133,7 +145,231 @@ def analyze(plan: str, task: str) -> dict:
             "no answer-matching rule stated (exact / normalised / LLM-judge) for free-text answers")
 
     n_major = sum(1 for c in claims if c["severity"] == "Major")
-    return {"plan": plan, "task": task, "claims": claims,
+    return {"plan": plan, "mode": "prose", "task": task, "claims": claims,
+            "summary": {"n_claims": len(claims), "n_major": n_major,
+                        "verdict": "MAJOR_CANDIDATE" if n_major else "OK"}}
+
+
+# --------------------------------------------------------------------------- manifest mode
+# Allow-lists (compared after _key(): lower case, '-' and spaces -> '_'). Every entry is a
+# metric or method named in references/evaluation_axes.md. "none" means "declared absent".
+TASKS = {"report_generation", "vqa", "classification"}
+LEXICAL = {"bleu", "rouge", "rouge_l", "meteor", "cider"}
+CLINICAL = {"radgraph_f1", "chexbert_f1", "chexpert_labeler", "radcliq", "green"}
+FAITHFULNESS = {"atomic_fact_check", "expert_hallucination_rating", "false_premise_probe",
+                "med_halt", "medvh"}
+REFERENCE = {"radiologist_report", "expert_consensus", "adjudicated_panel", "pathology",
+             "clinical_follow_up", "benchmark_label"}
+CONTAMINATION = {"post_cutoff_split", "private_holdout", "canary", "membership_inference",
+                 "ngram_overlap_audit"}
+ANSWER_MATCH = {"exact", "normalised", "semantic", "llm_judge", "clinician_adjudicated"}
+MIN_RUNS = 3   # SKILL.md Phase 4: ">= 3 runs with variance"
+
+TOP_KEYS = {"task", "metrics", "faithfulness", "reference_standard", "benchmarks",
+            "contamination", "reader_study", "prompt", "decoding", "runs",
+            "answer_matching", "claims", "notes"}
+SUB_KEYS = {
+    "metrics": {"lexical", "clinical"},
+    "faithfulness": {"methods"},
+    "reference_standard": {"type"},
+    "contamination": {"methods"},
+    "reader_study": {"performed", "n_readers", "blinded"},
+    "prompt": {"template_released"},
+    "decoding": {"temperature", "top_p", "seed", "greedy"},
+    "runs": {"n"},
+    "answer_matching": {"method"},
+    "claims": {"clinical_deployment"},
+}
+
+
+class ManifestError(ValueError):
+    pass
+
+
+def _key(v: str) -> str:
+    return re.sub(r"[\s\-]+", "_", v.strip().lower())
+
+
+def _enum(value, allowed: set, where: str, unlisted: list) -> str:
+    """One allow-listed value, "none", or "other:<description>"; anything else is an error."""
+    if not isinstance(value, str) or not value.strip():
+        raise ManifestError(f"{where}: expected a non-empty string, got {value!r}")
+    k = _key(value)
+    if k == "none" or k in allowed:
+        return k
+    if k.startswith("other:"):
+        if not value.split(":", 1)[1].strip():
+            raise ManifestError(f"{where}: 'other:' needs a description")
+        unlisted.append((where, value.strip()))
+        return "other"
+    raise ManifestError(f"{where}: {value!r} is not one of {sorted(allowed | {'none'})} "
+                        f"(use \"other:<description>\" for a method not listed)")
+
+
+def _enum_list(value, allowed: set, where: str, unlisted: list) -> list:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        value = [value]
+    if not isinstance(value, list):
+        raise ManifestError(f"{where}: expected a list of strings, got {type(value).__name__}")
+    out = [_enum(v, allowed, f"{where}[{i}]", unlisted) for i, v in enumerate(value)]
+    if "none" in out and len(out) > 1:
+        raise ManifestError(f"{where}: 'none' cannot be combined with other values")
+    return [v for v in out if v != "none"]
+
+
+def _obj(m: dict, key: str) -> dict:
+    v = m.get(key)
+    if v is None:
+        return {}
+    if not isinstance(v, dict):
+        raise ManifestError(f"{key}: expected an object, got {type(v).__name__}")
+    extra = set(v) - SUB_KEYS[key]
+    if extra:
+        raise ManifestError(f"{key}: unknown key(s) {sorted(extra)}; allowed {sorted(SUB_KEYS[key])}")
+    return v
+
+
+def _bool(v, where: str):
+    if v is not None and not isinstance(v, bool):
+        raise ManifestError(f"{where}: expected true/false, got {v!r}")
+    return v
+
+
+def _int(v, where: str, minimum: int):
+    if v is None:
+        return None
+    if isinstance(v, bool) or not isinstance(v, int) or v < minimum:
+        raise ManifestError(f"{where}: expected an integer >= {minimum}, got {v!r}")
+    return v
+
+
+def analyze_manifest(path: str, task_arg: str | None) -> dict:
+    try:
+        m = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as e:
+        raise ManifestError(f"cannot read manifest: {e}")
+    if not isinstance(m, dict):
+        raise ManifestError("manifest must be a JSON object")
+    extra = set(m) - TOP_KEYS
+    if extra:
+        raise ManifestError(f"unknown top-level key(s) {sorted(extra)}; allowed {sorted(TOP_KEYS)}")
+    unlisted: list = []
+
+    task = m.get("task")
+    if task is None:
+        if task_arg is None:
+            raise ManifestError("task: missing (set it in the manifest or pass --task)")
+        task = task_arg
+    else:
+        task = _enum(task, TASKS, "task", [])
+        if task in ("none",):
+            raise ManifestError("task: must be report_generation, vqa or classification")
+        if task_arg is not None and task_arg != task:
+            raise ManifestError(f"task: manifest says {task!r} but --task is {task_arg!r}")
+
+    metrics = _obj(m, "metrics")
+    lexical = _enum_list(metrics.get("lexical"), LEXICAL, "metrics.lexical", unlisted)
+    clinical = _enum_list(metrics.get("clinical"), CLINICAL, "metrics.clinical", unlisted)
+    faith_obj = _obj(m, "faithfulness")
+    faith = _enum_list(faith_obj.get("methods"), FAITHFULNESS, "faithfulness.methods", unlisted)
+    ref_obj = _obj(m, "reference_standard")
+    ref = (_enum(ref_obj["type"], REFERENCE, "reference_standard.type", unlisted)
+           if ref_obj.get("type") is not None else None)
+    bench = m.get("benchmarks")
+    if bench is None:
+        bench = []
+    if not isinstance(bench, list) or not all(isinstance(b, str) and b.strip() for b in bench):
+        raise ManifestError("benchmarks: expected a list of benchmark names")
+    cont_obj = _obj(m, "contamination")
+    cont = _enum_list(cont_obj.get("methods"), CONTAMINATION, "contamination.methods", unlisted)
+    rs = _obj(m, "reader_study")
+    rs_done = _bool(rs.get("performed"), "reader_study.performed")
+    _int(rs.get("n_readers"), "reader_study.n_readers", 1)
+    _bool(rs.get("blinded"), "reader_study.blinded")
+    pr = _obj(m, "prompt")
+    prompt_ok = _bool(pr.get("template_released"), "prompt.template_released")
+    dec = _obj(m, "decoding")
+    temp = dec.get("temperature")
+    if temp is not None and (isinstance(temp, bool) or not isinstance(temp, (int, float)) or temp < 0):
+        raise ManifestError(f"decoding.temperature: expected a number >= 0, got {temp!r}")
+    greedy = _bool(dec.get("greedy"), "decoding.greedy")
+    _int(dec.get("seed"), "decoding.seed", 0)
+    top_p = dec.get("top_p")
+    if top_p is not None and (isinstance(top_p, bool) or not isinstance(top_p, (int, float))
+                              or not 0 < top_p <= 1):
+        raise ManifestError(f"decoding.top_p: expected a number in (0, 1], got {top_p!r}")
+    runs = _int(_obj(m, "runs").get("n"), "runs.n", 1)
+    am_obj = _obj(m, "answer_matching")
+    am = (_enum(am_obj["method"], ANSWER_MATCH, "answer_matching.method", unlisted)
+          if am_obj.get("method") is not None else None)
+    deploy = _bool(_obj(m, "claims").get("clinical_deployment"), "claims.clinical_deployment")
+
+    claims = []
+
+    def add(verdict, severity, detail, where):
+        claims.append({"verdict": verdict, "severity": severity, "detail": detail, "where": where})
+
+    def why(declared_none: bool) -> str:
+        return "declared none" if declared_none else "not declared"
+
+    is_gen = task == "report_generation"
+    is_vqa = task == "vqa"
+
+    if is_gen:
+        if lexical and not clinical:
+            add("NGRAM_ONLY", "Major",
+                "n-gram overlap (" + ", ".join(lexical) + ") is declared but no clinical-efficacy "
+                "metric (RadGraph-F1 / CheXbert / RadCliQ / GREEN) — n-gram overlap is weakly "
+                "correlated with clinical correctness", "metrics.clinical")
+        if ref in (None, "none"):
+            add("REFERENCE_STANDARD_MISSING", "Major",
+                f"no reference standard for the generated reports ({why(ref == 'none')})",
+                "reference_standard.type")
+        if rs_done is not True:
+            sev = "Major" if deploy is True else "Minor"
+            add("READER_STUDY_MISSING", sev,
+                f"no clinical reader study ({why(rs_done is False)})" +
+                (" for a declared clinical-deployment claim" if sev == "Major"
+                 else " (automated metrics only)"), "reader_study.performed")
+
+    if (is_gen or is_vqa) and not faith:
+        add("FAITHFULNESS_MISSING", "Major",
+            "no faithfulness / hallucination / false-premise evaluation "
+            f"({why('faithfulness' in m and faith_obj.get('methods') is not None)}) — a fluent "
+            "answer is not a faithful one", "faithfulness.methods")
+
+    if bench and not cont:
+        add("CONTAMINATION_UNADDRESSED", "Major",
+            "public benchmark(s) " + ", ".join(bench) + " declared but no contamination control "
+            f"({why(cont_obj.get('methods') is not None)}): post-cutoff split, private hold-out, "
+            "canary, membership inference or n-gram overlap audit", "contamination.methods")
+
+    missing = []
+    if prompt_ok is not True:
+        missing.append("prompt template released")
+    if temp is None and greedy is not True:
+        missing.append("temperature (or greedy decoding)")
+    if runs is None or runs < MIN_RUNS:
+        missing.append(f">= {MIN_RUNS} runs" + (f" (declared {runs})" if runs is not None else ""))
+    if missing:
+        add("PROMPT_PROVENANCE_MISSING", "Minor",
+            "prompt-sensitivity provenance incomplete — missing: " + ", ".join(missing),
+            "prompt / decoding / runs")
+
+    if (is_vqa or task == "classification") and am in (None, "none"):
+        add("ANSWER_MATCHING_MISSING", "Minor",
+            f"no answer-matching rule ({why(am == 'none')}): exact / normalised / semantic / "
+            "LLM-judge / clinician-adjudicated", "answer_matching.method")
+
+    for where, value in unlisted:
+        add("UNLISTED_METHOD", "Minor",
+            f"{value!r} is not on the allow-list; counted as covering the axis, but check by eye "
+            "that it is a recognised method", where)
+
+    n_major = sum(1 for c in claims if c["severity"] == "Major")
+    return {"manifest": path, "mode": "manifest", "task": task, "claims": claims,
             "summary": {"n_claims": len(claims), "n_major": n_major,
                         "verdict": "MAJOR_CANDIDATE" if n_major else "OK"}}
 
@@ -149,17 +385,34 @@ def render(result: dict) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="LLM/MLLM clinical-evaluation completeness gate.")
-    ap.add_argument("--plan", required=True, help="evaluation plan / methods markdown")
-    ap.add_argument("--task", required=True, choices=["report_generation", "vqa", "classification"])
+    ap.add_argument("--manifest", help="eval_manifest.json with the declared axes (preferred)")
+    ap.add_argument("--plan", help="evaluation plan / methods markdown (prose mode)")
+    ap.add_argument("--task", choices=["report_generation", "vqa", "classification"])
     ap.add_argument("--out", help="write JSON artifact to this path")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any Major claim exists")
     ap.add_argument("--quiet", action="store_true", help="suppress stdout table")
     args = ap.parse_args()
 
-    if not Path(args.plan).is_file():
-        sys.stderr.write(f"ERROR: --plan not found: {args.plan}\n")
+    if args.manifest:
+        if not Path(args.manifest).is_file():
+            sys.stderr.write(f"ERROR: --manifest not found: {args.manifest}\n")
+            return 2
+        try:
+            result = analyze_manifest(args.manifest, args.task)
+        except ManifestError as e:
+            sys.stderr.write(f"ERROR: {args.manifest}: {e}\n")
+            return 2
+    elif args.plan:
+        if args.task is None:
+            sys.stderr.write("ERROR: --task is required with --plan\n")
+            return 2
+        if not Path(args.plan).is_file():
+            sys.stderr.write(f"ERROR: --plan not found: {args.plan}\n")
+            return 2
+        result = analyze(args.plan, args.task)
+    else:
+        sys.stderr.write("ERROR: pass --manifest (preferred) or --plan\n")
         return 2
-    result = analyze(args.plan, args.task)
 
     if not args.quiet:
         print("=" * 41)
@@ -167,6 +420,11 @@ def main() -> int:
         print("=" * 41)
         print(render(result))
         print()
+        if result["mode"] == "prose":
+            print("PROSE_MODE: keyword presence only (negation and word sense are not read); "
+                  "declare the axes in --manifest for a field-level check.")
+        else:
+            print("Manifest mode: checks what is declared, not that the work was done.")
         s = result["summary"]
         print(f"MAJOR candidate: {s['n_major']} evaluation-completeness gap(s)." if s["n_major"]
               else "OK: evaluation plan covers the required MLLM axes.")

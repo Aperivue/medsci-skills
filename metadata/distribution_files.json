@@ -3263,8 +3263,13 @@
     },
     {
       "path": "skills/mllm-eval/SKILL.md",
-      "size": 6987,
-      "sha256": "af26264fb0d4507e423a7e55b6ff662c9ce8debe00f56a7931c3f0ef639117b9"
+      "size": 7492,
+      "sha256": "893c745643e72710ac4222b6079e4866ce5921951ca41782d108d29c0e0f6b46"
+    },
+    {
+      "path": "skills/mllm-eval/references/eval_manifest_schema.md",
+      "size": 3057,
+      "sha256": "067a6283eabdb1131d99215fffd8df474b4aefab6caf2528843cf2f95fe4a5b9"
     },
     {
       "path": "skills/mllm-eval/references/evaluation_axes.md",
@@ -3273,8 +3278,18 @@
     },
     {
       "path": "skills/mllm-eval/scripts/check_mllm_eval_completeness.py",
-      "size": 9434,
-      "sha256": "4364431238fec7dd01a9f8cf293bc70b7205b8d5f966928da6743b4d90e29a32"
+      "size": 21886,
+      "sha256": "9d78b721426bad03f6475eb5ebee0403f932fe59571c912b3704150aa776446e"
+    },
+    {
+      "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/manifest_bad.json",
+      "size": 336,
+      "sha256": "88aad0139a9b404212082da9a764cc735678e08b1017f131c68a1495c12f511d"
+    },
+    {
+      "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/manifest_good.json",
+      "size": 790,
+      "sha256": "3bfa46ae693c15cc524cb5be69524e6bcf7f826d9ffb21235645a8531731cd6c"
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/plan_bad.md",
@@ -3288,18 +3303,23 @@
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/problem.md",
-      "size": 1681,
-      "sha256": "dc9ce54a7bd47ff5d3383c76e681760c0891dc503933863948df1cd999a11a0e"
+      "size": 2078,
+      "sha256": "1a13e6bb6e7364aac0ee021d8b530245ed215b1926313e8debba2fa8ba1bf13b"
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/verify.sh",
-      "size": 1335,
-      "sha256": "7c3afbcd5adecdcdc8a2c9d14251521e2bfa39cbd3f650e77c92f37aabe49c9c"
+      "size": 2568,
+      "sha256": "290bb8988bde0fc49e341fb2c7a9619c82098857cab2ce76683a9bb823656f80"
     },
     {
       "path": "skills/mllm-eval/skill.yml",
       "size": 3354,
       "sha256": "33e11de75e24af13ed1a6552d91b95d2309aadbc5cdd1f0971ad7356e4e5669c"
+    },
+    {
+      "path": "skills/mllm-eval/templates/eval_manifest.json",
+      "size": 790,
+      "sha256": "3bfa46ae693c15cc524cb5be69524e6bcf7f826d9ffb21235645a8531731cd6c"
     },
     {
       "path": "skills/model-assessment/SKILL.md",
