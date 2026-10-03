@@ -372,6 +372,16 @@ ck "claimed [5] found in '[ 5 ]' passes" 0 "$?"
 printf '## Discussion\nPrior work agrees [15; 25].\n' > "$TMP/body_cit_semi15.md"
 python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_semi15.md" --strict > /dev/null 2>&1
 ck "claimed [5] is not satisfied by '[15; 25]'" 1 "$?"
+# ranges written with a non-breaking hyphen (U+2011) or an em dash (U+2014)
+printf '## Discussion\nPrior work agrees [3‑7].\n' > "$TMP/body_cit_nbh.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_nbh.md" --strict > /dev/null 2>&1
+ck "claimed [5] found inside range '[3‑7]' passes" 0 "$?"
+printf '## Discussion\nPrior work agrees [3—7].\n' > "$TMP/body_cit_em.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_em.md" --strict > /dev/null 2>&1
+ck "claimed [5] found inside range '[3—7]' passes" 0 "$?"
+printf '## Discussion\nPrior work agrees [13—17].\n' > "$TMP/body_cit_em15.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_em15.md" --strict > /dev/null 2>&1
+ck "claimed [5] is not satisfied by '[13—17]'" 1 "$?"
 
 echo "----"
 echo "test_response_claims: $pass passed, $fail failed"

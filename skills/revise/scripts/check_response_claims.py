@@ -84,8 +84,9 @@ CIT_NUMERIC = re.compile(r"\[(\d{1,3}(?:\s*[,–-]\s*\d{1,3})*)\]")
 CIT_BIBKEY = re.compile(r"\[@([A-Za-z0-9_:.\-]+)\]")
 CIT_AUTHOR = re.compile(r"\b([A-Z][A-Za-zÀ-ſ'-]{2,})\s+et\s+al\.?")
 # Numeric citations as the BODY may print them: ';' as a list separator and spaces inside
-# the bracket ('[5; 7]', '[ 5 ]') as well as the letter-side forms above.
-BODY_CIT_NUMERIC = re.compile(r"\[\s*(\d{1,3}(?:\s*[,;–-]\s*\d{1,3})*)\s*\]")
+# the bracket ('[5; 7]', '[ 5 ]') as well as the letter-side forms above. A range may use any
+# dash U+2010-U+2014 ('[5‑7]', '[5—7]') or a hyphen.
+BODY_CIT_NUMERIC = re.compile(r"\[\s*(\d{1,3}(?:\s*[,;\u2010-\u2014-]\s*\d{1,3})*)\s*\]")
 
 # Chars after a claim verb in which its object must START. A quotation that opens inside
 # the window is read to its own closing mark however long it runs: truncating it at the
@@ -229,7 +230,7 @@ def body_numeric_citations(body: str) -> set:
     out: set = set()
     for cm in BODY_CIT_NUMERIC.finditer(body):
         for part in re.split(r"[,;]", cm.group(1)):
-            ends = [int(x) for x in re.split(r"\s*[–-]\s*", part.strip()) if x.strip()]
+            ends = [int(x) for x in re.split(r"\s*[\u2010-\u2014-]\s*", part.strip()) if x.strip()]
             if len(ends) == 2 and ends[0] <= ends[1]:
                 out.update(range(ends[0], ends[1] + 1))
             else:

@@ -61,51 +61,11 @@ COMPLAINT = re.compile(
 
 # Section headings, in reviewer-count order. Body = first Introduction..Introduction-like heading
 # through the end of Discussion / before References.
-#
-# A boundary must be a HEADING, not a body line that happens to start with the word: a Results
-# sentence "Supplementary Table S3 gives ..." or a Methods sentence "Funding sources had no
-# role ..." used to cut the body there, so a longer revision was measured shorter and cleared.
-# A heading is one of:
-#   * a markdown heading (#..######) starting with the keyword;
-#   * a standalone line (as a .docx paragraph extracts) holding only the keyword and at most
-#     three more words (digits allowed: "Supplementary Appendix 1"), optionally bold,
-#     optionally numbered ("2. Introduction"), optionally ending in ':' or '.' ("References.");
-#   * a RUN-IN heading: the same keyword phrase followed by ':' (optionally inside bold) and
-#     then text on the same line ("Funding: None.", "**Data availability:** The data ...").
-#     Declaration sections (acknowledgements, funding, conflicts, data availability) may
-#     also run in with '.' ("Funding. None."). A body sentence does not take this shape:
-#     "Funding sources had no role" and "Supplementary Table S3 gives" have no ':' after a
-#     purely alphabetic keyword phrase.
-_NUM = r"(?:\d+(?:\.\d+)*\.?[ \t]+)?"
-_BOLD = r"(?:\*\*|__)?"
-
-
-def _heading(keywords: str, runin_period: str = "") -> re.Pattern:
-    lead = r"[ \t]*" + _BOLD + r"[ \t]*" + _NUM
-    # Run-in: the keyword phrase is purely alphabetic, so "Supplementary Table S3: ..." in
-    # Results is not one. Standalone: the whole line is the heading, so a word with a digit
-    # ("Supplementary Appendix 1", "Supplementary Figure S1.") cannot be a body sentence.
-    phrase = r"\w*(?:[ \t]+[A-Za-z&]+){0,3}[ \t]*"
-    phrase_line = r"\w*(?:[ \t]+[A-Za-z0-9&]+){0,3}[ \t]*"
-    alts = [
-        # markdown heading
-        r"#{1,6}[ \t]*\**[ \t]*" + _NUM + r"(?:" + keywords + r")\b",
-        # standalone heading line
-        lead + r"(?:" + keywords + r")" + phrase_line + _BOLD + r"[ \t]*[:.]?[ \t]*" + _BOLD + r"[ \t]*$",
-        # run-in heading with a colon
-        lead + r"(?:" + keywords + r")" + phrase + _BOLD + r"[ \t]*:[ \t]*" + _BOLD + r"[ \t]*\S",
-    ]
-    if runin_period:
-        alts.append(lead + r"(?:" + runin_period + r")" + phrase + _BOLD + r"[ \t]*\.[ \t]*"
-                    + _BOLD + r"[ \t]+\S")
-    return re.compile(r"^(?:" + "|".join(alts) + r")", re.IGNORECASE | re.MULTILINE)
-
-
-BODY_START = _heading(r"introduction|background")
-BODY_END = _heading(r"references|acknowledg|funding|conflict|"
-                    r"data availability|supplementary|supporting information|figure legends?",
-                    runin_period=r"acknowledg|funding|conflicts?|data availability")
-ABSTRACT = _heading(r"abstract")
+BODY_START = re.compile(r"^#{0,4}\s*\**\s*(introduction|background)\b", re.IGNORECASE | re.MULTILINE)
+BODY_END = re.compile(r"^#{0,4}\s*\**\s*(references|acknowledg|funding|conflict|"
+                      r"data availability|supplementary|supporting information|figure legends?)\b",
+                      re.IGNORECASE | re.MULTILINE)
+ABSTRACT = re.compile(r"^#{0,4}\s*\**\s*abstract\b", re.IGNORECASE | re.MULTILINE)
 
 CITATION = re.compile(r"\[[\d,\s–\-]+\]|\((?:[A-Z][A-Za-z'`-]+(?: et al\.?)?,?\s*\d{4}[a-z]?;?\s*)+\)")
 

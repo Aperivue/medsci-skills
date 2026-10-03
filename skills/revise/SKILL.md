@@ -246,7 +246,9 @@ the quoted words are all present in order but separated by extraction debris (a 
 bled in from a two-column PDF, proof line numbers, a footnote marker, a hyphen split across a line).
 Look at it by eye; do not delete a quote because of this verdict — accurate quotes have nearly been
 deleted that way. A numeric citation counts only as a whole bracket element or inside a range
-(',' or ';' separated, spaces inside the bracket allowed): a claimed [5] is not satisfied by [15].
+(',' or ';' separated, spaces inside the bracket allowed, a range written with a hyphen or any dash):
+a claimed [5] is not satisfied by [15]. A bracket that mixes numbers and words ("[5, see also 8]")
+is not read as a citation list, so a claim citing it is flagged; check it by eye.
 
 Known limits: quote CONTENT is not compared. A quote that differs from the body's sentence by a
 number (the letter says 0.92, the body 0.87) or by a negator ("not", added or dropped) is graded
@@ -274,21 +276,8 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/check_density_complaint.py \
 
 `DENSITY_COMPLAINT_UNADDRESSED` fires only when the decision letter contains a density/length
 complaint AND the body word count (Introduction through Discussion, citation markers excluded) did
-not fall. Section boundaries are headings only: a markdown heading, a standalone short line as a
-.docx paragraph extracts (optionally numbered or bold, optionally ending in ':' or '.'), or a run-in
-heading whose keyword phrase is followed by ':' and text ("Funding: None.", "**Data availability:**
-The data ..."; declaration sections may also run in with '.', "Funding. None."). A body sentence that
-begins "Supplementary Table S3 ..." does not end the body. With no complaint the gate stays silent.
-When it fires, cut or move detail to the supplement; do not defend the length by adding a paragraph
-that explains it.
-
-Known limits: a run-in heading with no ':' or '.' after the keyword phrase ("Acknowledgements We
-thank ...") is read as a heading only when the keyword is followed by at most three words on the line. A run-in
-heading whose keyword phrase holds a digit ("Supplementary Data 1: ...") is not a boundary, so that
-the Results sentence "Supplementary Table S3: ..." stays in the body; if such a section sits between
-Discussion and References, the body count includes it — confirm the count by eye. A standalone
-heading line may hold digits ("Supplementary Appendix 1", "**Supplementary Figure S1.**") and is a
-boundary.
+not fall; with no complaint it stays silent. When it fires, cut or move detail to the supplement; do
+not defend the length by adding a paragraph that explains it.
 
 ---
 
