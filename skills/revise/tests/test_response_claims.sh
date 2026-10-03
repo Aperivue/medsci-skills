@@ -389,6 +389,20 @@ ck "claimed [5] found in pandoc-escaped '\\[3, 5\\]' passes" 0 "$?"
 printf '## Discussion\nPrior work agrees \\[15\\].\n' > "$TMP/body_cit_esc15.md"
 python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_esc15.md" --strict > /dev/null 2>&1
 ck "claimed [5] is not satisfied by pandoc-escaped '\\[15\\]'" 1 "$?"
+# pandoc's default markdown writer turns en and em dashes into '--' and '---'
+printf '## Discussion\nPrior work agrees \\[3--7\\].\n' > "$TMP/body_cit_dd.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_dd.md" --strict > /dev/null 2>&1
+ck "claimed [5] found inside pandoc range '\\[3--7\\]' passes" 0 "$?"
+printf '## Discussion\nPrior work agrees \\[4---5\\].\n' > "$TMP/body_cit_ddd.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_ddd.md" --strict > /dev/null 2>&1
+ck "claimed [5] found inside pandoc range '\\[4---5\\]' passes" 0 "$?"
+printf '## Discussion\nPrior work agrees \\[13--17\\].\n' > "$TMP/body_cit_dd15.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_dd15.md" --strict > /dev/null 2>&1
+ck "claimed [5] is not satisfied by '\\[13--17\\]'" 1 "$?"
+# a bracket that mixes numbers and words keeps main's prefix match
+printf '## Discussion\nPrior work agrees [5, see also 8].\n' > "$TMP/body_cit_mixed.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_mixed.md" --strict > /dev/null 2>&1
+ck "claimed [5] found in '[5, see also 8]' passes" 0 "$?"
 
 echo "----"
 echo "test_response_claims: $pass passed, $fail failed"

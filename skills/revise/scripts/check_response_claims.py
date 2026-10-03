@@ -83,11 +83,13 @@ PARA_BREAK = re.compile(r"\n[ \t]*\n")
 CIT_NUMERIC = re.compile(r"\[(\d{1,3}(?:\s*[,–-]\s*\d{1,3})*)\]")
 CIT_BIBKEY = re.compile(r"\[@([A-Za-z0-9_:.\-]+)\]")
 CIT_AUTHOR = re.compile(r"\b([A-Z][A-Za-zÀ-ſ'-]{2,})\s+et\s+al\.?")
-# Numeric citations as the BODY may print them: ';' as a list separator and spaces inside
-# the bracket ('[5; 7]', '[ 5 ]') as well as the letter-side forms above. A range may use any
-# dash U+2010-U+2014 ('[5‑7]', '[5—7]') or a hyphen. Pandoc's escaped brackets ('\[5\]')
-# count as brackets.
-BODY_CIT_NUMERIC = re.compile(r"\\?\[\s*(\d{1,3}(?:\s*[,;\u2010-\u2014-]\s*\d{1,3})*)\s*\\?\]")
+# Brackets in the BODY, pandoc's escaped '\[5\]' included. A bracket whose content parses as
+# a pure numeric list ('[3; 5, 8-10]', '[5--7]', '[ 5 ]') is checked by whole element, so [15]
+# does not cite 5. Any other bracket ('[5, see also 8]', '[5, p. 12]') keeps the lenient
+# prefix match below, so nothing the lenient match cleared is newly flagged.
+BODY_BRACKET = re.compile(r"\\?\[([^\[\]\n]{0,80}?)\\?\]")
+RANGE_DASH = re.compile(r"-{2,3}|[\u2010-\u2015\u2212\uff0d~\u301c]")
+NUMERIC_LIST = re.compile(r"\s*\d{1,4}(?:\s*[,;-]\s*\d{1,4})*\s*")
 
 # Chars after a claim verb in which its object must START. A quotation that opens inside
 # the window is read to its own closing mark however long it runs: truncating it at the
@@ -210,12 +212,16 @@ def grade_quote(body: str, quote: str) -> dict:
 
 def body_has_citation(body: str, norm_body: str, cits) -> bool:
     """True if ANY cited token appears in the body (conservative: any-match passes)."""
-    nums = None
+    nums = rest = None
     for kind, tok in cits:
         if kind == "num":
             if nums is None:
-                nums = body_numeric_citations(body)
+                nums, rest = body_numeric_citations(body)
             if int(tok) in nums:
+                return True
+            if re.search(r"\[\s*\d*[,\s–-]*" + re.escape(tok) + r"\b", rest):
+                return True
+            if ("[" + tok + "]") in rest:
                 return True
         if kind == "key" and ("@" + tok) in body:
             return True
@@ -224,19 +230,26 @@ def body_has_citation(body: str, norm_body: str, cits) -> bool:
     return False
 
 
-def body_numeric_citations(body: str) -> set:
-    """Every reference number cited in a bracket list in the body, ranges expanded.
+def body_numeric_citations(body: str):
+    """(numbers cited in pure numeric bracket lists, ranges expanded; body with those removed).
 
     Whole elements only: [15] does not cite 5, and [14-17] cites 16."""
     out: set = set()
-    for cm in BODY_CIT_NUMERIC.finditer(body):
-        for part in re.split(r"[,;]", cm.group(1)):
-            ends = [int(x) for x in re.split(r"\s*[\u2010-\u2014-]\s*", part.strip()) if x.strip()]
+
+    def take(m):
+        content = RANGE_DASH.sub("-", m.group(1))
+        if not NUMERIC_LIST.fullmatch(content):
+            return m.group(0)
+        for part in re.split(r"[,;]", content):
+            ends = [int(x) for x in part.split("-") if x.strip()]
             if len(ends) == 2 and ends[0] <= ends[1]:
                 out.update(range(ends[0], ends[1] + 1))
             else:
                 out.update(ends)
-    return out
+        return " "
+
+    rest = BODY_BRACKET.sub(take, body)
+    return out, rest
 
 
 def build_report(response_path: Path, manuscript_path: Path) -> dict:
