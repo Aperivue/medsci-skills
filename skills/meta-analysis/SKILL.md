@@ -138,14 +138,14 @@ Two more gates at 3f; a non-zero exit from either blocks the Phase 5 write-up:
 ```bash
 # every applied exclusion code vs the *registered* eligibility criteria
 python3 ${CLAUDE_SKILL_DIR}/scripts/check_exclusion_code_validity.py --protocol 0_Protocol/protocol.md --screening 2_Screening/*.tsv --strict
-# DI-6: PRISMA numbers on 5 surfaces (abstract/main text/flow figure/supplement/CSV) vs YAML SSOT;
-# re-run on every revision that touches PRISMA numbers
+# DI-6: PRISMA numbers on 5 surfaces vs YAML SSOT; re-run on every revision touching PRISMA numbers
 python3 ${CLAUDE_SKILL_DIR}/scripts/prisma_5way_consistency.py --ssot prisma.yaml
 ```
 
 Exclusion-code verdicts: `CODE_CONTRADICTS_ELIGIBILITY` (a code excludes a design the protocol
-includes — bulk study loss no arithmetic or inter-rater gate can see), `CODE_NOT_REGISTERED`
-(off-protocol code), `CODE_RENUMBERED` (same code, two meanings).
+includes — bulk study loss no other gate can see), `CODE_NOT_REGISTERED`, `CODE_RENUMBERED`. Verdicts,
+`NOT_ASSESSED` cases and known limits of all 3f gates: `references/phase3_screening_detail.md` §3f.
+- Known limit: PRISMA 5-way skips `after_dedup → full_text_assessed` (no key for records removed pre-screening).
 
 **3f.5 Pool composition lock (MANDATORY at adjudication freeze).** Once 3f passes, freeze the pool
 into a single source-of-truth YAML that every downstream artifact can be checked against:
