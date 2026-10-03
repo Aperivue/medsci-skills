@@ -68,10 +68,24 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/scaffold.py \
 #   exits 2 if a manifest patient has no split there, a patient sits in two splits, a split does not
 #   map to train/val/test, or split_seed is absent.
 ```
+
+**The imaging-data QC handoff is enforced, not advisory.** With `--preprocessing-manifest` the
+scaffold also reads `/imaging-data`'s gate reports (`check_dataset_profile`,
+`check_preprocessing_leakage`, `check_normalizer_domain` JSON) from `<manifest dir>/qc/` and
+`<manifest dir>/../qc/`; `--imaging-qc <file|dir>` (repeatable) names them instead. A leakage report
+about a different manifest file is skipped and listed as skipped.
+- An unacknowledged **Major** claim refuses: exit 1, nothing written, each code + report listed.
+  Resolve it upstream and re-run the gate, or pass `--ack-qc CODE='reason'` — the reason is recorded.
+- **Minor / Flag** claims never block; they are carried forward as warnings.
+- A gate with no report is recorded as **NOT ASSESSED** — absence is never reported as a pass.
+
+All of it lands in `model_repo/IMAGING_QC.md`, referenced from `config.yaml` (`imaging_qc:`) and
+`REPRODUCIBILITY.md`, so training, evaluation and the Methods read what `/imaging-data` found. Never
+write an `--ack-qc` reason the user has not given. Without either flag the output is unchanged.
 This writes `model_repo/` with `config.yaml`, `model.py` (the task's model — U-Net / CNN / Faster R-CNN
 / Pix2Pix / SimCLR encoder), `dataset.py` (reads the frozen split), `losses.py` (task-appropriate),
 `train.py`, `evaluate.py`, `requirements.txt`,
-`REPRODUCIBILITY.md`, `methods_stub.md`, and — the key artifact — `splits/split_assignment.csv` +
+`REPRODUCIBILITY.md`, `methods_stub.md` (+ `IMAGING_QC.md` when imaging-data outputs are given), and — the key artifact — `splits/split_assignment.csv` +
 `splits/split_seed.txt`. The split is **patient-disjoint by construction** (a deterministic group split)
 and the emitted code seeds every RNG, sets cuDNN deterministic, builds the training loader from the
 **train split only**, and infers under `model.eval()` + `torch.no_grad()`.
@@ -124,7 +138,8 @@ runnability.
   guessing.
 
 ## Deterministic gates
-- `scripts/scaffold.py` — the generator (stdlib + numpy; deterministic given manifest + seed).
+- `scripts/scaffold.py` — the generator (stdlib + numpy; deterministic given manifest + seed); also
+  the imaging-data QC handoff (`tests/test_imaging_qc_handoff.sh`).
 - `scripts/check_training_hygiene.py` — AST linter: all RNGs seeded, cuDNN deterministic,
   `eval()` + `no_grad()` inference, no training on a non-train split, and (fine-tuning) a
   recorded pretrained-weight provenance when pretrained weights are loaded

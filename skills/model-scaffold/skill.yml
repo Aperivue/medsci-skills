@@ -12,11 +12,13 @@ inputs:
   - "task / architecture choice (segmentation; U-Net) and channel + split-fraction settings"
   - "for --task finetune: the pretrained-weight source (--from-pretrained), e.g. timm:resnet50.a1_in1k / MedSAM / a URL-DOI"
   - "optional: an imaging-data preprocessing_manifest.json (--preprocessing-manifest) whose split_assignment + split_seed the repo reuses instead of drawing a new split"
+  - "optional: imaging-data QC reports (qc/*.json beside the manifest, or --imaging-qc) — an unacknowledged Major refuses the scaffold (exit 1); --ack-qc CODE=reason proceeds and records the reason"
 outputs:
   - "a runnable PyTorch repo (config.yaml, model.py, dataset.py, losses.py, train.py, evaluate.py, requirements.txt, REPRODUCIBILITY.md, methods_stub.md)"
   - "a frozen patient-level split artifact (splits/split_assignment.csv + split_seed.txt)"
   - "for --task finetune: a pretrained-weight provenance record (PRETRAINED.md + a config.yaml pretrained block)"
   - "training-hygiene audit JSON (deterministic)"
+  - "when imaging-data outputs are given: IMAGING_QC.md (acknowledged Majors with reasons, carried-forward Minor/Flag warnings, gates not assessed) + an imaging_qc block in config.yaml"
 deterministic_scripts:
   - scripts/scaffold.py
   - scripts/check_training_hygiene.py
@@ -44,6 +46,8 @@ known_limitations:
 validation_commands:
   - "python3 scripts/scaffold.py --manifest <manifest.csv> --out model_repo --seed 42"
   - "python3 scripts/scaffold.py --manifest <manifest.csv> --task finetune --from-pretrained timm:resnet50.a1_in1k --out ft_repo --seed 42 --out-channels 2"
+  - "python3 scripts/scaffold.py --manifest <manifest.csv> --preprocessing-manifest preprocessing_manifest.json --out model_repo  # reads imaging-data qc/; exit 1 on an unacknowledged Major"
   - "python3 scripts/check_training_hygiene.py --repo model_repo --strict"
+  - "bash tests/test_imaging_qc_handoff.sh"
   - "bash scripts/scaffold_challenge/verify.sh  # deterministic, network-free (torch tier self-skips)"
 evidence_surface: ci_validator

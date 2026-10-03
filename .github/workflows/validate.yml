@@ -893,6 +893,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-scaffold/tests/test_training_hygiene.sh
 
+      - name: Run model-scaffold imaging-data QC handoff test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/model-scaffold/tests/test_imaging_qc_handoff.sh
+
       - name: Run model-assessment uncertainty-reporting challenge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-assessment/scripts/check_uncertainty_reporting_challenge/verify.sh

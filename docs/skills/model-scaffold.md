@@ -28,7 +28,9 @@
 
 - `python3 scripts/scaffold.py --manifest <manifest.csv> --out model_repo --seed 42`
 - `python3 scripts/scaffold.py --manifest <manifest.csv> --task finetune --from-pretrained timm:resnet50.a1_in1k --out ft_repo --seed 42 --out-channels 2`
+- `python3 scripts/scaffold.py --manifest <manifest.csv> --preprocessing-manifest preprocessing_manifest.json --out model_repo  # reads imaging-data qc/; exit 1 on an unacknowledged Major`
 - `python3 scripts/check_training_hygiene.py --repo model_repo --strict`
+- `bash tests/test_imaging_qc_handoff.sh`
 - `bash scripts/scaffold_challenge/verify.sh  # deterministic, network-free (torch tier self-skips)`
 
 **Evidence** — `ci_validator`
