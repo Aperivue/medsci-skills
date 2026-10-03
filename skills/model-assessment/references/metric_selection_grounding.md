@@ -122,7 +122,8 @@ owns the item-by-item CLAIM 2024 / TRIPOD+AI audit; this is the routing map.
 ## What the skill checks / advises
 
 1. Run the gate — `PIXEL_ACCURACY_SEG` / `NO_BOUNDARY_METRIC` / `ACCURACY_ONLY` /
-   `DETECTION_METRIC_MISSING` must all be zero.
+   `DETECTION_METRIC_MISSING` (and, in manifest mode, `CLASSIFICATION_METRIC_MISSING` /
+   `SEGMENTATION_METRIC_MISSING`: no headline metric declared) must all be zero.
 2. Advise the author to **state τ** (NSD), **state the IoU criterion** (detection), and **state the
    deployment prevalence** (operating-point metrics); report **per-structure / per-subgroup with n**;
    give **patient-level bootstrap CIs**; and report **calibration alongside discrimination**.

@@ -126,6 +126,7 @@ of keywords in the plan text; task-aware. This reference is the *why* behind eac
 | no blinded reader study (report-gen) | `READER_STUDY_MISSING` | Major (deploy) / Minor |
 | prompt / decoding / multi-run incomplete | `PROMPT_PROVENANCE_MISSING` | Minor |
 | no answer-matching rule (vqa, classification) | `ANSWER_MATCHING_MISSING` | Minor |
+| classification metrics, not a manifest field (manifest mode) | `CLASSIFICATION_METRICS_NOT_ASSESSED` | Minor |
 
 A Major verdict is a presence gap, not proof the work is wrong — resolve it by adding the axis
 to the plan (or recording, with a stated reason, why it does not apply).

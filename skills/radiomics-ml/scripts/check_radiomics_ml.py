@@ -25,6 +25,10 @@ CHECKS (verdicts):
                                     penalisation does not rescue a small sample. A floor for the
                                     worst case, not a sample-size criterion: size the study with
                                     pmsampsize (calc-sample-size Test 12).
+     HIGH_DIM_NOT_ASSESSED (Minor)  the check above could not be run to a clearance because
+                                    n_features, n_samples or n_events is not declared (it still
+                                    fires as Major when the declared counts already prove p >= the
+                                    bound). Not Major: the defect is unknown, not certain.
   3. SELECTION_OUTSIDE_CV  (Major)  feature selection is fit outside the CV fold (on the whole
                                     dataset), leaking the held-out folds into selection — or the
                                     stage is missing / unrecognised, so in-fold selection is unproven.
@@ -62,8 +66,10 @@ INPUTS
 
 OUTPUT
   A reconciliation table (stdout) and, with --out, a JSON artifact:
-    {manifest, model, n_features, n_samples, n_events, cv_scheme, claims[...], summary}
-  NO_NESTED_CV / HIGH_DIM_LOW_EVENTS / SELECTION_OUTSIDE_CV are Major.
+    {manifest, basis: "declared", model, n_features, n_samples, n_events, cv_scheme, claims[...],
+     summary}
+  NO_NESTED_CV / HIGH_DIM_LOW_EVENTS / SELECTION_OUTSIDE_CV are Major. The OK line reads
+  "OK (as declared)": the gate checks the manifest, not the pipeline that ran.
 
 Categorical values are matched case-insensitively, with `-` and spaces read as `_`.
 
@@ -178,6 +184,16 @@ def check(m: dict) -> list[dict]:
                        f"sample-size criterion, and penalisation does not rescue a small sample"),
             "where": "n_features",
         })
+    elif any(m.get(f) is None for f in COUNT_FIELDS):
+        # A missing count is not a clearance: without all three the minority-class bound is
+        # unknown (n_samples alone is an upper bound on events; n_events alone may be the majority).
+        missing = ", ".join(f"`{f}`" for f in COUNT_FIELDS if m.get(f) is None)
+        claims.append({
+            "verdict": "HIGH_DIM_NOT_ASSESSED", "severity": "Minor",
+            "detail": (f"{missing} not declared, so features vs events (the minority-class count) "
+                       f"is not assessed; declare n_features, n_samples and n_events"),
+            "where": "n_features / n_samples / n_events",
+        })
 
     # 3. Feature selection outside the CV fold (or not shown to be inside it).
     if sel in SEL_OUTSIDE:
@@ -259,6 +275,7 @@ def analyze(manifest_path: str) -> dict:
     n_major = sum(1 for c in claims if c["severity"] == "Major")
     return {
         "manifest": str(p),
+        "basis": "declared",
         "model": m.get("model"),
         "n_features": m.get("n_features"),
         "n_samples": m.get("n_samples"),
@@ -308,7 +325,7 @@ def main() -> int:
         elif s["n_flag"]:
             print(f"MINOR flag: {s['n_flag']} radiomics/ML rigor issue(s) (see table).")
         else:
-            print("OK: radiomics/ML pipeline meets the rigor bar.")
+            print("OK (as declared): radiomics/ML pipeline meets the rigor bar.")
 
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
