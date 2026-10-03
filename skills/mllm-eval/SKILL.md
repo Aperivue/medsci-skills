@@ -91,6 +91,13 @@ audit → `/self-review` (loads ME0–ME8).
 network-free). Reproducible challenge:
 `bash ${CLAUDE_SKILL_DIR}/scripts/mllm_eval_completeness_challenge/verify.sh`.
 
+**Known limits.** The gate checks that a term is present; it does not read negation or sense.
+"No human evaluation was performed" or "hallucination was not assessed" still counts as covering
+that axis, and a word used in another sense still clears it: "green" anywhere clears the clinical-metric check, "unsupported"
+clears faithfulness, "data leakage" from a patient split clears contamination, and "ground truth"
+clears the reference standard whatever it refers to. Read each cleared axis in the plan yourself
+before treating an exit 0 as clean.
+
 ## Boundaries
 
 ```
