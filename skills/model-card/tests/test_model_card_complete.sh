@@ -166,5 +166,61 @@ variant "$TMP/ethna2.md" "- Errors could lead to missed lesions; automation bias
 python3 "$DET" --card "$TMP/ethna2.md" --strict --quiet >/dev/null 2>&1
 check "control: whole-value 'N/A,' in Ethical Considerations stays clean" test "$?" -eq 0
 
+# (13) negative controls — reference-style links and link definitions are not placeholders
+variant "$TMP/ref1.md" "$CAV" "$CAV
+- See [Verify the protocol][proto] before deployment.
+
+[proto]: https://example.org/protocol-checklist"
+python3 "$DET" --card "$TMP/ref1.md" --strict --quiet >/dev/null 2>&1
+check "control: '[Verify ...][ref]' reference link stays clean" test "$?" -eq 0
+variant "$TMP/ref2.md" "$CAV" "$CAV
+- Check the protocol against the [verify] checklist.
+
+[verify]: https://example.org/protocol-checklist"
+python3 "$DET" --card "$TMP/ref2.md" --strict --quiet >/dev/null 2>&1
+check "control: '[verify]: url' link definition stays clean" test "$?" -eq 0
+variant "$TMP/ref3.md" "$CAV" "$CAV
+- See [VERIFY][proto].
+
+[VERIFY]: https://example.org/protocol-checklist"
+python3 "$DET" --card "$TMP/ref3.md" --strict --quiet >/dev/null 2>&1
+check "control: upper-case '[VERIFY][ref]' + '[VERIFY]: url' stays clean" test "$?" -eq 0
+
+# (14) negative controls — a token inside a fenced code block is not an unfilled field
+variant "$TMP/fence1.md" "$CAV" "$CAV
+\`\`\`
+- **Placeholder syntax**: [VERIFY]
+\`\`\`"
+python3 "$DET" --card "$TMP/fence1.md" --strict --quiet >/dev/null 2>&1
+check "control: [VERIFY] inside a \`\`\` fence stays clean" test "$?" -eq 0
+variant "$TMP/fence2.md" "$CAV" "$CAV
+~~~text
+[NEEDS INPUT: example token]
+~~~"
+python3 "$DET" --card "$TMP/fence2.md" --strict --quiet >/dev/null 2>&1
+check "control: [NEEDS INPUT] inside a ~~~ fence stays clean" test "$?" -eq 0
+variant "$TMP/fence3.md" "$CAV" "$CAV
+\`\`\`
+example
+\`\`\`
+- [VERIFY: source of this caveat]"
+python3 "$DET" --card "$TMP/fence3.md" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "a [VERIFY: ...] after a closed fence is still UNFILLED_FIELD" only UNFILLED_FIELD "Caveats"
+
+# (15) case-sensitive: only the template's upper-case tokens are fields
+variant "$TMP/lc.md" "$CAV" "$CAV
+- Sites should [verify] scanner settings locally."
+python3 "$DET" --card "$TMP/lc.md" --strict --quiet >/dev/null 2>&1
+check "control: lower-case '[verify]' prose bracket stays clean" test "$?" -eq 0
+variant "$TMP/uc.md" "$CAV" "$CAV
+- [NEEDS INPUT — deployment caveat]"
+python3 "$DET" --card "$TMP/uc.md" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "an upper-case [NEEDS INPUT — ...] is still UNFILLED_FIELD" only UNFILLED_FIELD "Caveats"
+
+# (16) negative control — whole-value 'N/A!' in Ethical Considerations stays clean
+variant "$TMP/ethna3.md" "- Errors could lead to missed lesions; automation bias is a risk if used without independent review. The training cohort is single-centre and may not represent other populations." "N/A!"
+python3 "$DET" --card "$TMP/ethna3.md" --strict --quiet >/dev/null 2>&1
+check "control: whole-value 'N/A!' in Ethical Considerations stays clean" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

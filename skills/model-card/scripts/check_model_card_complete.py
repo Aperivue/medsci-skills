@@ -22,9 +22,12 @@ CHECKS (verdicts):
                                      Metrics or Quantitative Analyses.
   3. UNFILLED_FIELD         (Major)  a required section has some content, but one or
                                      more of its fields is still an unfilled
-                                     [NEEDS INPUT ...] / [VERIFY ...] placeholder
-                                     (e.g. License or subgroup performance left
-                                     blank while a sibling field is filled).
+                                     template token: [NEEDS INPUT ...] / [VERIFY] /
+                                     [VERIFY: ...], upper case as the templates
+                                     write it (e.g. License or subgroup performance
+                                     left blank while a sibling field is filled).
+                                     Markdown links, HTML comments and fenced code
+                                     blocks are not scanned.
 
 Required Model Card sections: Model Details, Intended Use, Out-of-Scope Use,
 Training Data, Evaluation Data, Metrics, Quantitative Analyses, Ethical
@@ -58,10 +61,14 @@ from pathlib import Path
 PLACEHOLDER_SPAN = re.compile(
     r"\[(?:NEEDS INPUT|VERIFY)[^\]]*\]|<[^>]*>|\bTODO\b|\bTBD\b|X{4,}", re.IGNORECASE)
 
-# The bracketed placeholder markers alone (no TODO / <...>): what the field-level check flags.
-# A bracket followed by '(' is markdown link text ('[verify the protocol](https://...)'), not a
-# placeholder; the keyword must end at a word boundary ('[Verifying ...]' is not a marker).
-FIELD_PLACEHOLDER = re.compile(r"\[(?:NEEDS INPUT|VERIFY)\b[^\]]*\](?!\()", re.IGNORECASE)
+# The bracketed template tokens alone (no TODO / <...>): what the field-level check flags.
+# Only the exact upper-case forms the templates write -- `[NEEDS INPUT ...]`, `[VERIFY]` and
+# `[VERIFY: ...]` -- are matched (case-sensitive). A bracket followed by '(', '[' or ':' is
+# markdown link syntax (inline link, reference link, link definition), not a placeholder.
+FIELD_PLACEHOLDER = re.compile(r"\[(?:NEEDS INPUT[^\]]*|VERIFY(?::[^\]]*)?)\](?![(\[:])")
+
+# Fenced code blocks (``` or ~~~), dropped before the field-level scan like HTML comments.
+CODE_FENCE = re.compile(r"(?ms)^[ \t]*(```|~~~).*?(?:^[ \t]*\1[^\n]*$|\Z)")
 
 # An explicit null answer, accepted only as a field's whole value.
 NULL_ANSWER = re.compile(r"(?:n/?a|none|not applicable|not collected|nil|waived)")
@@ -149,8 +156,9 @@ def _has_real_content(body: str, allow_null: bool = True) -> bool:
 
 def _unfilled_fields(body: str) -> list[str]:
     """The lines of a section still holding a [NEEDS INPUT ...] / [VERIFY ...] placeholder
-    (HTML comments ignored), shortened for the report."""
+    (HTML comments and fenced code blocks ignored), shortened for the report."""
     body = re.sub(r"<!--.*?-->", " ", body, flags=re.DOTALL)
+    body = CODE_FENCE.sub(" ", body)
     out = []
     for m in FIELD_PLACEHOLDER.finditer(body):
         start = body.rfind("\n", 0, m.start()) + 1
