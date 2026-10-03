@@ -82,8 +82,10 @@ characters that are invisible in Word but break exact-match.
 replaces every paragraph from there until the next paragraph that starts
 with `\d+\.\s+` (e.g. "1. ", "12. "). This is robust across templates
 that re-number sections, but assumes numbered headers. For non-numbered
-templates, pass `stop_pattern` to `replace_paragraphs_after()` directly
-in Python.
+templates, or a last section followed by a signature/date block (with no later
+header the range runs to the end of the document), give `section_end:` in the
+YAML as `header: regex`; the range stops before the first paragraph the regex
+matches (`stop_pattern` of `replace_paragraphs_after()` in Python).
 
 ## Readability Knobs
 
@@ -106,7 +108,7 @@ consistency than the fidelity.
 ## Python API
 
 Use the library directly (with `${CLAUDE_SKILL_DIR}/scripts` on `sys.path`) when the YAML modes are
-not enough — e.g., `stop_pattern` for templates without numbered section headers.
+not enough — e.g., to call `replace_paragraphs_after()` with a computed `stop_pattern`.
 
 ```python
 from fill_form import FormFiller

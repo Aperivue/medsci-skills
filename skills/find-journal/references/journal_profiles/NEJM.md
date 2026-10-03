@@ -30,4 +30,4 @@ clinical trials, randomized controlled trial, evidence-based medicine, internal 
 - **Field:** General medicine
 
 ## Special Notes
-NEJM is the highest-impact general medical journal. Manuscripts must demonstrate clear clinical significance with large sample sizes and robust methodology. AI/radiology papers are occasionally published if they demonstrate practice-changing clinical impact validated in large trials. Extremely competitive with single-digit acceptance rate.
+NEJM is the highest-impact general medical journal. Manuscripts must demonstrate clear clinical significance with large sample sizes and robust methodology. AI/radiology papers are occasionally published if they demonstrate practice-changing clinical impact validated in large trials. Extremely competitive.

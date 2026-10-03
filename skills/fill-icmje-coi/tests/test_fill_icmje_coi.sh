@@ -66,5 +66,50 @@ PY
 check "doc1 contract (14 boxes / 13 None / subst / no leak)" assert_doc "$DOC1" "Alice Kim"
 check "doc2 contract (14 boxes / 13 None / subst / no leak)" assert_doc "$DOC2" "Bob Lee"
 
+# --- F1 regression: an empty seed/new string must be refused, never skipped. ---
+# Custom seed: the shipped synthetic seed with its author renamed to "J Park".
+CSEED="$OUTDIR/custom_seed.docx"
+python3 - "$SEED" "$CSEED" <<'PY'
+import sys, zipfile
+src, dst = sys.argv[1:3]
+with zipfile.ZipFile(src) as zin, zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED) as zout:
+    for it in zin.infolist():
+        d = zin.read(it.filename)
+        if it.filename == "word/document.xml":
+            d = d.decode("utf-8").replace("Placeholder Author", "J Park").encode("utf-8")
+        zout.writestr(it, d)
+PY
+
+run_custom() {  # $1=out dir  $2=--seed-name  $3=--new-title ; prints exit code
+    python3 "$SCRIPT" --seed "$CSEED" --seed-name "$2" \
+        --seed-title "Placeholder Manuscript Title" --seed-date "January 1, 2000" \
+        --new-title "$3" --new-date "$NEW_DATE" --out-dir "$1" \
+        --authors '[[1,"Alice Kim"],[2,"Bob Lee"]]' >/dev/null 2>&1
+    echo "$?"
+}
+
+# POSITIVE: empty --seed-name used to exit 0 with "J Park" in every form.
+E1="$OUTDIR/empty_seed_name"
+check "empty --seed-name exits 2" test "$(run_custom "$E1" "" "$NEW_TITLE")" -eq 2
+check "empty --seed-name writes no form" test "$(ls "$E1"/*.docx 2>/dev/null | wc -l)" -eq 0
+
+# POSITIVE: empty --new-title used to exit 0 with the title blanked.
+E2="$OUTDIR/empty_new_title"
+check "empty --new-title exits 2" test "$(run_custom "$E2" "J Park" "")" -eq 2
+check "empty --new-title writes no form" test "$(ls "$E2"/*.docx 2>/dev/null | wc -l)" -eq 0
+
+# NEGATIVE control: the same custom seed with its real seed name stays clean.
+E3="$OUTDIR/custom_ok"
+check "custom seed with seed name exits 0" test "$(run_custom "$E3" "J Park" "$NEW_TITLE")" -eq 0
+custom_clean() {
+    python3 - "$E3/ICMJE_COI_01_Alice_Kim.docx" "$E3/ICMJE_COI_02_Bob_Lee.docx" <<'PY'
+import sys, zipfile
+for f, name in zip(sys.argv[1:], ("Alice Kim", "Bob Lee")):
+    xml = zipfile.ZipFile(f).read("word/document.xml").decode("utf-8")
+    assert "J Park" not in xml and name in xml, f
+PY
+}
+check "custom seed: seed name replaced, author present" custom_clean
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

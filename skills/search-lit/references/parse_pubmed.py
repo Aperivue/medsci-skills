@@ -33,6 +33,20 @@ from textwrap import shorten
 _EAST_ASIAN_REVERSE_THRESHOLD = 3  # LastName length lower bound for suspicion
 
 
+def _full_text(parent, path: str, default: str = "") -> str:
+    """All text inside the element at `path`, including text inside inline children.
+
+    PubMed marks up titles and abstracts inline (`<i>Helicobacter pylori</i>`, `CO<sub>2</sub>`).
+    `findtext()` / `.text` return only the text before the first child element, which cut
+    "Eradication of <i>Helicobacter pylori</i> infection." down to "Eradication of " while the
+    BibTeX entry was still stamped verified. Absent element -> `default`.
+    """
+    el = parent.find(path) if parent is not None else None
+    if el is None:
+        return default
+    return "".join(el.itertext())
+
+
 def _looks_east_asian_reversed(last: str, fore: str) -> bool:
     """Return True if (LastName, ForeName) look swapped per PubMed encoding bug."""
     if not last or not fore:
@@ -110,9 +124,29 @@ def _extract_authors(author_list_el):
 
 def parse_esearch(data: str) -> None:
     """Parse esearch JSON response, print PMIDs and count."""
+    # A body without `esearchresult.count`, or with an `ERROR` field, is not a search that
+    # found nothing: it is a search that did not run. Defaulting the count to "0" printed
+    # "Total results: 0" with exit 0 for an error body, which a caller reads as "no papers"
+    # (ma-scout's "MA = 0" verdict). Name the input and exit 2 instead.
     result = json.loads(data)
-    esearch = result.get("esearchresult", {})
-    count = esearch.get("count", "0")
+    esearch = result.get("esearchresult") if isinstance(result, dict) else None
+    problem = None
+    if not isinstance(esearch, dict):
+        problem = "no 'esearchresult' object"
+        if isinstance(result, dict) and result.get("error"):
+            problem += f" (error: {result.get('error')})"
+    elif esearch.get("ERROR"):
+        problem = f"esearchresult.ERROR: {esearch.get('ERROR')}"
+    elif "count" not in esearch:
+        problem = "esearchresult has no 'count'"
+    if problem is not None:
+        print(
+            f"ERROR: esearch response is not a search result ({problem}); "
+            "the count is unknown, not 0.",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+    count = esearch["count"]
     ids = esearch.get("idlist", [])
     print(f"Total results: {count}")
     print(f"Returned: {len(ids)}")
@@ -169,7 +203,7 @@ def parse_efetch(data: str) -> None:
         if art is None:
             continue
 
-        title = art.findtext("ArticleTitle", "N/A")
+        title = _full_text(art, "ArticleTitle", "N/A")
         journal_el = art.find("Journal")
         journal = journal_el.findtext("Title", "N/A") if journal_el is not None else "N/A"
         journal_abbrev = journal_el.findtext("ISOAbbreviation", "") if journal_el is not None else ""
@@ -204,7 +238,7 @@ def parse_efetch(data: str) -> None:
         if abstract_el is not None:
             parts = abstract_el.findall("AbstractText")
             abstract = " ".join(
-                (p.get("Label", "") + ": " if p.get("Label") else "") + (p.text or "")
+                (p.get("Label", "") + ": " if p.get("Label") else "") + "".join(p.itertext())
                 for p in parts
             )
 
@@ -236,7 +270,7 @@ def generate_bibtex(data: str) -> None:
         if art is None:
             continue
 
-        title = art.findtext("ArticleTitle", "")
+        title = _full_text(art, "ArticleTitle", "")
         journal_el = art.find("Journal")
         journal_abbrev = journal_el.findtext("ISOAbbreviation", "") if journal_el is not None else ""
         journal_full = journal_el.findtext("Title", "") if journal_el is not None else ""

@@ -105,6 +105,35 @@ assert d["findings"] and all(f["detector"] == "check_doi_record_match" for f in 
 PY
 pass "qc JSON self-identifies and records that it read a cache, not the network"
 
+# Update notices. A correction or retraction notice repeats the article's title behind a short
+# prefix, so its title similarity clears the bar (0.91 here) and a title-only check called the
+# notice's DOI the article's. Crossref marks the notice with a structured `update-to` list; the
+# article itself carries `updated-by`, and a new-version update is still the work.
+#
+#   U-001 article row, DOI of its correction notice      DOI_IS_UPDATE_NOTICE
+#   U-002 article row, the article's own (corrected) DOI SILENT
+#   U-003 preprint row, a new-version update record      SILENT
+#   U-004 the correction notice's own row and DOI         SILENT
+un="$(python3 "$DET" --table "$FIX/update_notice.tsv" --cache "$FIX/cache" || true)"
+if grep -qE "\[DOI_IS_UPDATE_NOTICE\] \(U-001\)" <<<"$un" && grep -q "correction -> 10.1000/article.008" <<<"$un"; then
+  pass "a DOI of the article's correction notice is caught and names the DOI it corrects"
+else
+  bad "a correction notice's DOI on the article's row was not caught"
+  echo "$un"
+fi
+for r in U-002 U-003 U-004; do
+  if grep -q "($r)" <<<"$un"; then
+    bad "$r was flagged and should not have been"
+    echo "$un"
+  else
+    case "$r" in
+      U-002) pass "an article that has been corrected (updated-by) is silent" ;;
+      U-003) pass "a new-version update record is the work itself and is silent" ;;
+      U-004) pass "a row that IS the correction notice, with the notice's DOI, is silent" ;;
+    esac
+  fi
+done
+
 [ "$fail" -eq 0 ] || exit 1
 echo "----"
 echo "DOI-record-match challenge: all checks passed"

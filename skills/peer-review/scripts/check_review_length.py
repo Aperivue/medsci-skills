@@ -50,8 +50,11 @@ import sys
 from pathlib import Path
 
 AUTHOR_HEAD = re.compile(r"^#{1,6}\s*.*comments?\s+to\s+the\s+authors?\b", re.I)
+EDITOR_HEAD = re.compile(r"^#{1,6}\s*.*(confidential|comments?\s+to\s+the\s+editor)", re.I)
 ANY_HEAD = re.compile(r"^#{1,6}\s+")
+HEAD_HASHES = re.compile(r"^(#{1,6})")
 BOLD_LABEL = re.compile(r"^\*\*(.+?)\*\*:?\s*$")
+SUB_HEAD = re.compile(r"^#{1,6}\s+(.+?)\s*#*\s*$")   # a sub-heading labels a section like a bold label
 ITEM_START = re.compile(r"^\s*(\d{1,2})[).]\s+")
 
 TIERS = {1: (0, 700), 2: (700, 1000), 3: (1000, 1400)}
@@ -86,26 +89,36 @@ def count_words(lines: list[str]) -> int:
     return n
 
 
+def section_end(lines: list[str], start: int, level: int, other: re.Pattern) -> int:
+    """Index where a section opened by a level-`level` heading ends: the next heading
+    of the same or a higher level, or the other box's heading at any level.
+
+    A sub-heading (`### Major Comments` under `## COMMENTS TO THE AUTHORS`) belongs to
+    the section. Ending at the first heading of any level measured only the preamble,
+    so an over-long block with a grade in it passed both draft gates under --strict.
+    """
+    for j in range(start, len(lines)):
+        if ANY_HEAD.match(lines[j]):
+            if len(HEAD_HASHES.match(lines[j]).group(1)) <= level or other.match(lines[j]):
+                return j
+    return len(lines)
+
+
 def author_block(text: str) -> list[str] | None:
     """Lines of the Comments-to-the-Authors section, or None if absent."""
     lines = text.splitlines()
-    start = None
+    start = level = None
     for i, line in enumerate(lines):
         if AUTHOR_HEAD.match(line):
-            start = i + 1
+            start, level = i + 1, len(HEAD_HASHES.match(line).group(1))
             break
     if start is None:
         return None
-    end = len(lines)
-    for j in range(start, len(lines)):
-        if ANY_HEAD.match(lines[j]):
-            end = j
-            break
-    return lines[start:end]
+    return lines[start:section_end(lines, start, level, EDITOR_HEAD)]
 
 
 def itemize(block: list[str]) -> list[dict]:
-    """Split the block into labelled comments: each bold label opens a section,
+    """Split the block into labelled comments: each bold label or sub-heading opens a section,
     and a leading `N)` inside a section opens a comment within it."""
     items: list[dict] = []
     section = "general comments"
@@ -116,10 +129,10 @@ def itemize(block: list[str]) -> list[dict]:
             items.append({"label": cur["label"], "words": count_words(cur["lines"])})
 
     for line in block:
-        m = BOLD_LABEL.match(line.strip())
+        m = BOLD_LABEL.match(line.strip()) or SUB_HEAD.match(line.strip())
         if m:
             flush()
-            section = re.sub(r"\s+", " ", m.group(1)).strip().lower()
+            section = re.sub(r"\s+", " ", m.group(1).replace("**", "")).strip().lower()
             cur = {"label": section, "lines": []}
             continue
         n = ITEM_START.match(line)

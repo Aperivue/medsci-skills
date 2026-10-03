@@ -29,6 +29,7 @@
 
 - `python3 scripts/extract_pdfs.py <pdf_folder> <cache_folder>`
 - `grep -c 'date_published' <vault>/<literature_folder>/*.md`
+- `python3 tests/test_extract_pdfs.py`
 
 **Evidence** — `manual_workflow`
 
