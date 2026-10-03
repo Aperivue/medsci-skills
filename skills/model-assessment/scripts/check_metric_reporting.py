@@ -46,7 +46,8 @@ INPUTS
               references/metrics_manifest_schema.md). Each value must come from the
               field's allow-list or be "other:<description>"; anything else, a wrong
               type or an unknown key exits 2 and names the field. The verdicts above fire
-              on what is declared. The gate checks the declaration, not the numbers.
+              on what is declared (the keyword lists above are prose mode's; the manifest
+              values are in the schema). The gate checks the declaration, not the numbers.
   --report    metrics report / results markdown (prose mode). Prose mode tests keyword
               presence with a short negation window, and says so. With --manifest,
               --report is not read.
@@ -279,14 +280,17 @@ DETECTION_M = {"froc", "map"}
 SIMILARITY = {"mse", "rmse", "mae", "psnr", "ssim", "snr", "cnr"}
 METRICS = (OVERLAP | BOUNDARY | DETECTION_M | SIMILARITY |
            {"pixel_accuracy", "accuracy", "auroc", "auprc", "sensitivity", "specificity",
-            "ppv", "npv", "f1", "brier", "calibration_slope", "calibration_intercept", "ece",
+            "ppv", "npv", "brier", "calibration_slope", "calibration_intercept", "ece",
             "noc", "likert_visual_score"})
 AVERAGING = {"one_vs_rest", "macro", "micro", "pairwise", "obuchowski"}
 MATCH = {"iou_threshold", "centroid_threshold", "mask_threshold"}
 INTERACTION = {"dice_vs_interactions", "interactions_to_threshold"}
 DOWNSTREAM = {"segmentation", "detection", "classification", "quantitative_measurement"}
 ALIASES = {"jaccard": "iou", "dsc": "dice", "hd": "hausdorff", "auc": "auroc", "roc_auc": "auroc",
-           "pr_auc": "auprc", "average_precision": "auprc", "mean_average_precision": "map",
+           "pr_auc": "auprc", "mean_average_precision": "map",
+           "assd": "surface_distance", "masd": "surface_distance", "surface_dice": "nsd",
+           "normalised_surface_dice": "nsd", "normalized_surface_dice": "nsd",
+           "sensitivity_per_false_positive": "froc", "sensitivity_per_fp": "froc",
            "recall": "sensitivity", "precision": "ppv", "normalised_surface_distance": "nsd",
            "normalized_surface_distance": "nsd", "one_vs_one": "pairwise"}
 
@@ -310,6 +314,18 @@ def _reject_constant(name: str):
     raise ManifestError(f"{name} is not a valid JSON number")
 
 
+def _finite_float(text: str) -> float:
+    v = float(text)
+    if not math.isfinite(v):
+        raise ManifestError(f"{text[:40]} is not a finite number")
+    return v
+
+
+def _short(v) -> str:
+    r = repr(v)
+    return r if len(r) <= 80 else r[:77] + "..."
+
+
 def _key(v: str) -> str:
     k = re.sub(r"[\s\-]+", "_", v.strip().lower())
     return ALIASES.get(k, k)
@@ -318,7 +334,7 @@ def _key(v: str) -> str:
 def _enum(value, allowed: set, where: str, unlisted: list) -> str:
     """One allow-listed value, "none", or "other:<description>"; anything else is an error."""
     if not isinstance(value, str) or not value.strip():
-        raise ManifestError(f"{where}: expected a non-empty string, got {value!r}")
+        raise ManifestError(f"{where}: expected a non-empty string, got {_short(value)}")
     k = _key(value)
     if k == "none" or k in allowed:
         return k
@@ -330,7 +346,7 @@ def _enum(value, allowed: set, where: str, unlisted: list) -> str:
             return "none"
         unlisted.append((where, value.strip()))
         return "other"
-    raise ManifestError(f"{where}: {value!r} is not one of {sorted(allowed | {'none'})} "
+    raise ManifestError(f"{where}: {_short(value)} is not one of {sorted(allowed | {'none'})} "
                         f"(use \"other:<description>\" for one not listed)")
 
 
@@ -361,7 +377,7 @@ def _obj(m: dict, key: str) -> dict:
 
 def _bool(v, where: str):
     if v is not None and not isinstance(v, bool):
-        raise ManifestError(f"{where}: expected true/false, got {v!r}")
+        raise ManifestError(f"{where}: expected true/false, got {_short(v)}")
     return v
 
 
@@ -369,13 +385,14 @@ def _int(v, where: str, minimum: int):
     if v is None:
         return None
     if isinstance(v, bool) or not isinstance(v, int) or v < minimum:
-        raise ManifestError(f"{where}: expected an integer >= {minimum}, got {v!r}")
+        raise ManifestError(f"{where}: expected an integer >= {minimum}, got {_short(v)}")
     return v
 
 
 def analyze_manifest(path: str, task_arg: str | None) -> dict:
     try:
-        m = json.loads(Path(path).read_text(encoding="utf-8"), parse_constant=_reject_constant)
+        m = json.loads(Path(path).read_text(encoding="utf-8-sig"), parse_constant=_reject_constant,
+                       parse_float=_finite_float)
     except (OSError, ValueError, RecursionError) as e:   # ValueError covers JSONDecodeError
         raise ManifestError(f"cannot read manifest: {e}")
     if not isinstance(m, dict):
@@ -408,7 +425,7 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
     thr = det.get("threshold")   # recorded, not gated
     if thr is not None and (isinstance(thr, bool) or not isinstance(thr, (int, float))
                             or (isinstance(thr, float) and not math.isfinite(thr)) or thr < 0):
-        raise ManifestError(f"detection.threshold: expected a finite number >= 0, got {thr!r}")
+        raise ManifestError(f"detection.threshold: expected a finite number >= 0, got {_short(thr)}")
     inter = _obj(m, "interactive")
     axis = _enum_list(inter.get("interaction_axis"), INTERACTION, "interactive.interaction_axis",
                       unlisted)
@@ -434,9 +451,9 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
                 "overlap alone is shape- and size-insensitive; pair it with a boundary metric, "
                 "per structure", "metrics")
     if task == "interactive":
-        if not axis:
+        if not axis and "noc" not in metrics:   # NoC is the interactions-to-threshold metric
             add("INTERACTIVE_NO_INTERACTION_COUNT", "Major",
-                "no interaction axis declared (Dice-vs-interactions or interactions-to-threshold) — "
+                "no interaction axis declared (Dice-vs-interactions, interactions-to-threshold or NoC) — "
                 "a single Dice evaluates a promptable method as if it were one-shot",
                 "interactive.interaction_axis")
         if conv is not True:

@@ -149,7 +149,8 @@ Known limits: manifest mode checks what is declared, not the reported numbers. P
 (`--report`) tests keyword presence with a short negation window: "MSD" counts as mean surface
 distance even when it names the Medical Segmentation Decathlon, "we did not compute the Hausdorff
 distance or HD95" still counts HD95, "sensitivity and specificity were not reported" or "FROC was
-not performed" still count as reported, and a bare "map" ("saliency map") counts as mAP.
+not performed" still count as reported, a bare "map" ("saliency map") counts as mAP, and a wrapped
+"mean average\nprecision" is not seen.
 
 ## Part C — Uncertainty, OOD and selective prediction (deployment claims)
 

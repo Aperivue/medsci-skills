@@ -157,6 +157,26 @@ mj '{"task":"generative","metrics":["psnr","ssim"],"generative":{"downstream_tas
 check "generative with downstream task -> exit 0" test "$?" -eq 0
 mj '{"task":"segmentation","metrics":["dice","hd95"]}'
 check "ci_reported missing -> CI_MISSING (Minor)" has CI_MISSING
+mj '{"task":"interactive","metrics":["dice","hd95","noc"],"interactive":{"initial_vs_converged":true,"per_case_time":true},"ci_reported":true}'
+check "metric noc counts as the interaction axis (exit 0)" test "$?" -eq 0
+mj '{"task":"detection","metrics":["average_precision"],"detection":{"match_criterion":"iou_threshold"},"ci_reported":true}'
+check "'average_precision' is not folded (ambiguous) -> exit 2" test "$?" -eq 2
+mj '{"task":"segmentation","metrics":["dice","ASSD"],"ci_reported":true}'
+check "ASSD folds to surface_distance (boundary)" test "$?" -eq 0
+mj '{"task":"detection","metrics":["sensitivity per false positive"],"detection":{"match_criterion":"iou_threshold"},"ci_reported":true}'
+check "sensitivity per false positive folds to froc" test "$?" -eq 0
+mj '{"task":"segmentation","metrics":["dice","hd95"],"ci_reported":true,"notes":1e400}'
+check "non-finite number anywhere exits 2" test "$?" -eq 2
+cp "$HERE/../templates/metrics_manifest.json" "$W/tpl.json"
+python3 - "$W/tpl.json" <<'PY'
+import json, sys
+m = json.load(open(sys.argv[1])); m["task"] = "detection"; m["metrics"] = ["froc"]; m["ci_reported"] = True
+json.dump(m, open(sys.argv[1], "w"))
+PY
+mrun "$W/tpl.json"
+check "template defaults do not switch off the detection match check" has DETECTION_METRIC_MISSING
+printf '\xef\xbb\xbf{"task":"segmentation","metrics":["dice","hd95"],"ci_reported":true}' > "$W/bom.json"; mrun "$W/bom.json"
+check "UTF-8 BOM is read" test "$?" -eq 0
 # other: escape hatch
 mj '{"task":"segmentation","metrics":["dice","other: ASSD"],"ci_reported":true}'
 check "other: metric is recorded but does not satisfy the boundary check" has NO_BOUNDARY_METRIC
