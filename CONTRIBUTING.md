@@ -148,6 +148,12 @@ for d in skills/*/scripts/{check_,detect_,derive_,verify_refs}*.py; do
 done
 ```
 
+A new detector reports its result by the shared convention in
+[`docs/detector-conventions.md`](docs/detector-conventions.md): `summary.verdict` is `OK`,
+`MAJOR_CANDIDATE` or `NOT_ASSESSED`, with fixed exit codes and final-line wording, so that a check
+that could not run never reads as a clean one. `scripts/check_detector_envelopes.py` enforces the
+verdict for new detectors and grandfathers the existing exceptions by name.
+
 A green run of `.github/workflows/validate.yml` is required before any release is
 cut.
 
