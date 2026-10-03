@@ -32,10 +32,10 @@ checkable anchor, so paraphrase and honest rewording do not false-positive:
 With --values revision_values.json (the revision-time numerical audit table, declared), each
 entry's anchor sentence is located in the body and its declared values are checked there:
 
-  * RESPONSE_VALUE_MISMATCH (major) — the anchor is in the body word for word (across line
-    breaks, not across a blank line), but a declared value is not among the numbers on its
-    lines and up to three following lines (mid-dot decimals, space or comma thousands, decimal
-    commas, minus/en-dash signs and leading-dot P values folded).
+  * RESPONSE_VALUE_MISMATCH (major) — the anchor is in the body word for word, but a declared
+    value is not among the numbers of the block that holds it: a .docx paragraph or table row,
+    or a blank-line-separated .md block or '|' table row (mid-dot decimals, space or comma
+    thousands, decimal commas, minus/en-dash signs and leading-dot P values folded).
   * RESPONSE_VALUE_NOT_ASSESSED (minor) — the anchor is not found or only approximately, or
     the value is missing from text whose numbers cannot all be read (superscripts, x10^n,
     e-notation).
@@ -349,8 +349,9 @@ def load_values(path: Path) -> list:
         if not isinstance(eid, str) or not eid.strip():
             raise ValuesError(f"{w}.id: expected a non-empty string")
         anchor = e.get("anchor")
-        if not isinstance(anchor, str) or len(anchor.split()) < 4:
-            raise ValuesError(f"{w}.anchor: expected the body sentence (at least 4 words) that holds the values")
+        if not isinstance(anchor, str) or len(_TOK.findall(_qm_normalize(anchor))) < 4:
+            raise ValuesError(f"{w}.anchor: expected words of the body sentence that holds the values "
+                              "(at least 4 Latin-letter or digit words)")
         loc = e.get("location")
         if loc is not None and not isinstance(loc, str):
             raise ValuesError(f"{w}.location: expected a string")
@@ -416,45 +417,59 @@ def _value_present(need: tuple, found: list) -> bool:
 
 
 _TOK = re.compile(r"[0-9a-z]+(?:'[a-z]+)?", re.IGNORECASE)
-FOLLOW_LINES = 3   # lines after the anchor that may hold its values (a wrapped line, table cells)
 
 
-def _line_tokens(lines: list) -> list:
-    """[(token, line_index)] over the body, with a None barrier at every blank line."""
-    out = []
-    for i, ln in enumerate(lines):
-        if not ln.strip():
-            out.append((None, i))
-            continue
-        out.extend((t, i) for t in _TOK.findall(_qm_normalize(ln)))
-    return out
+def read_blocks(path: Path) -> list:
+    """Text blocks in which a declared value must sit with its anchor.
+
+    .docx: each paragraph (soft line breaks included) and each table row (cells joined with
+    ' | ', nested tables as their own rows). .md/.txt: blank-line-separated blocks, with each
+    '|' table row a block of its own."""
+    if path.suffix.lower() == ".docx":
+        from docx import Document  # type: ignore  (read_text already required it)
+        doc = Document(str(path))
+        blocks = [p.text for p in doc.paragraphs]
+
+        def walk_table(tbl):
+            for row in tbl.rows:
+                cells = []
+                for cell in row.cells:
+                    cells.append("\n".join(p.text for p in cell.paragraphs))
+                    for t in cell.tables:
+                        walk_table(t)
+                blocks.append(" | ".join(cells))
+
+        for t in doc.tables:
+            walk_table(t)
+        return [b for b in blocks if b.strip()]
+    text = path.read_text(encoding="utf-8", errors="replace")
+    blocks = []
+    for chunk in re.split(r"\n[ \t]*\n", text):
+        prose = []
+        for ln in chunk.splitlines():
+            if ln.lstrip().startswith("|"):
+                blocks.append(ln)
+            else:
+                prose.append(ln)
+        if any(x.strip() for x in prose):
+            blocks.append("\n".join(prose))
+    return blocks
 
 
-def _anchor_windows(lines: list, anchor: str) -> list:
-    """Text windows for every EXACT token-sequence occurrence of the anchor (across line breaks,
-    never across a blank line): the anchor's lines plus up to FOLLOW_LINES following lines."""
-    want = _TOK.findall(_qm_normalize(anchor))
-    toks = _line_tokens(lines)
-    n, out = len(want), []
-    for k in range(len(toks) - n + 1):
-        if all(toks[k + q][0] == want[q] for q in range(n)):
-            first, last = toks[k][1], toks[k + n - 1][1]
-            end = last
-            while end + 1 < len(lines) and end < last + FOLLOW_LINES and lines[end + 1].strip():
-                end += 1
-            out.append("\n".join(lines[first:end + 1]))
-    return out
+def _has_anchor(block: str, want: list) -> bool:
+    toks = _TOK.findall(_qm_normalize(block))
+    n = len(want)
+    return any(toks[k:k + n] == want for k in range(len(toks) - n + 1))
 
 
-def check_values(body: str, entries: list) -> list:
-    lines = body.splitlines()
+def check_values(blocks: list, entries: list) -> list:
     findings = []
     for e in entries:
-        windows = _anchor_windows(lines, e["anchor"])
+        want = _TOK.findall(_qm_normalize(e["anchor"]))
+        windows = [b for b in blocks if _has_anchor(b, want)]
         exact = bool(windows)
         if not exact:   # fall back to the extraction-tolerant matcher, minor only
-            windows = [ln for ln in lines if ln.strip()
-                       and match_quality(e["anchor"], ln)["grade"] != "ABSENT"]
+            windows = [b for b in blocks if match_quality(e["anchor"], b)["grade"] != "ABSENT"]
         if not windows:
             findings.append({
                 "verdict": "RESPONSE_VALUE_NOT_ASSESSED", "severity": "minor", "id": e["id"],
@@ -485,8 +500,8 @@ def check_values(body: str, entries: list) -> list:
                     "verdict": "RESPONSE_VALUE_MISMATCH", "severity": "major", "id": e["id"],
                     "claimed_text": e["anchor"], "declared_value": raw,
                     "context": e["location"] or e["id"], "body_values": shown,
-                    "message": f"Declared value {raw!r} is not next to its anchor in the revised "
-                               f"manuscript (numbers there: {', '.join(shown) or 'none'}).",
+                    "message": f"Declared value {raw!r} is not in the paragraph or table row that "
+                               f"holds its anchor (numbers there: {', '.join(shown) or 'none'}).",
                 })
     return findings
 
@@ -553,7 +568,7 @@ def build_report(response_path: Path, manuscript_path: Path, values: list | None
                     }
                 )
     if values:
-        findings.extend(check_values(body, values))
+        findings.extend(check_values(read_blocks(manuscript_path), values))
     n_major = sum(1 for f in findings if f["severity"] == "major")
     return {
         "response": str(response_path),

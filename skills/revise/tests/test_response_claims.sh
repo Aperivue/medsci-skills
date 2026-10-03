@@ -465,6 +465,35 @@ ck "real thin-space thousands (U+2009)" 0 "$?"
 printf '\xef\xbb\xbf{"entries":[{"id":"R1","anchor":"The cohort included a total of","values":[12345]}]}' > "$TMP/v.json"; vrun
 ck "UTF-8 BOM in the values file is read" 0 "$?"
 
+# review round 2: the block (paragraph / table row) is the unit
+VA2='{"entries":[{"id":"R1","anchor":"in the external validation cohort of","values":[0.92,"0.88-0.95"]}]}'
+vjson "$VA2"
+printf 'The model achieved an area under the curve of 0.92 (95%% CI 0.88-0.95)\nin the external validation cohort of 512 patients.\n' > "$TMP/body_v.md"; vrun
+ck "value on an earlier wrapped line of the same paragraph" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"External validation cohort (n = 512)","values":[0.92]}]}'
+printf '| Cohort | Sensitivity | Specificity | PPV | NPV | AUC |\n|---|---|---|---|---|---|\n| External validation cohort (n = 512) | 85.0 | 90.2 | 70.1 | 95.3 | 0.92 |\n| Internal cohort (n = 300) | 80.0 | 88.0 | 60.0 | 90.0 | 0.95 |\n' > "$TMP/body_v.md"; vrun
+ck "six-column md table row" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"Internal test cohort (n = 300)","values":[0.92]}]}'
+printf '| Cohort | AUC |\n|---|---|\n| Internal test cohort (n = 300) | 0.87 |\n| External cohort (n = 512) | 0.92 |\n' > "$TMP/body_v.md"; vrun
+ck "a value from another table row is not borrowed -> exit 1" 1 "$?"
+if python3 -c "import docx" 2>/dev/null; then
+python3 - "$TMP/wide.docx" <<'PY'
+import sys, docx
+d = docx.Document(); d.add_paragraph("Table 2. Diagnostic performance.")
+t = d.add_table(rows=2, cols=6)
+for c, v in zip(t.rows[0].cells, ["Cohort", "Sensitivity", "Specificity", "PPV", "NPV", "AUC"]): c.text = v
+for c, v in zip(t.rows[1].cells, ["External validation cohort (n = 512)", "85.0", "90.2", "70.1", "95.3", "0.92"]): c.text = v
+t.rows[1].cells[5].add_paragraph("(0.88–0.95)")
+p = d.add_paragraph("The hazard ratio for death in the treated group was"); p.add_run().add_break(); p.add_run("0.75 (0.60–0.94).")
+d.save(sys.argv[1])
+PY
+vjson '{"entries":[{"id":"R1","anchor":"External validation cohort (n = 512)","values":[0.92,"0.88-0.95"]},{"id":"R2","anchor":"The hazard ratio for death in the treated group","values":[0.75,"0.60-0.94"]}]}'
+python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/wide.docx" --values "$TMP/v.json" --strict > /dev/null 2>&1
+ck "docx: six-column row, two-paragraph cell, soft line break" 0 "$?"
+fi
+printf '{"entries":[{"id":"R1","anchor":"— — — — ± ± ±","values":[0.92]}]}' > "$TMP/v.json"; vrun
+ck "anchor without four Latin/digit words exits 2 (no crash)" 2 "$?"
+
 # malformed values files exit 2
 for bad in '{"entries":[]}' '{"entries":[{"id":"R1","anchor":"too short","values":[1]}]}' \
            '{"entries":[{"id":"R1","anchor":"the AUC of the model","values":["1,234"]}]}' \

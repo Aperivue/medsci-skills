@@ -256,7 +256,7 @@ recognised as a citation claim and is not checked.
 To check the numbers themselves, declare the audit table (Step 4) as `revision_values.json`
 (copy `${CLAUDE_SKILL_DIR}/templates/revision_values.json`; schema in
 `references/revision_values_schema.md`) and add `--values revision_values.json`: a declared value
-missing from the paragraph that holds its anchor sentence is `RESPONSE_VALUE_MISMATCH` (major).
+missing from the paragraph or table row that holds its anchor is `RESPONSE_VALUE_MISMATCH` (major).
 
 Known limits: without `--values`, quote CONTENT is not compared. A quote that differs from the
 body's sentence by a number (the letter says 0.92, the body 0.87) or by a negator ("not", added or
