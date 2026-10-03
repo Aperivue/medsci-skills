@@ -1,0 +1,15 @@
+{
+  "entries": [
+    {
+      "id": "primary",
+      "location": "Results, paragraph 2",
+      "measure": "rr",
+      "estimate": "1.52",
+      "ci_low": "1.20",
+      "ci_high": "1.93",
+      "evalue_point": "2.41",
+      "evalue_ci": "1.69"
+    }
+  ],
+  "notes": "One entry per E-value the manuscript reports. Copy each number exactly as printed (a string keeps trailing zeros, e.g. \"1.20\"). measure is \"rr\": convert an OR or HR to a risk ratio first, or write \"other:<description>\" (recorded, not recomputed). evalue_ci is the E-value for the confidence limit nearest 1; leave it out only if the manuscript reports none."
+}

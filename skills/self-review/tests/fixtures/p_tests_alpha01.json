@@ -1,0 +1,1 @@
+{"alpha": 0.01, "rows": [{"row": "Prior MI", "test": "chi2"}, {"row": "Statin use", "test": "fisher"}, {"row": "Diabetes", "test": "chi2"}]}

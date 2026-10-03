@@ -42,6 +42,8 @@
 - `bash scripts/check_table_percentages_challenge/verify.sh  # deterministic, network-free`
 - `bash scripts/check_nested_group_comparison_challenge/verify.sh  # subset-vs-parent P-value comparison`
 - `bash scripts/check_reported_p_from_counts_challenge/verify.sh  # recompute row P from 2x2 counts`
+- `bash tests/test_p_tests_declared.sh  # --tests: declared test per row, alpha crossing at printed precision`
+- `bash tests/test_evalues_declared.sh  # --evalues: declared E-values recomputed over printed precision`
 - `bash scripts/check_dta_denominators_challenge/verify.sh  # sens/spec denominators vs reference-standard counts`
 - `bash scripts/check_paired_difference_estimator_challenge/verify.sh  # median parity / degenerate CI / unnamed estimator`
 - `bash scripts/check_effect_stability_challenge/verify.sh  # CI upper/lower ratio > 10x + events-per-variable < 10`
@@ -60,7 +62,9 @@
 **References** (`skills/self-review/references/`):
 
 - `domain-probes/` (23 files)
+- `evalues_schema.md`
 - `exemplar_findings/` (8 files)
+- `p_tests_schema.md`
 - `panel_review_template.md`
 - `phases/` (11 files)
 
@@ -118,6 +122,11 @@
 - `refinement_regression_challenge/` (20 files)
 - `refinement_stop.py`
 - `refinement_stop_challenge/` (28 files)
+
+**Templates** (`skills/self-review/templates/`):
+
+- `evalues.json`
+- `p_tests.json`
 
 ## Source
 
