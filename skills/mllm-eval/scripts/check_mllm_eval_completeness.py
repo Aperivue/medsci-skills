@@ -152,17 +152,20 @@ def analyze(plan: str, task: str) -> dict:
 
 # --------------------------------------------------------------------------- manifest mode
 # Allow-lists (compared after _key(): lower case, '-' and spaces -> '_'). Every entry is a
-# metric or method named in references/evaluation_axes.md. "none" means "declared absent".
+# metric or method named in references/evaluation_axes.md (reference standard: SKILL.md
+# Phase 2). "none" means "declared absent"; "other:<description>" covers anything else.
 TASKS = {"report_generation", "vqa", "classification"}
-LEXICAL = {"bleu", "rouge", "rouge_l", "meteor", "cider"}
+LEXICAL = {"bleu", "rouge", "meteor", "cider"}
 CLINICAL = {"radgraph_f1", "chexbert_f1", "chexpert_labeler", "radcliq", "green"}
-FAITHFULNESS = {"atomic_fact_check", "expert_hallucination_rating", "false_premise_probe",
-                "med_halt", "medvh"}
-REFERENCE = {"radiologist_report", "expert_consensus", "adjudicated_panel", "pathology",
-             "clinical_follow_up", "benchmark_label"}
-CONTAMINATION = {"post_cutoff_split", "private_holdout", "canary", "membership_inference",
-                 "ngram_overlap_audit"}
-ANSWER_MATCH = {"exact", "normalised", "semantic", "llm_judge", "clinician_adjudicated"}
+FAITHFULNESS = {"atomic_fact_decomposition", "false_premise_probe", "med_halt", "medvh"}
+# Only an adjudicated expert reference clears the axis; the other two are accepted values that
+# SKILL.md Phase 2 names as NOT acceptable ("not a single unverified report or a model-derived label").
+REFERENCE_OK = {"adjudicated_expert"}
+REFERENCE = REFERENCE_OK | {"single_unverified_report", "model_derived_label"}
+CONTAMINATION = {"cutoff_vs_release_date", "held_out_set", "canary", "perturbed_duplicate_gap",
+                 "membership_test"}
+ANSWER_MATCH = {"exact", "normalised", "llm_as_judge"}
+ALIASES = {"normalized": "normalised"}
 MIN_RUNS = 3   # SKILL.md Phase 4: ">= 3 runs with variance"
 
 TOP_KEYS = {"task", "metrics", "faithfulness", "reference_standard", "benchmarks",
@@ -186,8 +189,16 @@ class ManifestError(ValueError):
     pass
 
 
+def _reject_constant(name: str):
+    raise ManifestError(f"{name} is not a valid JSON number")
+
+
 def _key(v: str) -> str:
-    return re.sub(r"[\s\-]+", "_", v.strip().lower())
+    k = re.sub(r"[\s\-]+", "_", v.strip().lower())
+    return ALIASES.get(k, k)
+
+
+OTHER = re.compile(r"^\s*other\s*:(.*)$", re.IGNORECASE | re.DOTALL)
 
 
 def _enum(value, allowed: set, where: str, unlisted: list) -> str:
@@ -197,8 +208,9 @@ def _enum(value, allowed: set, where: str, unlisted: list) -> str:
     k = _key(value)
     if k == "none" or k in allowed:
         return k
-    if k.startswith("other:"):
-        if not value.split(":", 1)[1].strip():
+    om = OTHER.match(value)
+    if om:
+        if not om.group(1).strip():
             raise ManifestError(f"{where}: 'other:' needs a description")
         unlisted.append((where, value.strip()))
         return "other"
@@ -247,8 +259,9 @@ def _int(v, where: str, minimum: int):
 
 def analyze_manifest(path: str, task_arg: str | None) -> dict:
     try:
-        m = json.loads(Path(path).read_text(encoding="utf-8"))
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as e:
+        m = json.loads(Path(path).read_text(encoding="utf-8"),
+                       parse_constant=_reject_constant)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, RecursionError) as e:
         raise ManifestError(f"cannot read manifest: {e}")
     if not isinstance(m, dict):
         raise ManifestError("manifest must be a JSON object")
@@ -264,7 +277,7 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
         task = task_arg
     else:
         task = _enum(task, TASKS, "task", [])
-        if task in ("none",):
+        if task not in TASKS:
             raise ManifestError("task: must be report_generation, vqa or classification")
         if task_arg is not None and task_arg != task:
             raise ManifestError(f"task: manifest says {task!r} but --task is {task_arg!r}")
@@ -280,14 +293,20 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
     bench = m.get("benchmarks")
     if bench is None:
         bench = []
+    if isinstance(bench, str):
+        bench = [bench]
     if not isinstance(bench, list) or not all(isinstance(b, str) and b.strip() for b in bench):
         raise ManifestError("benchmarks: expected a list of benchmark names")
+    if any(_key(b) == "none" for b in bench):
+        if len(bench) > 1:
+            raise ManifestError("benchmarks: 'none' cannot be combined with other values")
+        bench = []
     cont_obj = _obj(m, "contamination")
     cont = _enum_list(cont_obj.get("methods"), CONTAMINATION, "contamination.methods", unlisted)
     rs = _obj(m, "reader_study")
     rs_done = _bool(rs.get("performed"), "reader_study.performed")
-    _int(rs.get("n_readers"), "reader_study.n_readers", 1)
-    _bool(rs.get("blinded"), "reader_study.blinded")
+    _int(rs.get("n_readers"), "reader_study.n_readers", 1)   # recorded, not gated
+    rs_blind = _bool(rs.get("blinded"), "reader_study.blinded")
     pr = _obj(m, "prompt")
     prompt_ok = _bool(pr.get("template_released"), "prompt.template_released")
     dec = _obj(m, "decoding")
@@ -295,7 +314,7 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
     if temp is not None and (isinstance(temp, bool) or not isinstance(temp, (int, float)) or temp < 0):
         raise ManifestError(f"decoding.temperature: expected a number >= 0, got {temp!r}")
     greedy = _bool(dec.get("greedy"), "decoding.greedy")
-    _int(dec.get("seed"), "decoding.seed", 0)
+    _int(dec.get("seed"), "decoding.seed", 0)   # recorded, not gated
     top_p = dec.get("top_p")
     if top_p is not None and (isinstance(top_p, bool) or not isinstance(top_p, (int, float))
                               or not 0 < top_p <= 1):
@@ -327,10 +346,18 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
             add("REFERENCE_STANDARD_MISSING", "Major",
                 f"no reference standard for the generated reports ({why(ref == 'none')})",
                 "reference_standard.type")
-        if rs_done is not True:
+        elif ref not in REFERENCE_OK and ref != "other":
+            add("REFERENCE_STANDARD_MISSING", "Major",
+                f"the declared reference standard ({ref}) is not an adjudicated expert reference",
+                "reference_standard.type")
+        if rs_done is not True or rs_blind is not True:
             sev = "Major" if deploy is True else "Minor"
+            if rs_done is True:
+                state = "declared not blinded" if rs_blind is False else "blinding not declared"
+            else:
+                state = why(rs_done is False)
             add("READER_STUDY_MISSING", sev,
-                f"no clinical reader study ({why(rs_done is False)})" +
+                f"no blinded clinical reader study ({state})" +
                 (" for a declared clinical-deployment claim" if sev == "Major"
                  else " (automated metrics only)"), "reader_study.performed")
 
@@ -342,9 +369,10 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
 
     if bench and not cont:
         add("CONTAMINATION_UNADDRESSED", "Major",
-            "public benchmark(s) " + ", ".join(bench) + " declared but no contamination control "
-            f"({why(cont_obj.get('methods') is not None)}): post-cutoff split, private hold-out, "
-            "canary, membership inference or n-gram overlap audit", "contamination.methods")
+            "public benchmark(s) " + ", ".join(bench) + " declared but no contamination check "
+            f"({why(cont_obj.get('methods') is not None)}): cutoff vs release date, a held-out / "
+            "post-cutoff set, canary strings, a perturbed-duplicate gap or a membership test",
+            "contamination.methods")
 
     missing = []
     if prompt_ok is not True:
@@ -360,8 +388,8 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
 
     if (is_vqa or task == "classification") and am in (None, "none"):
         add("ANSWER_MATCHING_MISSING", "Minor",
-            f"no answer-matching rule ({why(am == 'none')}): exact / normalised / semantic / "
-            "LLM-judge / clinician-adjudicated", "answer_matching.method")
+            f"no answer-matching rule ({why(am == 'none')}): exact / normalised / LLM-as-judge",
+            "answer_matching.method")
 
     for where, value in unlisted:
         add("UNLISTED_METHOD", "Minor",
@@ -393,16 +421,18 @@ def main() -> int:
     ap.add_argument("--quiet", action="store_true", help="suppress stdout table")
     args = ap.parse_args()
 
-    if args.manifest:
+    if args.manifest is not None:
         if not Path(args.manifest).is_file():
             sys.stderr.write(f"ERROR: --manifest not found: {args.manifest}\n")
             return 2
+        if args.plan is not None:
+            sys.stderr.write("NOTE: --manifest given; --plan is not read\n")
         try:
             result = analyze_manifest(args.manifest, args.task)
         except ManifestError as e:
             sys.stderr.write(f"ERROR: {args.manifest}: {e}\n")
             return 2
-    elif args.plan:
+    elif args.plan is not None:
         if args.task is None:
             sys.stderr.write("ERROR: --task is required with --plan\n")
             return 2

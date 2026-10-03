@@ -113,8 +113,9 @@ score.
 
 ## Gate mapping
 
-The deterministic gate (`scripts/check_mllm_eval_completeness.py`) is a presence check on the
-plan text, task-aware. This reference is the *why* behind each verdict:
+The deterministic gate (`scripts/check_mllm_eval_completeness.py`) checks the axes declared in
+`eval_manifest.json` (`--manifest`, see `eval_manifest_schema.md`), or, in prose mode, the presence
+of keywords in the plan text; task-aware. This reference is the *why* behind each verdict:
 
 | Axis (this doc) | Gate verdict | Severity |
 |---|---|---|

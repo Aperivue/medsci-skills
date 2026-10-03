@@ -1,13 +1,13 @@
 {
   "task": "report_generation",
   "metrics": {
-    "lexical": ["bleu", "rouge_l"],
+    "lexical": ["bleu", "rouge"],
     "clinical": ["radgraph_f1", "chexbert_f1"]
   },
-  "faithfulness": {"methods": ["atomic_fact_check", "false_premise_probe"]},
-  "reference_standard": {"type": "radiologist_report"},
+  "faithfulness": {"methods": ["atomic_fact_decomposition", "false_premise_probe"]},
+  "reference_standard": {"type": "adjudicated_expert"},
   "benchmarks": ["MIMIC-CXR"],
-  "contamination": {"methods": ["post_cutoff_split"]},
+  "contamination": {"methods": ["held_out_set"]},
   "reader_study": {"performed": true, "n_readers": 3, "blinded": true},
   "prompt": {"template_released": true},
   "decoding": {"temperature": 0, "seed": 42},

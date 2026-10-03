@@ -115,6 +115,34 @@ printf '{"task": ' > "$TMP/broken.json"
 python3 "$DET" --manifest "$TMP/broken.json" --quiet >/dev/null 2>&1
 check "invalid JSON exits 2" test "$?" -eq 2
 
+# reference standard: only an adjudicated expert reference clears it (SKILL.md Phase 2)
+mk 'm["reference_standard"]={"type": "model-derived label"}'; run
+check "model-derived label -> REFERENCE_STANDARD_MISSING" has REFERENCE_STANDARD_MISSING
+# reader study must be blinded (evaluation_axes.md ME7)
+mk 'm["reader_study"]={"performed": True, "blinded": False}; m["claims"]["clinical_deployment"]=True'; run
+check "unblinded reader study + deployment -> exit 1" test "$?" -eq 1
+mk 'm["reader_study"]={"performed": True}'; run
+check "reader study without declared blinding -> READER_STUDY_MISSING" has READER_STUDY_MISSING
+# task cannot be other:, benchmarks may be a string or "none"
+mk 'm["task"]="other: report summarisation"'; run
+check "task other: exits 2" test "$?" -eq 2
+mk 'm["benchmarks"]="none"; del m["contamination"]'; run
+check "benchmarks 'none' -> no contamination check" no CONTAMINATION_UNADDRESSED
+mk 'm["benchmarks"]="MIMIC-CXR"; del m["contamination"]'; run
+check "benchmarks as one string -> CONTAMINATION_UNADDRESSED" has CONTAMINATION_UNADDRESSED
+mk 'm["answer_matching"]={"method": "Normalized"}; m["task"]="vqa"'; run
+check "US spelling 'normalized' is accepted" no ANSWER_MATCHING_MISSING
+mk 'm["metrics"]["clinical"]=["Other : BERTScore"]'; run
+check "'Other : x' is read as other:" has UNLISTED_METHOD
+printf '{"task": "vqa", "decoding": {"temperature": Infinity}}' > "$TMP/inf.json"
+python3 "$DET" --manifest "$TMP/inf.json" --quiet >/dev/null 2>&1
+check "Infinity exits 2" test "$?" -eq 2
+python3 -c "print('{\"notes\":'+'['*100000+']'*100000+'}')" > "$TMP/deep.json"
+python3 "$DET" --manifest "$TMP/deep.json" --task vqa --quiet >/dev/null 2>&1
+check "deeply nested JSON exits 2" test "$?" -eq 2
+python3 "$DET" --manifest "" --plan "$F/plan_good.md" --task vqa --quiet >/dev/null 2>&1
+check "--manifest '' exits 2 (not prose mode)" test "$?" -eq 2
+
 # with --manifest the prose plan is not read; with neither, or --plan without --task, exit 2
 python3 "$DET" --manifest "$F/manifest_good.json" --plan "$F/plan_bad.md" --strict --quiet >/dev/null 2>&1
 check "--manifest wins over --plan" test "$?" -eq 0

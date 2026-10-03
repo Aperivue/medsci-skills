@@ -3268,28 +3268,28 @@
     },
     {
       "path": "skills/mllm-eval/references/eval_manifest_schema.md",
-      "size": 3057,
-      "sha256": "067a6283eabdb1131d99215fffd8df474b4aefab6caf2528843cf2f95fe4a5b9"
+      "size": 3283,
+      "sha256": "a323c9dad878ff2a3284b32fb5e8df812d12d3a64e7c6b8a1ccef060c5f3ede3"
     },
     {
       "path": "skills/mllm-eval/references/evaluation_axes.md",
-      "size": 11954,
-      "sha256": "2eea2938788c989b6f08b7ebdc23c159f6cbade30f71f38c3f1fb1801c4ac901"
+      "size": 12074,
+      "sha256": "79dc71630964274c500755acd6dfef1a892ef1a6a9da9f5e747f0c3741e95155"
     },
     {
       "path": "skills/mllm-eval/scripts/check_mllm_eval_completeness.py",
-      "size": 21886,
-      "sha256": "9d78b721426bad03f6475eb5ebee0403f932fe59571c912b3704150aa776446e"
+      "size": 23260,
+      "sha256": "eab0616ae50d7cb9fe0a4419121132a80505f68248b54c27f90496e3167a90da"
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/manifest_bad.json",
-      "size": 336,
-      "sha256": "88aad0139a9b404212082da9a764cc735678e08b1017f131c68a1495c12f511d"
+      "size": 354,
+      "sha256": "bf4a74568ff549d61d77ad25f31c67c7dc7e1532286ddd170eb49b2daeef18ee"
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/manifest_good.json",
-      "size": 790,
-      "sha256": "3bfa46ae693c15cc524cb5be69524e6bcf7f826d9ffb21235645a8531731cd6c"
+      "size": 791,
+      "sha256": "c24778ccde762274053c4ec45f33ab7aa38b86a2e331cb0e15d07de11696c442"
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/plan_bad.md",
@@ -3318,8 +3318,8 @@
     },
     {
       "path": "skills/mllm-eval/templates/eval_manifest.json",
-      "size": 790,
-      "sha256": "3bfa46ae693c15cc524cb5be69524e6bcf7f826d9ffb21235645a8531731cd6c"
+      "size": 791,
+      "sha256": "c24778ccde762274053c4ec45f33ab7aa38b86a2e331cb0e15d07de11696c442"
     },
     {
       "path": "skills/model-assessment/SKILL.md",
