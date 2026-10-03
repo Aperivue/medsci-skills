@@ -31,7 +31,11 @@ INPUTS
   --splits   split-assignment CSV (required). Columns auto-detected:
                id    : patient_id / subject_id / case_id / id / pid / mrn / studyid
                split : split / partition / set / subset / fold / phase / assignment
-             Override with --id-col / --split-col.
+             Override with --id-col / --split-col. The chosen columns are printed.
+             When the auto-picked ID column's name does not say it is patient- or
+             subject-level (image_id, study_id), a Minor ID_COL_NOT_PATIENT_LEVEL
+             advisory asks you to confirm it or pass --id-col; it never changes the
+             exit code. Overlap is computed on the chosen column only.
   --seed     the split's random seed (int/str), to record reproducibility.
   --seed-file path to a file holding the seed (default: auto-detect split_seed.txt
              alongside --splits).
@@ -57,6 +61,10 @@ from pathlib import Path
 
 ID_HINTS = ("patient_id", "subject_id", "case_id", "patientid", "subjectid", "caseid",
             "patient", "subject", "id", "pid", "eid", "uid", "mrn", "studyid", "study_id")
+# Name tokens (compared on _norm()) that say an ID column is patient/subject level. An
+# auto-picked column without one (image_id, study_id, uid) may hold several rows per
+# patient, so a patient whose images sit in train and test would not show as overlap.
+PATIENT_LEVEL_TOKENS = ("patient", "subject", "participant", "case", "mrn", "pid")
 SPLIT_HINTS = ("split", "partition", "set", "subset", "fold", "phase", "assignment",
                "split_assignment", "data_split", "group_split")
 
@@ -92,6 +100,11 @@ def _pick(header: list[str], hints: tuple[str, ...]):
             if h and h in col:
                 return header[i]
     return None
+
+
+def _names_patient_level(col: str) -> bool:
+    n = _norm(col)
+    return any(t in n for t in PATIENT_LEVEL_TOKENS)
 
 
 def _find_seed(splits_path: Path, rows: list[dict], header: list[str],
@@ -194,6 +207,16 @@ def analyze(splits: str, id_col: str | None, split_col: str | None,
                        f"train/val/test split"),
             "where": f"--splits split column '{spc}'",
         })
+    if not id_col and not _names_patient_level(idc):
+        claims.append({
+            "verdict": "ID_COL_NOT_PATIENT_LEVEL",
+            "severity": "Minor",
+            "detail": (f"the auto-picked ID column '{idc}' does not name a patient or subject; "
+                       f"if one patient can have several '{idc}' values, overlap is not tested "
+                       f"at patient level. Confirm it, or pass --id-col with the patient "
+                       f"identifier"),
+            "where": f"--splits id column '{idc}'",
+        })
 
     n_major = sum(1 for c in claims if c["severity"] == "Major")
     return {
@@ -246,6 +269,7 @@ def main() -> int:
         print("=" * 41)
         print(" Split-Leakage Gate (model-assessment)")
         print("=" * 41)
+        print(f"  id_col={result['id_col']}  split_col={result['split_col']}")
         print(f"  rows={result['n_rows']}  subjects={result['n_subjects']}  "
               f"partitions={result['partitions']}  seed={result['seed']}")
         print(render(result))

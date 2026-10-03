@@ -52,8 +52,10 @@ Exit codes
 
 Dependencies
 ------------
-  python-docx (only if --docx is passed). Falls back to body-only audit
-  with a warning if python-docx is unavailable.
+  python-docx (only if --docx is passed). If --docx is passed and
+  python-docx is unavailable, the script exits 2 without writing a verdict:
+  the DOCX audit that was asked for could not run. Omit --docx for a
+  body-only audit.
 """
 from __future__ import annotations
 
@@ -282,17 +284,36 @@ def extract_body_captions(md_text: str) -> dict[str, Caption]:
     return captions
 
 
+_INERT_RE = re.compile(r"<!--.*?-->|^[ \t]*(```|~~~).*?^[ \t]*\1", re.DOTALL | re.MULTILINE)
+
+
+def mask_inert(md_text: str) -> str:
+    """Blank HTML comments and fenced code blocks, keeping every offset and newline.
+
+    Pandoc renders neither into the DOCX, so a legend inside them is not a float the submission
+    defines. Only the uncited-but-defined MISSING_DOCX verdict reads this masked view (see main);
+    every other verdict reads the markdown exactly as before.
+    """
+    return _INERT_RE.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), md_text)
+
+
+class DocxUnreadable(Exception):
+    """The --docx file was supplied but could not be read."""
+
+
 def extract_docx_captions(docx_path: Path) -> dict[str, Caption]:
-    """Extract caption paragraphs from a rendered DOCX using python-docx."""
+    """Extract caption paragraphs from a rendered DOCX using python-docx.
+
+    Raises DocxUnreadable when python-docx is missing. It used to return {} — an EMPTY caption set,
+    which reads as "the DOCX was read and contains no floats": every cited float became MISSING_DOCX
+    "proven absent", MISMATCH was never evaluated, and --allow-separate-attachments then cleared it.
+    """
     try:
         from docx import Document  # type: ignore
-    except ImportError:
-        print(
-            "[check_xref] WARNING: python-docx not installed; "
-            "skipping rendered-DOCX audit. Install with: pip install python-docx",
-            file=sys.stderr,
-        )
-        return {}
+    except ImportError as exc:
+        raise DocxUnreadable(
+            "python-docx is not installed, so the rendered DOCX cannot be read "
+            "(install with: pip install python-docx)") from exc
 
     doc = Document(str(docx_path))
     captions: dict[str, Caption] = {}
@@ -336,7 +357,12 @@ def reconcile(
     citations: list[Label],
     body: dict[str, Caption],
     docx: Optional[dict[str, Caption]],
+    live_body_keys: Optional[set[str]] = None,
 ) -> list[Finding]:
+    """``live_body_keys``: body caption keys defined OUTSIDE comments and fenced code. Defaults to
+    every body key. Only those can turn an uncited float into MISSING_DOCX."""
+    if live_body_keys is None:
+        live_body_keys = set(body.keys())
     cited_keys = {lbl.key for lbl in citations}
     body_keys = set(body.keys())
     docx_keys = set(docx.keys()) if docx is not None else set()
@@ -367,7 +393,8 @@ def reconcile(
                 panel_note = (panel_note + "; " if panel_note else "") + \
                     f"panel reference resolved to {base.replace(':', ' ')} in DOCX"
 
-        status, note = _classify(is_cited, in_body, in_docx, body_text, docx_text)
+        status, note = _classify(is_cited, in_body, in_docx, body_text, docx_text,
+                                 in_live_body=key in live_body_keys)
         if panel_note and status == "OK":
             note = panel_note
 
@@ -399,8 +426,22 @@ def _classify(
     in_docx: Optional[bool],
     body_text: Optional[str],
     docx_text: Optional[str],
+    in_live_body: Optional[bool] = None,
 ) -> tuple[str, str]:
+    if in_live_body is None:
+        in_live_body = in_body
     if not cited:
+        # A float the markdown DEFINES but the rendered DOCX does not carry is a float missing from
+        # the submission, whether or not the in-text mention was recognised. Reporting it as UNCITED
+        # (non-blocking) let "Table 1 and 2" clear --strict with Table 2 absent from the DOCX: the
+        # singular kind word with a number list is not read as a citation of Table 2. The verdict now
+        # rests on the two structured sources — body caption vs DOCX caption — not on the phrasing.
+        # A legend inside an HTML comment or fenced code is not rendered (pandoc drops both), so a
+        # commented-out legend of a dropped float is not a float missing from the DOCX: it stays
+        # UNCITED, as before this rule existed.
+        if in_live_body and in_docx is False:
+            return "MISSING_DOCX", ("defined in the markdown body but absent from rendered DOCX "
+                                    "(no in-text citation recognised)")
         if in_body or in_docx:
             return "UNCITED", "defined or rendered but never cited in main text"
         return "NOT_CITED_NO_BODY", ""
@@ -623,9 +664,17 @@ def main() -> int:
         if not args.docx.exists():
             print(f"ERROR: docx not found: {args.docx}", file=sys.stderr)
             return 2
-        docx_captions = extract_docx_captions(args.docx)
+        try:
+            docx_captions = extract_docx_captions(args.docx)
+        except DocxUnreadable as exc:
+            # The DOCX audit was asked for and could not run. Never report it as run.
+            print(f"ERROR: --docx {args.docx}: {exc}. The DOCX audit did not run; no verdict "
+                  f"was written. Install python-docx, or omit --docx for a body-only audit.",
+                  file=sys.stderr)
+            return 2
 
-    findings = reconcile(citations, body_captions, docx_captions)
+    live_body_keys = set(extract_body_captions(mask_inert(md_text)).keys())
+    findings = reconcile(citations, body_captions, docx_captions, live_body_keys)
 
     # Submission safety: any cited label whose status is not OK or UNCITED is a blocker.
     #

@@ -1,0 +1,7 @@
+participant_id,participant_site_id,split
+R1,A,train
+R2,B,train
+R3,C,train
+R4,A,test
+R5,B,test
+R6,C,test

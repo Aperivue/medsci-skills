@@ -1,6 +1,7 @@
 =========================================
  Split-Leakage Gate (model-assessment)
 =========================================
+  id_col=patient_id  split_col=split
   rows=13  subjects=12  partitions={'test': 4, 'train': 6, 'val': 3}  seed=42
 | Check | Severity | Detail |
 |---|---|---|

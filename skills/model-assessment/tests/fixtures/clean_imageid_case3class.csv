@@ -1,0 +1,7 @@
+image_id,case,split
+I1,normal,train
+I2,benign,train
+I3,malignant,train
+I4,normal,test
+I5,benign,test
+I6,malignant,test

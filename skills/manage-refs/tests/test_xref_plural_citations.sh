@@ -105,6 +105,106 @@ echo "==== ranges expand; an endpoint-only read would drop the interior ===="
 ck "'Figures 1-2' blocks"                   1 "$(run range.md partial.docx)"
 ck "'Figures 1 to 2' blocks"                1 "$(run wordrange.md partial.docx)"
 
+echo "==== a singular kind word with a number list: the body definition still decides ===="
+# "Figure 1 and 2" is read as citing Figure 1 only (a bare number after "and" is not parsed in prose,
+# see SKILL.md Known Limitations). Figure 2 used to fall to UNCITED — non-blocking — so a figure the
+# markdown defines but the DOCX lacks cleared --strict. Defined in the body + absent from the DOCX
+# is MISSING_DOCX now, whatever the in-text phrasing.
+mk_md "$WORK/singular_list.md" "As shown in Figure 1 and 2, the effect held."
+ck "'Figure 1 and 2', Figure 2 absent: blocks"   1 "$(run singular_list.md partial.docx)"
+ck "  Figure 2 is MISSING_DOCX"                  MISSING_DOCX "$(status_of singular_list.md Figure:2)"
+ck "  ... the same with no citation at all"      MISSING_DOCX "$(run uncited.md partial.docx >/dev/null; status_of uncited.md Figure:2)"
+ck "  --allow-separate-attachments downgrades it" 0 \
+   "$(python3 "$X" --md "$WORK/singular_list.md" --docx "$WORK/partial.docx" --strict \
+        --allow-separate-attachments --out "$WORK/sep.json" > "$WORK/sep.out" 2>&1; echo $?)"
+ck "  ... as proven absent"                      1 \
+   "$(python3 -c "import json;print(json.load(open('$WORK/sep.json'))['summary']['downgraded_proven_absent'])")"
+ck "'Figure 1 and 2', both in DOCX: exit 0"      0 "$(run singular_list.md full.docx)"
+
+echo "==== a commented-out or fenced legend is not a float the DOCX must carry ===="
+# Pandoc drops HTML comments and fenced code, so a legend there is not rendered. Commenting out the
+# legend of a dropped figure is an ordinary edit; main reported it UNCITED (exit 0) and so must this.
+cat > "$WORK/commented.md" <<'MD'
+## Results
+
+As shown in Figure 1, the effect held.
+
+## Figure Legends
+
+**Figure 1.** Study flow diagram.
+
+<!--
+**Figure 2.** Kaplan-Meier survival curves.
+-->
+MD
+cat > "$WORK/fenced.md" <<'MD'
+## Results
+
+As shown in Figure 1, the effect held.
+
+## Figure Legends
+
+**Figure 1.** Study flow diagram.
+
+```
+**Figure 2.** Kaplan-Meier survival curves.
+```
+MD
+ck "commented-out legend, Figure 2 absent: exit 0"  0 "$(run commented.md partial.docx)"
+ck "  Figure 2 stays UNCITED"                       UNCITED "$(status_of commented.md Figure:2)"
+ck "fenced legend, Figure 2 absent: exit 0"         0 "$(run fenced.md partial.docx)"
+ck "  Figure 2 stays UNCITED"                       UNCITED "$(status_of fenced.md Figure:2)"
+# Control: the same legend un-commented is a live definition, and its absence still blocks.
+ck "control: live legend, Figure 2 absent: blocks"  1 "$(run uncited.md partial.docx)"
+cat > "$WORK/inline_comment.md" <<'MD'
+## Results
+
+As shown in Figure 1, the effect held. <!-- note to self -->
+
+## Figure Legends
+
+**Figure 1.** Study flow diagram.
+
+**Figure 2.** Kaplan-Meier survival curves.
+MD
+ck "control: a comment elsewhere does not hide a live legend" 1 "$(run inline_comment.md partial.docx)"
+ck "  Figure 2 is MISSING_DOCX"                     MISSING_DOCX "$(status_of inline_comment.md Figure:2)"
+# Mask edge cases a reviewer raised: a four-backtick fence holding an inner ``` fence, and a literal
+# '<!--' inside inline code. Either may mis-size the mask; neither may block what main cleared.
+printf '## Results\n\nAs shown in Figure 1, the effect held.\n\n## Figure Legends\n\n**Figure 1.** Study flow diagram.\n\n````markdown\nAn example fence:\n```\ncode\n```\n**Figure 2.** Kaplan-Meier survival curves.\n````\n' \
+  > "$WORK/fence4.md"
+printf '## Results\n\nAs shown in Figure 1, the effect held. Write `<!--` to start a comment.\n\n## Figure Legends\n\n**Figure 1.** Study flow diagram.\n\n**Figure 2.** Kaplan-Meier survival curves.\n\nA later note -->\n' \
+  > "$WORK/inline_code_comment.md"
+ck "4-backtick fence with inner fence: exit 0"       0 "$(run fence4.md partial.docx)"
+ck "  Figure 2 stays UNCITED"                       UNCITED "$(status_of fence4.md Figure:2)"
+ck "'<!--' in inline code: exit 0"                  0 "$(run inline_code_comment.md partial.docx)"
+ck "  Figure 2 stays UNCITED"                       UNCITED "$(status_of inline_code_comment.md Figure:2)"
+
+echo "==== --docx given but python-docx unavailable: the audit did not run ===="
+# extract_docx_captions used to return {} — "the DOCX holds no floats" — so every float became
+# MISSING_DOCX "proven absent", MISMATCH was never evaluated, and --allow-separate-attachments then
+# cleared a manuscript whose DOCX caption disagrees with the body. It now exits 2, no verdict.
+cat > "$WORK/nodocx.py" <<'PY'
+import runpy, sys
+sys.modules["docx"] = None  # import docx -> ImportError, as on a machine without python-docx
+sys.argv = sys.argv[1:]
+runpy.run_path(sys.argv[0], run_name="__main__")
+PY
+mk_docx "$WORK/mismatch.docx" "Figure 1. Receiver operating characteristic curves of the model." \
+  "Figure 2. Kaplan-Meier survival curves."
+ck "control: caption MISMATCH blocks with python-docx" 1 \
+   "$(python3 "$X" --md "$WORK/plural.md" --docx "$WORK/mismatch.docx" --strict \
+        --allow-separate-attachments --out "$WORK/mm.json" > "$WORK/mm.out" 2>&1; echo $?)"
+rm -f "$WORK/nd.json"
+ck "python-docx hidden: exit 2"                  2 \
+   "$(python3 "$WORK/nodocx.py" "$X" --md "$WORK/plural.md" --docx "$WORK/mismatch.docx" --strict \
+        --allow-separate-attachments --out "$WORK/nd.json" > "$WORK/nd.out" 2>&1; echo $?)"
+ck "  says the DOCX audit did not run"           1 "$(grep -c 'DOCX audit did not run' "$WORK/nd.out")"
+ck "  writes no verdict"                         no "$([ -f "$WORK/nd.json" ] && echo yes || echo no)"
+ck "  without --docx, body-only audit still runs" 0 \
+   "$(python3 "$WORK/nodocx.py" "$X" --md "$WORK/plural.md" --strict --out "$WORK/nd2.json" \
+        > "$WORK/nd2.out" 2>&1; echo $?)"
+
 echo "==== NEGATIVE CONTROLS ===="
 ck "a genuinely uncited figure stays UNCITED" UNCITED "$(run uncited.md full.docx >/dev/null; status_of uncited.md Figure:2)"
 rc_ok="$(run plural.md full.docx)"

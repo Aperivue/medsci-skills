@@ -1,0 +1,11 @@
+# Exclusion box that lists its reasons with no total of its own (reviewer counter-example).
+# 1,000 - 60 - 40 = 900 closes, but the first sub-count (60) is not the box total; the total is
+# unknown, so the link is skipped (never guessed) and must not be reported as an imbalance.
+rankdir: TB
+nodes:
+  - {id: a, label: "Screened\nN = 1,000"}
+  - {id: excl, shape: note, label: "Excluded:\n- Age < 18 (n = 60)\n- Missing imaging (n = 40)", rank_same_with: a}
+  - {id: b, label: "Included\nN = 900"}
+edges:
+  - {from: a, to: b}
+  - {from: a, to: excl, style: dashed, arrow: false, constraint: false}

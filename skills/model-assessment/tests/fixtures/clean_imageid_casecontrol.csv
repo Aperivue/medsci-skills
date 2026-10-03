@@ -1,0 +1,5 @@
+image_id,case,split
+I1,1,train
+I2,0,train
+I3,1,test
+I4,0,test

@@ -1,0 +1,5 @@
+subject_id,subject_sex_code,split
+S1,M,train
+S2,F,train
+S3,M,test
+S4,F,test
