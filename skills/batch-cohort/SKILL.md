@@ -77,7 +77,7 @@ For each exposure and outcome in the combination spec:
    physician-diagnosed (KNHANES: DI1_dg=1, NHANES: BPQ020="Yes").
 3. **Set covariates**: the full 8-covariate set (age, sex, education, income, smoking, alcohol,
    obesity, CVD) is the default unless explicitly justified — minimal models (age+sex+BMI only)
-   overestimate effects through residual confounding. Remove self-adjustment: if the exposure is
+   leave residual confounding, which can bias effects in either direction. Remove self-adjustment: if the exposure is
    (or derives from) a covariate, drop that covariate (exposure = BMI → drop obesity; exposure =
    education/income → drop the same variable); if outcome = MetS, consider dropping obesity.
    Document every removal in the matrix Notes.
@@ -111,8 +111,9 @@ For each combination in the matrix:
 
 ### Phase 4: Batch Execution (if `execute` or `full` mode)
 
-1. **Event count check**: before running, verify each outcome has ≥10 events per covariate (EPV
-   rule). Flag underpowered combinations.
+1. **Event count check**: before running, verify ≥10 outcome events per model parameter (count
+   the exposure and every dummy/spline term; use min(events, non-events)), in the full sample
+   and in each subgroup that is modelled. Flag underpowered combinations.
 2. Run the master script.
 3. Collect results from each combination's output directory.
 4. Log which combinations failed and why (common: convergence issues, too few events, empty
@@ -132,8 +133,9 @@ results files; never fill a cell by hand.
 
 **Heatmap** (optional): Visual matrix of effect sizes × significance, exposure on Y-axis, outcome on X-axis.
 
-- **Multiple comparisons**: when generating >5 combinations, include a Bonferroni-corrected
-  significance column in the summary matrix and a note on exploratory vs confirmatory framing.
+- **Multiple comparisons**: whenever more than one combination is tested, include a Bonferroni-
+  (or Holm-) corrected significance column in the summary matrix, with m = the number of tests
+  in the reported family (combinations × models × subgroups), state m, and add a note on exploratory vs confirmatory framing.
 - **No p-hacking framing**: the summary matrix is for **hypothesis generation**, not confirmation.
   State this explicitly in README and any manuscript output. Any citation there needs a
   `/search-lit`-confirmed DOI/PMID; otherwise mark it `[UNVERIFIED - NEEDS MANUAL CHECK]`.

@@ -88,10 +88,11 @@ Comparing PSM and IPTW results directly is inappropriate — they estimate diffe
   weights and a **cluster-robust SE by matched set** (or conditional logistic / stratified Cox
   by matched set)
 - **After IPTW/OW**: weighted regression with **robust (sandwich) standard errors** — never the
-  model-based SE of a weighted fit, and never `freq_weights` (weights are not case counts). In a
-  simulation (400 samples, true null) the model-based CI covered the truth in 80% (continuous)
-  and 79% (binary) of unstabilised-IPTW analyses; the robust HC0 CI in 94% and 96% (Austin
-  2016, doi:10.1002/sim.7084). The robust SE ignores PS estimation and is conservative for the
+  model-based SE of a weighted fit, and never `freq_weights` (weights are not case counts). The
+  model-based CI of a weighted fit can under-cover substantially (how much depends on the
+  weights), while the robust (HC0) CI is usually at or above nominal. For weighted Cox models,
+  Austin 2016 (doi:10.1002/sim.7084) found incorrect coverage with both the model-based and the
+  robust variance estimator, and correct coverage with the bootstrap. The robust SE ignores PS estimation and is conservative for the
   ATE; bootstrap the whole pipeline when precision matters
 - `propensity_score.py` does both (OR and risk difference for a binary outcome)
 

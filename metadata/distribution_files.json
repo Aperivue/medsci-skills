@@ -268,8 +268,8 @@
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/propensity_score.md",
-      "size": 7356,
-      "sha256": "fe37a0cd50dbc094c92ea61c620ad2867a22b9bfcded5990e707c5f5d4dd0884"
+      "size": 7489,
+      "sha256": "9f81b8136f4fa6302a55257cc18231f57a2c36861ff8f8b2242c694587713fbb"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/regression.md",
@@ -433,8 +433,8 @@
     },
     {
       "path": "skills/analyze-stats/references/templates/propensity_score.py",
-      "size": 21035,
-      "sha256": "dfd648df2ec5a2fff410f0d72e5fe10a0d51d90241628bc78021867a97f26470"
+      "size": 21115,
+      "sha256": "8bfa84ad36d8bea661dc3e30024b152cadac14b7a10e2d0ff870960cc4d5ecae"
     },
     {
       "path": "skills/analyze-stats/references/templates/regression.py",
@@ -448,8 +448,8 @@
     },
     {
       "path": "skills/analyze-stats/references/templates/sample_size.R",
-      "size": 19096,
-      "sha256": "240c381727ff398983d2b36b648bb1e37f6e9088fe94a0a92221231ca34d552c"
+      "size": 19182,
+      "sha256": "484329e188d40822546e546df1cabb494708945175493411f19ee7813f1b20bb"
     },
     {
       "path": "skills/analyze-stats/references/templates/survey_weighted_analysis.py",
@@ -483,8 +483,8 @@
     },
     {
       "path": "skills/analyze-stats/scripts/check_separation.py",
-      "size": 19988,
-      "sha256": "327ee26f44994b036324d6689fd9e066862b981af218ddfda88be98f39efa328"
+      "size": 20124,
+      "sha256": "ae80a69ee4accc87dfdbb71e84978d0c5065a701fca4c1b79992330bc1c4f3de"
     },
     {
       "path": "skills/analyze-stats/scripts/demo_analysis_run.py",
@@ -558,8 +558,8 @@
     },
     {
       "path": "skills/batch-cohort/SKILL.md",
-      "size": 9607,
-      "sha256": "11ea2e1365e982528387834ca8e1de58e5881974e26817bc7563960c22787144"
+      "size": 9885,
+      "sha256": "7ae702a9ca4f98d4ea4e1247288830b70aa4ca82a693db299cda1950deb2aa72"
     },
     {
       "path": "skills/batch-cohort/skill.yml",
@@ -573,8 +573,8 @@
     },
     {
       "path": "skills/calc-sample-size/references/formulas.md",
-      "size": 55635,
-      "sha256": "e1b6f35683d83b0543125f90bb74ccadf125291143b733ecce4577ca5965de9b"
+      "size": 56078,
+      "sha256": "3932ca235a3faac0e35c1da70a0331a805ff26626703c1935fc155e0e2250533"
     },
     {
       "path": "skills/calc-sample-size/references/justification_examples.md",
@@ -598,8 +598,8 @@
     },
     {
       "path": "skills/calc-sample-size/references/prediction_model_sample_size.md",
-      "size": 6694,
-      "sha256": "8a308390e0df508f36f97736757ee15bd415032187768c00749ec0ae507f21b2"
+      "size": 6721,
+      "sha256": "f9fd3cd3ccb73640a60c92b1570f142cb3505928713661979c98ce2552b8026b"
     },
     {
       "path": "skills/calc-sample-size/references/segmentation_acceptability_sample_size.md",
