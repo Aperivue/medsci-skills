@@ -25,6 +25,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from urllib.parse import unquote
 
 REQUIRED_BY_TYPE: dict[str, list[str]] = {
     "ScholarlyArticle": ["headline", "datePublished", "author", "identifier", "url"],
@@ -102,6 +103,15 @@ def _orcid_errors(value: str, where: str, allow_bare: bool) -> list[str]:
     return []
 
 
+def _bare_doi(value: str) -> str:
+    """The DOI with any doi:/doi.org prefix removed; a doi.org URL is
+    percent-decoded first ("%28SICI%29" -> "(SICI)")."""
+    v = value.strip()
+    if re.match(r"^https?://", v, re.IGNORECASE):
+        v = unquote(v)
+    return DOI_PREFIX_RE.sub("", v).strip()
+
+
 def _identifier_errors(ident, typ: str, template: bool) -> list[str]:
     """Format checks for the top-level identifier in each JSON-LD shape:
     a string, a single PropertyValue object, or a list of them."""
@@ -115,12 +125,14 @@ def _identifier_errors(ident, typ: str, template: bool) -> list[str]:
             if typ == "Person":
                 # A single string must be an ORCID URL (as on main). In a list, other
                 # author identifiers (Scopus, ResearcherID, ...) are allowed; only an
-                # entry that looks like an ORCID is checked.
+                # entry that looks like an ORCID is checked, and a bare iD or an
+                # http ORCID URL is accepted there as it is in a PropertyValue.
                 looks_orcid = "orcid.org" in entry.lower() or bool(ORCID_BARE_RE.match(entry.strip()))
                 if (not from_list or looks_orcid) and not _is_placeholder(entry, "identifier", True):
-                    errors += _orcid_errors(entry, "Person identifier", allow_bare=False)
+                    errors += _orcid_errors(entry.strip() if from_list else entry,
+                                            "Person identifier", allow_bare=from_list)
             elif DOI_PREFIX_RE.match(entry) or entry.startswith("10."):
-                bare = DOI_PREFIX_RE.sub("", entry).strip()
+                bare = _bare_doi(entry)
                 if not _is_placeholder(entry, "identifier", True) and not DOI_RE.match(bare):
                     errors.append(f"DOI does not match canonical format: {entry!r}")
         elif isinstance(entry, dict):
@@ -131,7 +143,7 @@ def _identifier_errors(ident, typ: str, template: bool) -> list[str]:
             if _is_placeholder(value, "identifier", True):
                 continue  # reported (or, under --template, allowed) as a placeholder
             if pid == "doi":
-                bare = DOI_PREFIX_RE.sub("", value).strip()
+                bare = _bare_doi(value)
                 if not DOI_RE.match(bare):
                     errors.append(f"DOI does not match canonical format: {value!r}")
             elif pid == "orcid":

@@ -127,6 +127,24 @@ check "list ORCID http URL -> exit 0" 0 python3 "$SCRIPT" "$TMP/orcid_http_list.
 mk_sa "$TMP/sici_hash.jsonld" '"10.1002/(SICI)1097-0258(19980430)17:8<857::AID-SIM777>3.0.CO;2-#"'
 check "string SICI DOI ending in # -> exit 0" 0 python3 "$SCRIPT" "$TMP/sici_hash.jsonld"
 
+# Reviewer counter-examples origin/main cleared: still clean.
+mk_sa "$TMP/str_pct_doi.jsonld" '"https://doi.org/10.1002/%28SICI%291097-0258%2819980430%2917%3A8%3C857%3A%3AAID-SIM777%3E3.0.CO%3B2-E"'
+check "string percent-encoded doi.org URL -> exit 0" 0 python3 "$SCRIPT" "$TMP/str_pct_doi.jsonld"
+mk_sa "$TMP/list_pct_doi.jsonld" '[{"propertyID": "DOI", "value": "https://doi.org/10.1000/synthetic%2F2026.001"}]'
+check "list DOI percent-encoded doi.org URL -> exit 0" 0 python3 "$SCRIPT" "$TMP/list_pct_doi.jsonld"
+mk_person "$TMP/person_bare_list.jsonld" '["0000-0002-1825-0097"]'
+check "Person list with bare ORCID iD -> exit 0" 0 python3 "$SCRIPT" "$TMP/person_bare_list.jsonld"
+mk_person "$TMP/person_http_list.jsonld" '["http://orcid.org/0000-0002-1825-0097", "https://www.scopus.com/authid/detail.uri?authorId=123"]'
+check "Person list with http ORCID URL -> exit 0" 0 python3 "$SCRIPT" "$TMP/person_http_list.jsonld"
+# The check digit is still enforced on those shapes.
+mk_person "$TMP/person_bare_list_bad.jsonld" '["0000-0002-1825-0098"]'
+check "Person list bare ORCID bad check digit -> exit 1" 1 python3 "$SCRIPT" "$TMP/person_bare_list_bad.jsonld"
+mk_sa "$TMP/str_pct_bad.jsonld" '"https://doi.org/not%2Da%2Ddoi"'
+check "string doi.org URL that is not a DOI -> exit 1" 1 python3 "$SCRIPT" "$TMP/str_pct_bad.jsonld"
+# A single Person string keeps main's URL-only rule.
+mk_person "$TMP/person_bare_str.jsonld" '"0000-0002-1825-0097"'
+check "Person single bare ORCID string still fails -> exit 1" 1 python3 "$SCRIPT" "$TMP/person_bare_str.jsonld"
+
 # Prose with "<" is not a placeholder.
 python3 - "$TMP/ok.jsonld" "$TMP/prose_lt.jsonld" <<'PY'
 import json, sys

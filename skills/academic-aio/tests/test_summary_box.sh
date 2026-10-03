@@ -21,6 +21,8 @@ ck() {
   fi
 }
 run() { python3 "$SCRIPT" --out "$TMP/r.json" "$@" > /dev/null 2>&1; echo $?; }
+# verdict + severity/rule of each finding from the last run's JSON report
+verdict() { python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); print(" ".join([r["verdict"]]+[f["severity"]+" "+f["rule"] for f in r["findings"]]))' "$TMP/r.json"; }
 
 # 1) conformant Key Points (3 one-claim bullets) -> exit 0
 cat > "$TMP/kp_ok.md" <<'EOF'
@@ -207,8 +209,10 @@ Findings support a prospective trial.
 EOF
 ck "research_in_context inner bold line kept" 0 "$(run --manuscript "$TMP/ric_inner_bold.md" --journal lancet-digital-health --strict)"
 
-# 23) negative control: after the last sub-block a bold label still ends the box,
-#     so an Implications sub-block whose text sits under it is empty -> fails
+# 23) after the last sub-block a bold-only line still ends the box. The input
+#     cannot tell "**Funding**" (next section) from a sub-heading inside
+#     Implications (case 29), so the empty Implications is a soft ADVISORY,
+#     not a hard failure (main cleared both shapes).
 cat > "$TMP/ric_trailing_bold.md" <<'EOF'
 ## Research in context
 **Evidence before this study**
@@ -220,7 +224,50 @@ This study adds an external cohort.
 **Funding**
 Synthetic grant text.
 EOF
-ck "research_in_context empty last sub-block before bold label fails" 1 "$(run --manuscript "$TMP/ric_trailing_bold.md" --journal lancet-digital-health --strict)"
+ck "research_in_context empty last sub-block before bold label: exit" 0 "$(run --manuscript "$TMP/ric_trailing_bold.md" --journal lancet-digital-health --strict)"
+ck "research_in_context empty last sub-block before bold label: verdict" "ADVISORY soft subblock_content" "$(verdict)"
+
+# --- Indentation, bare-label punctuation, last sub-block sub-heading ---------
+# (reviewer counter-examples: origin/main cleared each correct box below)
+# 24) uniformly space-indented 3 bullets: the first bullet keeps its indent -> ok
+printf '**Key Points**\n\n  - The model improved sensitivity.\n  - Specificity was preserved.\n  - External validation is needed.\n\n## Introduction\n' > "$TMP/kp_indent.md"
+ck "uniformly indented 3 bullets ok" 0 "$(run --manuscript "$TMP/kp_indent.md" --journal radiology --strict)"
+# 25) tab-indented 3 bullets -> ok
+printf '**Key Points**\n\n\t- The model improved sensitivity.\n\t- Specificity was preserved.\n\t- External validation is needed.\n\n## Introduction\n' > "$TMP/kp_tab.md"
+ck "tab-indented 3 bullets ok" 0 "$(run --manuscript "$TMP/kp_tab.md" --journal radiology --strict)"
+# 26) indented box with an indented sub-bullet: 2 top-level bullets still fail
+printf '**Key Points**\n\n  - Claim one.\n    - supporting detail\n  - Claim two.\n\n## Introduction\n' > "$TMP/kp_indent_nested.md"
+ck "indented 2 top-level + sub-bullet fails" 1 "$(run --manuscript "$TMP/kp_indent_nested.md" --journal radiology --strict)"
+# 27) bare label line ending in a period starts the box
+printf 'Key Points.\n- The model improved sensitivity.\n- Specificity was preserved.\n- External validation is needed.\n' > "$TMP/kp_bare_period.md"
+ck "bare label 'Key Points.' ok" 0 "$(run --manuscript "$TMP/kp_bare_period.md" --journal radiology --strict)"
+# 28) bare 'Research in context.' label with complete sub-blocks -> ok
+cat > "$TMP/ric_bare_period.md" <<'EOF'
+Research in context.
+Evidence before this study: We searched PubMed for prior work.
+Added value of this study: This study adds an external cohort.
+Implications of all the available evidence: Findings support a prospective trial.
+EOF
+ck "bare label 'Research in context.' ok" 0 "$(run --manuscript "$TMP/ric_bare_period.md" --journal lancet-digital-health --strict)"
+# 29) bold sub-heading inside the last sub-block (Implications) -> not a hard fail
+cat > "$TMP/ric_last_inner_bold.md" <<'EOF'
+## Research in context
+**Evidence before this study**
+We searched PubMed for prior work.
+
+**Added value of this study**
+This study adds an external cohort.
+
+**Implications of all the available evidence**
+
+**For clinicians**
+Findings support a prospective trial.
+EOF
+ck "research_in_context sub-heading in last sub-block: exit" 0 "$(run --manuscript "$TMP/ric_last_inner_bold.md" --journal lancet-digital-health --strict)"
+ck "research_in_context sub-heading in last sub-block: verdict" "ADVISORY soft subblock_content" "$(verdict)"
+# 30) negative control: an empty last sub-block ending at a heading stays hard
+printf '## Research in context\n**Evidence before this study** a.\n**Added value of this study** b.\n**Implications of all the available evidence**\n\n## Introduction\nText.\n' > "$TMP/ric_last_empty_heading.md"
+ck "research_in_context empty last sub-block before heading fails" 1 "$(run --manuscript "$TMP/ric_last_empty_heading.md" --journal lancet-digital-health --strict)"
 
 echo "----"
 echo "test_summary_box: $pass passed, $fail failed"

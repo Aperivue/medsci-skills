@@ -36,7 +36,9 @@ VERDICT
   body sentence that begins with the same words) and ends at the next heading or
   the next bold-only label line. In a Research-in-context box the sub-block labels
   never end it, and another bold-only line ends it only after the last sub-block.
-  ADVISORY            only soft rules fired (e.g. a bullet carries >1 claim).
+  ADVISORY            only soft rules fired (e.g. a bullet carries >1 claim, or the
+                      last sub-block is empty before a bold-only line, which may be
+                      a sub-heading inside it or the next section).
   Exit: 0 conformant/advisory or report-only; 1 NONCONFORMANT under --strict;
         2 input/usage error.
 
@@ -83,14 +85,14 @@ _MARK = r"(?:\*\*|__|\*|_)"
 def _label_line_re(label: str) -> "re.Pattern[str]":
     """A line that *is* the box label: a markdown heading starting with the label,
     a bold/italic span starting with the label, or the label alone on its line
-    (optional trailing colon). A body sentence that merely begins with the label
+    (optional trailing ':' or '.'). A body sentence that merely begins with the label
     words ("Key points of prior work are ...") is not a label line."""
     lab = re.escape(label)
     return re.compile(
         r"^\s*(?:"
         r"#{1,6}\s*" + lab + r"\b.*"                                   # heading
         r"|" + _MARK + r"\s*" + lab + r"\b[^*_]*?" + _MARK + r".*"         # bold/italic span
-        r"|" + lab + r"\s*:?\s*"                                       # bare label line
+        r"|" + lab + r"\s*[.:]?\s*"                                    # bare label line
         r")$",
         re.IGNORECASE,
     )
@@ -119,6 +121,13 @@ def extract_block(text: str, label: str, keep_labels: list[str] | None = None) -
     with one of them never ends the block, and any other bold-only line ends it
     only once the last sub-block label has been seen — a bold line inside a
     sub-block ("**Search strategy**") stays in the box."""
+    return _extract(text, label, keep_labels)[0]
+
+
+def _extract(text: str, label: str, keep_labels: list[str] | None = None):
+    """extract_block plus the bold-only line that ended the block (None when the
+    block ended at a heading or at the end of the text). Only blank leading and
+    trailing lines are trimmed, so every bullet keeps its own indentation."""
     lines = text.splitlines()
     label_re = _label_line_re(label)
     keep_res = [_subblock_re(k) for k in (keep_labels or [])]
@@ -128,8 +137,9 @@ def extract_block(text: str, label: str, keep_labels: list[str] | None = None) -
             start = i
             break
     if start is None:
-        return None
+        return None, None
     out = []
+    ended_by = None
     seen_last = not keep_res
     for ln in lines[start + 1:]:
         if re.match(r"^\s*#{1,6}\s+\S", ln):  # next heading ends the block
@@ -141,9 +151,14 @@ def extract_block(text: str, label: str, keep_labels: list[str] | None = None) -
             out.append(ln)
             continue
         if seen_last and _BOLD_ONLY_RE.match(ln):
+            ended_by = ln.strip()
             break  # next bold-labelled section ends the block
         out.append(ln)
-    return "\n".join(out).strip()
+    while out and not out[0].strip():
+        out.pop(0)
+    while out and not out[-1].strip():
+        out.pop()
+    return "\n".join(out), ended_by
 
 
 _BULLET_RE = re.compile(r"^(\s*)(?:[-*+]|\d+[.)])\s+(.*\S)")
@@ -216,8 +231,9 @@ def check(text: str, fmt: str, spec: dict, journal: str | None = None) -> dict:
     keep = spec.get("subblocks") if fmt == "research_in_context" else None
     label = labels[0]
     block = None
+    ended_by = None
     for cand in labels:
-        block = extract_block(text, cand, keep)
+        block, ended_by = _extract(text, cand, keep)
         if block is not None:
             label = cand
             break
@@ -243,11 +259,19 @@ def check(text: str, fmt: str, spec: dict, journal: str | None = None) -> dict:
                                      "detail": f"bullet packs >1 claim: {b[:80]}"})
     elif fmt == "research_in_context":
         contents = subblock_contents(block, spec["subblocks"])
+        last = spec["subblocks"][-1]
         for sub in spec["subblocks"]:
             body = contents[sub]
             if body is None:
                 findings.append({"rule": "subblock_present", "severity": "hard",
                                  "detail": f"missing sub-block: '{sub}' (no line opens with this label)"})
+            elif not re.search(r"\w", body) and sub == last and ended_by:
+                # The input cannot tell a sub-heading inside the last sub-block
+                # ("**For clinicians**") from the next section ("**Funding**").
+                findings.append({"rule": "subblock_content", "severity": "soft",
+                                 "detail": f"'{sub}' has no text before the bold line {ended_by!r}, "
+                                           "read as the end of the box; if that line is a sub-heading "
+                                           "inside this sub-block the box is fine, otherwise add the text"})
             elif not re.search(r"\w", body):
                 findings.append({"rule": "subblock_content", "severity": "hard",
                                  "detail": f"empty sub-block: '{sub}' has a label but no text"})

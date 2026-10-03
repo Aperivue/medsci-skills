@@ -78,8 +78,8 @@
     },
     {
       "path": "skills/academic-aio/SKILL.md",
-      "size": 18701,
-      "sha256": "fdf292d86725d5edeba6d3602e70687f4254742757fb7efd28da6abb47b5b857"
+      "size": 19318,
+      "sha256": "1c96fb28e98a9eede0b4edc85c9eb032d5e05d77d53b202e7bc7018914fecc27"
     },
     {
       "path": "skills/academic-aio/references/ai_tool_citation_framing.md",
@@ -163,13 +163,13 @@
     },
     {
       "path": "skills/academic-aio/scripts/check_summary_box.py",
-      "size": 12427,
-      "sha256": "aba6ad5f58267210b68f3c1aaf5dad23116c2adb6e06d91d264736015813d322"
+      "size": 14454,
+      "sha256": "e7f514156580ebd88dcaef7331258867f4753552154fb1d0e6916e6b35adfd28"
     },
     {
       "path": "skills/academic-aio/scripts/validate_schema.py",
-      "size": 8675,
-      "sha256": "58e0266e2d75a8a8bd7985b693642e2dcdb2bea13a335ea50596b41f6632b7dd"
+      "size": 9706,
+      "sha256": "ddf5d08701c73ad00e66cb04fb9952493ad6acf2478a9db057ba0f896eb220c6"
     },
     {
       "path": "skills/academic-aio/skill.yml",
