@@ -29,6 +29,15 @@ checkable anchor, so paraphrase and honest rewording do not false-positive:
     / "now cite(d)", but none of the cited tokens ([N] / [@key] / Author et al.)
     appear in the revised manuscript body.
 
+With --values revision_values.json (the revision-time numerical audit table, declared), each
+entry's anchor sentence is located in the body and its declared values are checked there:
+
+  * RESPONSE_VALUE_MISMATCH (major) — the anchor is in the body, but a declared value is
+    not among the numbers of the paragraph(s) that hold it (after folding mid-dot decimals,
+    thin-space and comma thousands, decimal commas, Unicode minus and leading-dot P values).
+  * RESPONSE_VALUE_NOT_ASSESSED (minor) — the anchor is not found, or the value is missing
+    from a paragraph whose numbers cannot all be read (superscripts, x10^n notation).
+
 Vague claims with no quote and no citation ("we clarified the Methods") are not
 verifiable and are intentionally NOT flagged. Reviewer-comment blockquotes
 (lines beginning with '>') are excluded so the reviewer's own quoted text is
@@ -36,10 +45,12 @@ never mistaken for an author addition.
 
 Usage:
     check_response_claims.py --response response.md --manuscript revised.md [--strict]
+    check_response_claims.py --response r.md --manuscript revised.md --values revision_values.json
     check_response_claims.py --response r.md --manuscript revised.docx --out qc/response_claims.json
 
 Exit 0 when every anchored claim is verified (or none exist). With --strict,
-exit 1 if any major verdict fires. Stdlib only; .docx read via python-docx when
+exit 1 if any major verdict fires. Exit 2 on a missing file or an unreadable or malformed
+--values file (the message names the field). Stdlib only; .docx read via python-docx when
 available.
 """
 
@@ -47,6 +58,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 import unicodedata
@@ -54,6 +66,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _quote_match import match_quality  # noqa: E402  (same-dir helper)
+from decimal import Decimal, InvalidOperation  # noqa: E402
 
 # A claim that asserts an addition/edit to the manuscript.
 CLAIM_VERB = re.compile(
@@ -252,7 +265,188 @@ def body_numeric_citations(body: str):
     return out, rest
 
 
-def build_report(response_path: Path, manuscript_path: Path) -> dict:
+# --------------------------------------------------------------------------- declared values
+# revision_values.json: {"entries": [{"id", "anchor", "values": [...], "location"?}], "notes"?}
+# A declared value is a JSON number, or a string: a number, an inequality ("<0.001", "≤ .05"),
+# a range ("0.88-0.95", "0.88 to 0.95") or a percentage ("12.5%"). Anything else exits 2.
+VALUE_TOP_KEYS = {"entries", "notes"}
+VALUE_ENTRY_KEYS = {"id", "anchor", "values", "location"}
+_NUM = r"-?(?:\d+(?:\.\d+)?|\.\d+)"
+_CMP = {"<": "<", ">": ">", "≤": "<=", "≥": ">=", "<=": "<=", ">=": ">=", "=<": "<=", "=>": ">="}
+DECL_SINGLE = re.compile(rf"^\s*(<=|>=|=<|=>|<|>|≤|≥)?\s*({_NUM})\s*%?\s*$")
+DECL_RANGE = re.compile(rf"^\s*({_NUM})\s*(?:-|–|—|to)\s*({_NUM})\s*%?\s*$")
+# Body constructs whose digits cannot be read reliably: superscript digits and x10^n notation.
+UNREADABLE = re.compile(r"[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]|[×x]\s*10\s*[\^⁻⁰-⁹]|\d[eE][-+]?\d")
+
+
+class ValuesError(ValueError):
+    pass
+
+
+def _reject_constant(name: str):
+    raise ValuesError(f"{name} is not a valid JSON number")
+
+
+def _dec(text: str) -> Decimal:
+    t = text.strip()
+    neg = t.startswith("-")
+    t = t.lstrip("-")
+    if t.startswith("."):
+        t = "0" + t
+    try:
+        d = Decimal(t)
+    except InvalidOperation:
+        raise ValuesError(f"not a number: {text!r}")
+    return -d if neg else d
+
+
+def _declared(value, where: str) -> list:
+    """[("eq"|"<"|"<="|">"|">=", Decimal), ...] that the body must contain."""
+    if isinstance(value, bool):
+        raise ValuesError(f"{where}: expected a number or a value string, got {value!r}")
+    if isinstance(value, (int, float)):
+        if isinstance(value, float) and not math.isfinite(value):
+            raise ValuesError(f"{where}: not a finite number")
+        return [("eq", _dec(repr(value) if isinstance(value, float) else str(value)))]
+    if not isinstance(value, str) or not value.strip():
+        raise ValuesError(f"{where}: expected a number or a value string, got {value!r}")
+    m = DECL_RANGE.match(value)
+    if m:
+        return [("eq", _dec(m.group(1))), ("eq", _dec(m.group(2)))]
+    m = DECL_SINGLE.match(value.replace("−", "-"))
+    if m:
+        op = _CMP[m.group(1)] if m.group(1) else "eq"
+        return [(op, _dec(m.group(2)))]
+    raise ValuesError(f"{where}: {value!r} is not a number, an inequality (\"<0.001\"), a range "
+                      "(\"0.88-0.95\") or a percentage (\"12.5%\"); write thousands without separators")
+
+
+def load_values(path: Path) -> list:
+    try:
+        m = json.loads(path.read_text(encoding="utf-8"), parse_constant=_reject_constant)
+    except (OSError, ValueError, RecursionError) as e:   # ValueError covers JSONDecodeError
+        raise ValuesError(f"cannot read values file: {e}")
+    if not isinstance(m, dict):
+        raise ValuesError("values file must be a JSON object with an \"entries\" list")
+    extra = set(m) - VALUE_TOP_KEYS
+    if extra:
+        raise ValuesError(f"unknown top-level key(s) {sorted(extra)}; allowed {sorted(VALUE_TOP_KEYS)}")
+    entries = m.get("entries")
+    if not isinstance(entries, list) or not entries:
+        raise ValuesError("entries: expected a non-empty list")
+    out = []
+    for i, e in enumerate(entries):
+        w = f"entries[{i}]"
+        if not isinstance(e, dict):
+            raise ValuesError(f"{w}: expected an object")
+        extra = set(e) - VALUE_ENTRY_KEYS
+        if extra:
+            raise ValuesError(f"{w}: unknown key(s) {sorted(extra)}; allowed {sorted(VALUE_ENTRY_KEYS)}")
+        eid = e.get("id")
+        if not isinstance(eid, str) or not eid.strip():
+            raise ValuesError(f"{w}.id: expected a non-empty string")
+        anchor = e.get("anchor")
+        if not isinstance(anchor, str) or len(anchor.split()) < 4:
+            raise ValuesError(f"{w}.anchor: expected the body sentence (at least 4 words) that holds the values")
+        loc = e.get("location")
+        if loc is not None and not isinstance(loc, str):
+            raise ValuesError(f"{w}.location: expected a string")
+        vals = e.get("values")
+        if not isinstance(vals, list) or not vals:
+            raise ValuesError(f"{w}.values: expected a non-empty list")
+        parsed = [(v, _declared(v, f"{w}.values[{j}]")) for j, v in enumerate(vals)]
+        out.append({"id": eid.strip(), "anchor": anchor, "values": parsed, "location": loc})
+    return out
+
+
+def _fold_numbers(text: str, thousands: bool, spaces: bool) -> str:
+    """Rewrite the body's number formats into plain '1234.56' tokens. Several foldings are
+    read and a value counts as present under any of them, because a separator is ambiguous
+    ("1,234" is a thousand or a decimal comma; "2019 100" is two numbers)."""
+    t = text
+    if spaces:   # thousands grouped by a space of any width: 12 345 / 12 345
+        t = re.sub(r"(?<=\d)[\u00a0\u2009\u202f\u2007 ](?=\d{3}(?!\d))", "", t)
+    else:        # only the typographic thin spaces, never a plain space
+        t = re.sub(r"(?<=\d)[\u00a0\u2009\u202f\u2007](?=\d{3}(?!\d))", "", t)
+    t = re.sub(r"(?<=\d)·(?=\d)", ".", t)                                 # 0·92
+    if thousands:
+        t = re.sub(r"(?<=\d),(?=\d{3}(?!\d))", "", t)                    # 1,234
+    t = re.sub(r"(?<=\d),(?=\d)", ".", t)                                 # 0,92 / 1,5
+    t = re.sub(r"(?<![\d.])\.(?=\d)", "0.", t)                           # P=.03
+    t = t.replace("≤", "<=").replace("≥", ">=").replace("&lt;", "<").replace("&gt;", ">")
+    return t
+
+
+_BODY_NUM = re.compile(r"(<=|>=|<|>|=)?\s*(\d+(?:\.\d+)?)")
+_MINUS_BEFORE = re.compile(r"(?:^|[\s(=:;,\[])$")
+
+
+def _paragraph_values(para: str) -> list:
+    """(comparator, value) pairs. A sign is taken only from a true minus (U+2212) or a hyphen
+    that opens a number, so the dash of a range ("0.88-0.95") never makes 0.95 negative."""
+    out = []
+    for th, sp in ((False, False), (True, False), (True, True)):
+        t = _fold_numbers(para, th, sp)
+        for m in _BODY_NUM.finditer(t):
+            try:
+                v = Decimal(m.group(2))
+            except InvalidOperation:
+                continue
+            k = m.start(2)
+            if k and t[k - 1] in "\u2212-" and _MINUS_BEFORE.search(t[:k - 1]) and not m.group(1):
+                v = -v
+            out.append((m.group(1) or "", v))
+    return out
+
+
+def _value_present(need: tuple, found: list) -> bool:
+    op, val = need
+    for fop, fval in found:
+        if fval != val:
+            continue
+        if op == "eq" or fop == op:
+            return True
+    return False
+
+
+def check_values(body: str, entries: list) -> list:
+    paras = [p for p in re.split(r"\n\s*\n|\n", body) if p.strip()]
+    findings = []
+    for e in entries:
+        hits = [p for p in paras if match_quality(e["anchor"], p)["grade"] != "ABSENT"]
+        if not hits:
+            findings.append({
+                "verdict": "RESPONSE_VALUE_NOT_ASSESSED", "severity": "minor", "id": e["id"],
+                "claimed_text": e["anchor"], "context": e["location"] or "",
+                "message": "The declared anchor sentence is not in the revised manuscript, so its "
+                           "values were not checked; fix the anchor or confirm the edit by eye.",
+            })
+            continue
+        found = [v for p in hits for v in _paragraph_values(p)]
+        unreadable = any(UNREADABLE.search(p) for p in hits)
+        for raw, needs in e["values"]:
+            if all(_value_present(n, found) for n in needs):
+                continue
+            if unreadable:
+                findings.append({
+                    "verdict": "RESPONSE_VALUE_NOT_ASSESSED", "severity": "minor", "id": e["id"],
+                    "claimed_text": e["anchor"], "declared_value": raw, "context": e["location"] or "",
+                    "message": f"Declared value {raw!r} was not found, but the paragraph has numbers "
+                               "this gate cannot read (superscripts or x10^n); confirm by eye.",
+                })
+            else:
+                shown = sorted({(op + str(v)) for op, v in found})[:12]
+                findings.append({
+                    "verdict": "RESPONSE_VALUE_MISMATCH", "severity": "major", "id": e["id"],
+                    "claimed_text": e["anchor"], "declared_value": raw, "context": e["location"] or "",
+                    "body_values": shown,
+                    "message": f"Declared value {raw!r} is not in the revised manuscript paragraph "
+                               f"that holds the anchor (numbers there: {', '.join(shown) or 'none'}).",
+                })
+    return findings
+
+
+def build_report(response_path: Path, manuscript_path: Path, values: list | None = None) -> dict:
     response = read_text(response_path)
     body = read_text(manuscript_path)
     norm_body = normalize(body)
@@ -314,6 +508,8 @@ def build_report(response_path: Path, manuscript_path: Path) -> dict:
                         "message": "Response claims a citation was added but none of the cited tokens appear in the revised manuscript body.",
                     }
                 )
+    if values:
+        findings.extend(check_values(body, values))
     n_major = sum(1 for f in findings if f["severity"] == "major")
     return {
         "response": str(response_path),
@@ -331,6 +527,8 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--response", required=True, type=Path, help="response-to-reviewers letter (.md/.txt/.docx)")
     ap.add_argument("--manuscript", required=True, type=Path, help="revised manuscript (.md/.txt/.docx)")
+    ap.add_argument("--values", type=Path,
+                    help="revision_values.json: declared values to check in the body (see references)")
     ap.add_argument("--out", type=Path, help="write JSON report here")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any major verdict fires")
     ap.add_argument("--quiet", action="store_true")
@@ -341,7 +539,17 @@ def main(argv: list[str] | None = None) -> int:
             print(f"error: file not found: {p}", file=sys.stderr)
             return 2
 
-    report = build_report(args.response, args.manuscript)
+    values = None
+    if args.values is not None:
+        if not args.values.is_file():
+            print(f"error: file not found: {args.values}", file=sys.stderr)
+            return 2
+        try:
+            values = load_values(args.values)
+        except (ValuesError, ValueError, OverflowError, RecursionError) as e:
+            print(f"error: {args.values}: {e}", file=sys.stderr)
+            return 2
+    report = build_report(args.response, args.manuscript, values)
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps({"detector": "check_response_claims", **report}, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -355,6 +563,8 @@ def main(argv: list[str] | None = None) -> int:
             for f in report["findings"]:
                 anchor = f.get("claimed_text") or ", ".join(f.get("claimed_citation", []))
                 print(f"  [{f['verdict']}] ({f['severity']}) {anchor!r}")
+                if "declared_value" in f:
+                    print(f"      {f['message']}")
                 print(f"      near: {f['context']}")
                 if f["severity"] == "minor":
                     print(f"      {f['message']}")

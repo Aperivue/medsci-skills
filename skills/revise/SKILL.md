@@ -253,13 +253,17 @@ still satisfies [5] there; check such citations by eye.
 The response letter is read as typed: a claim written in pandoc form ("\[5\]", "[5--7]") is not
 recognised as a citation claim and is not checked.
 
-Known limits: quote CONTENT is not compared. A quote that differs from the body's sentence by a
-number (the letter says 0.92, the body 0.87) or by a negator ("not", added or dropped) is graded
-like extraction debris, minor `RESPONSE_QUOTE_UNRESOLVED`, and `--strict` passes. A number
-comparison was tried and withdrawn: the same value written in two formats (mid-dot decimals,
-space-grouped thousands, a plain-text "10^9" against a superscript that extraction glues onto the
-base) read as a changed number and flagged accurate quotes. Read every UNRESOLVED quote by eye for a
-changed number or a flipped finding. A citation claim passes when ANY of its cited tokens is in the
+To check the numbers themselves, declare the audit table (Step 4) as `revision_values.json`
+(copy `${CLAUDE_SKILL_DIR}/templates/revision_values.json`; schema in
+`references/revision_values_schema.md`) and add `--values revision_values.json`: a declared value
+missing from the paragraph that holds its anchor sentence is `RESPONSE_VALUE_MISMATCH` (major).
+
+Known limits: without `--values`, quote CONTENT is not compared. A quote that differs from the
+body's sentence by a number (the letter says 0.92, the body 0.87) or by a negator ("not", added or
+dropped) is graded like extraction debris, minor `RESPONSE_QUOTE_UNRESOLVED`, and `--strict`
+passes; comparing the letter's numbers with the body's was withdrawn because both sides vary in
+format. `--values` checks declared numbers only, and a paragraph with superscripts or `x10^n` is
+`RESPONSE_VALUE_NOT_ASSESSED`. Read every UNRESOLVED quote by eye for a flipped finding. A citation claim passes when ANY of its cited tokens is in the
 body, so "we now cite [15] and [16]" passes with only [15] inserted; check multi-citation claims by
 eye.
 A claim is read as a citation claim only when its verb says so ("cite", "reference"): "We added

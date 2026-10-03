@@ -404,6 +404,51 @@ printf '## Discussion\nPrior work agrees [5, see also 8].\n' > "$TMP/body_cit_mi
 python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_mixed.md" --strict > /dev/null 2>&1
 ck "claimed [5] found in '[5, see also 8]' passes" 0 "$?"
 
+# --- --values: declared numbers checked in the paragraph that holds their anchor ----------
+printf 'Response 1. We revised the Results as requested.\n' > "$TMP/resp_v.md"
+vbody(){ printf '## Results\n%s\n\n## Discussion\nOther text with 0.50 and 0.60.\n' "$1" > "$TMP/body_v.md"; }
+vjson(){ printf '%s' "$1" > "$TMP/v.json"; }
+vrun(){ python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/body_v.md" --values "$TMP/v.json" --out "$TMP/v_out.json" --strict > /dev/null 2>&1; }
+vhas(){ python3 -c "import json,sys;d=json.load(open('$TMP/v_out.json'));sys.exit(0 if any(f['verdict']=='$1' for f in d['findings']) else 1)"; }
+VJ='{"entries":[{"id":"R1-3","anchor":"The area under the ROC curve was","values":[0.92,"0.88-0.95","<0.001"]}]}'
+vjson "$VJ"
+vbody 'The area under the ROC curve was 0.92 (95% CI 0.88-0.95; P < .001).'
+vrun; ck "declared values present -> exit 0" 0 "$?"
+vbody 'The area under the ROC curve was 0·92 (95% CI 0·88–0·95; P<0·001).'
+vrun; ck "Lancet mid-dot format reads as the same values" 0 "$?"
+vbody 'The area under the ROC curve was 0.87 (95% CI 0.88-0.95; P < .001).'
+vrun; ck "changed number -> exit 1" 1 "$?"
+vhas RESPONSE_VALUE_MISMATCH; ck "  RESPONSE_VALUE_MISMATCH" 0 "$?"
+vbody 'The area under the ROC curve was 0.92 (95% CI 0.88-0.95; P = 0.001).'
+vrun; ck "'P = 0.001' does not satisfy declared '<0.001'" 1 "$?"
+vbody 'Something else entirely is reported in this paragraph.'
+vrun; ck "anchor not in the body -> NOT_ASSESSED (minor, exit 0)" 0 "$?"
+vhas RESPONSE_VALUE_NOT_ASSESSED; ck "  RESPONSE_VALUE_NOT_ASSESSED" 0 "$?"
+vjson '{"entries":[{"id":"R2-1","anchor":"The cohort included a total of","values":[12345, 2019]}]}'
+vbody 'The cohort included a total of 12 345 patients enrolled since 2019.'
+vrun; ck "thin-space thousands and a year read correctly" 0 "$?"
+vbody 'The cohort included a total of 12,345 patients enrolled since 2019.'
+vrun; ck "comma thousands read correctly" 0 "$?"
+vjson '{"entries":[{"id":"R2-2","anchor":"The platelet count rose to","values":[250]}]}'
+vbody 'The platelet count rose to 2.5 × 10⁵ per microlitre.'
+vrun; ck "superscript notation -> NOT_ASSESSED, not MISMATCH (exit 0)" 0 "$?"
+vhas RESPONSE_VALUE_MISMATCH; ck "  no RESPONSE_VALUE_MISMATCH" 1 "$?"
+vjson '{"entries":[{"id":"R2-3","anchor":"The mean difference was","values":[-0.5, "12.5%"]}]}'
+vbody 'The mean difference was −0.5 units, affecting 12.5% of patients.'
+vrun; ck "Unicode minus and percentage" 0 "$?"
+# malformed values files exit 2
+for bad in '{"entries":[]}' '{"entries":[{"id":"R1","anchor":"too short","values":[1]}]}' \
+           '{"entries":[{"id":"R1","anchor":"the AUC of the model","values":["1,234"]}]}' \
+           '{"entries":[{"id":"R1","anchor":"the AUC of the model","values":[true]}]}' \
+           '{"entries":[{"id":"R1","anchor":"the AUC of the model","values":[1],"page":3}]}' \
+           '{"entris":[]}' '[1,2]' '{"entries":[{"id":"R1","anchor":"the AUC of the model","values":[Infinity]}]}'; do
+  vjson "$bad"; vrun; ck "malformed values file exits 2: $bad" 2 "$?"
+done
+python3 -c "print('{\"notes\":'+'['*100000+']'*100000+'}')" > "$TMP/v.json"; vrun
+ck "deeply nested values file exits 2" 2 "$?"
+python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/body_v.md" --values "$TMP/nope.json" > /dev/null 2>&1
+ck "missing values file exits 2" 2 "$?"
+
 echo "----"
 echo "test_response_claims: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
