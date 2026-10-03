@@ -1,0 +1,10 @@
+# Source box whose first line carries a single sub-count, not a total: 1,800 + 200 - 300 = 1,700
+# closes. A count alone on the first line is a total only when it equals the sum of the others.
+rankdir: TB
+nodes:
+  - {id: ident, label: "Records from databases (n = 1,800)\nRecords from registers (n = 200)"}
+  - {id: removed, shape: note, label: "Duplicates removed (n = 300)", rank_same_with: ident}
+  - {id: screened, label: "Records screened\n(n = 1,700)"}
+edges:
+  - {from: ident, to: screened}
+  - {from: ident, to: removed, style: dashed, arrow: false, constraint: false}

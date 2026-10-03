@@ -1,0 +1,9 @@
+# As flow_graph_ident_total_last.yaml, but the screened box says 1,650: 2,000 - 300 = 1,700.
+rankdir: TB
+nodes:
+  - {id: ident, label: "Records identified from:\nDatabases (n = 1,800)\nRegisters (n = 200)\nTotal (n = 2,000)"}
+  - {id: removed, shape: note, label: "Duplicate records removed (n = 300)", rank_same_with: ident}
+  - {id: screened, label: "Records screened\n(n = 1,650)"}
+edges:
+  - {from: ident, to: screened}
+  - {from: ident, to: removed, style: dashed, arrow: false, constraint: false}

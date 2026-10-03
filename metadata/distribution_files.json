@@ -2198,8 +2198,8 @@
     },
     {
       "path": "skills/make-figures/SKILL.md",
-      "size": 32207,
-      "sha256": "33350305d60dfd92311f655bf559425fee69ebcfcd0e5e19055fc2de6c821737"
+      "size": 33516,
+      "sha256": "131f2d9d12a2738a1ca0e3e90e52e691ff1bea8137e6d0a0c03febc3bb37643f"
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/data_plot.md",
@@ -2543,8 +2543,8 @@
     },
     {
       "path": "skills/make-figures/scripts/_strobe_cascade.py",
-      "size": 4913,
-      "sha256": "f655ec7080a6f00eb9cd54c1afda58bad74cd6f0a6473a112f21198fa65e6aa0"
+      "size": 7664,
+      "sha256": "cc8793c534bacd34464e8641f40a58a64d0e2e4801f22937e0016a51abde3d62"
     },
     {
       "path": "skills/make-figures/scripts/build_jacc_template.py",
@@ -2563,13 +2563,13 @@
     },
     {
       "path": "skills/make-figures/scripts/critic_figure.py",
-      "size": 9555,
-      "sha256": "5ad5733aeb87d2d4574788b3ef079b3accfc1b7d8fc9698139255f8bbcad73e2"
+      "size": 11505,
+      "sha256": "0e6cf96987cae598211113039bc07abeda861cf9f8b4e87a0829bffa44c83369"
     },
     {
       "path": "skills/make-figures/scripts/derive_figure_legend_counts.py",
-      "size": 5525,
-      "sha256": "14cab7426080526b9ca67c26f791958a995ef726636b48a9a311c19c8e61ee64"
+      "size": 7900,
+      "sha256": "64f9cafefcec297b6234e5176f99ae6e4536b4247adcd4aeb4a540f92dc00840"
     },
     {
       "path": "skills/make-figures/scripts/export_portal_tiff.py",

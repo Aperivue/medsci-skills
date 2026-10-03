@@ -1,0 +1,14 @@
+# Correct STARD-style flow: 1,000 - 20 = 980; 980 - 30 = 950 = 400 + 550 (split by index test result)
+nodes:
+  - {id: elig, label: "Eligible patients\n(n = 1,000)"}
+  - {id: ex1, shape: note, label: "Excluded: declined consent\n(n = 20)"}
+  - {id: idx, label: "Underwent index test\n(n = 980)"}
+  - {id: ex2, shape: note, label: "No reference standard\n(n = 30)"}
+  - {id: pos, label: "Index test positive\n(n = 400)"}
+  - {id: neg, label: "Index test negative\n(n = 550)"}
+edges:
+  - {from: elig, to: idx}
+  - {from: elig, to: ex1, style: dashed}
+  - {from: idx, to: pos}
+  - {from: idx, to: neg}
+  - {from: idx, to: ex2, style: dashed}

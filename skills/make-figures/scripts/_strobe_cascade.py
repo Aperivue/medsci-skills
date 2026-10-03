@@ -22,7 +22,11 @@ skipped, not guessed.
 
 Reused by build_strobe_template.py (a loud warning during the build; fatal under
 --strict-cascade) and runnable standalone (`_strobe_cascade.py --config figure1.yaml
---strict`) so the check travels without python-pptx.
+--strict`) so the check travels without python-pptx. A config in neither schema is an input
+error (exit 2), never a silent OK; under --strict, a spine config with no evaluable exclusion
+link also exits 2 (the check could not run). A generate_flow_diagram.R (nodes/edges) config is
+recognised but NOT evaluated: it is reported NOT_ASSESSED with exit 0, so the closure of such a
+diagram has to be checked by eye.
 """
 from __future__ import annotations
 
@@ -44,13 +48,12 @@ def extract_count(text: str | None) -> int | None:
     return int(m.group(1).replace(",", "")) if m else None
 
 
-def check_cascade(cfg: dict) -> list[dict]:
-    """Return an imbalance finding for every declared exclusion link A -> B where
-    ``A.count - sum(exclusions after A) != B.count``."""
+def _check_spine(cfg: dict) -> tuple[list[dict], int]:
+    """Spine/exclusions schema (build_strobe_template.py). Returns (findings, links checked)."""
     spine = cfg.get("spine") or []
     exclusions = cfg.get("exclusions") or []
     if len(spine) < 2:
-        return []
+        return [], 0
 
     counts = {b.get("id"): extract_count(b.get("text")) for b in spine if isinstance(b, dict)}
     excl_after: dict[str, list[int | None]] = {}
@@ -59,6 +62,7 @@ def check_cascade(cfg: dict) -> list[dict]:
             excl_after.setdefault(e["after"], []).append(extract_count(e.get("text")))
 
     findings: list[dict] = []
+    checked = 0
     for i in range(len(spine) - 1):
         a, b = spine[i], spine[i + 1]
         if not (isinstance(a, dict) and isinstance(b, dict)):
@@ -70,6 +74,7 @@ def check_cascade(cfg: dict) -> list[dict]:
         a_n, b_n = counts.get(aid), counts.get(b.get("id"))
         if a_n is None or b_n is None or any(x is None for x in excls):
             continue                        # never guess a missing count
+        checked += 1
         got = a_n - sum(excls)
         if got != b_n:
             findings.append({
@@ -79,7 +84,31 @@ def check_cascade(cfg: dict) -> list[dict]:
                            f"{'+'.join(f'{x:,}' for x in excls)} = {got:,}, but the next box "
                            f"'{b.get('id')}' says {b_n:,} (off by {b_n - got:+,})"),
             })
-    return findings
+    return findings, checked
+
+
+def check_cascade(cfg: dict) -> list[dict]:
+    """Return an imbalance finding for every declared exclusion link A -> B where
+    ``A.count - sum(exclusions after A) != B.count`` (spine/exclusions schema)."""
+    return _check_spine(cfg)[0]
+
+
+def check_config(cfg: object) -> tuple[str | None, list[dict], int, list[str]]:
+    """Dispatch on schema: (schema name, or None when unrecognised; findings; links checked;
+    links not assessed)."""
+    if not isinstance(cfg, dict):
+        return None, [], 0, []
+    if isinstance(cfg.get("spine"), list):
+        f, c = _check_spine(cfg)
+        return "spine", f, c, []
+    if isinstance(cfg.get("nodes"), list) and isinstance(cfg.get("edges"), list):
+        # Not evaluated: which box a dashed exclusion is subtracted from cannot be read reliably
+        # from the graph (a branching step, an exclusion beside the box it produced), and a
+        # wrong reading flags a cascade that closes. Reported, never guessed.
+        return "nodes/edges", [], 0, [
+            "nodes/edges schema (generate_flow_diagram.R) is not evaluated; check that each "
+            "dashed exclusion closes against the adjacent boxes by eye"]
+    return None, [], 0, []
 
 
 def _load(path: Path) -> dict:
@@ -95,17 +124,40 @@ def _load(path: Path) -> dict:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="STROBE flow cascade-closure check.")
-    ap.add_argument("--config", required=True, help="build_strobe_template.py YAML/JSON config")
-    ap.add_argument("--strict", action="store_true", help="exit 1 if the cascade does not close")
+    ap = argparse.ArgumentParser(description="Flow-diagram exclusion cascade-closure check.")
+    ap.add_argument("--config", required=True,
+                    help="build_strobe_template.py (spine/exclusions) YAML/JSON config; a "
+                         "generate_flow_diagram.R (nodes/edges) config is reported NOT_ASSESSED")
+    ap.add_argument("--strict", action="store_true",
+                    help="exit 1 if the cascade does not close; exit 2 if no spine link could be checked")
     a = ap.parse_args()
-    findings = check_cascade(_load(Path(a.config)))
+    path = Path(a.config)
+    if not path.is_file():
+        sys.stderr.write(f"ERROR: config not found: {a.config}\n")
+        return 2
+    schema, findings, checked, not_assessed = check_config(_load(path))
+    if schema is None:
+        sys.stderr.write(f"ERROR: unrecognised config schema in {a.config}: expected a 'spine' "
+                         "list (build_strobe_template.py) or 'nodes' + 'edges' lists "
+                         "(generate_flow_diagram.R); nothing was checked.\n")
+        return 2
+    for na in not_assessed:
+        print(f"NOT_ASSESSED: {na}")
+    if schema == "nodes/edges":
+        return 0
     if findings:
         for f in findings:
             print(f"CASCADE_IMBALANCE: {f['detail']}")
-    else:
-        print("OK: STROBE exclusion cascade closes at every declared link.")
-    return 1 if (findings and a.strict) else 0
+        return 1 if a.strict else 0
+    if checked == 0:
+        print(f"NOT CHECKED: no evaluable exclusion link in {a.config} ({schema} schema); "
+              "the cascade closure could not be verified (a link is skipped when a box has no "
+              "'n = X').")
+        return 2 if a.strict else 0
+    extra = f", {len(not_assessed)} not assessed" if not_assessed else ""
+    print(f"OK: exclusion cascade closes at every evaluated link ({checked} checked{extra}, "
+          f"{schema} schema).")
+    return 0
 
 
 if __name__ == "__main__":

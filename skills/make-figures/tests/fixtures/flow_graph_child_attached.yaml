@@ -1,0 +1,22 @@
+# Exclusions drawn beside the box they produced (previous box - exclusion = this box):
+# 9,000 - 1,000 = 8,000 (adults), then 8,000 - 400 = 7,600 (measured). Closes; must stay clean.
+# 'measured' branches into two analyses, and the branch leaf 'subset' carries a dashed side
+# note that is not a cascade step; neither may be read as one.
+rankdir: TB
+nodes:
+  - {id: source, label: "Source participants\nN = 9,000"}
+  - {id: adults, label: "Adults\nN = 8,000"}
+  - {id: excl1, shape: note, label: "Excluded (n = 1,000)", rank_same_with: adults}
+  - {id: measured, label: "Measured\nN = 7,600"}
+  - {id: excl2, shape: note, label: "Excluded (n = 400)", rank_same_with: measured}
+  - {id: main, label: "Main analysis\nn = 7,600"}
+  - {id: subset, label: "Sensitivity subset\nn = 5,000"}
+  - {id: side, shape: note, label: "Reported separately (n = 12)", rank_same_with: subset}
+edges:
+  - {from: source, to: adults}
+  - {from: adults, to: measured}
+  - {from: measured, to: main}
+  - {from: measured, to: subset}
+  - {from: adults, to: excl1, style: dashed, arrow: false, constraint: false}
+  - {from: measured, to: excl2, style: dashed, arrow: false, constraint: false}
+  - {from: subset, to: side, style: dashed, arrow: false, constraint: false}

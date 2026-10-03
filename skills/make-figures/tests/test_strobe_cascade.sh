@@ -43,5 +43,25 @@ else
   echo "  SKIP  build integration (python-pptx not installed)"
 fi
 
+# (5) generate_flow_diagram.R nodes/edges schema (dashed edge = exclusion) is recognised but NOT
+#     evaluated: an evaluation was tried and flagged correct diagrams (strobe_split: 10,000 - 500 =
+#     9,500, 9,500 - 300 = 9,200 = 4,000 + 5,200; stard_branch: 1,000 - 20 = 980, 980 - 30 = 950 =
+#     400 + 550). Every nodes/edges config, balanced or not, must report NOT_ASSESSED, never
+#     CASCADE_IMBALANCE, and exit 0 even under --strict (the exit code origin/main gave it).
+for cfg in "$FX"/flow_graph_*.yaml "$HERE"/../references/exemplar_diagrams/*/template_input.yaml; do
+  name="$(basename "$(dirname "$cfg")")/$(basename "$cfg")"
+  out5="$(python3 "$CHK" --config "$cfg" --strict 2>&1)"; rc=$?
+  ck "$name: nodes/edges exits 0 under --strict" 0 "$rc"
+  printf '%s\n' "$out5" | grep -q '^NOT_ASSESSED: nodes/edges schema' && ck "$name: reported NOT_ASSESSED" yes yes || ck "$name: reported NOT_ASSESSED" yes no
+  printf '%s\n' "$out5" | grep -q 'CASCADE_IMBALANCE' && ck "$name: no CASCADE_IMBALANCE" no yes || ck "$name: no CASCADE_IMBALANCE" no no
+done
+for f in strobe_split stard_branch; do
+  [ -f "$FX/flow_graph_$f.yaml" ] && ck "must-not-flag fixture $f present" yes yes || ck "must-not-flag fixture $f present" yes no
+done
+
+# (6) A check that could not run is never an OK: unrecognised schema -> exit 2 (with or without
+#     --strict).
+python3 "$CHK" --config "$FX/figure1_flow.yaml" >/dev/null 2>&1; ck "unrecognised schema exits 2" 2 "$?"
+
 echo "fail=$fail"; [ "$fail" -eq 0 ] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
