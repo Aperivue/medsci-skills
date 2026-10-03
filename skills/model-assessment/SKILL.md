@@ -147,6 +147,10 @@ distance or HD95" still counts HD95, and "sensitivity and specificity were not r
 was not performed" still count as reported. Zero Majors means no keyword-level red flag; read the
 report for these cases.
 
+- Open: a bare "map" counts as mAP, so "saliency map", "heat map" or "probability map" (also
+  wrapped across a line) satisfies the detection-metric check in a report with no AP; and a
+  wrapped "mean average\nprecision" is not seen. Read the detection results for these.
+
 ## Part C — Uncertainty, OOD and selective prediction (deployment claims)
 
 A deployment-framed model must say what it does when unsure or off-distribution. Read

@@ -60,12 +60,6 @@ import re
 import sys
 from pathlib import Path
 
-# 'segmentation' and 'confidence' are left out: "instance segmentation mAP" and "confidence
-# mAP" name mean average precision, and matching is case-insensitive (mAP == map).
-_MAP_IMAGE_WORDS = ("saliency", "heat", "attention", "activation", "probability", "feature",
-                    "attribution", "relevance", "occlusion", "cam", "uncertainty", "density")
-_NOT_AN_AP_MAP = "".join(r"(?<!%s[ -])" % w for w in _MAP_IMAGE_WORDS)
-
 P = {
     "dice_iou": r"\b(dice|dsc|jaccard|iou|intersection over union)\b",
     # named boundary metrics only: the bare word 'boundary' ("boundary error was not
@@ -82,11 +76,7 @@ P = {
     "auprc": r"\b(auprc|au[- ]?prc|average precision|precision[- ]?recall|pr[- ]?auc)\b",
     "sens": r"\b(sensitivit\w+|recall|true[- ]?positive rate|tpr)\b",
     "spec": r"\b(specificit\w+|true[- ]?negative rate|tnr)\b",
-    # 'map' alone also ends "saliency map" / "heat map" / "probability map"; a map named by
-    # one of these image words is a picture, not mean average precision, so it does not count.
-    # An IoU suffix ("mAP50", "mAP50-95") still names mean average precision.
-    "detection": r"\b(froc|" + _NOT_AN_AP_MAP + r"map\d*\b|mean average precision|"
-                 r"sensitivity per (?:false positive|fp)|"
+    "detection": r"\b(froc|map\b|mean average precision|sensitivity per (?:false positive|fp)|"
                  r"competition performance metric|cpm)\b",
     "iou_crit": r"\b(?:iou|intersection over union|overlap)\b[^.]{0,40}"
                 r"(?:threshold|criterion|>=|≥|>|\bof\b|above|exceed|\d\.\d)"
@@ -231,9 +221,7 @@ def analyze(report: str, task: str) -> dict:
                 "scheme (one-vs-rest, macro/micro averaging, pairwise, or the prevalence-weighted "
                 "Obuchowski index) — the aggregate is ambiguous and prevalence-sensitive without it")
     elif task == "detection":
-        # Whitespace (a Markdown line wrap included) is collapsed first so the image-word
-        # lookbehind before 'map' also sees "saliency\nmap".
-        if not has(re.sub(r"\s+", " ", text), "detection"):
+        if not has(text, "detection"):
             add("DETECTION_METRIC_MISSING", "Major",
                 "no detection metric (FROC / mAP / sensitivity-per-false-positive) is reported — "
                 "patient-level accuracy is not a detection metric")

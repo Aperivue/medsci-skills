@@ -98,35 +98,20 @@ printf 'Three-class classification: one-vs-rest macro-averaged AUROC 0.90 and AU
 python3 "$DET" --report "$W/mc_ok.md" --task classification --out "$OUT" --quiet >/dev/null 2>&1
 check "FP: multiclass with one-vs-rest macro-average -> no MULTICLASS_NO_AVERAGING" no MULTICLASS_NO_AVERAGING
 
-# --- F4: a saliency / heat / probability map is not mAP (main cleared these) ---
-for w in "saliency map" "heat map" "Grad-CAM map" "probability map" "heat-map"; do
-  printf 'Lesion-level sensitivity was 0.88 (95%% CI 0.84-0.91). Figure 3 shows a %s; a hit required IoU >= 0.3.\n' "$w" > "$W/det_map.md"
-  python3 "$DET" --report "$W/det_map.md" --task detection --out "$OUT" --quiet >/dev/null 2>&1
-  check "F4: '$w' alone -> DETECTION_METRIC_MISSING" has DETECTION_METRIC_MISSING
-done
-# negative controls: every spelling of mean average precision still counts, also next to a saliency map
+# --- detection metric controls: every spelling of mean average precision counts,
+# also next to a saliency map and after an image-like word (clean on main) ---
 for m in "mAP 0.71" "MAP of 0.71" "map@0.5 0.71" "mAP50-95 0.52" "mean average precision 0.71"; do
   printf 'Detection: %s (95%% CI 0.65-0.77), IoU threshold 0.5. Figure 3 shows a saliency map.\n' "$m" > "$W/det_ap.md"
-  check "F4 control: '$m' + saliency map passes --strict" ok0 "$W/det_ap.md" detection
+  check "control: '$m' + saliency map passes --strict" ok0 "$W/det_ap.md" detection
 done
-
-# reviewer controls: AP phrasings that put an image word before mAP still count (clean on main)
-for m in "The instance segmentation mAP was 0.42" "The confidence mAP was 0.42"; do
+for m in "The instance segmentation mAP was 0.42" "The confidence mAP was 0.42" \
+         "At high density mAP was 0.42" "With attention mAP was 0.42"; do
   printf '%s (95%% CI 0.38-0.46) at an IoU threshold of 0.5.\n' "$m" > "$W/det_ap2.md"
-  check "F4 control: '$m' passes --strict" ok0 "$W/det_ap2.md" detection
+  check "control: '$m' passes --strict" ok0 "$W/det_ap2.md" detection
 done
-
-# reviewer counter-example: a saliency map wrapped across a Markdown line is still not mAP
-printf 'Lesion-level sensitivity was 0.88 (95%% CI 0.84-0.91). Figure 3 shows a saliency\nmap; a hit required IoU >= 0.3.\n' > "$W/det_wrap.md"
-python3 "$DET" --report "$W/det_wrap.md" --task detection --out "$OUT" --quiet >/dev/null 2>&1
-check "F4: 'saliency<newline>map' alone -> DETECTION_METRIC_MISSING" has DETECTION_METRIC_MISSING
-printf 'Lesion-level sensitivity was 0.88 (95%% CI 0.84-0.91). Figure 3 shows a heat  map; a hit required IoU >= 0.3.\n' > "$W/det_dblsp.md"
-python3 "$DET" --report "$W/det_dblsp.md" --task detection --out "$OUT" --quiet >/dev/null 2>&1
-check "F4: 'heat<two spaces>map' alone -> DETECTION_METRIC_MISSING" has DETECTION_METRIC_MISSING
-# controls: AP phrasings wrapped across a line still count (clean on main)
-for m in 'The instance segmentation\nmAP was 0.42' 'The mean average\nprecision was 0.42' 'The mAP\nwas 0.42'; do
+for m in 'The instance segmentation\nmAP was 0.42' 'The mAP\nwas 0.42'; do
   printf "$m"' (95%% CI 0.38-0.46) at an IoU threshold of 0.5.\n' > "$W/det_ap3.md"
-  check "F4 control: wrapped '$m' passes --strict" ok0 "$W/det_ap3.md" detection
+  check "control: wrapped '$m' passes --strict" ok0 "$W/det_ap3.md" detection
 done
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"; exit "$fail"

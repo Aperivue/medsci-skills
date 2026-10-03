@@ -3303,8 +3303,8 @@
     },
     {
       "path": "skills/model-assessment/SKILL.md",
-      "size": 17468,
-      "sha256": "be19f365d40b537c7fa7ad2ad08d28d7e1e587cfb07aa78ccbb52ae9660a7c4e"
+      "size": 17741,
+      "sha256": "38e72392ab976b8a41ec98fcb0096dd0aa5ff727571394106ea9ab2196ad162b"
     },
     {
       "path": "skills/model-assessment/references/explainability_guide.md",
@@ -3368,8 +3368,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_metric_reporting.py",
-      "size": 19568,
-      "sha256": "6f1988a95b6cf203f82952cbcfc623f794b353ba7e2c64eb66db647ff1f92064"
+      "size": 18650,
+      "sha256": "1c2e773dde69de66a346255de9355bf2fdbcb213b4c3f91c565e2784cc7b3330"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage.py",
