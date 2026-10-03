@@ -73,7 +73,7 @@ CASES = [
     Case(T, "Test 1:", "n_total", 490, "epiR::epi.ssdxsesp(0.85, 0.85, Py=0.6, epsilon=0.05, 'absolute') total.n",
          needle="**N = 490**"),
     Case(T, "Test 1:", "n_se", 327, "epiR se.n"),
-    Case(T, "Test 1:", "n_total", 654, "epiR::epi.ssdxsesp(0.85, 0.90, Py=0.3, ...) total.n",
+    Case(T, "Test 1:", "n_total", 654, "epiR::epi.ssdxsesp(test=0.85, type='se', Py=0.3, epsilon=0.05, error='absolute')",
          inputs={"prevalence": 0.30, "sp_expected": 0.90}),
     # Test 2 -- Walter test (k matters) and Bonett precision.
     Case(T, "Test 2:", "n_icc_test", 24, "ICC.Sample.Size::calculateIccSampleSize(0.75, 0.5, k=3, tails=1)",
@@ -191,7 +191,7 @@ CASES = [
 # The whole analyze-stats template: run once, read its CSV.
 TEMPLATE_EXPECT = [
     # (row Analysis, column, expected, source)
-    ("Diagnostic accuracy", "N_total", 654, "epiR::epi.ssdxsesp(0.85, 0.90, Py=0.3, epsilon=0.05, 'absolute')"),
+    ("Diagnostic accuracy", "N_total", 654, "epiR::epi.ssdxsesp(test=0.85, type='se', Py=0.3, epsilon=0.05, error='absolute')"),
     ("ICC agreement", "N_required", 36, "ICC.Sample.Size::calculateIccSampleSize(0.75, 0.5, k=2, tails=1)"),
     ("Kappa agreement", "N_required", 74, "kappaSize::PowerBinary(0.4, 0.7, props=0.5, raters=2)"),
     ("Log-rank test", "N_events", 170, "gsDesign::nEvents(hr=0.65, alpha=0.05, beta=0.2, sided=2) = 169.18"),
