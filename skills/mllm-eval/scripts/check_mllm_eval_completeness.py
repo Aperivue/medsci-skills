@@ -18,12 +18,18 @@ CHECKS (verdicts; which apply depends on --task):
   4. CONTAMINATION_UNADDRESSED (Major)  a public benchmark is named but no
                                         contamination / training-cutoff / held-out
                                         statement.
-  5. READER_STUDY_MISSING      (Major)  report-gen with no blinded clinical reader
-                                        study.
+  5. READER_STUDY_MISSING      (Major / Minor)  report-gen with no blinded clinical
+                                        reader study: Major for a deployment / utility
+                                        claim (manifest: claims.clinical_deployment
+                                        true), Minor otherwise.
   6. PROMPT_PROVENANCE_MISSING (Minor)  no prompt + temperature/seed + multi-run
                                         disclosure.
   7. ANSWER_MATCHING_MISSING   (Minor)  vqa/classification with no answer-matching
                                         rule (exact / normalised / LLM-judge).
+  8. CLASSIFICATION_METRICS_NOT_ASSESSED (Minor, manifest mode)  classification: the
+                                        manifest has no field for classification
+                                        metrics, so per-class sensitivity/specificity and
+                                        PPV/NPV at the real prevalence are not checked.
 
 INPUTS
   --manifest  eval_manifest.json: the axes DECLARED as structured fields (preferred;
@@ -42,7 +48,10 @@ INPUTS
 OUTPUT
   A table (stdout) and, with --out, a JSON artifact:
     {plan|manifest, mode, task, claims[{verdict, severity, detail, where}], summary}
-  Manifest mode adds UNLISTED_METHOD (Minor) for each "other:<description>" value.
+  Manifest mode adds "basis": "declared" and UNLISTED_METHOD (Minor) for each
+  "other:<description>" value. The final line says only what was checked: "OK" when no
+  claim fired, "No Major gap: N Minor" when only Minors did; manifest mode marks both
+  "(as declared)".
 
 Stdlib-only (re / json / argparse / pathlib). Exit codes: 0 clean (or report-only),
 1 Major claim(s) found (with --strict), 2 input/usage error.
@@ -396,13 +405,22 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
             f"no answer-matching rule ({why(am == 'none')}): exact / normalised / LLM-as-judge",
             "answer_matching.method")
 
+    if task == "classification":
+        # No manifest field carries classification metrics, so their presence is unknown, not
+        # absent: report it as not assessed rather than let the OK line imply it was checked.
+        add("CLASSIFICATION_METRICS_NOT_ASSESSED", "Minor",
+            "the manifest has no field for classification metrics, so per-class sensitivity / "
+            "specificity (or precision / recall / F1) and PPV / NPV at the real prevalence are not "
+            "assessed — check the Results by eye, or declare them in model-assessment's "
+            "metrics_manifest.json (check_metric_reporting.py --manifest)", "metrics")
+
     for where, value in unlisted:
         add("UNLISTED_METHOD", "Minor",
             f"{value!r} is not on the allow-list; counted as covering the axis, but check by eye "
             "that it is a recognised method", where)
 
     n_major = sum(1 for c in claims if c["severity"] == "Major")
-    return {"manifest": path, "mode": "manifest", "task": task, "claims": claims,
+    return {"manifest": path, "mode": "manifest", "basis": "declared", "task": task, "claims": claims,
             "summary": {"n_claims": len(claims), "n_major": n_major,
                         "verdict": "MAJOR_CANDIDATE" if n_major else "OK"}}
 
@@ -412,7 +430,7 @@ def render(result: dict) -> str:
     for c in result["claims"]:
         lines.append(f"| {c['verdict']} | {c['severity']} | {c['detail']} |")
     if len(lines) == 2:
-        lines.append("| (none) | — | evaluation plan covers the required MLLM axes |")
+        lines.append(f"| (none) | — | no gap in the axes this gate checks for {result['task']} |")
     return "\n".join(lines)
 
 
@@ -462,8 +480,14 @@ def main() -> int:
         else:
             print("Manifest mode: checks what is declared, not that the work was done.")
         s = result["summary"]
-        print(f"MAJOR candidate: {s['n_major']} evaluation-completeness gap(s)." if s["n_major"]
-              else "OK: evaluation plan covers the required MLLM axes.")
+        basis = " (as declared)" if result["mode"] == "manifest" else ""
+        n_minor = s["n_claims"] - s["n_major"]
+        if s["n_major"]:
+            print(f"MAJOR candidate: {s['n_major']} evaluation-completeness gap(s).")
+        elif n_minor:
+            print(f"No Major gap{basis}: {n_minor} Minor (see table).")
+        else:
+            print(f"OK{basis}: no gap in the evaluation axes this gate checks for {result['task']}.")
 
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)

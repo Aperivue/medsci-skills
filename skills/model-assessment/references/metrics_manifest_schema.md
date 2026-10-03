@@ -33,17 +33,29 @@ the others are validated but not read.
 | `generative.downstream_task` | list | `segmentation`, `detection`, `classification`, `quantitative_measurement` | `GENERATIVE_NO_DOWNSTREAM` (Major) |
 | `notes` | any | free text, not read | — |
 
-Checks by task (verdicts and severities as in prose mode):
-- **segmentation / interactive** — `pixel_accuracy` declared → `PIXEL_ACCURACY_SEG` (Major);
+Checks by task (verdicts and severities as in prose mode, plus the two headline-metric verdicts,
+which run in manifest mode only because a declared list makes the absence certain):
+- **segmentation / interactive** — neither `dice` nor `iou` declared → `SEGMENTATION_METRIC_MISSING`
+  (Major); `pixel_accuracy` declared → `PIXEL_ACCURACY_SEG` (Major);
   `dice` or `iou` without a boundary metric → `NO_BOUNDARY_METRIC` (Major).
 - **interactive** — also the three interactive fields above (the metric `noc` counts as an interaction axis).
-- **classification** — `accuracy` without `auroc` and without both `sensitivity` and `specificity` →
+- **classification** — none of `accuracy`, `auroc`, `auprc`, `sensitivity`, `specificity`, `ppv`,
+  `npv` declared → `CLASSIFICATION_METRIC_MISSING` (Major; calibration metrics alone do not count);
+  `accuracy` without `auroc` and without both `sensitivity` and `specificity` →
   `ACCURACY_ONLY` (Major); `auroc` without `auprc` → `AUPRC_MISSING` (Minor); `n_classes` > 2 with
   `accuracy` or `auroc` and no averaging → `MULTICLASS_NO_AVERAGING` (Minor).
 - **detection** — neither `froc` nor `map` → `DETECTION_METRIC_MISSING` (Major); one of them with no
   match criterion → the same verdict.
 - **generative** — a similarity metric without a downstream task → `GENERATIVE_NO_DOWNSTREAM`
   (Major); no similarity metric → `GENERATIVE_NO_SIMILARITY` (Minor).
+
+Both headline-metric verdicts drop to Minor when an `other:` metric is declared, since it may be
+the headline metric under a name the list does not carry.
+
+The final line states only what was checked, marked as declared: `OK (as declared): no
+metric-reporting issue found by the <task> checks.` when nothing fired, `No Major issue (as
+declared): N Minor (see table).` when only Minors did. The `--out` JSON carries `"basis":
+"declared"` (prose-mode JSON has no `basis` key).
 
 Not on the list (write `other:` and check by eye): boundary IoU / boundary F1, NRMSE, a weighted
 average. Every allow-listed value is named in `metric_guide.md` or `metric_selection_grounding.md`. An

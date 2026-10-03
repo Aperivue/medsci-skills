@@ -75,7 +75,9 @@ Use `"none"` for an axis not done and `"other:<description>"` for a method not l
 value exits 2. `--plan plan.md --task report_generation|vqa|classification` still runs the older
 keyword check on prose (see Known limits).
 `NGRAM_ONLY` / `FAITHFULNESS_MISSING` / `REFERENCE_STANDARD_MISSING` / `CONTAMINATION_UNADDRESSED` /
-`READER_STUDY_MISSING` must be resolved.
+`READER_STUDY_MISSING` must be resolved. A classification manifest always reports
+`CLASSIFICATION_METRICS_NOT_ASSESSED` (Minor): the manifest has no metric field for it, so check
+per-class sensitivity/specificity and PPV at the real prevalence by eye.
 
 ### Phase 6 — Hand off
 Methods/Results → `/write-paper`; compliance (TRIPOD-LLM / MI-CLEAR-LLM) → `/check-reporting`; reviewer

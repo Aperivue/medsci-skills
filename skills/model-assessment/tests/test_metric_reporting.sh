@@ -227,4 +227,45 @@ python3 "$DET" --report "$F/seg_good.md" --task segmentation --out "$OUT" > "$W/
 check "prose mode prints the PROSE_MODE notice" grep -q '^PROSE_MODE:' "$W/prose.txt"
 check "prose mode JSON mode=prose" python3 -c "import json;assert json.load(open('$OUT'))['mode']=='prose'"
 
+# --- empty declaration: an absent headline metric is certain in manifest mode (Major) ---
+sev(){ python3 -c "import json;d=json.load(open('$OUT'));assert [c['severity'] for c in d['claims'] if c['verdict']=='$1']==['$2'],d['claims']"; }
+mj '{"task":"classification","metrics":[],"ci_reported":true}'
+check "classification with metrics [] exits 1" test "$?" -eq 1
+check "  CLASSIFICATION_METRIC_MISSING is Major" sev CLASSIFICATION_METRIC_MISSING Major
+mj '{"task":"classification"}'
+check "classification with no metrics key exits 1" test "$?" -eq 1
+check "  CLASSIFICATION_METRIC_MISSING" has CLASSIFICATION_METRIC_MISSING
+mj '{"task":"classification","metrics":["brier","ece"],"ci_reported":true}'
+check "calibration only is not a discrimination metric (exit 1)" test "$?" -eq 1
+mj '{"task":"classification","metrics":["other: F1 score"],"ci_reported":true}'
+check "classification with only an other: metric exits 0" test "$?" -eq 0
+check "  CLASSIFICATION_METRIC_MISSING is Minor (unlisted may be the headline)" sev CLASSIFICATION_METRIC_MISSING Minor
+mj '{"task":"classification","metrics":["ppv","npv"],"ci_reported":true}'
+check "control: PPV + NPV counts as a headline metric" no CLASSIFICATION_METRIC_MISSING
+mj '{"task":"segmentation"}'
+check "segmentation with no metrics exits 1" test "$?" -eq 1
+check "  SEGMENTATION_METRIC_MISSING is Major" sev SEGMENTATION_METRIC_MISSING Major
+mj '{"task":"segmentation","metrics":["hd95"],"ci_reported":true}'
+check "segmentation with a boundary metric but no overlap exits 1" has SEGMENTATION_METRIC_MISSING
+mj '{"task":"interactive","metrics":["noc"],"interactive":{"interaction_axis":"interactions_to_threshold","initial_vs_converged":true,"per_case_time":true},"ci_reported":true}'
+check "interactive with no overlap metric -> SEGMENTATION_METRIC_MISSING" has SEGMENTATION_METRIC_MISSING
+mj '{"task":"segmentation","metrics":["other: boundary F1"],"ci_reported":true}'
+check "segmentation with only an other: metric exits 0" test "$?" -eq 0
+check "  SEGMENTATION_METRIC_MISSING is Minor" sev SEGMENTATION_METRIC_MISSING Minor
+mj '{"task":"detection","metrics":[],"detection":{"match_criterion":"iou_threshold"},"ci_reported":true}'
+check "control: detection keeps its own verdict (no new code)" no CLASSIFICATION_METRIC_MISSING
+# --- the final line says only what was checked; manifest mode is marked as declared ---
+printf '%s' '{"task":"segmentation","metrics":["dice","hd95"]}' > "$W/m.json"
+python3 "$DET" --manifest "$W/m.json" --out "$OUT" > "$W/o.txt" 2>&1
+check "Minor-only manifest: 'No Major issue (as declared): 1 Minor'" grep -qx 'No Major issue (as declared): 1 Minor (see table).' "$W/o.txt"
+check "  no OK line when a Minor fired" bash -c "! grep -q '^OK' '$W/o.txt'"
+check "  JSON basis=declared" python3 -c "import json;assert json.load(open('$OUT'))['basis']=='declared'"
+python3 "$DET" --manifest "$F/manifest_seg_good.json" > "$W/o.txt" 2>&1
+check "clean manifest: 'OK (as declared): ...'" grep -q '^OK (as declared): no metric-reporting issue found by the segmentation checks\.$' "$W/o.txt"
+printf '\n' > "$W/empty.md"
+python3 "$DET" --report "$W/empty.md" --task classification --out "$OUT" > "$W/o.txt" 2>&1
+check "empty prose report: 'No Major issue: 1 Minor'" grep -qx 'No Major issue: 1 Minor (see table).' "$W/o.txt"
+check "  no uncertainty claim in the final line" bash -c "! grep -q 'uncertainty reported' '$W/o.txt'"
+check "  prose JSON has no basis key" python3 -c "import json;assert 'basis' not in json.load(open('$OUT'))"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"; exit "$fail"

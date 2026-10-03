@@ -136,7 +136,8 @@ split by. See `references/radiomics_ml_guide.md`.
 python3 scripts/check_radiomics_ml.py --manifest pipeline_manifest.json --strict
 ```
 Verdicts: `NO_NESTED_CV`, `HIGH_DIM_LOW_EVENTS`, `SELECTION_OUTSIDE_CV` (Major);
-`NO_FEATURE_STABILITY`, `NO_CALIBRATION`, `NO_EXTERNAL_VALIDATION` (Minor). Complements
+`NO_FEATURE_STABILITY`, `NO_CALIBRATION`, `NO_EXTERNAL_VALIDATION`, and `HIGH_DIM_NOT_ASSESSED`
+when `n_features`, `n_samples` or `n_events` is missing (Minor). Complements
 `self-review`'s `check_cv_leakage` (which audits a finished manuscript's prose) at the pipeline-spec
 level.
 

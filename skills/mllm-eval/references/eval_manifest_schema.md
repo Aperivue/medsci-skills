@@ -26,12 +26,18 @@ unknown key exits 2 and names the field. A field left out counts as not covered,
 | `decoding` | object | `temperature` (finite number ≥ 0), `greedy` (bool); `seed` (int ≥ 0) and `top_p` (0–1] are recorded, not gated | `PROMPT_PROVENANCE_MISSING` (Minor) without `temperature` or `greedy: true` |
 | `runs.n` | int ≥ 1 | | `PROMPT_PROVENANCE_MISSING` (Minor) below 3 runs (Phase 4) |
 | `answer_matching.method` | string | `exact`, `normalised` (or `normalized`), `llm_as_judge` | `ANSWER_MATCHING_MISSING` (Minor, VQA and classification) |
+| (no field) | | classification metrics are not a manifest field | `CLASSIFICATION_METRICS_NOT_ASSESSED` (Minor, every classification manifest): per-class sensitivity/specificity and PPV/NPV at the real prevalence are not checked — read the Results, or gate them with model-assessment's `check_metric_reporting.py --manifest` |
 | `claims.clinical_deployment` | bool | | raises `READER_STUDY_MISSING` to Major |
 | `notes` | any | free text, not read | — |
 
 Every value that clears an axis is named in `evaluation_axes.md` (the reference standard in
 SKILL.md Phase 2). An LLM judge must itself be validated against a human-labelled subset; the gate
 does not check that.
+
+The final line states only what was checked, marked as declared: `OK (as declared): no gap in the
+evaluation axes this gate checks for <task>.` when nothing fired, `No Major gap (as declared): N
+Minor (see table).` when only Minors did. The `--out` JSON carries `"basis": "declared"` (prose-mode
+JSON has no `basis` key).
 
 An `other:<description>` value counts as covering its axis, the reference standard included,
 and is reported only as a Minor `UNLISTED_METHOD`: read each one by eye. `other: none` is read as

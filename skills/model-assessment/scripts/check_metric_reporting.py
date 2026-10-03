@@ -36,6 +36,12 @@ CHECKS (verdicts; which apply depends on --task):
                                   reported without a downstream-task evaluation — similarity
                                   is not clinical utility (quality and task efficacy can diverge).
     GENERATIVE_NO_SIMILARITY (Minor)  a synthesis claim with no image-quality metric named.
+  manifest mode only (an empty declaration is certain; prose absence is not):
+    CLASSIFICATION_METRIC_MISSING (Major)  classification with no discrimination / threshold
+                                  metric declared (accuracy, AUROC, AUPRC, sensitivity,
+                                  specificity, PPV, NPV); Minor when only an "other:" metric is.
+    SEGMENTATION_METRIC_MISSING (Major)  segmentation / interactive with no overlap metric
+                                  (Dice / IoU) declared; Minor when only an "other:" metric is.
   all tasks:
     CI_MISSING           (Minor)  no confidence interval / uncertainty mentioned for
                                   the headline metric.
@@ -57,7 +63,10 @@ INPUTS
 OUTPUT
   A table (stdout) and, with --out, a JSON artifact:
     {report|manifest, mode, task, claims[{verdict, severity, detail, where}], summary}
-  Manifest mode adds UNLISTED_METHOD (Minor) for each "other:<description>" value.
+  Manifest mode adds "basis": "declared" and UNLISTED_METHOD (Minor) for each
+  "other:<description>" value. The final line says only what was checked: "OK" when no
+  claim fired, "No Major issue (N Minor ...)" when only Minors did; manifest mode marks
+  both "(as declared)".
 
 Stdlib-only. Exit codes: 0 clean (or report-only), 1 Major claim(s) (with --strict),
 2 input/usage error.
@@ -282,6 +291,8 @@ METRICS = (OVERLAP | BOUNDARY | DETECTION_M | SIMILARITY |
            {"pixel_accuracy", "accuracy", "auroc", "auprc", "sensitivity", "specificity",
             "ppv", "npv", "brier", "calibration_slope", "calibration_intercept", "ece",
             "noc", "likert_visual_score"})
+# a classification report needs at least one of these (discrimination or threshold metrics)
+CLF_HEADLINE = {"accuracy", "auroc", "auprc", "sensitivity", "specificity", "ppv", "npv"}
 AVERAGING = {"one_vs_rest", "macro", "micro", "pairwise", "obuchowski"}
 MATCH = {"iou_threshold", "centroid_threshold", "mask_threshold"}
 INTERACTION = {"dice_vs_interactions", "interactions_to_threshold"}
@@ -440,7 +451,24 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
     def add(v, sev, d, where):
         claims.append({"verdict": v, "severity": sev, "detail": d, "where": where})
 
+    # An "other:" metric might be the headline metric under another name, so its absence from
+    # the allow-list is not certain: the headline-metric verdicts drop to Minor then.
+    other_metric = any(w.startswith("metrics[") for w, _ in unlisted)
+
+    def headline_missing(verdict, what):
+        if other_metric:
+            add(verdict, "Minor",
+                f"no {what} declared on the allow-list; an \"other:\" metric is declared — confirm "
+                "by eye that it is one", "metrics")
+        else:
+            add(verdict, "Major",
+                f"no {what} declared — the task's headline metric is absent, so nothing below it "
+                "can be checked", "metrics")
+
     if task in ("segmentation", "interactive"):
+        if not metrics & OVERLAP:
+            headline_missing("SEGMENTATION_METRIC_MISSING",
+                             "overlap metric (Dice / IoU; surface Dice / NSD is a boundary metric)")
         if "pixel_accuracy" in metrics:
             add("PIXEL_ACCURACY_SEG", "Major",
                 "pixel/voxel accuracy is declared for segmentation — misleading on imbalanced masks; "
@@ -465,6 +493,10 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
                 "no per-case interaction/inference time declared", "interactive.per_case_time")
     elif task == "classification":
         acc, auroc = "accuracy" in metrics, "auroc" in metrics
+        if not metrics & CLF_HEADLINE:
+            headline_missing("CLASSIFICATION_METRIC_MISSING",
+                             "discrimination or threshold metric (AUROC / AUPRC / sensitivity + "
+                             "specificity / PPV / NPV / accuracy)")
         if acc and not auroc and not {"sensitivity", "specificity"} <= metrics:
             add("ACCURACY_ONLY", "Major",
                 "accuracy is declared without AUROC (or a sensitivity + specificity pair) — accuracy "
@@ -508,7 +540,7 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
             f"{value!r} is not on the allow-list; it {effect} — confirm it by eye", where)
 
     n_major = sum(1 for c in claims if c["severity"] == "Major")
-    return {"manifest": path, "mode": "manifest", "task": task, "claims": claims,
+    return {"manifest": path, "mode": "manifest", "basis": "declared", "task": task, "claims": claims,
             "summary": {"n_claims": len(claims), "n_major": n_major,
                         "verdict": "MAJOR_CANDIDATE" if n_major else "OK"}}
 
@@ -518,7 +550,7 @@ def render(result: dict) -> str:
     for c in result["claims"]:
         lines.append(f"| {c['verdict']} | {c['severity']} | {c['detail']} |")
     if len(lines) == 2:
-        lines.append("| (none) | — | task-correct metrics with uncertainty reported |")
+        lines.append(f"| (none) | — | no issue found by the {result['task']} checks |")
     return "\n".join(lines)
 
 
@@ -569,8 +601,14 @@ def main() -> int:
         else:
             print("Manifest mode: checks what is declared, not the reported numbers.")
         s = result["summary"]
-        print(f"MAJOR candidate: {s['n_major']} metric-reporting issue(s)." if s["n_major"]
-              else "OK: task-correct metrics with uncertainty reported.")
+        basis = " (as declared)" if result["mode"] == "manifest" else ""
+        n_minor = s["n_claims"] - s["n_major"]
+        if s["n_major"]:
+            print(f"MAJOR candidate: {s['n_major']} metric-reporting issue(s).")
+        elif n_minor:
+            print(f"No Major issue{basis}: {n_minor} Minor (see table).")
+        else:
+            print(f"OK{basis}: no metric-reporting issue found by the {result['task']} checks.")
 
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
