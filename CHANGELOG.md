@@ -225,9 +225,27 @@
 - **The rest of the `| grep -q` pipes are gone.** Twenty-two checks across ten scripts still fed a shell
   variable to `grep -q` through a pipe under `pipefail`; they now pass it as a here-string, so there
   is no pipe to break whatever the output size.
+- **Declared-manifest gates report an empty or partial declaration instead of clearing it** (#663).
+  model-assessment `check_metric_reporting.py --manifest` flags `CLASSIFICATION_METRIC_MISSING` /
+  `SEGMENTATION_METRIC_MISSING` (Major; Minor when only an `other:` metric is declared) when the
+  task's headline metric is absent; it had printed "OK: task-correct metrics with uncertainty
+  reported." for `metrics: []`. mllm-eval adds a Minor `CLASSIFICATION_METRICS_NOT_ASSESSED` (its
+  schema has no classification-metric field); radiomics-ml adds a Minor `HIGH_DIM_NOT_ASSESSED` when
+  a count is missing instead of skipping `HIGH_DIM_LOW_EVENTS` silently. Manifest-mode runs print
+  `OK (as declared): ...` and write `"basis": "declared"`; a run with only Minor claims prints
+  `No Major issue: N Minor` instead of an OK line.
 
 ### CI
 
+- **The validate job's Python packages are pinned** (#664). `.github/requirements-ci.txt` holds
+  the full transitive set CI resolved on Python 3.11, so an upstream release cannot change a
+  numerical test's result between two runs of the same commit; its header says how to refresh it.
+- **Detector result convention, enforced for new detectors** (#666). `docs/detector-conventions.md`
+  separates what CI enforces (the `"detector"` key; `summary.verdict` in {OK, MAJOR_CANDIDATE,
+  NOT_ASSESSED}) from the target for new or modified detectors (counts, `*_NOT_ASSESSED` claims,
+  final-line forms, exit codes). `check_detector_envelopes.py` reads each detector's verdict from
+  source; the 65 detectors that do not conform yet are listed with their current values, and the
+  list can only shrink.
 - **A failing gate no longer hides the rest.** `validate` gates run after an earlier gate fails
   (`if: !cancelled() && steps.setup.outcome == 'success'`), so one run reports every failure; a
   failed setup still skips them all.
