@@ -74,8 +74,9 @@ scaffold also reads `/imaging-data`'s gate reports (`check_dataset_profile`,
 `check_preprocessing_leakage`, `check_normalizer_domain` JSON) from `<manifest dir>/qc/` and
 `<manifest dir>/../qc/` (the manifest path is resolved first). `--imaging-qc <file|dir>` (repeatable)
 **replaces** that search: pointed at an empty directory, every gate is recorded NOT ASSESSED. A
-leakage report is skipped only when its recorded manifest path resolves to a different existing file
-(the reason is shown); an ambiguous one is read.
+leakage report is skipped only when its recorded manifest has a different file name, resolves to an
+existing file, and that file's bytes differ from the scaffolded manifest (the reason is shown);
+anything else — a copied project, a same-named manifest elsewhere — is read.
 - A **Major** claim — or any severity that is not plainly Minor/Flag, or a report whose
   `summary.n_major` exceeds its listed Majors — refuses: exit 1, nothing written, each code + report
   listed. Resolve it upstream and re-run the gate, or pass `--ack-qc CODE='reason'` once per code.

@@ -97,7 +97,8 @@ check "no QC report: config.yaml lists them" grep -q "^  not_assessed: \[check_d
 # (e) a leakage report about a DIFFERENT manifest is skipped (demo 05 keeps a naive one beside it);
 #     the sibling layout manifests/ + qc/ is found through <manifest dir>/../qc/
 mkdir -p "$WORK/sib/manifests" "$WORK/sib/qc"; printf '%s\n' "$PM" > "$WORK/sib/manifests/preprocessing_manifest.json"
-printf '%s\n' "$PM" > "$WORK/sib/manifests/preprocessing_manifest_naive.json"   # the other file exists
+PM_NAIVE='{"split_seed": 7, "transforms": [{"name": "zscore", "fit_scope": "all", "stage": "before_split"}], "split_assignment": []}'
+printf '%s\n' "$PM_NAIVE" > "$WORK/sib/manifests/preprocessing_manifest_naive.json"   # other name, other bytes
 cat > "$WORK/sib/qc/leak_naive.json" <<'JSON'
 {"detector": "check_preprocessing_leakage", "manifest": "manifests/preprocessing_manifest_naive.json", "claims": [{"verdict": "PREPROCESS_BEFORE_SPLIT", "severity": "Major", "detail": "x", "where": "t"}], "summary": {}}
 JSON
@@ -155,35 +156,56 @@ printf '{"detector": "check_dataset_profile", "claims": [' > "$WORK/unread/qc/tr
 printf '{"detector": "check_preprocessing_leakage", "claims": null}\n' > "$WORK/unread/qc/nullclaims.json"
 printf '[1, 2]\n' > "$WORK/unread/qc/list.json"
 printf '\xef\xbb\xbf{"detector": "check_normalizer_domain", "claims": [{"verdict": "NORMALIZER_SPLIT_DIVERGENCE", "severity": "Flag", "detail": "bom"}]}\n' > "$WORK/unread/qc/bom.json"
-printf '{"tool": "something_else", "claims": []}\n' > "$WORK/unread/qc/unrelated.json"
+printf '{"detector": "check_split_leakage", "claims": []}\n' > "$WORK/unread/qc/unrelated.json"
+printf '{"claims": [{"verdict": "LABEL_EMPTY", "severity": "Minor", "detail": "x"}]}\n' > "$WORK/unread/qc/nodetector.json"
 run unread; rc=$?
 check "unreadable files do not pass silently: stderr names each" bash -c \
   "grep -q 'UNREADABLE QC FILE: .*truncated.json' '$WORK/unread/stderr' && grep -q 'UNREADABLE QC FILE: .*nullclaims.json' '$WORK/unread/stderr' && grep -q 'UNREADABLE QC FILE: .*list.json' '$WORK/unread/stderr'"
 check "unreadable files listed in IMAGING_QC.md as NOT ASSESSED" bash -c \
   "grep -q 'UNREADABLE .*truncated.json' '$WORK/unread/repo/IMAGING_QC.md' && grep -q 'nullclaims.json\`: NOT ASSESSED' '$WORK/unread/repo/IMAGING_QC.md'"
 check "a UTF-8 BOM report is read (Flag carried forward)" grep -q "NORMALIZER_SPLIT_DIVERGENCE\*\* (Flag" "$WORK/unread/repo/IMAGING_QC.md"
-check "unrelated JSON (no detector) is ignored" bash -c "! grep -q unrelated.json '$WORK/unread/repo/IMAGING_QC.md' '$WORK/unread/stderr'"
-check "config.yaml counts the unreadable files" grep -q "^  unreadable: 3" "$WORK/unread/repo/config.yaml"
+check "a claims list without a detector field is UNREADABLE" grep -q "UNREADABLE QC FILE: .*nodetector.json" "$WORK/unread/stderr"
+check "another tool's report (its own detector) is ignored" bash -c "! grep -q unrelated.json '$WORK/unread/repo/IMAGING_QC.md' '$WORK/unread/stderr'"
+check "config.yaml counts the unreadable files" grep -q "^  unreadable: 4" "$WORK/unread/repo/config.yaml"
 
-# (j) N3: leakage-report matching
-leak_case() {  # $1 label, $2 recorded manifest path (JSON-escaped), $3 make the other file (yes/no)
-    mkdir -p "$WORK/$1/manifests" "$WORK/$1/qc"; printf '%s\n' "$PM" > "$WORK/$1/manifests/preprocessing_manifest.json"
-    [ "$3" = yes ] && printf '%s\n' "$PM" > "$WORK/$1/manifests/preprocessing_manifest_naive.json"
+# (j) leakage-report matching. Skip ONLY when the recorded file name differs, the recorded path
+#     resolves to an existing file, and that file's bytes differ from the scaffolded manifest.
+leak_case() {  # $1 label, $2 recorded manifest path (JSON-escaped); the project is set up by the caller
     printf '{"detector": "check_preprocessing_leakage", "manifest": "%s", "claims": [{"verdict": "PREPROCESS_BEFORE_SPLIT", "severity": "Major", "detail": "x"}]}\n' "$2" > "$WORK/$1/qc/leak.json"
     python3 "$SCAFFOLD" --manifest "$WORK/m.csv" --preprocessing-manifest "$WORK/$1/manifests/preprocessing_manifest.json" \
         --out "$WORK/$1/repo" --quiet >/dev/null 2>"$WORK/$1/stderr"; }
-leak_case l_win 'manifests\\preprocessing_manifest_naive.json' yes
-check "Windows-separated path to a different existing file is skipped (exit 0)" test "$?" -eq 0
-check "skip reason shown in IMAGING_QC.md" grep -q "skipped .*leak.json.: audits .*preprocessing_manifest_naive.json, a different file" "$WORK/l_win/repo/IMAGING_QC.md"
-leak_case l_amb 'elsewhere/preprocessing_manifest_naive.json' no
-check "recorded path that does not resolve is read, not skipped (exit 1)" test "$?" -eq 1
-leak_case l_same 'manifests/preprocessing_manifest.json' no
+leak_proj() { mkdir -p "$WORK/$1/manifests" "$WORK/$1/qc"; printf '%s\n' "$PM" > "$WORK/$1/manifests/preprocessing_manifest.json"; }
+leak_proj l_win; printf '%s\n' "$PM_NAIVE" > "$WORK/l_win/manifests/preprocessing_manifest_naive.json"
+leak_case l_win 'manifests\\preprocessing_manifest_naive.json'
+check "naive report (other name, other bytes, Windows separators) is skipped (exit 0)" test "$?" -eq 0
+check "skip reason shown in IMAGING_QC.md" grep -q "skipped .*leak.json.: audits .*preprocessing_manifest_naive.json (preprocessing_manifest_naive.json), a different manifest" "$WORK/l_win/repo/IMAGING_QC.md"
+leak_proj l_amb; leak_case l_amb 'elsewhere/preprocessing_manifest_naive.json'
+check "recorded path that does not resolve is read (exit 1)" test "$?" -eq 1
+leak_proj l_same; leak_case l_same 'manifests/preprocessing_manifest.json'
 check "report about this manifest is applied (exit 1)" test "$?" -eq 1
-mkdir -p "$WORK/l_twin/other"; leak_case l_twin 'other/preprocessing_manifest.json' no
-printf '%s\n' "$PM" > "$WORK/l_twin/other/preprocessing_manifest.json"
-python3 "$SCAFFOLD" --manifest "$WORK/m.csv" --preprocessing-manifest "$WORK/l_twin/manifests/preprocessing_manifest.json" \
-    --out "$WORK/l_twin/repo" --quiet >/dev/null 2>&1
-check "same file name, demonstrably different file: skipped (exit 0)" test "$?" -eq 0
+leak_proj l_twin; mkdir -p "$WORK/l_twin/other"; printf '%s\n' "$PM_NAIVE" > "$WORK/l_twin/other/preprocessing_manifest.json"
+leak_case l_twin 'other/preprocessing_manifest.json'
+check "same file name, different content elsewhere: read, not skipped (exit 1)" test "$?" -eq 1
+leak_proj l_copyname; printf '%s\n' "$PM" > "$WORK/l_copyname/manifests/pm_v1.json"
+leak_case l_copyname 'manifests/pm_v1.json'
+check "other name but byte-identical file: read (exit 1)" test "$?" -eq 1
+# (a) a project copied after an absolute-path gate run: the report names the original's manifest
+leak_proj cp1; leak_case cp1 "$WORK/cp1/manifests/preprocessing_manifest.json" >/dev/null
+cp -r "$WORK/cp1" "$WORK/cp2"; rm -rf "$WORK/cp2/repo"
+python3 "$SCAFFOLD" --manifest "$WORK/m.csv" --preprocessing-manifest "$WORK/cp2/manifests/preprocessing_manifest.json" \
+    --out "$WORK/cp2/repo" --quiet >/dev/null 2>&1
+check "copied project: report recorded against the original is read (exit 1)" test "$?" -eq 1
+# (b) gate run from inside manifests/ (recorded bare file name) with an older copy at the root
+leak_proj rootcopy; printf '%s\n' "$PM_NAIVE" > "$WORK/rootcopy/preprocessing_manifest.json"
+leak_case rootcopy 'preprocessing_manifest.json'
+check "gate run from manifests/ with an older root copy: read (exit 1)" test "$?" -eq 1
+
+# summary.n_major coercion: integral string / float are numbers; non-numeric -> UNREADABLE
+check "summary.n_major \"2\" with no claims blocks" sev_case s_str '' ', "summary": {"n_major": "2"}' 1
+check "summary.n_major 2.0 with no claims blocks"   sev_case s_flt '' ', "summary": {"n_major": 2.0}' 1
+sev_case s_nan '' ', "summary": {"n_major": "two"}' 0
+check "summary.n_major \"two\" -> UNREADABLE on stderr" grep -q "UNREADABLE QC FILE: .*non-integral summary.n_major" "$WORK/s_nan/stderr"
+check "detector matched case-insensitively (blocks)" sev_case s_case '{"verdict": "LABEL_EMPTY", "severity": "Major", "detail": "x"}' ', "detector": "Check_Dataset_Profile"' 1
 
 # (k) N4 + N5: ack hygiene
 ack_rc() { python3 "$SCAFFOLD" --manifest "$WORK/m.csv" --preprocessing-manifest "$WORK/major/preprocessing_manifest.json" \

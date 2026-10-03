@@ -57,8 +57,11 @@ IMAGING-DATA QC HANDOFF (only when --preprocessing-manifest or --imaging-qc is g
   With --preprocessing-manifest and no --imaging-qc, it looks in <manifest dir>/qc/ and
   <manifest dir>/../qc/ (manifest path resolved first). --imaging-qc REPLACES that search, so an
   empty directory records every gate NOT ASSESSED. A check_preprocessing_leakage report is skipped
-  only when its recorded "manifest" resolves (absolute, or relative to the report directory's
-  parent; "/" or "\\" separators) to a different existing file; ambiguous reports are read.
+  ONLY when its recorded "manifest" has a different file name ("/" or "\\" separators), resolves
+  (absolute, or from the report dir's parent, the report dir, the manifest dir, the working dir)
+  to an existing file, and that file's bytes differ from the scaffolded manifest; otherwise read.
+  A qc/*.json with a claims list but no detector field, or a non-integral summary.n_major, is
+  UNREADABLE; the detector name is matched case-insensitively on its basename.
     - an unacknowledged Major claim -> refuse: exit 1, nothing written, each code + file listed;
       any severity that is not Minor/Flag (case-insensitive) counts as Major, and so does a report
       whose summary.n_major exceeds its listed Majors (QC_REPORT_INCONSISTENT);
@@ -1487,7 +1490,7 @@ def _shown(path):
 
 def _detector_name(value):
     """'check_dataset_profile', 'check_dataset_profile.py' or a path to it -> the gate name."""
-    name = str(value).replace("\\", "/").rsplit("/", 1)[-1]
+    name = str(value).replace("\\", "/").rsplit("/", 1)[-1].strip().lower()
     name = name[:-3] if name.endswith(".py") else name
     return name if name in IMAGING_QC_DETECTORS else None
 
@@ -1501,24 +1504,57 @@ def _read_qc_file(path):
         return "unreadable", f"not parseable as JSON ({type(e).__name__})"
     if not isinstance(doc, dict):
         return "unreadable", f"top level is a JSON {type(doc).__name__}, not an object"
-    det = _detector_name(doc.get("detector", ""))
+    raw_det = doc.get("detector")
+    det = _detector_name(raw_det) if isinstance(raw_det, str) else None
     if det is None:
+        # Another tool's report (it names its own detector) is not ours to read. A claims list with
+        # no usable detector name may be one of ours with the field lost: report it, never drop it.
+        if isinstance(doc.get("claims"), list) and not (isinstance(raw_det, str) and raw_det.strip()):
+            return "unreadable", "has a claims list but no detector field naming the gate"
         return "other", None
     if not isinstance(doc.get("claims"), list):
         return "unreadable", f"{det} report without a claims list"
+    summary = doc.get("summary")
+    if isinstance(summary, dict) and summary.get("n_major") is not None:
+        n = summary["n_major"]
+        try:
+            n_num = float(n) if not isinstance(n, bool) else None
+        except (TypeError, ValueError):
+            n_num = None
+        if n_num is None or n_num != n_num or n_num != int(n_num):
+            return "unreadable", f"{det} report with a non-integral summary.n_major ({_one_line(n)!r})"
+        summary = dict(summary, n_major=int(n_num))
+        doc = dict(doc, summary=summary)
     doc = dict(doc, detector=det)
     return "report", doc
 
 
 def _leakage_report_other_manifest(report_path, recorded, manifest):
-    """The reason to skip a leakage report, or None to read it. Skips only when the recorded path
-    demonstrably names a different existing file; anything ambiguous is read (fail closed)."""
+    """The reason to skip a leakage report, or None to read it. Fail closed: skip ONLY when
+    (1) the recorded manifest's file name differs from the scaffolded manifest's, (2) the recorded
+    path resolves to an existing file, and (3) that file's bytes differ from the scaffolded
+    manifest's. A copied project, a gate run from another directory, or a same-named report from
+    elsewhere is read (and its Major blocks) rather than guessed away."""
     rec = str(recorded).replace("\\", "/")
-    cand = Path(rec)
-    if not cand.is_absolute():
-        cand = report_path.resolve().parent.parent / rec
-    if cand.is_file() and cand.resolve() != manifest:
-        return f"audits {_shown(cand)}, a different file from {_shown(manifest)}"
+    rec_name = rec.rsplit("/", 1)[-1]
+    if rec_name == manifest.name:
+        return None
+    rd = report_path.resolve().parent
+    bases = [None] if Path(rec).is_absolute() else [rd.parent, rd, manifest.parent, Path.cwd()]
+    try:
+        mine = manifest.read_bytes()
+    except OSError:
+        return None
+    for base in bases:
+        cand = Path(rec) if base is None else base / rec
+        if cand.is_file():
+            try:
+                if cand.read_bytes() != mine:
+                    return (f"audits {_shown(cand)} ({rec_name}), a different manifest from "
+                            f"{_shown(manifest)}")
+            except OSError:
+                continue
+            return None
     return None
 
 
