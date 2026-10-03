@@ -153,6 +153,13 @@
   dashes and pandoc's `\[5\]` and '--'/'---' ranges are read. Other brackets keep the previous
   prefix match. The quote-content, citation-intent and density-boundary changes were withdrawn and
   are listed as known limits.
+- **mllm-eval** (#648): the completeness gate reads a declared `eval_manifest.json`
+  (`--manifest`) instead of plan keywords, so "no human evaluation was performed" or a
+  patient-split "data leakage" no longer clears an axis. Each field is checked against an
+  allow-list drawn from `evaluation_axes.md` (an off-list value, wrong type or unknown key exits
+  2; `other:<description>` is a Minor `UNLISTED_METHOD`); only an adjudicated expert reference
+  clears the reference standard and only a blinded reader study clears the reader-study axis.
+  `--plan` keeps the keyword check unchanged and prints a PROSE_MODE notice.
 - **radiomics-ml: the pipeline gate fails closed.** `check_radiomics_ml.py` no longer clears
   features >= events because dimensionality reduction is declared, counts events as the minority
   class, flags a missing or unrecognised feature-selection stage, accepts stability and
