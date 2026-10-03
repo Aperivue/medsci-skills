@@ -242,6 +242,28 @@
 
 ### Documentation
 
+- **Claims that failed recomputation are corrected** (#659, #660, #661). Each claim was recomputed
+  in R or Python and re-run by a second agent; only claims both found wrong were changed, and every
+  new number comes from that recomputation. calc-sample-size: the OR, HR, ICC and kappa rows leave
+  the "Cohen's conventions" table (Cohen defines none; OR 2.0 and 3.0 are d ≈ 0.38 and 0.61), and
+  only criterion 1 binds in the survival pmsampsize example. analyze-stats: `check_separation.py`
+  no longer names statsmodels `fit_regularized` (an L1 penalty) as a Firth fit; the IPTW coverage
+  figures without a reproducible source are removed and the Austin 2016 citation now states what
+  that paper found; the epiR and ICC sample-size comments name the right call and method.
+  batch-cohort: residual confounding can bias either way, the multiplicity correction applies
+  whenever more than one test is reported, and EPV counts model parameters. meta-analysis: the
+  PROSPERO ID is 14 characters, Park 2022 percentages carry their own denominators (one value is
+  marked for verification), and the "recomputation did not run" heuristic is stated as a
+  possibility. find-cohort-gap: the grade tables no longer overlap or leave gaps, and the
+  repeated-measures efficiency claim depends on the estimand. model-assessment, imaging-data,
+  model-selection, model-scaffold: seed-SD precision, AUPRC and ECE figures, AMOS22 scope,
+  `NormalizeIntensityd` defaults, the Dice size sensitivity and the scaffold methods sentence are
+  corrected.
+- **Hub and skill command lines point at the declared-input gates** (#657): mllm-eval
+  `--manifest`, model-assessment `--manifest`, revise `--values` and self-review `--tests` appear in
+  `skill.yml`, and peer-review mentions the `--values` audit table.
+- self-review states `EVALUE_NON_PRIMARY` as the advisory flag the gate emits (#656) and its JSON
+  output reference names the 12 categories A-L (#658).
 - `citation_styles/README.md` says why `vancouver.csl` and `nlm-citation-sequence.csl` are
   byte-identical: JKMS resolves its parent by the second filename, and the first is the fallback a
   user picks, so neither can be removed.
