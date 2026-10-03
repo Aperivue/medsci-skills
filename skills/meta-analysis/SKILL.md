@@ -144,15 +144,8 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/prisma_5way_consistency.py --ssot prisma.yam
 ```
 
 Exclusion-code verdicts: `CODE_CONTRADICTS_ELIGIBILITY` (a code excludes a design the protocol
-includes — bulk study loss no other gate can see), `CODE_NOT_REGISTERED` (off-protocol code),
-`CODE_RENUMBERED` (same code, two meanings); `NOT_ASSESSED` = no code column found (pass `--code-col`).
-PRISMA 5-way checks the SSOT flow arithmetic and CSV record counts; on prose surfaces it can only
-find a number missing. A number present ("12 studies" or "12 months") is `NOT_ASSESSED`, never OK
-(`--strict` exits 3): read those sentences. Known limits: screening labels must be one decision word
-(`Yes - include` exits 2, label named), and a blank decision cell exits 2 as `<blank>`; IDs
-are compared verbatim, so `#12` vs `12` across sheets reads as `STAGE_TRANSFER_LOSS`; a Table 1
-ID whose digit run is shared by any screened record stays unmatched. A PRISMA 2009 flow (other
-sources added before dedup) needs `deduplication.other_sources_before_dedup`, else `NOT_ASSESSED`.
+includes — bulk study loss no other gate can see), `CODE_NOT_REGISTERED`, `CODE_RENUMBERED`. Verdicts,
+`NOT_ASSESSED` cases and known limits of all 3f gates: `references/phase3_screening_detail.md` §3f.
 
 **3f.5 Pool composition lock (MANDATORY at adjudication freeze).** Once 3f passes, freeze the pool
 into a single source-of-truth YAML that every downstream artifact can be checked against:

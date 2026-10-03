@@ -92,10 +92,35 @@ def digit_key(value: str) -> str:
     return match.group(0) if match else value
 
 
+def style_key(value: str) -> str:
+    """An ID with case, whitespace and punctuation removed (`Smith 2020` ->
+    `smith2020`, `#12` -> `12`). Every letter and digit is kept, so
+    `Smith2020_1` and `Smith2020_2` stay distinct (no digit-run collapse)."""
+    return "".join(ch for ch in value.lower() if ch.isalnum())
+
+
+def style_matches(ids: set[str], universe: set[str]) -> dict[str, str]:
+    """{id: other_id} for each id in `ids` whose style_key equals that of
+    exactly one record in `universe` other than itself."""
+    by_style: dict[str, list[str]] = {}
+    for u in universe:
+        by_style.setdefault(style_key(u), []).append(u)
+    out: dict[str, str] = {}
+    for i in ids:
+        cands = [u for u in by_style.get(style_key(i), []) if u != i]
+        if len(cands) == 1:
+            out[i] = cands[0]
+    return out
+
+
 def match_table1_ids(
     table1_ids: set[str], qualitative: set[str], known: set[str]
-) -> tuple[set[str], dict[str, str]]:
-    """Map Table 1 IDs onto qualitative IDs. A verbatim match wins. A Table 1 ID
+) -> tuple[set[str], dict[str, str], dict[str, str]]:
+    """Map Table 1 IDs onto qualitative IDs. A verbatim match wins. Next, an ID
+    that differs from exactly one screened or consensus record only in case,
+    whitespace or punctuation (`Smith 2020` vs `Smith2020`) is that record --
+    whether or not it is qualitative, so an excluded record still surfaces as
+    TABLE1_NOT_IN_QUALITATIVE. A Table 1 ID
     that verbatim names any other screened or consensus record (e.g. an
     excluded `Smith2020_2`) is never re-mapped. Otherwise a Table 1 ID is
     matched by its first digit run (`Study 1` -> `1`, the matching every table
@@ -106,16 +131,21 @@ def match_table1_ids(
     included `Smith2020_1`) makes the digit run ambiguous instead of collapsing
     onto the included sibling. An ambiguous or absent digit run leaves the ID
     unmatched, so it is reported rather than silently merged. Returns the mapped
-    set and the {table1_id: qualitative_id} pairs matched by digit run."""
+    set, the {table1_id: record_id} pairs matched by ID style, and the
+    {table1_id: qualitative_id} pairs matched by digit run."""
     universe = set(known) | set(qualitative)
     by_key: dict[str, list[str]] = {}
     for q in universe:
         by_key.setdefault(digit_key(q), []).append(q)
+    via_style = style_matches({t for t in table1_ids if t not in universe}, universe)
     mapped: set[str] = set()
     via_digits: dict[str, str] = {}
     for t in table1_ids:
         if t in universe:
             mapped.add(t)
+            continue
+        if t in via_style:
+            mapped.add(via_style[t])
             continue
         cands = by_key.get(digit_key(t), [])
         if len(cands) == 1 and cands[0] in qualitative:
@@ -123,7 +153,7 @@ def match_table1_ids(
             via_digits[t] = cands[0]
         else:
             mapped.add(t)
-    return mapped, via_digits
+    return mapped, via_style, via_digits
 
 
 class UnrecognizedDecisions(ValueError):
@@ -219,7 +249,9 @@ def main() -> int:
 
     qualitative = (screening_include - consensus_exclude) | consensus_include
     known_ids = set(screening_decisions) | set(consensus_decisions)
-    bivariate, table1_matched_by_digits = match_table1_ids(table1_ids, qualitative, known_ids)
+    bivariate, table1_matched_by_style, table1_matched_by_digits = match_table1_ids(
+        table1_ids, qualitative, known_ids
+    )
     narrative_only = qualitative - bivariate
 
     # A record that passed screening and was EXCLUDED at consensus carries a decision.
@@ -264,6 +296,7 @@ def main() -> int:
             "k_narrative_only_unadjudicated": len(narrative_only_unadjudicated),
             "k_stage_transfer_loss": len(stage_transfer_loss),
         },
+        "table1_matched_by_id_style": {t: table1_matched_by_style[t] for t in sorted(table1_matched_by_style)},
         "table1_matched_by_digit_run": {t: table1_matched_by_digits[t] for t in sorted(table1_matched_by_digits)},
         "blocking_issues": [],
     }
@@ -277,20 +310,30 @@ def main() -> int:
         )
 
     if stage_transfer_loss:
-        payload["blocking_issues"].append(
-            {
-                "code": "STAGE_TRANSFER_LOSS",
-                "ids": sorted(stage_transfer_loss, key=lambda x: (len(x), x)),
-                "detail": (
-                    "Included at screening but absent from the consensus artifact -- neither "
-                    "included nor excluded, so no adjudication is recorded. Either restore these "
-                    "records to the consensus stage, or record an explicit exclusion decision for "
-                    "each. Do not leave them to flow into the narrative-only set. IDs are "
-                    "compared verbatim: if the two sheets write the same record differently "
-                    "(e.g. '#12' vs '12'), make the ID style match."
-                ),
-            }
-        )
+        # Advisory only: a lost ID that differs from a consensus ID only in case,
+        # whitespace or punctuation is probably the same record written in another
+        # ID style. It is NOT matched -- the loss still blocks until the IDs agree.
+        style_pairs = style_matches(stage_transfer_loss, consensus_ids - screening_include)
+        issue = {
+            "code": "STAGE_TRANSFER_LOSS",
+            "ids": sorted(stage_transfer_loss, key=lambda x: (len(x), x)),
+            "detail": (
+                "Included at screening but absent from the consensus artifact -- neither "
+                "included nor excluded, so no adjudication is recorded. Either restore these "
+                "records to the consensus stage, or record an explicit exclusion decision for "
+                "each. Do not leave them to flow into the narrative-only set. IDs are "
+                "compared verbatim: if the two sheets write the same record differently "
+                "(e.g. '#12' vs '12'), make the ID style match."
+            ),
+        }
+        if style_pairs:
+            issue["likely_id_style_mismatch"] = {k: style_pairs[k] for k in sorted(style_pairs)}
+            issue["detail"] += (
+                " Likely cause for " + ", ".join(f"{k!r} (consensus has {v!r})"
+                                                 for k, v in sorted(style_pairs.items()))
+                + ": probably the same record written in another ID style; make the IDs match."
+            )
+        payload["blocking_issues"].append(issue)
 
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)

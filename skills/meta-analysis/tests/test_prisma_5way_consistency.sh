@@ -7,8 +7,10 @@
 #      while the text actually reports nine studies. The checker does not try to
 #      tell a count from a duration in prose; it must report the surface
 #      NOT_ASSESSED (never PASS / OK), and exit 3 under --strict.
-#   B. the SSOT's own flow arithmetic is impossible (15 assessed - 3 excluded is
-#      12, but k = 13), and every surface faithfully repeats the wrong k.
+#   B. the SSOT's own flow arithmetic is wrong (15 assessed - 3 excluded is 12
+#      reports, but included.reports = 13), and every surface faithfully
+#      repeats the wrong number. Without included.reports the same gap against
+#      k is NOT_ASSESSED (a report may hold several studies), never FAIL (B0).
 #   C. a search CSV with a quoted multi-line abstract: 2 records, 3 data lines;
 #      line counting matched an SSOT total of 3.
 #   F, G: see each block (F1/F2/F4/F6 are negative controls for two-column flows).
@@ -114,12 +116,23 @@ surfaces:
 EOF
 echo "Thirteen (13) studies were included." > "$TMP/b/7_Manuscript/methods.md"
 python3 "$SCRIPT" --ssot "$TMP/b/prisma.yaml" --project-root "$TMP/b" --json > "$TMP/b/out.json"
-assert_exit "B: assessed - excluded != k (FAIL)" 1 $?
+assert_exit "B0: assessed - excluded != k, reports undeclared (exit 0)" 0 $?
 python3 - "$TMP/b/out.json" <<'PY' || fail=$((fail + 1))
 import json, sys
 r = json.load(open(sys.argv[1]))
-bad = [c["identity"] for c in r["flow_identities"] if not c["ok"]]
-assert bad == ["full_text_assessed - full_text_excluded = included.k"], r["flow_identities"]
+rows = {c["identity"]: c for c in r["flow_identities"]}
+row = rows["full_text_assessed - full_text_excluded = included.k"]
+assert row["status"] == "NOT_ASSESSED" and "included.reports" in row["note"], row
+assert r["mismatches"] == [], r["mismatches"]
+PY
+sed -i 's/included: {k: 13}/included: {k: 13, reports: 13}/' "$TMP/b/prisma.yaml"
+python3 "$SCRIPT" --ssot "$TMP/b/prisma.yaml" --project-root "$TMP/b" --json > "$TMP/b/out.json"
+assert_exit "B: assessed - excluded != included.reports (FAIL)" 1 $?
+python3 - "$TMP/b/out.json" <<'PY' || fail=$((fail + 1))
+import json, sys
+r = json.load(open(sys.argv[1]))
+bad = [c["identity"] for c in r["flow_identities"] if c["ok"] is False]
+assert bad == ["full_text_assessed - full_text_excluded = included.reports"], r["flow_identities"]
 PY
 
 # --------------------------------------------------------------------------
@@ -256,6 +269,59 @@ deduplication: {after_dedup: 104, other_sources_before_dedup: 6}'
 run_flow "F9: other_sources_before_dedup 0 declared, after_dedup too big (FAIL)" 1 "sum(databases)" FAIL \
 'databases: {pubmed: 60, embase: 40}
 deduplication: {after_dedup: 104, other_sources_before_dedup: 0}'
+
+# --------------------------------------------------------------------------
+# H: reports vs studies (reviewer counterexamples; main exits 0 on all).
+#   H1 (negative): DTA review, 60 assessed - 40 excluded = 20 articles, k = 24
+#       cohorts, included.reports undeclared -> NOT_ASSESSED naming
+#       included.reports, exit 0 (round 2 failed it, 20 vs 24).
+#   H2 (negative): PRISMA 2020 updated review, 30 - 20 = 10 new reports, k = 15
+#       (10 new + 5 from the previous version) -> NOT_ASSESSED, exit 0.
+#   H3 (negative): H1 with included.reports 20 declared -> identity OK; the
+#       reports >= k row is NOT_ASSESSED (a report may hold several cohorts).
+#   H4 (positive): included.reports 22 declared, 20 reports -> FAIL.
+#   H5 (negative): reports 12 >= k 10, both declared -> both rows OK.
+# --------------------------------------------------------------------------
+run_flow "H1: DTA 20 articles / 24 cohorts, reports undeclared (NOT_ASSESSED)" 0 "full_text_assessed" NOT_ASSESSED \
+'screening: {full_text_assessed: 60, full_text_excluded: 40}
+included: {k: 24}'
+python3 - "$TMP/f/out.json" <<'PY' || { echo "  FAIL  H1: note must name included.reports"; fail=$((fail + 1)); }
+import json, sys
+r = json.load(open(sys.argv[1]))
+assert r["mismatches"] == [] and "included.reports" in r["flow_identities"][0]["note"], r
+PY
+run_flow "H2: updated review, 10 new + 5 previous studies (NOT_ASSESSED)" 0 "full_text_assessed" NOT_ASSESSED \
+'screening: {full_text_assessed: 30, full_text_excluded: 20}
+included: {k: 15}'
+run_flow "H3: DTA, included.reports 20 declared (identity OK)" 0 "full_text_assessed" OK \
+'screening: {full_text_assessed: 60, full_text_excluded: 40}
+included: {k: 24, reports: 20}'
+run_flow "H3: DTA, reports 20 < k 24 (NOT_ASSESSED, not FAIL)" 0 "included.reports >= included.k" NOT_ASSESSED \
+'screening: {full_text_assessed: 60, full_text_excluded: 40}
+included: {k: 24, reports: 20}'
+run_flow "H4: included.reports 22 declared, 20 reports (FAIL)" 1 "full_text_assessed" FAIL \
+'screening: {full_text_assessed: 60, full_text_excluded: 40}
+included: {k: 20, reports: 22}'
+run_flow "H5: reports 12 >= k 10 (OK)" 0 "included.reports >= included.k" OK \
+'screening: {full_text_assessed: 25, full_text_excluded: 13}
+included: {k: 10, reports: 12}'
+
+# --------------------------------------------------------------------------
+# E: sum(exclusion_reasons) vs full_text_excluded.
+#   E1 (negative): several reasons recorded per excluded report, sum 14 > 10
+#       excluded -> NOT_ASSESSED, exit 0 (round 2 failed it; main exits 0).
+#   E2 (positive): sum 8 < 10 excluded -> two reports have no reason, FAIL.
+#   E3 (negative): sum equals full_text_excluded -> OK.
+# --------------------------------------------------------------------------
+run_flow "E1: several reasons per report, sum > excluded (NOT_ASSESSED)" 0 "sum(exclusion_reasons)" NOT_ASSESSED \
+'screening: {full_text_excluded: 10}
+exclusion_reasons: {wrong_population: 8, wrong_outcome: 6}'
+run_flow "E2: reasons sum < excluded (FAIL)" 1 "sum(exclusion_reasons)" FAIL \
+'screening: {full_text_excluded: 10}
+exclusion_reasons: {wrong_population: 5, wrong_outcome: 3}'
+run_flow "E3: reasons sum = excluded (OK)" 0 "sum(exclusion_reasons)" OK \
+'screening: {full_text_excluded: 10}
+exclusion_reasons: {wrong_population: 6, wrong_outcome: 4}'
 
 # --------------------------------------------------------------------------
 # G: a non-numeric SSOT count is a clean exit 2, not a traceback.

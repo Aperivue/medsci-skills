@@ -53,8 +53,11 @@ Optional SSOT keys used only by the flow-identity checks:
                                       at full text without passing through
                                       deduplication / title-abstract screening
                                       (PRISMA 2020 two-column flow)
-    included.reports                  reports of included studies, when one
-                                      study has several reports (else k is used)
+    included.reports                  reports of included studies. Declare it
+                                      to make assessed - excluded strict; without
+                                      it a mismatch with k is NOT_ASSESSED (one
+                                      study may have several reports, and one
+                                      report several studies, e.g. DTA cohorts)
   Declare a key as 0 when it does not apply; that makes the identity strict.
   Like every screening.* key, a declared key is also a number a bare-path
   surface (one without `require`) must contain; list `require` explicitly on
@@ -65,15 +68,22 @@ What is checked
        sum(databases) + other_sources_before_dedup >= after_dedup
        after_dedup - title_abstract_excluded - reports_not_retrieved
          + other_methods_assessed   = full_text_assessed
-       full_text_assessed - full_text_excluded = included.reports or included.k
+       full_text_assessed - full_text_excluded = included.reports
+         (or = included.k when included.reports is absent; see below)
+       included.reports             >= included.k
        sum(exclusion_reasons)       = full_text_excluded
      An identity whose gap could be explained by an optional key the SSOT does
      not declare is reported NOT_ASSESSED (not a failure, not a pass):
        - sum(databases) < after_dedup and other_sources_before_dedup absent;
        - left side < full_text_assessed and other_methods_assessed absent;
        - left side > full_text_assessed and reports_not_retrieved absent;
-       - assessed - excluded > k and included.reports absent (one study may
-         have several reports). assessed - excluded < k is always a failure.
+       - assessed - excluded != k and included.reports absent: one study may
+         have several reports (> k), and one report may contribute several
+         studies -- DTA cohorts / 2x2 tables, or an updated review's studies
+         from the previous version (< k). Declared, the identity is strict;
+       - included.reports < included.k (a report may hold several studies);
+       - sum(exclusion_reasons) > full_text_excluded (several reasons may be
+         recorded per report). A smaller sum is a failure.
   2. search_csv: CSV *records* (csv module; a quoted multi-line abstract is one
      record) across the glob = sum(databases).
   3. Each Markdown surface: a required number that does not occur at all is a
@@ -231,20 +241,46 @@ def flow_identity_checks(ssot: dict[str, Any]) -> list[dict[str, Any]]:
                     f"{lhs - assessed}; declare screening.reports_not_retrieved "
                     "(0 if none) to assess this identity")
         add(name, status, lhs, assessed, note)
-    k_reports = reports if reports is not None else k
-    if None not in (assessed, ft_ex, k_reports):
+    if None not in (assessed, ft_ex) and (reports is not None or k is not None):
         lhs = assessed - ft_ex
-        target = "included.reports" if reports is not None else "included.k"
-        status, note = strict(lhs, k_reports), ""
-        if reports is None and lhs > k_reports:
+        if reports is not None:
+            # Strict only when the SSOT declares how many reports were included.
+            add("full_text_assessed - full_text_excluded = included.reports",
+                strict(lhs, reports), lhs, reports)
+        elif k is not None:
+            # Without included.reports the SSOT cannot tell reports from
+            # studies: one study may have several reports (lhs > k), and one
+            # report may contribute several studies -- cohorts or 2x2 tables in
+            # a DTA review, or studies carried over from a previous version of
+            # an updated review (lhs < k). Never a failure here.
+            status, note = "OK", ""
+            if lhs != k:
+                status = "NOT_ASSESSED"
+                note = (f"{lhs} reports (assessed - excluded) vs {k} studies; "
+                        "declare included.reports (reports of included studies) "
+                        "to assess this identity")
+            add("full_text_assessed - full_text_excluded = included.k", status, lhs, k, note)
+    if reports is not None and k is not None:
+        # Reports normally outnumber studies, but a report can contribute
+        # several studies (DTA cohorts / 2x2 tables), so the input cannot tell
+        # an error from that design: NOT_ASSESSED, never FAIL.
+        status, note = "OK", ""
+        if reports < k:
             status = "NOT_ASSESSED"
-            note = (f"{lhs} reports vs {k_reports} studies; declare "
-                    "included.reports (reports of included studies) to assess "
-                    "this identity")
-        add(f"full_text_assessed - full_text_excluded = {target}", status, lhs, k_reports, note)
+            note = (f"{k - reports} more studies than reports; correct if one report "
+                    "contributes several studies (e.g. DTA cohorts), otherwise check "
+                    "included.reports and included.k")
+        add("included.reports >= included.k", status, reports, k, note)
     if reasons and ft_ex is not None:
         tot = sum(as_count(v, f"exclusion_reasons.{n}") for n, v in reasons.items())
-        add("sum(exclusion_reasons) = full_text_excluded", strict(tot, ft_ex), tot, ft_ex)
+        status, note = strict(tot, ft_ex), ""
+        if tot > ft_ex:
+            # Several reasons may be recorded per excluded report; only a sum
+            # SMALLER than full_text_excluded proves a report has no reason.
+            status = "NOT_ASSESSED"
+            note = (f"reasons sum to {tot - ft_ex} more than full_text_excluded; "
+                    "expected only if some reports list several reasons")
+        add("sum(exclusion_reasons) = full_text_excluded", status, tot, ft_ex, note)
     return out
 
 
