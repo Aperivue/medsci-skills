@@ -99,13 +99,13 @@ not installed.
 
    ```bash
    python3 ${CLAUDE_SKILL_DIR}/../revise/scripts/check_response_claims.py \
-     --response author_response.md --manuscript revised_manuscript.docx --strict
+     --response author_response.md --manuscript revised_manuscript.docx --strict  # [--values audit.json]
    ```
 
    A `RESPONSE_QUOTE_UNVERIFIED` / `RESPONSE_CITATION_UNVERIFIED` verdict means the response asserts a
    specific added sentence or citation that is not in the revised body — verify it by hand, and if
-   confirmed, raise it (the author-side `/revise` skill runs the same gate; see
-   `~/.claude/rules/peer-review-response-verification.md`). If the whole round already had one
+   confirmed, raise it (the author-side `/revise` skill runs the same gate, and `--values` checks the
+   authors' numerical audit table; see `~/.claude/rules/peer-review-response-verification.md`). If the whole round already had one
    response-vs-body mismatch, re-verify **every** prior comment, not a sample.
 
    `RESPONSE_QUOTE_UNRESOLVED` (minor) is the opposite verdict — never write it up. The words ARE

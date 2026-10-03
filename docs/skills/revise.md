@@ -30,6 +30,7 @@
 - `confirm every reviewer comment maps to a point-by-point response`
 - `/verify-refs --strict on new citations`
 - `python3 scripts/check_response_claims.py --response revision/response_to_reviewers.md --manuscript manuscript/manuscript.md --strict`
+- `python3 scripts/check_response_claims.py --response revision/response_to_reviewers.md --manuscript manuscript/manuscript.md --values revision_values.json --strict  # also check declared revision values`
 - `bash tests/test_response_claims.sh`
 - `python3 scripts/check_density_complaint.py --comments revision/decision_letter.md --previous manuscript/manuscript_R0.md --revised manuscript/manuscript.md --strict`
 - `bash scripts/density_complaint_challenge/verify.sh`

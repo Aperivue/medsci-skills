@@ -67,6 +67,7 @@ known_limitations:
 validation_commands:
   - "python3 scripts/check_split_leakage.py --splits <split_assignment.csv> --strict"
   - "python3 scripts/check_metric_reporting.py --report <results.md> --task segmentation|classification|detection|interactive|generative --strict"
+  - "python3 scripts/check_metric_reporting.py --manifest metrics_manifest.json --strict  # preferred: declared metrics (templates/metrics_manifest.json)"
   - "python3 scripts/check_uncertainty_reporting.py --manifest <uncertainty_manifest.json> --strict"
   - "python3 scripts/check_explainability_report.py --manifest <explainability_report.json> --strict"
   - "bash scripts/check_split_leakage_challenge/verify.sh  # deterministic, network-free"

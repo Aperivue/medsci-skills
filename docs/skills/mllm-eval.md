@@ -27,6 +27,7 @@
 **Validation**
 
 - `python3 scripts/check_mllm_eval_completeness.py --plan <plan.md> --task report_generation|vqa|classification --strict`
+- `python3 scripts/check_mllm_eval_completeness.py --manifest eval_manifest.json --strict  # preferred: declared axes (templates/eval_manifest.json)`
 - `bash scripts/mllm_eval_completeness_challenge/verify.sh  # deterministic, network-free`
 
 **Evidence** — `ci_validator`
