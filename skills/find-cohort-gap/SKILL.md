@@ -130,9 +130,9 @@ For each candidate:
 |--------|---------------------|------------|-------|----------------|
 | 0-2 | 0 | No | **Blue Ocean** | First report possible. Verify the topic has audience interest. |
 | 3-10 | 0 | No | **Green Field** | **Optimal zone** — established interest, longitudinal gap wide open. |
-| 10-30 | 0 | No | **Green Field** (upgraded from Yellow) | As above. |
-| 3-30 | 1+ | No | **Yellow** | Viable only with very specific angle (unique population, novel endpoint). |
-| 30+ | Any | No | **Yellow** (borderline Red) | As above. |
+| 11-30 | 0 | No | **Green Field** (upgraded from Yellow) | As above. |
+| 1-30 | 1+ | No | **Yellow** | Viable only with very specific angle (unique population, novel endpoint). |
+| >30 | Any | No | **Yellow** (borderline Red) | As above. |
 | Any | Any | Yes, outdated (>5 yr) or limited scope | **Yellow** | As above. |
 | Any | Any | Yes, recent | **Red** | Avoid unless doing NMA or using truly unique data. |
 
@@ -172,7 +172,7 @@ reference `[UNVERIFIED - NEEDS MANUAL CHECK]`.
 |-------------|----------------|
 | 5-6 | Top-tier journal target (Lancet sub, JACC, J Hepatol level) |
 | 3-4 | Specialty journal target (solid publication) |
-| 1-2 | Restructure or kill — find a stronger angle before proceeding |
+| 0-2 | Restructure or kill — find a stronger angle before proceeding |
 
 **Gate:** Present scoring results and comparison tables. User approves final ranking.
 
@@ -184,8 +184,9 @@ For each scored finalist, verify practical feasibility.
 
 1. **Sample size adequacy**:
    - Cox and logistic regression: minimum 10 events per predictor variable (EPV rule)
-   - For large cohorts (N>100K): warn about p-value inflation — statistically significant
-     results are nearly guaranteed, so focus on **effect size thresholds** (e.g., HR >1.2
+   - For large cohorts (N>100K) with many outcome events: warn that small effects become
+     statistically significant (power depends on the number of events, not N — check the
+     event count first), so focus on **effect size thresholds** (e.g., HR >1.2
      or <0.8 for clinical relevance)
    - Consider negative control strategy (EPCV) for very large samples
 2. **Missing data**: key exposure variable <20% missing acceptable; key outcome <5% missing;

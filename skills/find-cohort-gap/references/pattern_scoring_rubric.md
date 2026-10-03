@@ -27,9 +27,10 @@ edge over existing cross-sectional studies?
 - Score 1: Serial body composition → sarcopenia trajectory → mortality (no prior serial study)
 - Score 0: Blood type → cancer risk (blood type doesn't change over time)
 
-**Theoretical basis:** A repeated-measures design is statistically more efficient than
-cross-sectional data when the correlations between repeated measurements are not large
-(Lee et al., 2014, PMID 25464127).
+**Theoretical basis:** A repeated-measures design gains efficiency in an estimand-dependent way:
+for an average level the gain shrinks as within-subject correlation rises (Lee et al., 2014,
+PMID 25464127); for within-subject change or trajectory the gain grows with correlation
+(Var(change) = 2σ²(1−ρ)).
 
 ---
 
