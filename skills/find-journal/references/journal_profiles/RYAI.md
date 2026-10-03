@@ -26,7 +26,7 @@ artificial intelligence, deep learning, machine learning, medical imaging AI, co
 - **Field:** Radiology / Artificial intelligence
 
 ## Special Notes
-Radiology: Artificial Intelligence is the premier AI-focused radiology journal (IF ~8), a sister journal to Radiology. CLAIM checklist is mandatory for all AI studies. Strong emphasis on reproducibility, requiring code availability statements and model cards. Accepts AI studies at any development stage (unlike flagship Radiology which requires full clinical validation). AI policy: language editing only, dual disclosure required, AI images banned.
+Radiology: Artificial Intelligence is the premier AI-focused radiology journal, a sister journal to Radiology. CLAIM checklist is mandatory for all AI studies. Strong emphasis on reproducibility, requiring code availability statements and model cards. Accepts AI studies at any development stage (unlike flagship Radiology which requires full clinical validation). AI policy: language editing only, dual disclosure required, AI images banned.
 
 ## Acceptance Signals
 - **Selectivity band:** highly-selective

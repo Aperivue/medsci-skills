@@ -331,8 +331,11 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/strip_notes_for_sharing.py" \
   presenter_v9.pptx share/<topic>_<initials>.pptx
 ```
 
-It clears every slide's notes (body and figures untouched), syncs the `docProps/app.xml` counts,
-and verifies zero notes characters remain. Share `<topic>_<initials>.pptx` (say in the cover email
+It clears the text of every shape on every notes page (not only the notes placeholder), removes
+review comments, blanks the author / last-modified-by / comments fields of `docProps/core.xml`,
+syncs the `docProps/app.xml` counts, and verifies all of that against the raw XML of the written
+file (body and figures untouched). A deck with hidden slides stops with exit 2 until you choose
+`--drop-hidden` (remove them from the shared copy) or `--keep-hidden`. Share `<topic>_<initials>.pptx` (say in the cover email
 that it is there for slide reuse), `<topic>_<initials>.pdf` (LibreOffice `--convert-to pdf` drops the
 cleared notes pages), and optionally `<topic>_<initials>_references.zip` (a Drive link if it exceeds
 the attachment limit).
@@ -525,7 +528,13 @@ evidence that it is worth keeping.
 (`DECK_OVER_BUDGET`), words per slide against what *this* room can absorb while listening
 (`SLIDE_TOO_DENSE`), and the type floor for the back row (`TYPE_TOO_SMALL`). `--list` prints the
 budgets. It also reports `ZERO_AREA_TEXT`, which decides whether the other three mean anything —
-see Step 3.7.
+see Step 3.7. Table text is measured with the rest; chart and SmartArt text lives in parts of its
+own and is not. The clock stops at the first short headline that starts with "Backup",
+"Appendix", "Q&A", "Reserve" or "Supplementary", and the output names the slide it stopped at;
+pass `--backup-from N` when that is not where your backup begins.
+**Known limits:** a short finding that opens with one of those words ("Appendix perforation in
+children") is still taken for the backup divider and stops the clock there; check the printed
+`clock: stops at slide N` line and pass `--backup-from N` when it is wrong.
 
 Six slide-tell verdicts, each one a mark reviewers spot instantly. **Every one must be cleared or
 consciously overruled**, with the reason written down:

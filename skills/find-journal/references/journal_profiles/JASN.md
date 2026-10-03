@@ -26,7 +26,7 @@ nephrology, glomerulonephritis, acute kidney injury, chronic kidney disease, dia
 - **Field:** Nephrology (general, flagship)
 
 ## Special Notes
-JASN (IF ~12.7) is highly selective (~10% acceptance rate). Requires a separate Significance Statement (≤120 words) written for a general audience. Strictly limits display items to 8 combined figures/tables. AI policy: language editing only, disclose in Methods/Acknowledgments, AI images banned.
+JASN is highly selective. Requires a separate Significance Statement (≤120 words) written for a general audience. Strictly limits display items to 8 combined figures/tables. AI policy: language editing only, disclose in Methods/Acknowledgments, AI images banned.
 
 ## Verification
 - **Source:** JASN Instructions to Authors, read during maintainer review of PR #330 — verification record: https://github.com/Aperivue/medsci-skills/pull/330#issuecomment-4968075916

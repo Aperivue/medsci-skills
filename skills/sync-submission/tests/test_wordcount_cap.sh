@@ -82,5 +82,52 @@ check "verdict WORDCOUNT_OVER_CAP (not NEAR) with subheadings counted" verdict_i
 check "heading_words == 63 (3 sections + 15 x 4-word subheadings; skipped headings excluded)" \
     python3 -c "import json,sys; d=json.load(open('$OUT')); sys.exit(0 if d['heading_words']==63 and d['body_words']==1063 else 1)"
 
+# (7) F3: the cap comes from a STRUCTURED profile field, never from prose that mentions the
+#     article type. The shipped profiles carry either a table with a body-limit column (whose
+#     cells hold the number without "words") or prose like "abstract of 250 words required for
+#     Original Articles"; the old parser returned that abstract limit as the body cap.
+PROF="$(mktemp -d -t wc_prof_XXXX)"
+trap 'rm -f "$OUT" "$SUBH"; rm -rf "$PROF"' EXIT
+cat > "$PROF/table.md" <<'EOF'
+# Synthetic Journal A
+
+| Type | Body Word Limit | Abstract | References |
+|------|----------------|----------|------------|
+| Original Article | 4,500 (excluding abstract and references) | Structured, 300 words or fewer | 40 |
+| Brief Report | 1,500 | 150 words | 15 |
+
+Original Articles require a structured abstract of 300 words or fewer.
+EOF
+cat > "$PROF/prose.md" <<'EOF'
+# Synthetic Journal B
+
+## Scope Keywords
+
+- Original Article
+
+Synthetic society journal. Structured abstract of 250 words required for Original Articles.
+EOF
+cat > "$PROF/ambiguous.md" <<'EOF'
+# Synthetic Journal C
+
+| Type | Body | Abstract |
+|------|------|----------|
+| Original Article | 3,000 words (systematic review: 5,000) | 250 words |
+EOF
+python3 "$SCRIPT" --manuscript "$FIX" --journal-profile "$PROF/table.md" \
+    --article-type "Original Article" --out "$OUT" --quiet >/dev/null 2>&1
+check "table profile: cap read from the body column (4500), not the abstract (300)" limit_is 4500
+python3 "$SCRIPT" --manuscript "$FIX" --journal-profile "$PROF/prose.md" \
+    --article-type "Original Article" --quiet >/dev/null 2>&1
+check "prose-only profile: exit 2 (asks for --limit), never the abstract limit" test "$?" -eq 2
+python3 "$SCRIPT" --manuscript "$FIX" --journal-profile "$PROF/ambiguous.md" \
+    --article-type "Original Article" --quiet >/dev/null 2>&1
+check "two numbers in the body cell: exit 2 (ambiguous)" test "$?" -eq 2
+# NEGATIVE control: the list-item form (fixture) still parses; covered by (4), re-asserted
+# here next to the table case so the fallback order is explicit.
+python3 "$SCRIPT" --manuscript "$FIX" --journal-profile "$PROFILE" \
+    --article-type "Original Article" --out "$OUT" --quiet >/dev/null 2>&1
+check "list-item profile still parses (4000)" limit_is 4000
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

@@ -7,7 +7,8 @@ WITHOUT requiring Biopython (fetch_pubmed.py keeps the Bio.Entrez network depend
 
 Design rules:
 - Target-author attribution never borrows a co-author's ORCID/affiliation. When two
-  same-surname authors appear on one paper and initials/ORCID cannot disambiguate, the
+  same-surname authors appear on one paper and initials/ORCID cannot disambiguate, or
+  when the only same-surname author's ORCID/initials contradict the supplied ones, the
   record's target metadata (and position) is `unknown` — never guessed.
 - Author position is a positional heuristic only: first / middle / last / unknown, plus
   the real `EqualContrib` flag when PubMed marks it. It is NOT leadership metadata.
@@ -46,9 +47,17 @@ def match_target_author(
     """Return (index_of_target_author, match_basis).
 
     match_basis is one of: orcid, initials, surname-unique, ambiguous-initials,
-    ambiguous-surname, no-surname-match. The two `ambiguous-*` bases mean the target
-    could not be uniquely identified on this paper -> callers must NOT attribute
-    co-author metadata.
+    ambiguous-surname, orcid-conflict, initials-conflict, no-surname-match. The two
+    `ambiguous-*` bases mean the target could not be uniquely identified on this paper,
+    and the two `*-conflict` bases mean every same-surname author carries an ORCID or
+    initials that contradict the ones supplied (a namesake, not the target). For all of
+    these the index is unusable -> callers must NOT attribute co-author metadata.
+
+    A supplied ORCID or initials is a constraint, not a tie-breaker: a same-surname author
+    whose own ORCID differs from the supplied ORCID, or whose initials are incompatible with
+    the supplied initials, is never attributed. Initials are compatible when equal, when one
+    is a prefix of the other (PubMed often records only the first initial), or when the
+    record has none.
     """
     tl = (target_last or "").lower()
     surname_cands = [i for i, a in enumerate(authors) if a.get("LastName", "").lower() == tl]
@@ -59,24 +68,34 @@ def match_target_author(
         return None, "no-surname-match"
 
     # 1. ORCID is authoritative.
-    if target_orcid:
-        tgt = _norm_orcid(target_orcid)
-        orcid_matches = [i for i in surname_cands if _norm_orcid(authors[i].get("ORCID", "")) == tgt and tgt]
+    tgt = _norm_orcid(target_orcid) if target_orcid else ""
+    if tgt:
+        orcid_matches = [i for i in surname_cands if _norm_orcid(authors[i].get("ORCID", "")) == tgt]
         if len(orcid_matches) >= 1:
             return orcid_matches[0], "orcid"
-        # provided ORCID matched no surname candidate -> fall through to initials/surname.
+        # No candidate carries the supplied ORCID. A candidate carrying a DIFFERENT ORCID
+        # is a namesake; only candidates without an ORCID stay eligible.
+        surname_cands = [i for i in surname_cands if not _norm_orcid(authors[i].get("ORCID", ""))]
+        if not surname_cands:
+            return None, "orcid-conflict"
 
     # 2. Initials.
-    if target_initials:
-        ti = _norm_initials(target_initials)
-        init_matches = [i for i in surname_cands if _norm_initials(authors[i].get("Initials", "")) == ti and ti]
+    ti = _norm_initials(target_initials) if target_initials else ""
+    if ti:
+        init_matches = [i for i in surname_cands if _norm_initials(authors[i].get("Initials", "")) == ti]
         if len(init_matches) == 1:
             return init_matches[0], "initials"
         if len(init_matches) > 1:
             return init_matches[0], "ambiguous-initials"
-        # no initials match -> fall through to surname.
+        # No exact match: drop candidates whose initials contradict the supplied ones.
+        def _compatible(i: int) -> bool:
+            ci = _norm_initials(authors[i].get("Initials", ""))
+            return (not ci) or ci.startswith(ti) or ti.startswith(ci)
+        surname_cands = [i for i in surname_cands if _compatible(i)]
+        if not surname_cands:
+            return None, "initials-conflict"
 
-    # 3. Surname only.
+    # 3. Surname only (among candidates not contradicted by the supplied ORCID/initials).
     if len(surname_cands) == 1:
         return surname_cands[0], "surname-unique"
     return surname_cands[0], "ambiguous-surname"
@@ -170,20 +189,19 @@ def classify_topic(title: str, abstract: str, mesh_terms: list[str]) -> str:
     return max(scores, key=scores.get)
 
 
+JOURNAL_TIER_UNAVAILABLE = "unavailable [VERIFY]"
+
+
 def classify_journal_tier(journal: str) -> str:
-    j = (journal or "").lower()
-    if any(x in j for x in ["lancet"]):
-        return "Lancet family"
-    if any(x in j for x in ["nature", "nat med", "nat rev", "nat commun"]):
-        return "Nature family"
-    if any(x in j for x in ["n engl j med", "bmj", "jama"]):
-        return "NEJM/BMJ/JAMA"
-    high_if = ["circulation", "eur heart j", "allergy", "j allergy clin immunol",
-               "ebiomedic", "sci adv", "cell", "ann oncol", "gut", "radiology",
-               "eur radiol", "invest radiol"]
-    if any(x in j for x in high_if):
-        return "IF>=10"
-    return "Other"
+    """Venue-impact tier is NOT inferred (see SKILL.md "What this skill does not compute").
+
+    An earlier version assigned "Lancet family" / "NEJM/BMJ/JAMA" / "IF>=10" by substring
+    matching journal names against an unsourced, undated list, so e.g. any BMJ- or
+    JAMA-branded title or any title containing "cell" or "gut" was reported as high tier.
+    PubMed carries no impact metric, so the column is kept for CSV-schema stability but
+    always holds the unavailable marker.
+    """
+    return JOURNAL_TIER_UNAVAILABLE
 
 
 # ---------------------------------------------------------------------------

@@ -57,6 +57,7 @@ from pathlib import Path
 from typing import Optional
 
 from _yaml_frontmatter import split_yaml_front_matter
+from check_wordcount_cap import iter_body
 
 
 # ---------------------------------------------------------------------------
@@ -98,32 +99,14 @@ def _next_section_boundary(lines: list[str], start: int) -> int:
 def count_body_words(manuscript_path: Path) -> int:
     """Count words in manuscript body, excluding YAML front matter, abstract,
     references, tables, figures, supplementary, acknowledgments, and
-    declaration sections."""
-    lines = manuscript_path.read_text(encoding="utf-8").splitlines()
-    _, body_lines = split_yaml_front_matter(lines)
+    declaration sections.
 
-    in_skip = False
-    in_code_fence = False
-    total = 0
-    for line in body_lines:
-        stripped = line.rstrip()
-        # Toggle code fence (don't count code).
-        if stripped.startswith("```"):
-            in_code_fence = not in_code_fence
-            continue
-        if in_code_fence:
-            continue
-        # Section header?
-        if re.match(r"^#{1,3}\s", stripped):
-            in_skip = bool(SKIP_SECTION_RE.match(stripped))
-            continue
-        if in_skip:
-            continue
-        # Skip table rows (pipe-leading) and HTML comments.
-        if stripped.startswith("|") or stripped.startswith("<!--"):
-            continue
-        total += len(WORD_RE.findall(stripped))
-    return total
+    Section boundaries come from check_wordcount_cap.iter_body, the walker the
+    word-cap gate uses, so a setext or h4-h6 `References` heading ends the body
+    here exactly as it does there (headings themselves are not counted here).
+    """
+    return sum(len(WORD_RE.findall(line))
+               for kind, line in iter_body(manuscript_path) if kind == "prose")
 
 
 def extract_abstract_text(manuscript_path: Path) -> str:
@@ -500,6 +483,15 @@ def main() -> int:
     if not args.cover_letter.exists():
         print(f"ERROR: cover letter not found: {args.cover_letter}", file=sys.stderr)
         return 1
+
+    for path in (args.manuscript, args.cover_letter, args.abstract):
+        if path is None:
+            continue
+        try:
+            path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            print(f"ERROR: cannot decode as UTF-8: {path}", file=sys.stderr)
+            return 1
 
     truth = {
         "body_words": count_body_words(args.manuscript),

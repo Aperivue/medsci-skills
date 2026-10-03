@@ -23,7 +23,7 @@
 
 - A review is one reviewer's judgement, not an editorial decision.
 - No standalone demo; quality depends on the manuscript supplied.
-- The injection scan catches formatting-hidden text (colour/size/position/render-mode/metadata) deterministically; a phrase in visible prose is flagged for a human, not auto-removed.
+- The injection scan flags text hidden by colour against the background under the span, size, position, render mode, zero opacity (partial opacity counts as drawn), metadata, or an opaque shape drawn over it (the page render shows too few of its glyphs). The local background is used only where the span's box has one flat colour; over an image or gradient the page background is used, and text covered by an image, a gradient or a shape in the text's own colour still reads as drawn. A phrase in visible prose is flagged for a human, not auto-removed.
 
 **Validation**
 
@@ -49,7 +49,7 @@
 **Scripts** (`skills/peer-review/scripts/`):
 
 - `check_pdf_injection.py`
-- `check_pdf_injection_challenge/` (16 files)
+- `check_pdf_injection_challenge/` (20 files)
 - `check_review_boxes.py`
 - `check_review_length.py`
 - `check_review_request_types.py`

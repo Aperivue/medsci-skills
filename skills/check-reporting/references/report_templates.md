@@ -95,7 +95,7 @@ Append a fenced JSON block at the end of the report. This enables `/write-paper`
   "partial": 4,
   "missing": 3,
   "na": 1,
-  "compliance_pct": 88.9,
+  "compliance_pct": 82.1,
   "action_items": [
     {
       "item_number": 12,
@@ -103,8 +103,8 @@ Append a fenced JSON block at the end of the report. This enables `/write-paper`
       "item_name": "Sample size justification",
       "status": "MISSING",
       "suggested_location": "Methods, after participant description",
-      "suggested_fix": "Add: 'The sample size was determined based on [rationale]. A minimum of [N] cases was required to achieve [target] precision for the primary endpoint.'",
-      "fixable_by_ai": true
+      "suggested_fix": "Ask the author for the sample-size rationale, the minimum number of cases, and the precision or power target for the primary endpoint; then state them in Methods.",
+      "fixable_by_ai": false
     },
     {
       "item_number": 7,
@@ -113,7 +113,7 @@ Append a fenced JSON block at the end of the report. This enables `/write-paper`
       "status": "PARTIAL",
       "current_text": "Readers were blinded",
       "needed": "Specify what readers were blinded to (reference standard results, clinical information, other reader results)",
-      "suggested_fix": "Expand to: 'Readers interpreted [index test] images blinded to the reference standard results, clinical information, and other readers' assessments.'",
+      "suggested_fix": "Expand to: 'Readers interpreted the index test images blinded to the reference standard results, clinical information, and other readers' assessments.'",
       "fixable_by_ai": true
     }
   ]
@@ -122,9 +122,15 @@ Append a fenced JSON block at the end of the report. This enables `/write-paper`
 
 **Field definitions:**
 - `compliance_pct`: `present / (total_items - na) * 100`, rounded to one decimal
+  (the example above: 32 / (40 - 1) * 100 = 82.1). When every item is N/A
+  (`total_items == na`) the formula has no denominator: set `compliance_pct` to `null`
+  and say so in Part A; never report 0 or 100.
 - `action_items`: Array of MISSING and PARTIAL items only (PRESENT and N/A excluded)
 - `fixable_by_ai`: `true` if the fix involves inserting or expanding text with information available in the manuscript or inferable from context; `false` if it requires external information (e.g., registration number, IRB approval number, specific protocol details only the author knows)
-- `suggested_fix`: Concrete draft text that can be inserted or used to expand an existing sentence
+- `suggested_fix`: Concrete draft text that can be inserted or used to expand an existing sentence.
+  A `suggested_fix` that still contains a bracketed placeholder (`[N]`, `[rationale]`, ...)
+  is not insertable as written: such an item is always `fixable_by_ai: false`. Sample-size
+  justification is always `false` — its rationale, minimum N and target come from the author.
 
 ---
 
