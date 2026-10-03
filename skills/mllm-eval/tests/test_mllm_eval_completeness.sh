@@ -171,4 +171,24 @@ python3 "$DET" --plan "$F/plan_good.md" --task report_generation --out "$OUT" > 
 check "prose mode prints the PROSE_MODE notice" grep -q '^PROSE_MODE:' "$TMP/prose.txt"
 check "prose mode JSON mode=prose" python3 -c "import json;assert json.load(open('$OUT'))['mode']=='prose'"
 
+# classification: no manifest field carries classification metrics, so an empty metrics {} is
+# not a clearance — a Minor CLASSIFICATION_METRICS_NOT_ASSESSED, never an OK line
+printf '%s' '{"task":"classification","metrics":{},"answer_matching":{"method":"exact"},"prompt":{"template_released":true},"decoding":{"temperature":0},"runs":{"n":3}}' > "$TMP/clf.json"
+python3 "$DET" --manifest "$TMP/clf.json" --out "$OUT" --strict > "$TMP/clf.txt" 2>&1
+check "classification, metrics {} -> exit 0 (Minor)" test "$?" -eq 0
+check "  CLASSIFICATION_METRICS_NOT_ASSESSED is Minor" python3 -c "import json;d=json.load(open('$OUT'));assert [c['severity'] for c in d['claims'] if c['verdict']=='CLASSIFICATION_METRICS_NOT_ASSESSED']==['Minor'],d['claims']"
+check "  final line 'No Major gap (as declared): 1 Minor'" grep -qx 'No Major gap (as declared): 1 Minor (see table).' "$TMP/clf.txt"
+check "  no OK line" bash -c "! grep -q '^OK' '$TMP/clf.txt'"
+check "  JSON basis=declared" python3 -c "import json;assert json.load(open('$OUT'))['basis']=='declared'"
+mk 'm["task"]="vqa"; m["answer_matching"]={"method": "exact"}'; run
+check "control: vqa does not get CLASSIFICATION_METRICS_NOT_ASSESSED" no CLASSIFICATION_METRICS_NOT_ASSESSED
+python3 "$DET" --manifest "$F/manifest_good.json" > "$TMP/ok.txt" 2>&1
+check "clean manifest: 'OK (as declared): ...'" grep -q '^OK (as declared): no gap in the evaluation axes this gate checks for report_generation\.$' "$TMP/ok.txt"
+mk 'm["runs"]={"n": 1}'
+python3 "$DET" --manifest "$TMP/m.json" > "$TMP/minor.txt" 2>&1
+check "Minor-only manifest: no OK line" bash -c "! grep -q '^OK' '$TMP/minor.txt'"
+python3 "$DET" --plan "$F/plan_good.md" --task classification --out "$OUT" > "$TMP/p.txt" 2>&1
+check "prose mode: classification verdicts unchanged (no NOT_ASSESSED)" no CLASSIFICATION_METRICS_NOT_ASSESSED
+check "  prose JSON has no basis key" python3 -c "import json;assert 'basis' not in json.load(open('$OUT'))"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"; exit "$fail"

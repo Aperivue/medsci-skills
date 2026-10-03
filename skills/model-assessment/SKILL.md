@@ -142,7 +142,9 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/check_metric_reporting.py \
   --manifest metrics_manifest.json --out qc/metric_reporting.json --strict
 ```
 `PIXEL_ACCURACY_SEG` / `NO_BOUNDARY_METRIC` / `ACCURACY_ONLY` / `DETECTION_METRIC_MISSING` /
-`INTERACTIVE_NO_INTERACTION_COUNT` / `GENERATIVE_NO_DOWNSTREAM` (every Major) must be zero.
+`INTERACTIVE_NO_INTERACTION_COUNT` / `GENERATIVE_NO_DOWNSTREAM` / `CLASSIFICATION_METRIC_MISSING` /
+`SEGMENTATION_METRIC_MISSING` (every Major) must be zero; the last two (no headline metric declared)
+are manifest-only.
 An off-list value exits 2; use `"none"` or `"other:<description>"`. `--report results.md --task
 <task>` still runs the older keyword check on prose.
 

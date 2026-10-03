@@ -45,7 +45,9 @@ that regime overfits. Control it:
 - Features ≥ events → `HIGH_DIM_LOW_EVENTS`, whether or not dimensionality reduction or
   regularisation is declared (declaring it does not clear the verdict; events are counted as the
   minority class). That rule is a floor for the worst case, not a sample-size criterion: a pipeline
-  with 100 features on 105 events passes it.
+  with 100 features on 105 events passes it. Leaving out `n_features`, `n_samples` or `n_events`
+  does not pass it: the gate reports `HIGH_DIM_NOT_ASSESSED` (Minor) unless the declared counts
+  already prove features ≥ the bound.
 
 ## 4. Nested cross-validation (the non-negotiable)
 

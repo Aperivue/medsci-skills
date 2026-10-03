@@ -3263,23 +3263,23 @@
     },
     {
       "path": "skills/mllm-eval/SKILL.md",
-      "size": 7492,
-      "sha256": "893c745643e72710ac4222b6079e4866ce5921951ca41782d108d29c0e0f6b46"
+      "size": 7703,
+      "sha256": "50ce106c449b10e507641fabaca720e4bff39c9ce2170d614b2bd7c804b943ae"
     },
     {
       "path": "skills/mllm-eval/references/eval_manifest_schema.md",
-      "size": 3522,
-      "sha256": "a21fbb1767f7c8beef97fae37a293ebfebff98686238662c7b2453751d5fcf1c"
+      "size": 4175,
+      "sha256": "28578f3118c5f1be06b4eb5ed21521e306960aa64fb0a4b7c4e96582d0d4ab5a"
     },
     {
       "path": "skills/mllm-eval/references/evaluation_axes.md",
-      "size": 12074,
-      "sha256": "79dc71630964274c500755acd6dfef1a892ef1a6a9da9f5e747f0c3741e95155"
+      "size": 12187,
+      "sha256": "56d32017853f838e5fdc51a45cd40407e01935ccf0e159a68ae96f03bdc42f0d"
     },
     {
       "path": "skills/mllm-eval/scripts/check_mllm_eval_completeness.py",
-      "size": 23710,
-      "sha256": "f21e9e81303ffd58d094a139a032a801a8e8936e67ca784f16e9888294e9cff0"
+      "size": 25392,
+      "sha256": "7d6d3499b83b9e43cf803b77b4befc2f413e3f87e16ef6612157e1308ce5935f"
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/manifest_bad.json",
@@ -3323,8 +3323,8 @@
     },
     {
       "path": "skills/model-assessment/SKILL.md",
-      "size": 17936,
-      "sha256": "7d3677ff574ecb7e50dee647af8cd011800a3c31805258355cc1b6e0deb69045"
+      "size": 18064,
+      "sha256": "cfb3fcd9c4083ce13e08466b8d9557631a150f11d32c446b5a8413cf822d9340"
     },
     {
       "path": "skills/model-assessment/references/explainability_guide.md",
@@ -3338,13 +3338,13 @@
     },
     {
       "path": "skills/model-assessment/references/metric_selection_grounding.md",
-      "size": 12358,
-      "sha256": "10620f6b0c48f6571093e601bfa3afdcfddd1c63fb35878f4259811fffb7a1cf"
+      "size": 12479,
+      "sha256": "985c2f59504870333bd04b6316999beab8e4c401b69a9b8e7421323279109203"
     },
     {
       "path": "skills/model-assessment/references/metrics_manifest_schema.md",
-      "size": 4670,
-      "sha256": "074b46ffa2f2b9a6aa24ea77d06c4275d7e7f38f46a2604cb73edec6d8e14b37"
+      "size": 5526,
+      "sha256": "172810a687f85a65b7a60f7de4caca468dea5478cfc668ba1a4510c4be4d52d5"
     },
     {
       "path": "skills/model-assessment/references/uncertainty_guide.md",
@@ -3393,8 +3393,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_metric_reporting.py",
-      "size": 32717,
-      "sha256": "a4b5c670cc9e8023ef4ce7174099056bf80e7650fa7c9661e416eb52d5712ab0"
+      "size": 35017,
+      "sha256": "4bed56fb67c50b7d8bdfd8f2d6f505f3dcb59582808ee106c1f509237c74d999"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage.py",
@@ -3548,8 +3548,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/metric_reporting_challenge/problem.md",
-      "size": 2059,
-      "sha256": "a2b7947327397186dae7831698761e8fd76570b2d299ffb962c97de2af18ad36"
+      "size": 2335,
+      "sha256": "254a1a7dcf21f60879534b6fe954296954f357ab396467c658dbd724516e3b31"
     },
     {
       "path": "skills/model-assessment/scripts/metric_reporting_challenge/verify.sh",
@@ -4558,23 +4558,23 @@
     },
     {
       "path": "skills/radiomics-ml/SKILL.md",
-      "size": 10988,
-      "sha256": "d1a2d2e0b873f97037f018bce62ad4c144d093962cebb661f029e65ec1615d1b"
+      "size": 11073,
+      "sha256": "024ba57ccb1afc221901b58e702535811c79901d0fa001b8992af0767ec0bdbe"
     },
     {
       "path": "skills/radiomics-ml/references/radiomics_ml_guide.md",
-      "size": 11327,
-      "sha256": "f6b2a27fcd9f42e4a5ece561291eef147caf8bafbd51003687cd48930c9b07f6"
+      "size": 11515,
+      "sha256": "dd93576e96c5142f7166148da5ce006bd2a13470d4e0186f2c67f327591a0246"
     },
     {
       "path": "skills/radiomics-ml/scripts/check_radiomics_ml.py",
-      "size": 15827,
-      "sha256": "9e56e3a1d1733a932ec03fe3710c511a5fe5a81001fbff83f5217e773587b428"
+      "size": 17046,
+      "sha256": "6054ec5a112e6edd954e10ed8f0d25e77c36d80e09ee5a8b7bc0c3b4e41ece43"
     },
     {
       "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/expected/strong.txt",
-      "size": 367,
-      "sha256": "4d85eaa7a274cd04d21a4c8cc80ffe5fc44034e7730049f6f00045fd36269aa5"
+      "size": 381,
+      "sha256": "8a574ba861a49fd75a578e033081960185c5220c34718c218061440793db97ae"
     },
     {
       "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/expected/weak.txt",

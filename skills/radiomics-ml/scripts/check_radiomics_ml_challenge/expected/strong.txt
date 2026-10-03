@@ -6,4 +6,4 @@
 |---|---|---|
 | (none) | — | radiomics/ML pipeline meets the rigor bar |
 
-OK: radiomics/ML pipeline meets the rigor bar.
+OK (as declared): radiomics/ML pipeline meets the rigor bar.

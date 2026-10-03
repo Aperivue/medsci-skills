@@ -201,6 +201,30 @@ assert 'apply LASSO' not in m, m
 "; }
 check "HIGH_DIM_LOW_EVENTS detail points to pmsampsize, not LASSO as a cure" detail_sizes_study
 
+# (6b) a missing count is not a clearance: HIGH_DIM_NOT_ASSESSED (Minor, exit 0 under --strict)
+for f in n_features n_samples n_events; do
+  mk "miss_$f" "{'$f': None}"
+  gate "$TMP/miss_$f.json" --strict
+  check "$f missing exits 0 (Minor)" test "$?" -eq 0
+  check "$f missing -> HIGH_DIM_NOT_ASSESSED only" only_verdict HIGH_DIM_NOT_ASSESSED
+  check "  ... severity Minor" python3 -c "import json;d=json.load(open('$OUT'));assert d['claims'][0]['severity']=='Minor'"
+done
+mk miss_all "{'n_features': None, 'n_samples': None, 'n_events': None}"
+gate "$TMP/miss_all.json" --strict
+check "all three counts missing -> HIGH_DIM_NOT_ASSESSED only" only_verdict HIGH_DIM_NOT_ASSESSED
+mk miss_fire "{'n_features': 1200, 'n_samples': None}"
+gate "$TMP/miss_fire.json" --strict
+check "counts that already prove p >= events still fire Major (exit 1)" test "$?" -eq 1
+check "  ... HIGH_DIM_LOW_EVENTS only, no NOT_ASSESSED" only_verdict HIGH_DIM_LOW_EVENTS
+# manifest-only gate: JSON carries basis=declared; the OK line says "as declared"
+mk basis "{}"
+gate "$TMP/basis.json"
+check "JSON basis=declared" python3 -c "import json;assert json.load(open('$OUT'))['basis']=='declared'"
+python3 "$SCRIPT" --manifest "$TMP/basis.json" > "$TMP/ok.txt" 2>&1
+check "OK line reads 'OK (as declared)'" grep -q '^OK (as declared): ' "$TMP/ok.txt"
+python3 "$SCRIPT" --manifest "$TMP/miss_n_events.json" > "$TMP/minor.txt" 2>&1
+check "missing count: no OK line" bash -c "! grep -q '^OK' '$TMP/minor.txt'"
+
 # (7) the shipped challenge card passes
 check "challenge verify.sh passes" bash "$CH/verify.sh"
 

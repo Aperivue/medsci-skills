@@ -32,3 +32,6 @@ metrics are named, not their values — it never recomputes a number.
 accuracy + sensitivity without specificity or AUROC. Each is flagged; `manifest_seg_good.json`
 passes; an off-list metric exits 2. A declared list is not misread by negation ("FROC was not
 performed") or by word sense ("saliency map", the Decathlon "MSD").
+A declaration with no headline metric (classification with none of accuracy / AUROC / AUPRC /
+sensitivity / specificity / PPV / NPV; segmentation with neither Dice nor IoU) is flagged
+`CLASSIFICATION_METRIC_MISSING` / `SEGMENTATION_METRIC_MISSING` (Major) instead of passing.
