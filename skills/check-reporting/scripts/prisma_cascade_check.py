@@ -63,10 +63,16 @@ Output JSON:
       ]
     }
 
+When --manuscript is supplied but none of the stage phrases is found in it,
+the drift check could not run: `manuscript_check` is "unverifiable",
+`submission_safe` is false, and an UNVERIFIED line is printed. With --strict
+that case exits 1.
+
 Exit codes:
     0 — no drift (and manuscript agrees if supplied)
-    1 — drift between computed cascade and manuscript prose
-    2 — invocation error
+    1 — drift between computed cascade and manuscript prose, or (with
+        --strict) a supplied manuscript in which no stage count was found
+    2 — invocation error (including a --manuscript path that is not a file)
 """
 
 from __future__ import annotations
@@ -144,6 +150,9 @@ class CascadeReport:
     stage_counts: dict[str, int] = field(default_factory=dict)
     cascade_arithmetic: dict[str, dict] = field(default_factory=dict)
     manuscript_drift: list[dict] = field(default_factory=list)
+    # "not_supplied" | "compared" | "unverifiable" (no stage phrase found)
+    manuscript_check: str = "not_supplied"
+    stages_compared: list[str] = field(default_factory=list)
 
 
 def build_report(
@@ -182,12 +191,15 @@ def build_report(
     }
 
     drifts: list[dict] = []
-    if manuscript is not None and manuscript.is_file():
+    manuscript_check = "not_supplied"
+    stages_compared: list[str] = []
+    if manuscript is not None:
         text = manuscript.read_text(encoding="utf-8")
         for stage in ("round1_include", "round2_include", "round3_include"):
             val, lineno = search_manuscript_stage(text, stage)
             if val is None:
                 continue
+            stages_compared.append(stage)
             if val != stage_counts[stage]:
                 drifts.append(
                     {
@@ -198,12 +210,16 @@ def build_report(
                     }
                 )
 
-    submission_safe = not drifts
+        manuscript_check = "compared" if stages_compared else "unverifiable"
+
+    submission_safe = not drifts and manuscript_check != "unverifiable"
     return CascadeReport(
         submission_safe=submission_safe,
         stage_counts=stage_counts,
         cascade_arithmetic=cascade,
         manuscript_drift=drifts,
+        manuscript_check=manuscript_check,
+        stages_compared=stages_compared,
     )
 
 
@@ -218,6 +234,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--r3-col", default="round3_decision")
     parser.add_argument("--out", type=Path, default=Path("qc/prisma_cascade.json"))
     parser.add_argument("--quiet", action="store_true")
+    parser.add_argument(
+        "--strict", action="store_true",
+        help="exit 1 when --manuscript is supplied but no stage count was found in it",
+    )
     args = parser.parse_args(argv)
 
     for p, label in (
@@ -228,6 +248,9 @@ def main(argv: list[str] | None = None) -> int:
         if not p.is_file():
             print(f"ERROR: {label} not a file: {p}", file=sys.stderr)
             return 2
+    if args.manuscript is not None and not args.manuscript.is_file():
+        print(f"ERROR: --manuscript not a file: {args.manuscript}", file=sys.stderr)
+        return 2
 
     report = build_report(
         args.round1, args.round2, args.round3,
@@ -242,13 +265,23 @@ def main(argv: list[str] | None = None) -> int:
                 "stage_counts": report.stage_counts,
                 "cascade_arithmetic": report.cascade_arithmetic,
                 "manuscript_drift": report.manuscript_drift,
+                "manuscript_check": report.manuscript_check,
+                "stages_compared": report.stages_compared,
             },
             indent=2,
         ),
         encoding="utf-8",
     )
 
-    if not args.quiet:
+    unverifiable = report.manuscript_check == "unverifiable"
+    if unverifiable:
+        # Printed even under --quiet: a check that could not run must say so.
+        print(
+            f"UNVERIFIED: no stage count found in {args.manuscript}; the manuscript "
+            "drift check did not run (submission_safe=false).",
+            file=sys.stderr,
+        )
+    if not args.quiet and not unverifiable:
         if report.submission_safe:
             print(
                 "PASS: cascade computed. Stages: "
@@ -267,7 +300,11 @@ def main(argv: list[str] | None = None) -> int:
                     f"manuscript={d['manuscript']} (line {d['manuscript_line']})"
                 )
 
-    return 0 if report.submission_safe else 1
+    if report.manuscript_drift:
+        return 1
+    if unverifiable:
+        return 1 if args.strict else 0
+    return 0
 
 
 if __name__ == "__main__":

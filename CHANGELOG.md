@@ -4,6 +4,116 @@
 
 ### Fixed
 
+- **ma-scout** (#606): parse_pubmed esearch exits 2 on an error body instead of reporting 0 results.
+  PROSPERO in the README templates is now a recorded status with query and date instead of a fixed
+  ✅. The k_realistic gate states the raw × 0.15–0.30 multiplier.
+- **model-selection** (#607): the provenance gate no longer clears suffixed MSD/Decathlon names,
+  string-typed dataset lists, absent developed_on/evaluation_arms/intended_use, or spaced NC licence
+  and intended-use spellings.
+- **calc-sample-size** (#608): Test 7 (log-rank) blocks compute the dropout hazard in the unit of
+  the time inputs (new `time_unit`: months|years); year-unit inputs were silently under-sized (e.g.
+  490 instead of 606).
+- **cross-national** (#609): the NHANES fasting-glucose diabetes composite is now limited to the
+  fasting domain and fasting weight, with a non-fasting HbA1c/self-report variant for exam-weight
+  models (one-sided NA bias, F1).
+- **replicate-study** (#610): the alcohol harmonization now uses one definition across
+  KNHANES/NHANES/CHNS (adds NHANES ALQ111; CHNS U41 no longer relabels light drinkers as
+  'Occasional'), with a regression test.
+- **design-ai-benchmarking** (#611): the anchor-and-rotate sizing code now rejects infeasible inputs
+  (pool <= anchor, m < 1, R < m) and never reports more raters per item than readers; new regression
+  test wired into CI.
+- **deidentify** (#612): date-shift offsets now come from the OS CSPRNG instead of a guessable seed.
+  Scan now detects common written-out and two-digit-year date formats, Korean 070 numbers and US
+  ZIP+4 codes, and leaves NDC drug codes alone.
+- **clean-data** (#613): the profiling template now counts '.'/'missing' cells as missing (they were
+  profiled as 0% missing), and check_structural_zero.py flags non-numeric or negative-sentinel doses
+  at the reference level as REVIEW_INVALID_DOSE (exit 1 under --strict) instead of clearing them.
+- **generate-codebook** (#614): flag mixed code+label columns and bare-code text columns as needing
+  a dictionary, keep number-string measurements unflagged, and stop classing integer years as
+  epoch-nanosecond dates.
+- **search-lit** (#615): parse_pubmed keeps titles/abstracts whole through inline markup; snowball
+  reports FAILED/TRUNCATED fetches as INCOMPLETE and exits 1; check_doi_record_match flags DOIs of
+  correction/retraction notices (Crossref update-to) as DOI_IS_UPDATE_NOTICE.
+- **model-scaffold** (#616): hygiene gate counts only reachable code (decorated CLI commands
+  included), catches inline, positional and wrapped training on val/test, and never clears a script
+  it did not find. scaffold refuses a 1-class finetune head, refuses a silent random-init pretrained
+  fallback, strips patient IDs, and can reuse imaging-data's split (--preprocessing-manifest).
+- **verify-refs** (#617): BibTeX entries are now separated by brace depth. Indented, spaced,
+  parenthesised and same-line entries are each audited, and an '@' in a field value no longer splits
+  an entry or refuses the file. Surname matching rejects bare substrings (Li/Williams). A PubMed
+  title-only match is OK only when the authors agree.
+- **lit-sync** (#618): check_citekey_provenance now reports MISMATCH when a real key sits on another
+  library paper's DOI, and UNPARSED for unclosed literature frontmatter. It also scans vaults under
+  ../ or dot-folders, reads BOM-prefixed and long-frontmatter notes, and under --strict exits 2 when
+  no literature note is found.
+- **fulltext-retrieval** (#619): a retraction notice, erratum, correction, corrigendum or expression
+  of concern carrying the work's title and DOI is now `unresolved`
+  (`correction_or_retraction_notice`), not `consistent`.
+- **obsidian-paper-vault** (#620): extract_pdfs.py no longer writes or counts an empty .txt for
+  image-only PDFs (reported FAILED, needs OCR), and rejects max_pages < 1 or non-integer with exit
+  2; new extractor test wired into CI.
+- **write-paper** (#621): the placeholder gate now blocks unfilled write-paper template tokens and
+  [VERIFY]/[VERIFY-CSV]/[UNVERIFIED - NEEDS MANUAL CHECK] markers; the backbone full-text gate no
+  longer accepts a paper that only cites the backbone in its References; the title-page checker now
+  reads one-author-per-line bylines.
+- **humanize** (#622): the rewrite-fidelity gate now catches swapped values (NUMBER_REASSIGNED),
+  flipped inequality signs, multi-key/locator citation changes and citations moved to another
+  sentence (CITATION_MOVED), without flagging reordered sentences or ASCII arrows.
+- **review-paper** (#623): scoping and systematic reviews now scaffold IMRaD with a Methods/Results
+  slot for every applicable PRISMA-ScR / PRISMA 2020 item; the 7-part skeleton is kept for narrative
+  reviews (F1).
+- **sync-submission** (#624): preflight records a sub-check that ran and failed as an error (not
+  skipped); copy divergence flags stale numbers left in a copy; the word-count cap is read only from
+  a structured profile field; cross-document N scans per-journal cover letters and supplement/ and
+  reports unreadable files; the cover-letter body count shares the word-cap gate's section walker.
+- **find-journal** (#625): the acceptance-readiness pre-flight now rejects .docx/PDF/non-UTF-8 input
+  with exit 2, skips the reference list, stops flagging routine methods wording (circular ROI,
+  marginal structural model, proxy/FIB-4 covariates, technical feasibility), and its empty result no
+  longer reads as a design clearance; unsourced impact factors and acceptance percentages were
+  removed from 19 journal profiles.
+- **fill-icmje-coi** (#626): an empty seed string, title, date or author name now exits 2 instead of
+  being skipped. Before, it silently left the seed author's name in every form. The Phase-3 verifier
+  now uses the actual seed strings.
+- **fill-protocol** (#627): form values are written exactly as typed (no YAML retyping); empty or
+  list values and malformed YAML exit 2; placeholders inside hyperlinks/tracked insertions are
+  replaced; new optional `section_end` keeps a trailing block after the last section, and the [OK]
+  line reports end-of-document replacement.
+- **render-pdf-doc** (#628): the scan_glyph_coverage.py --font check now covers every drawable
+  non-ASCII character, not just 5 classes, and render_pdf.sh reads missing glyphs from pandoc's JSON
+  log so a pass-through --quiet can no longer turn exit 4 into "ok".
+- **orchestrate** (#629): --e2e post-skill validation now blocks the DOCX build on a self-review
+  fatal finding (fatal_count > 0 sends the run to N8) and on MISSING reporting-checklist items
+  (reads qc/reporting_checklist.json). N8 now triggers on severity 'fatal' instead of category names
+  self-review never emits.
+- **manage-project** (#630): `migrate_project_to_ssot.py --mark-complete` now validates and marks
+  SSOT-native projects (from `init --ssot`), so they can reach Phase 1C enforce; SKILL.md no longer
+  implies `--ssot` alone enables blocking.
+- **author-strategy** (#631): journal tier is no longer inferred from journal-name substrings (now
+  'unavailable [VERIFY]', no high-tier rate). A supplied ORCID or initials that contradicts a
+  same-surname author is no longer attributed to that namesake. A3 'AI-pivot hybrid' no longer
+  surfaces on non-AI corpora ('multimodal'/'claim' terms removed, duplicate AI-fraction signal
+  merged, new no-clinical-foundation negative).
+- **present-paper** (#632): deck checks now measure table text and read slides and notes in
+  presentation order; check_deck_budget gains --backup-from N and prints where the clock stops; the
+  sharing strip clears every notes-page shape, review comments, author fields and (on request)
+  hidden slides; batch figure extraction no longer crops another paper's page and fails on a skipped
+  item.
+- **publish-skill** (#633): audit_skill.sh no longer reports CLEAN for a check that could not run.
+  It now errors on grep failures, including the UTF-8 locale failure that disabled the Academic
+  Roles scan, and on an invalid user regex. It reports INCOMPLETE (--strict exits 3) when binaries
+  are present without exiftool, and it checks EXIF fields for emails and the case-insensitive user
+  pattern.
+- **contribute** (#634): the submit step now accepts a safety scan only if it covered exactly the
+  files being sent (sha256 per file; binary, missing, stale or unrelated scans are refused), and the
+  scanner now catches sk-ant-/sk-proj- and AIza API keys.
+- **check-reporting** (#635): the PRISMA figure audit now checks assessed = sought - not retrieved;
+  the cascade check exits 2 on a missing --manuscript and reports UNVERIFIED (exit 1 under --strict)
+  when no stage count is found; the Part D example's compliance_pct is corrected to 82.1, with a
+  null rule when every item is N/A, and placeholder or sample-size fixes are never fixable_by_ai.
+- **peer-review** (#636): the authors' block keeps its sub-headings for the length and two-box
+  gates. The PDF injection guard flags text the page does not show (render mode 3, opacity 0, an
+  opaque cover, text on its own colour) and keeps it out of --sanitize. A label over an image or a
+  gradient, and a faint watermark, stay clean.
 - **radiomics-ml: the pipeline gate fails closed.** `check_radiomics_ml.py` no longer clears
   features >= events because dimensionality reduction is declared, counts events as the minority
   class, flags a missing or unrecognised feature-selection stage, accepts stability and

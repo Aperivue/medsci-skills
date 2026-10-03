@@ -241,7 +241,7 @@ When `--e2e` is passed (or the user says "end-to-end", "Arm A", or "fully autono
 2. `/make-figures --study-type {type}` → reads `analysis/_analysis_outputs.md` → `analysis/figures/*.pdf`, `analysis/figures/*.png`, `analysis/figures/_figure_manifest.md`
 3. `/write-paper --autonomous` (if --e2e) → reads analysis/ → `manuscript/manuscript.md` (DOCX rendering delegated to step 7)
    - Phase 7.4 internally calls `/self-review --json --fix` → `qc/self_review.md`
-4. `/check-reporting` → reads `manuscript/manuscript.md` → `qc/reporting_checklist.md` (called within write-paper Phase 7, but orchestrator verifies output)
+4. `/check-reporting` → reads `manuscript/manuscript.md` → `qc/reporting_checklist.md` + `qc/reporting_checklist.json` (Part D JSON; called within write-paper Phase 7, but orchestrator verifies output)
 5. `/verify-refs` → reads `manuscript/manuscript.md` → `qc/reference_audit.json` (sole output; row-level status in `records[]`)
 6. `/self-review --json --fix` → reads `manuscript/manuscript.md` → `qc/self_review.md` + auto-fix (called within write-paper Phase 7.4, but orchestrator verifies final output)
 7. `/manage-refs` (Workflow A pandoc citeproc, or B Zotero CWYW) → reads `manuscript/manuscript.md` + `manuscript/_src/refs.bib` → `manuscript/manuscript_final.docx` + `qc/xref_audit.json`. Submission gate: `check_xref.py --strict` must pass (no MISSING_DOCX / MISSING_BODY / MISMATCH).
@@ -257,9 +257,9 @@ next skill.
 | `/analyze-stats` | At least one file in `analysis/tables/*.csv` OR `analysis/_analysis_outputs.md` | Check file existence and non-empty |
 | `/make-figures` | `analysis/figures/_figure_manifest.md` with at least 1 entry | Parse manifest, verify listed files exist |
 | `/write-paper` | `manuscript/manuscript.md` (required) | Check file existence and non-empty. Do NOT require the DOCX here — `manuscript_final.docx` is rendered later by `/manage-refs` (step 7), so requiring it would halt an `--e2e` run before the DOCX exists |
-| `/check-reporting` | `qc/reporting_checklist.md` or inline report | Check file existence |
+| `/check-reporting` | `qc/reporting_checklist.md` and `qc/reporting_checklist.json` (Part D JSON) | Parse the JSON; halt naming the file if it is absent, unparseable, or lacks an integer `missing`. If `missing > 0` or any `action_items[].status == "MISSING"`, halt with `REPORTING_ITEMS_MISSING` (list each item) and do NOT proceed to step 7 — route the gaps to `/write-paper` Phase 7. An inline report that wrote no file does not pass |
 | `/verify-refs` | `qc/reference_audit.json` (sole output) | Parse JSON; halt if `submission_safe == false` (i.e., `FABRICATED` / `MISMATCH` count > 0 OR `duplicate_findings[]` nonempty) |
-| `/self-review` | Review report with JSON block (when --json) | Check JSON block is parseable. Accept the optional `consensus` array and R1/R2/R3 attributions that `--panel` adds to issues (additive, backwards-compatible) |
+| `/self-review` | `qc/self_review.md` with the Phase 3c JSON block (`--json`) | Parse the JSON block; halt naming the file if it is absent, unparseable, or lacks an integer `fatal_count`. If `fatal_count > 0` or any `issues[].severity == "fatal"`, do NOT proceed to step 7 — route to N8 (Audit Recovery). A `REVISE` verdict with no fatal issue is logged (score, verdict, counts) in `qc/_pipeline_log.md` and REPORT.md, not halted. Accept the optional `consensus` array and R1/R2/R3 attributions that `--panel` adds to issues (additive, backwards-compatible) |
 | `/manage-refs` | `manuscript/manuscript_final.docx`, `qc/xref_audit.json` | DOCX exists and non-empty; xref_audit.json has `submission_safe: true` (no P0 blocker rows) |
 | `/lit-sync` | `manuscript/_src/refs.bib` (mtime updated), `references/zotero_collection.json` | refs.bib mtime newer than collection snapshot; `refs_bib_refreshed: true` in collection JSON |
 

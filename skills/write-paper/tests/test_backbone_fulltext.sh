@@ -80,6 +80,31 @@ OUT="$(python3 "$V" --project "$TMP/project.yaml" --refs "$TMP/refs.bib" --fullt
 echo "$OUT" | grep -q BACKBONE_FULLTEXT_MISSING
 ck "MISSING verdict reported" 0 "$?"
 
+# 8) F2: only a DIFFERENT paper is present, and it cites the backbone DOI in its
+#    reference list -> that is not the backbone's full text -> MISSING, exit 1
+rm -f "$TMP"/pdfs/*.md
+{ echo "# Some other article"; for i in $(seq 1 200); do echo "Unrelated body line $i with its own methods."; done; \
+  echo ""; echo "## References"; echo "1. Smith J. A CT AI validation study. doi:10.1000/ctai.2023.42"; } \
+  > "$TMP/pdfs/other_paper.md"
+python3 "$V" --project "$TMP/project.yaml" --refs "$TMP/refs.bib" --fulltext-dir "$TMP/pdfs" --strict > /dev/null 2>&1
+ck "citing paper (DOI only in References) -> exit 1" 1 "$?"
+# 8b) same, with a plain-text REFERENCES line (pdf_to_md output, no '#'), citekey too
+{ echo "# Some other article"; for i in $(seq 1 200); do echo "Unrelated body line $i with its own methods."; done; \
+  echo "REFERENCES"; echo "1. Smith J. smith2023ctai. doi:10.1000/ctai.2023.42"; } \
+  > "$TMP/pdfs/other_paper.md"
+python3 "$V" --project "$TMP/project.yaml" --refs "$TMP/refs.bib" --fulltext-dir "$TMP/pdfs" --strict > /dev/null 2>&1
+ck "citing paper (plain REFERENCES line) -> exit 1" 1 "$?"
+
+# 9) negative control: the backbone's own extraction, DOI in its header, with its
+#    own References section that lists other DOIs -> still resolves, exit 0
+rm -f "$TMP"/pdfs/*.md
+{ echo "# A CT AI validation study"; echo "https://doi.org/10.1000/ctai.2023.42"; \
+  for i in $(seq 1 200); do echo "Body line $i with detailed methods and results."; done; \
+  echo "## References"; echo "1. Other A. Prior work. doi:10.1000/prior.2019.7"; } \
+  > "$TMP/pdfs/downloaded_backbone.md"
+python3 "$V" --project "$TMP/project.yaml" --refs "$TMP/refs.bib" --fulltext-dir "$TMP/pdfs" --strict > /dev/null 2>&1
+ck "backbone with DOI in header + own References -> ready" 0 "$?"
+
 echo "----"
 echo "test_backbone_fulltext: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

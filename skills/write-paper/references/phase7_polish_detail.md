@@ -55,7 +55,7 @@ title page (manuscript-style-classical §7 forbids the in-body AI-disclosure par
 
 Call `/check-reporting` on `manuscript/manuscript.md`. Parse the output:
 - If the report includes a JSON summary block (Part D), extract MISSING items.
-- For each MISSING item where `fixable_by_ai` is true (e.g., missing ethics statement, missing data availability statement, missing sample size justification), insert the suggested text at the indicated location in `manuscript/manuscript.md`.
+- For each MISSING item where `fixable_by_ai` is true (e.g., missing ethics statement, missing data availability statement), insert the suggested text at the indicated location in `manuscript/manuscript.md`. Never insert a `suggested_fix` that still contains a bracketed placeholder (`[N]`, `[rationale]`); list it for the author instead. Sample-size justification is never auto-inserted: its rationale, minimum N and target come from the author.
 - Do NOT attempt to fix items requiring external information (IRB numbers, registration numbers, protocol details only the author knows).
 - Log all auto-inserted text to `qc/_pipeline_log.md`.
 

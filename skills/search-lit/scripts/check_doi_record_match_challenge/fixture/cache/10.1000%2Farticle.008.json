@@ -1,0 +1,16 @@
+{
+ "status": "ok",
+ "message": {
+  "type": "journal-article",
+  "title": [
+   "Cardiac magnetic resonance in acute myocarditis: a multicentre cohort"
+  ],
+  "updated-by": [
+   {
+    "type": "correction",
+    "DOI": "10.1000/erratum.007",
+    "label": "Correction"
+   }
+  ]
+ }
+}

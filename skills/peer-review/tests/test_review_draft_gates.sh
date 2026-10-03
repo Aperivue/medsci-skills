@@ -148,6 +148,41 @@ mk_long() {  # $1 = number of Major comments, $2 = output path
 mk_long 4 "$TMP/long.md"     # over tier 1, under 2x baseline and under the hard cap
 mk_long 8 "$TMP/huge.md"     # over the 1400-word hard cap
 
+# Sub-headings instead of bold labels. The block used to end at the first heading of ANY
+# level, so `### Major Comments` cut the authors' block down to its preamble: the length
+# gate measured a handful of words and the box gate never saw the grade below it.
+# sub_long.md: long.md with markdown sub-headings and a grade in Major 1 (must fire).
+# sub_good.md: good.md with sub-headings, the editor's box placed AFTER the authors' box
+# and carrying the grade (must stay clean: the block still ends at a same-level heading).
+sed -e 's/^\*\*Research summary and general comments\*\*$/### Research summary and general comments/' \
+    -e 's/^\*\*Major Comments\*\*$/### Major Comments/' \
+    -e 's/^\*\*Closing remark\*\*$/### Closing remark/' \
+    -e 's/^1) \*\*Concern 1 needs its own treatment.\*\*$/1) **Concern 1 needs its own treatment.** My recommendation is major revision./' \
+    "$TMP/long.md" > "$TMP/sub_long.md"
+cat > "$TMP/sub_good.md" <<'MD'
+## COMMENTS TO THE AUTHORS
+
+### Research summary and general comments
+
+This revision pools 50 studies comparing two training paradigms. The re-extraction is verifiable
+and I want to say so plainly.
+
+### Major Comments
+
+1) **The adjusted column needs recomputing.**
+All four rows carry one value although the raw inputs differ, and those inputs cannot produce
+that column. No conclusion changes, but the Results quote the figure.
+
+### Closing remark
+
+A considerably stronger paper than the one I read first.
+
+## CONFIDENTIAL COMMENTS TO THE EDITOR
+
+They did the work. What is left needs correcting, not re-reviewing: one statistical column is
+wrong and the Results quote it. I would put this at minor revision.
+MD
+
 # --- length gate ------------------------------------------------------------------------
 echo "check_review_length.py"
 ck "bad: one Major over the per-Major budget" "MAJOR_OVERLONG" "$(verdicts "$LEN" "$TMP/bad.md")"
@@ -163,6 +198,12 @@ ck "good: clean" "CLEAN" "$(verdicts "$LEN" "$TMP/good.md")"
 python3 "$LEN" --review "$TMP/good.md" --tier 1 --strict --quiet >/dev/null 2>&1 && rc=0 || rc=$?
 ck "good: --strict exits 0" "0" "$rc"
 ck "no headings: refuses to measure" "AUTHOR_BLOCK_NOT_FOUND" "$(verdicts "$LEN" "$TMP/noheads.md")"
+python3 "$LEN" --review "$TMP/sub_long.md" --tier 1 --strict --quiet >/dev/null 2>&1 && rc=0 || rc=$?
+ck "sub-headings: block not cut at ### Major Comments (strict)" "1" "$rc"
+ck "sub-headings: Majors itemised under the sub-heading" "MAJOR_OVERLONG" "$(verdicts "$LEN" "$TMP/sub_long.md")"
+ck "sub-headings control: clean, editor block not counted" "CLEAN" "$(verdicts "$LEN" "$TMP/sub_good.md")"
+python3 "$LEN" --review "$TMP/sub_good.md" --tier 1 --strict --quiet >/dev/null 2>&1 && rc=0 || rc=$?
+ck "sub-headings control: --strict exits 0" "0" "$rc"
 
 # The count must ignore markup. good.md has bold labels, a numbered item and a bold headline;
 # none of those tokens are words, and a naive `wc -w` counts every one of them.
@@ -183,6 +224,10 @@ ck "bad: --strict exits 1" "1" "$rc"
 ck "good: clean" "CLEAN" "$(verdicts "$BOX" "$TMP/good.md")"
 ck "near miss: 'accept that' / 'reject the null' stay clean" "CLEAN" "$(verdicts "$BOX" "$TMP/nearmiss.md")"
 ck "no headings: both blocks missing" "BOX_MISSING" "$(verdicts "$BOX" "$TMP/noheads.md")"
+ck "sub-headings: grade below ### Major Comments is seen" "RECOMMENDATION_IN_AUTHOR_BOX" "$(verdicts "$BOX" "$TMP/sub_long.md")"
+python3 "$BOX" --review "$TMP/sub_long.md" --strict --quiet >/dev/null 2>&1 && rc=0 || rc=$?
+ck "sub-headings: --strict exits 1" "1" "$rc"
+ck "sub-headings control: grade in a later editor box stays clean" "CLEAN" "$(verdicts "$BOX" "$TMP/sub_good.md")"
 
 # The duplicated clause must be reported, not merely counted, or the writer cannot act on it.
 run=$(python3 "$BOX" --review "$TMP/bad.md" --quiet --out "$TMP/o.json" >/dev/null 2>&1; python3 -c "import json;print(json.load(open('$TMP/o.json'))['longest_shared_run'])")

@@ -64,6 +64,12 @@ them, following the `do` line the scan prints for it (a name → a role, a hospi
 descriptor, an IRB or manuscript ID → removed, a home path → `~`). A manuscript ID matters because
 a paper under review is confidential and its ID identifies it.
 
+A file that is not UTF-8 text (an image, a binary) cannot be scanned or read, so it is listed
+as `NOT SCANNED` and the scan fails until it is taken out of the contribution. `qc/safety.json`
+records the sha256 of every file it scanned; the submit step refuses unless the files it is about
+to send are exactly those, unchanged. **After any edit, re-run the scan** — an older report, or one
+made with `--text` on a different file, clears nothing.
+
 Then **print the full text of every file that would be sent** and ask them to read it. Not a
 summary — the text. This is the step that actually protects them.
 
@@ -165,3 +171,12 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/star_repo.py" --now   # do it from here (Gi
 
 Touches only the installed skills — never the user's manuscripts, data, or any other file.
 Contributions arrive as a fork's pull request or an issue; never push to the main repository.
+
+## Known limits
+
+- The patient-identifier patterns cover a fixed set of labels and formats. Among what they do not
+  recognise: Korean-language labels for a registration or patient number, a resident registration number
+  written without its hyphen, an alphanumeric patient ID, "hospital number", and a date of birth
+  written with a month name or introduced by "born". Widening them means keyword matching over
+  prose, which has produced false positives before, so it has not been done. Reading every line
+  (Phase 1) is what covers these.

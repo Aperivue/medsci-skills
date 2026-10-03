@@ -77,7 +77,8 @@ and writes no TSV and no `library.bib`.
   - `FABRICATED`: the cited identifier does not exist and nothing else found the work (details
     below).
   - `UNVERIFIED`: nothing confirmed or refuted it (a failed lookup, a DOI held only by another
-    registration agency that no index confirmed, no identifier and no title match, or
+    registration agency that no index confirmed, no identifier and no title match, a PubMed
+    title-only match whose authors could not be compared or differ (`note = "title_only: …"`), or
     `--offline`).
 - `counts` and `duplicate_findings[]` (Gate 5).
 - `submission_safe`: no `FABRICATED`, no `MISMATCH`, and `duplicate_findings` empty.
@@ -112,13 +113,16 @@ and writes no TSV and no `library.bib`.
   `efetch.fcgi` (XML) when a PMID is present — preferred because CrossRef is unreliable for
   given names — with CrossRef and PubMed esummary as fallbacks. For BibTeX inputs every cited family name is
   compared index-by-index, and the cited and source author counts are compared, after
-  normalizing case, diacritics, hyphen vs space, and name particles ("von", "van", "de"). A row
+  normalizing case, diacritics, hyphen vs space, and name particles ("von", "van", "de"); one
+  name may be a whole word of the other ("Garcia" / "Garcia-Lopez"), never a mere substring
+  ("Li" / "Williams"). A row
   whose DOI/PMID resolves but whose authors differ at any index or in count becomes `MISMATCH`:
   `note = "first-author hallucination suspected"` for the first author,
   `note = "non-first-author hallucination or count mismatch"` for #2..#N or the count. A correct
   first author does not establish the rest of the list. Plain-text / TSV inputs, and lists that
   cannot be parsed confidently, degrade to the first-author check (skipped if even that is
-  empty); a PubMed title-only match carries no authoritative author and is excluded. A declared
+  empty). A PubMed title-only match is `OK` only when the matched record's esummary authors were
+  compared with the cited ones and agree; otherwise it stays `UNVERIFIED`. A declared
   truncation — BibTeX `and others`, or a `_audit_truncated = <N>` field — turns a
   shorter-than-source count into a note; citing more authors than the source is always flagged.
 - Gate 5: verbatim PMID or normalized-DOI duplicates in the reference list are MAJOR findings in
@@ -165,7 +169,7 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_claim_fidelity.py" \
 | Verdict | Severity | Fires when |
 |---|---|---|
 | `CITED_QUOTE_ABSENT` | major | Quoted text attributed to a source is not in it in any reading order. |
-| `CITED_QUOTE_UNRESOLVED` | prompt | The quote matched only with foreign tokens wedged in, or a word or two missing — the signature of a dirty extraction, not of a fabrication. Look; do not assume. |
+| `CITED_QUOTE_UNRESOLVED` | prompt | The quote matched with a word or two missing — the signature of a dirty extraction, not of a fabrication. Look; do not assume. |
 | `ATTRIBUTION_UNSUPPORTED` | prompt | Not one content word of the attributed claim appears in the source, in any form. Paraphrase normally keeps at least one of the source's own terms. |
 | `ORDINAL_CLAIM_UNSUPPORTED` | prompt | "reports three strategies [12]" where the source discusses that noun but never that count near it. |
 
@@ -173,6 +177,10 @@ Only the quote verdict can fail `--strict`; the others are prompts to go read th
 because paraphrase is legitimate. Read the "not checked" lines: a citation with no full text on
 disk is reported unresolved, and a source whose extracted text is an abstract is reported as too
 short to judge. Silence means "nothing checkable was wrong", not "everything is right".
+
+Known limits: a quote whose words all appear in order with source tokens between them
+(`INTERLEAVED`) is treated as verified, so a quotation that drops a source word such as "not"
+produces no finding; reread every quotation that changes a negation or qualifier.
 
 ### Sentence-level source evidence table
 

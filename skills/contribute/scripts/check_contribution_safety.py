@@ -31,7 +31,8 @@ Verdicts (all block by default; the author may override an individual finding wi
 PHI_SUSPECTED is not overridable by this script. If a line looks like patient data, the
 correct action is to delete the line, not to argue with the scanner.
 
-Exit code: **1 if anything at all was found** — this gate fails closed. A tool that returns
+Exit code: **1 if anything at all was found, or if a file that would be sent could not be
+scanned** (not UTF-8 text, or missing on disk) — this gate fails closed. A tool that returns
 success while printing a hospital name is a tool that will eventually be trusted to have said
 nothing. `--warn-only` suppresses that for inspection, but never in the contribution flow, and a
 patient-level finding still fails even then.
@@ -40,12 +41,18 @@ Usage:
     check_contribution_safety.py --changes qc/local_changes.json [--out qc/safety.json]
     check_contribution_safety.py --text some_file.md          # scan one file
 
+safety.json binds the verdict to the payload: in --changes mode it records the sha256 of every
+file it scanned, and submit_contribution.py refuses unless the files it is about to send are
+exactly those, byte for byte. A scan of some other file, or of an earlier version, clears nothing.
+An unrecognisable --changes file exits 2.
+
 Stdlib only.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -111,8 +118,12 @@ def _is_doi_suffix(line: str, start: int) -> bool:
 
 LOCAL_PATH = re.compile(r"(?:/Users/|/home/|C:\\Users\\)(?!(?:runner|user|you|username|<)\b)[\w.-]+")
 
+# Provider keys with a hyphenated prefix (Anthropic `sk-ant-…`, OpenAI project keys `sk-proj-…`)
+# used to slip past `sk-[A-Za-z0-9]{16,}`, which stops at the second hyphen; Google API keys
+# (`AIza…`) had no rule at all. The prefixes are named, not wildcarded, so ordinary hyphenated
+# prose never reaches the length floor.
 SECRET = re.compile(
-    r"\b(?:sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|"
+    r"\b(?:sk-[A-Za-z0-9]{16,}|sk-(?:ant|proj)-[A-Za-z0-9_-]{16,}|AIza[0-9A-Za-z_-]{20,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|"
     r"AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,})\b"
 )
 
@@ -181,33 +192,72 @@ def scan_text(text: str, source: str) -> list[dict]:
     return findings
 
 
+class UnrecognisedInput(Exception):
+    """The --changes file is not a find_local_changes.py report."""
+
+
+def _sha256(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
+
+
 def audit(changes_file: Path | None, text_file: Path | None) -> dict:
     findings: list[dict] = []
     scanned: list[str] = []
+    files: list[dict] = []        # what was scanned, by content hash: binds the verdict to the payload
+    unscanned: list[dict] = []    # would be sent, but could not be read as text: never "clean"
+    n_deleted = 0
 
     if text_file:
-        findings += scan_text(text_file.read_text(encoding="utf-8", errors="replace"), text_file.name)
+        raw = text_file.read_bytes()
+        findings += scan_text(raw.decode("utf-8", errors="replace"), text_file.name)
         scanned.append(str(text_file))
+        files.append({"file": str(text_file), "sha256": _sha256(raw)})
+        mode = "text"
     else:
-        data = json.loads(changes_file.read_text(encoding="utf-8"))  # type: ignore[union-attr]
-        for c in data.get("changes", []):
-            if c["kind"] == "deleted" or not c.get("text", True):
+        try:
+            data = json.loads(changes_file.read_text(encoding="utf-8"))  # type: ignore[union-attr]
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as e:
+            raise UnrecognisedInput(f"{changes_file}: {e}") from e
+        changes = data.get("changes") if isinstance(data, dict) else None
+        if not isinstance(changes, list) or not all(
+                isinstance(c, dict) and {"kind", "skill", "path", "abs"} <= set(c) for c in changes):
+            raise UnrecognisedInput(
+                f"{changes_file}: not a find_local_changes.py --json report "
+                "(expected a 'changes' list of {kind, skill, path, abs})")
+        mode = "changes"
+        for c in changes:
+            name = f"{c['skill']}/{c['path']}"
+            if c["kind"] == "deleted":
+                n_deleted += 1
                 continue
             p = Path(c["abs"])
             if not p.is_file():
+                unscanned.append({"file": name, "reason": "missing on disk"})
                 continue
-            body = p.read_text(encoding="utf-8", errors="replace")
-            findings += scan_text(body, f"{c['skill']}/{c['path']}")
-            scanned.append(f"{c['skill']}/{c['path']}")
+            raw = p.read_bytes()
+            try:
+                body = raw.decode("utf-8")
+            except UnicodeDecodeError:
+                # A binary file cannot be scanned and cannot be read by the author either.
+                unscanned.append({"file": name, "reason": "not UTF-8 text (binary); it cannot be "
+                                  "scanned or read, so it cannot be sent"})
+                continue
+            findings += scan_text(body, name)
+            scanned.append(name)
+            files.append({"file": name, "sha256": _sha256(raw)})
 
     blockers = [f for f in findings if f["severity"] == "blocker"]
     return {
         "detector": "check_contribution_safety",
+        "mode": mode,
         "files_scanned": scanned,
+        "files": files,
+        "unscanned": unscanned,
         "findings": findings,
         "summary": {v: sum(1 for f in findings if f["verdict"] == v) for v in SEVERITY},
         "blockers": len(blockers),
-        "safe_to_send": not findings,
+        # Clean means: something was checked, nothing was found, and nothing was skipped.
+        "safe_to_send": not findings and not unscanned and (len(scanned) + n_deleted) > 0,
     }
 
 
@@ -228,13 +278,22 @@ def main() -> int:
     ap.add_argument("--quiet", action="store_true")
     a = ap.parse_args()
 
-    rep = audit(a.changes, a.text)
+    try:
+        rep = audit(a.changes, a.text)
+    except UnrecognisedInput as e:
+        print(f"error: unrecognised input: {e}", file=sys.stderr)
+        return 2
     if a.out:
         a.out.parent.mkdir(parents=True, exist_ok=True)
         a.out.write_text(json.dumps(rep, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     if not a.quiet:
         n = len(rep["files_scanned"])
+        for u in rep["unscanned"]:
+            print(f"  [NOT SCANNED] {u['file']}: {u['reason']}")
+        if rep["unscanned"]:
+            print(f"{len(rep['unscanned'])} file(s) could not be scanned. Remove them from the "
+                  "contribution; nothing is sent while they are in it.\n")
         if rep["safe_to_send"]:
             print(f"Scanned {n} file(s). Nothing matched a known identifier pattern.")
             print(
@@ -242,7 +301,9 @@ def main() -> int:
                 "hospital. Read the diff yourself — every line — before you send it. The scan tells you\n"
                 "what to think hardest about; it does not think for you."
             )
-        else:
+        elif not rep["findings"] and not rep["unscanned"]:
+            print("Scanned 0 file(s): there is nothing to send.")
+        elif rep["findings"]:
             print(f"Scanned {n} file(s). {len(rep['findings'])} thing(s) must not leave this machine:\n")
             for f in rep["findings"]:
                 print(f"  [{f['severity'].upper()}] {f['verdict']}  {f['source']}:{f['line']}")
@@ -255,7 +316,7 @@ def main() -> int:
                     "negotiable: remove the lines and run this again. Nothing is sent until it is clean."
                 )
 
-    if rep["findings"] and not a.warn_only:
+    if (rep["findings"] or rep["unscanned"]) and not a.warn_only:
         return 1
     if rep["blockers"]:
         return 1  # a blocker is a blocker even under --warn-only
