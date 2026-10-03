@@ -1,0 +1,7 @@
+{
+  "alpha": 0.05,
+  "rows": [
+    {"row": "Diabetes", "test": "fisher"}
+  ],
+  "notes": "One entry per table row whose P you want checked. row is the row's first cell as printed (case and punctuation ignored). test is the test that produced that P: fisher, chi2, chi2_yates, adjusted, paired, or other:<description>. alpha is the significance level stated in the Methods."
+}

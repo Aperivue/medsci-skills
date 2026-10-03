@@ -248,12 +248,20 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_dta_denominators.py" \
 **P0 Major** — not a rounding disagreement: one of the two numbers is wrong. Run the first two on
 **every** manuscript with a table; the third only on diagnostic-accuracy work.
 
-Known limits: `check_reported_p_from_counts.py` flags a row only when its reported P differs from
-the crude 2x2 P by more than one order of magnitude under every test family, and only in tables
-with at least two count rows. It does not flag a reported `<` bound (`<0.001`) that the crude P
-exceeds, or a P on the other side of alpha, by less than that, nor a lone count row (open finding
-SR-01): the table cannot show whether the P is adjusted, paired or on another denominator. Check
-such P values against the stated test by hand.
+To check each P against its own test, declare the tests as `p_tests.json` (copy
+`${CLAUDE_SKILL_DIR}/templates/p_tests.json`; schema in `references/p_tests_schema.md`) and add
+`--tests p_tests.json`. The row's P is recomputed with the declared test (`fisher`, `chi2`,
+`chi2_yates`). A reported P whose whole printed-precision interval lies on the other side of alpha
+from the recomputed P is `P_ALPHA_CROSSING` (**Major**). An `adjusted`, `paired` or `other:` test,
+a row whose printed percentage is not count/n (another denominator), or a table of 3+ groups (after dropping
+a Total column) is `P_NOT_ASSESSED` (Minor).
+
+Known limits: without `--tests`, `check_reported_p_from_counts.py` flags a row only when its reported
+P differs from the crude 2x2 P by more than one order of magnitude under every test family, and only
+in tables with at least two count rows. It does not flag a reported `<` bound (`<0.001`) that the
+crude P exceeds, or a P on the other side of alpha, by less than that, nor a lone count row (open
+finding SR-01 in prose-only mode): the table cannot show whether the P is adjusted, paired or on
+another denominator. Check such P values against the stated test by hand, or declare them.
 `check_table_percentages.py` reads one denominator per column. A cell that misses only at its printed
 precision (within 0.5 pp) on a footnoted row (`Current smoker^a | 23 (15.4%)` under n = 150 with 149
 known) is a Minor `PERCENT_PRECISION_NOTE`; an unfootnoted row, or a larger miss, is a
@@ -424,7 +432,7 @@ Run the gates (pass the supplement so the corpus is complete):
 # 1. claims ↔ pre-registration/protocol: estimand provenance + E-value arithmetic
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_claim_artifact.py" \
   --manuscript manuscript.md --prereg prereg.md \
-  --out qc/claim_artifact.json --strict
+  --out qc/claim_artifact.json --strict   # + --evalues evalues.json (templates/) to recompute declared E-values
 
 # 2. Methods ↔ Results ↔ disk coverage (both directions: promised-absent AND run-but-unreported)
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_artifact_coverage.py" \
@@ -468,9 +476,14 @@ python3 "${CLAUDE_SKILL_DIR}/../analyze-stats/scripts/rating_monotonicity.py" \
 | `CONFIRM_NULL_NO_MDE` | **Major** |
 | `ESTIMAND_DRIFT`, `PRIMARY_DISCLOSURE_NOTE` | **Advisory Minor — never a blocker.** The provenance match is fuzzy (token overlap); confirm against the actual registration first. `PRIMARY_DISCLOSURE_NOTE` flags an honest disclosure the guidance recommends — do not penalise it. |
 
-Known limits: the E-value check splits sentences at every '.', so the decimal in "HR 1.52" can cut
-the estimate out of its window (`EVALUE_UNVERIFIABLE`); "E-value = 3.10", "(E-value 3.10)" and the
-plural are not read, and a CI-limit E-value is not recognised (open finding SR-02). Check by hand.
+With `--evalues` (schema `references/evalues_schema.md`), each declared E-value is recomputed from
+its declared RR and CI (VanderWeele–Ding; the CI E-value from the limit nearest 1) over the printed
+precision of every number: `EVALUE_DECLARED_MISMATCH` is **Major**, `EVALUE_DECLARED_NOT_IN_TEXT`
+Minor; an OR/HR must be converted to an RR or declared `other:` (Minor, not recomputed).
+Known limits: in prose-only mode the E-value check splits sentences at every '.', so the decimal in
+"HR 1.52" can cut the estimate out of its window (`EVALUE_UNVERIFIABLE`); "E-value = 3.10",
+"(E-value 3.10)" and the plural are not read, and a CI-limit E-value is not recognised (open
+finding SR-02 without `--evalues`). Check by hand, or declare them.
 
 **Checks no script makes** (prose judgement):
 

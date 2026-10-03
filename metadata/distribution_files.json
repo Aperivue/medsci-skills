@@ -4923,8 +4923,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 45647,
-      "sha256": "4b22f784684e6391acb486c0456397cc540ef01b998b0e82c237f178907f2ffa"
+      "size": 46840,
+      "sha256": "432b5201f8389f3d54167794911b6b0fb2912742af18fb0dca47feb84fc19184"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -5042,6 +5042,11 @@
       "sha256": "5f06058fbb2688c7d0d7348a57acf6db8ac001b5e3e7efe3dcb189bacdb4960d"
     },
     {
+      "path": "skills/self-review/references/evalues_schema.md",
+      "size": 5302,
+      "sha256": "ada2b7fbc5bc9eab118e7b3a5deaa9bc268137a0f0094bc809fe983055a87e4d"
+    },
+    {
       "path": "skills/self-review/references/exemplar_findings/README.md",
       "size": 3129,
       "sha256": "7738920fb9582fce6197673cedf8ddfd4edfcdb348a0530fcbb199dae08695a2"
@@ -5080,6 +5085,11 @@
       "path": "skills/self-review/references/exemplar_findings/unadjusted_confounder.md",
       "size": 1993,
       "sha256": "909464dfbed406e5bb26f9e60dcdf64e41fc1de0571843a59c96cb9abfaf9b90"
+    },
+    {
+      "path": "skills/self-review/references/p_tests_schema.md",
+      "size": 4854,
+      "sha256": "d5ccd996032333dad131127f87fe74ec85e120a0473e55090fe2ed959a0fabb7"
     },
     {
       "path": "skills/self-review/references/panel_review_template.md",
@@ -5268,8 +5278,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",
-      "size": 22558,
-      "sha256": "98e7fa5cc5539d753e5cdd429d9640a63ab149606c85f57f51c4fbe5b128bbcf"
+      "size": 35462,
+      "sha256": "503c20c3a019730198bcb067ca05e3cbe7ee72ec577a2a966f6fa99897e26d49"
     },
     {
       "path": "skills/self-review/scripts/check_classical_style.py",
@@ -5578,8 +5588,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts.py",
-      "size": 8857,
-      "sha256": "0cd24f3320e9e985606e84d1ced20340a370f2b1f3dbfd192a1b04394fa525ae"
+      "size": 21866,
+      "sha256": "6bf3167a0de3de70b970b358e890dc6ae4e306ab41cb3ccd0fbc5ebfc03cef82"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/bad.txt",
@@ -6023,8 +6033,18 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 4582,
-      "sha256": "06ce6497317b1ca6cb06ce348a37c0e962871faea3aa80cc1496426a5638cd4f"
+      "size": 4803,
+      "sha256": "3012c55b363dbcf761b6ce4c96d87876b023f81ba1a2ce44472f955b09011db0"
+    },
+    {
+      "path": "skills/self-review/templates/evalues.json",
+      "size": 632,
+      "sha256": "228b730d9a5c104fc33503a06626659f0693fcd881735cae1d0c19f9bee643cd"
+    },
+    {
+      "path": "skills/self-review/templates/p_tests.json",
+      "size": 376,
+      "sha256": "dc07b4a93e7fc07bcea82a3ac1d037877cf4aa311720b65b143f744d55e80b8a"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",
