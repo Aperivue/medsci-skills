@@ -1,0 +1,11 @@
+{
+  "entries": [
+    {
+      "id": "R1-3",
+      "location": "Results, paragraph 2",
+      "anchor": "The area under the ROC curve of the model was",
+      "values": [0.92, "0.88-0.95", "<0.001"]
+    }
+  ],
+  "notes": "One entry per changed number in the revision-time numerical audit table. The anchor is a sentence (at least 4 words) as it appears in the revised manuscript; values are JSON numbers, or strings for an inequality (\"<0.001\"), a range (\"0.88-0.95\") or a percentage (\"12.5%\")."
+}

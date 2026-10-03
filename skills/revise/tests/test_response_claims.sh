@@ -404,6 +404,149 @@ printf '## Discussion\nPrior work agrees [5, see also 8].\n' > "$TMP/body_cit_mi
 python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_mixed.md" --strict > /dev/null 2>&1
 ck "claimed [5] found in '[5, see also 8]' passes" 0 "$?"
 
+# --- --values: declared numbers checked in the paragraph that holds their anchor ----------
+printf 'Response 1. We revised the Results as requested.\n' > "$TMP/resp_v.md"
+vbody(){ printf '## Results\n%s\n\n## Discussion\nOther text with 0.50 and 0.60.\n' "$1" > "$TMP/body_v.md"; }
+vjson(){ printf '%s' "$1" > "$TMP/v.json"; }
+vrun(){ python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/body_v.md" --values "$TMP/v.json" --out "$TMP/v_out.json" --strict > /dev/null 2>&1; }
+vhas(){ python3 -c "import json,sys;d=json.load(open('$TMP/v_out.json'));sys.exit(0 if any(f['verdict']=='$1' for f in d['findings']) else 1)"; }
+VJ='{"entries":[{"id":"R1-3","anchor":"The area under the ROC curve was","values":[0.92,"0.88-0.95","<0.001"]}]}'
+vjson "$VJ"
+vbody 'The area under the ROC curve was 0.92 (95% CI 0.88-0.95; P < .001).'
+vrun; ck "declared values present -> exit 0" 0 "$?"
+vbody 'The area under the ROC curve was 0·92 (95% CI 0·88–0·95; P<0·001).'
+vrun; ck "Lancet mid-dot format reads as the same values" 0 "$?"
+vbody 'The area under the ROC curve was 0.87 (95% CI 0.88-0.95; P < .001).'
+vrun; ck "changed number -> exit 1" 1 "$?"
+vhas RESPONSE_VALUE_MISMATCH; ck "  RESPONSE_VALUE_MISMATCH" 0 "$?"
+vbody 'The area under the ROC curve was 0.92 (95% CI 0.88-0.95; P = 0.001).'
+vrun; ck "'P = 0.001' does not satisfy declared '<0.001'" 1 "$?"
+vbody 'Something else entirely is reported in this paragraph.'
+vrun; ck "anchor not in the body -> NOT_ASSESSED (minor, exit 0)" 0 "$?"
+vhas RESPONSE_VALUE_NOT_ASSESSED; ck "  RESPONSE_VALUE_NOT_ASSESSED" 0 "$?"
+vjson '{"entries":[{"id":"R2-1","anchor":"The cohort included a total of","values":[12345, 2019]}]}'
+vbody 'The cohort included a total of 12 345 patients enrolled since 2019.'
+vrun; ck "thin-space thousands and a year read correctly" 0 "$?"
+vbody 'The cohort included a total of 12,345 patients enrolled since 2019.'
+vrun; ck "comma thousands read correctly" 0 "$?"
+vjson '{"entries":[{"id":"R2-2","anchor":"The platelet count rose to","values":[250]}]}'
+vbody 'The platelet count rose to 2.5 × 10⁵ per microlitre.'
+vrun; ck "superscript notation -> NOT_ASSESSED, not MISMATCH (exit 0)" 0 "$?"
+vhas RESPONSE_VALUE_MISMATCH; ck "  no RESPONSE_VALUE_MISMATCH" 1 "$?"
+vjson '{"entries":[{"id":"R2-3","anchor":"The mean difference was","values":[-0.5, "12.5%"]}]}'
+vbody 'The mean difference was −0.5 units, affecting 12.5% of patients.'
+vrun; ck "Unicode minus and percentage" 0 "$?"
+# review round 1: values on a wrapped line, a docx soft break or table cells; minus forms; no pooling
+VA='{"entries":[{"id":"R1","anchor":"The area under the curve in the external cohort was","values":[0.92,"0.88-0.95"]}]}'
+vjson "$VA"
+printf 'The area under the curve in the external cohort was\n0.92 (95%% CI 0.88-0.95).\n' > "$TMP/body_v.md"; vrun
+ck "value on the next (hard-wrapped) line" 0 "$?"
+printf 'The area under the curve in the external\ncohort was 0.92 (95%% CI\n0.88-0.95).\n' > "$TMP/body_v.md"; vrun
+ck "anchor itself wrapped across lines" 0 "$?"
+printf 'The area under the curve in the external cohort was 0.87 (0.80-0.90).\n\nElsewhere: 0.92 0.88 0.95.\n' > "$TMP/body_v.md"; vrun
+ck "values after a blank line are not borrowed -> exit 1" 1 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"Sensitivity in the external validation cohort","values":[85.0,"80.1-89.2"]}]}'
+printf 'Table 2\nSensitivity in the external validation cohort\n85.0\n80.1–89.2\n' > "$TMP/body_v.md"; vrun
+ck "docx table row: label then value cells" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"The mean difference between the two arms was","values":[-2.3,"−4.1 to −0.5"]}]}'
+printf 'The mean difference between the two arms was –2.3 points (95%% CI –4.1 to –0.5).\n' > "$TMP/body_v.md"; vrun
+ck "en dash used as a minus" 0 "$?"
+printf 'The mean difference between the two arms was **−2.3** (95%% CI −4.1–−0.5).\n' > "$TMP/body_v.md"; vrun
+ck "bold minus and an en dash between negatives" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"The AUC in the external cohort was","values":[0.92]}]}'
+printf 'The AUC in the external cohort was 0.87.\n\nThe sensitivity in the external cohort was 0.92.\n' > "$TMP/body_v.md"; vrun
+ck "a neighbouring sentence's number is not pooled -> exit 1" 1 "$?"
+printf 'The AUC in the extrnal cohrt was 0.87.\n' > "$TMP/body_v.md"; vrun
+ck "approximate anchor + missing value -> NOT_ASSESSED (exit 0)" 0 "$?"
+vhas RESPONSE_VALUE_NOT_ASSESSED; ck "  RESPONSE_VALUE_NOT_ASSESSED" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"The cohort included a total of","values":[12345]}]}'
+printf 'The cohort included a total of 12\xe2\x80\x89345 patients.\n' > "$TMP/body_v.md"; vrun
+ck "real thin-space thousands (U+2009)" 0 "$?"
+printf '\xef\xbb\xbf{"entries":[{"id":"R1","anchor":"The cohort included a total of","values":[12345]}]}' > "$TMP/v.json"; vrun
+ck "UTF-8 BOM in the values file is read" 0 "$?"
+
+# review round 2: the block (paragraph / table row) is the unit
+VA2='{"entries":[{"id":"R1","anchor":"in the external validation cohort of","values":[0.92,"0.88-0.95"]}]}'
+vjson "$VA2"
+printf 'The model achieved an area under the curve of 0.92 (95%% CI 0.88-0.95)\nin the external validation cohort of 512 patients.\n' > "$TMP/body_v.md"; vrun
+ck "value on an earlier wrapped line of the same paragraph" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"External validation cohort (n = 512)","values":[0.92]}]}'
+printf '| Cohort | Sensitivity | Specificity | PPV | NPV | AUC |\n|---|---|---|---|---|---|\n| External validation cohort (n = 512) | 85.0 | 90.2 | 70.1 | 95.3 | 0.92 |\n| Internal cohort (n = 300) | 80.0 | 88.0 | 60.0 | 90.0 | 0.95 |\n' > "$TMP/body_v.md"; vrun
+ck "six-column md table row" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"Internal test cohort (n = 300)","values":[0.92]}]}'
+printf '| Cohort | AUC |\n|---|---|\n| Internal test cohort (n = 300) | 0.87 |\n| External cohort (n = 512) | 0.92 |\n' > "$TMP/body_v.md"; vrun
+ck "a value from another table row is not borrowed -> exit 1" 1 "$?"
+if python3 -c "import docx" 2>/dev/null; then
+python3 - "$TMP/wide.docx" <<'PY'
+import sys, docx
+d = docx.Document(); d.add_paragraph("Table 2. Diagnostic performance.")
+t = d.add_table(rows=2, cols=6)
+for c, v in zip(t.rows[0].cells, ["Cohort", "Sensitivity", "Specificity", "PPV", "NPV", "AUC"]): c.text = v
+for c, v in zip(t.rows[1].cells, ["External validation cohort (n = 512)", "85.0", "90.2", "70.1", "95.3", "0.92"]): c.text = v
+t.rows[1].cells[5].add_paragraph("(0.88–0.95)")
+p = d.add_paragraph("The hazard ratio for death in the treated group was"); p.add_run().add_break(); p.add_run("0.75 (0.60–0.94).")
+d.save(sys.argv[1])
+PY
+vjson '{"entries":[{"id":"R1","anchor":"External validation cohort (n = 512)","values":[0.92,"0.88-0.95"]},{"id":"R2","anchor":"The hazard ratio for death in the treated group","values":[0.75,"0.60-0.94"]}]}'
+python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/wide.docx" --values "$TMP/v.json" --strict > /dev/null 2>&1
+ck "docx: six-column row, two-paragraph cell, soft line break" 0 "$?"
+python3 - "$TMP/tracked.docx" <<'PY'
+import sys, docx
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+d = docx.Document()
+p = d.add_paragraph("The area under the curve in the external cohort was ")
+def wrap(tag, text, deleted=False):
+    w = OxmlElement(tag); w.set(qn("w:id"), "1"); w.set(qn("w:author"), "a")
+    r = OxmlElement("w:r"); t = OxmlElement("w:delText" if deleted else "w:t"); t.text = text
+    r.append(t); w.append(r); p._p.append(w)
+wrap("w:ins", "0.92"); wrap("w:del", "0.87", deleted=True)
+p.add_run(" (95% CI 0.88–0.95).")
+d.save(sys.argv[1])
+PY
+vjson '{"entries":[{"id":"R1","anchor":"The area under the curve in the external cohort was","values":[0.92]}]}'
+python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/tracked.docx" --values "$TMP/v.json" --strict > /dev/null 2>&1
+ck "docx tracked change: inserted value is read" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"The area under the curve in the external cohort was","values":[0.87]}]}'
+python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/tracked.docx" --values "$TMP/v.json" --strict > /dev/null 2>&1
+ck "docx tracked change: deleted value is not read -> exit 1" 1 "$?"
+python3 - "$TMP/nbh.docx" <<'PY'
+import sys, docx
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+d = docx.Document()
+p = d.add_paragraph("The mean difference between the two arms was ")
+r = OxmlElement("w:r"); r.append(OxmlElement("w:noBreakHyphen")); t = OxmlElement("w:t"); t.text = "2.3"; r.append(t); p._p.append(r)
+p.add_run(" points.")
+q = d.add_paragraph("The area under the curve in the external cohort was ")
+mf = OxmlElement("w:moveFrom"); mf.set(qn("w:id"), "2"); mf.set(qn("w:author"), "a")
+r = OxmlElement("w:r"); t = OxmlElement("w:t"); t.text = "0.87 "; r.append(t); mf.append(r); q._p.append(mf)
+q.add_run("0.92.")
+d.save(sys.argv[1])
+PY
+vjson '{"entries":[{"id":"R1","anchor":"The mean difference between the two arms was","values":[-2.3]}]}'
+python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/nbh.docx" --values "$TMP/v.json" --strict > /dev/null 2>&1
+ck "docx non-breaking hyphen reads as a minus" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"The area under the curve in the external cohort was","values":[0.87]}]}'
+python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/nbh.docx" --values "$TMP/v.json" --strict > /dev/null 2>&1
+ck "docx moved-away text is not read -> exit 1" 1 "$?"
+fi
+printf '{"entries":[{"id":"R1","anchor":"— — — — ± ± ±","values":[0.92]}]}' > "$TMP/v.json"; vrun
+ck "anchor without four Latin/digit words exits 2 (no crash)" 2 "$?"
+
+# malformed values files exit 2
+for bad in '{"entries":[]}' '{"entries":[{"id":"R1","anchor":"too short","values":[1]}]}' \
+           '{"entries":[{"id":"R1","anchor":"the AUC of the model","values":["1,234"]}]}' \
+           '{"entries":[{"id":"R1","anchor":"the AUC of the model","values":[true]}]}' \
+           '{"entries":[{"id":"R1","anchor":"the AUC of the model","values":[1],"page":3}]}' \
+           '{"entris":[]}' '[1,2]' '{"entries":[{"id":"R1","anchor":"the AUC of the model","values":[Infinity]}]}'; do
+  vjson "$bad"; vrun; ck "malformed values file exits 2: $bad" 2 "$?"
+done
+python3 -c "print('{\"notes\":'+'['*100000+']'*100000+'}')" > "$TMP/v.json"; vrun
+ck "deeply nested values file exits 2" 2 "$?"
+python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/body_v.md" --values "$TMP/nope.json" > /dev/null 2>&1
+ck "missing values file exits 2" 2 "$?"
+
 echo "----"
 echo "test_response_claims: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

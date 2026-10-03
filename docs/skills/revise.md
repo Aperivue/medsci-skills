@@ -41,6 +41,7 @@
 **References** (`skills/revise/references/`):
 
 - `r2r_voice.md`
+- `revision_values_schema.md`
 
 **Scripts** (`skills/revise/scripts/`):
 
@@ -48,6 +49,10 @@
 - `check_density_complaint.py`
 - `check_response_claims.py`
 - `density_complaint_challenge/` (5 files)
+
+**Templates** (`skills/revise/templates/`):
+
+- `revision_values.json`
 
 ## Source
 
