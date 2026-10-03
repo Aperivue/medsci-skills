@@ -4,15 +4,22 @@ This table maps each AIO rule (sections 1-12 of `SKILL.md`) to the corresponding
 
 ## Core mapping
 
+Cells name the reporting-guideline **item by its topic**, not by number. Item numbers live in one
+place: the `/check-reporting` checklists in `skills/check-reporting/references/checklists/`
+(`TRIPOD_AI.md`, `CLAIM_2024.md`, `STARD_AI.md`, `TRIPOD_LLM.md`, `DECIDE_AI.md`). Look the item up
+there by its topic name; do not copy a number from this file. "No matching item" means the
+check-reporting checklist has no item on that topic; check the source guideline before assuming
+the guideline has none.
+
 | AIO rule | TRIPOD+AI 2024 | CLAIM 2024 | STARD-AI 2025 | TRIPOD-LLM 2024 | DECIDE-AI 2022 | Notes |
 |----------|----------------|-------------|----------------|-----------------|----------------|-------|
-| §1.1 Title three-slot | item 1 (title) | item 1 (title and abstract) | item 1 (title) | item 1a (title) | — | All require keyword presence and study-type identification. |
-| §1.2 Structured abstract | item 2 (abstract) | item 1 (title and abstract) | item 2 (abstract) | item 1b (abstract) | — | Each guideline mandates structured form. |
-| §1.5 Quantified primary outcome with CI | item 16 (model performance) | items 28-30 (performance metrics) | items 23-26 (diagnostic estimates) | item 17 (performance with CI) | item 8 (clinical effect) | CI mandatory for all. |
+| §1.1 Title three-slot | Title | Title | Title | Title | — | All require keyword presence and study-type identification. |
+| §1.2 Structured abstract | Abstract | Abstract | Abstract | Abstract | — | Each guideline mandates structured form. |
+| §1.5 Quantified primary outcome with CI | Model performance | Performance metrics; Uncertainty | Accuracy estimates | Performance | No matching item | CI mandatory for all. |
 | §1.6 Reporting-guideline anchor | (compliance declaration) | (compliance declaration) | (compliance declaration) | (compliance declaration) | (compliance declaration) | Cite guideline + checklist in Methods or supplement. |
-| §2.4 Reproducibility block | item 24 (data sharing) + item 25 (code sharing) | items 33-34 (data and code availability) | item 28 (data and code) | items 22-23 (artifacts) | item 12 (artifacts) | All require explicit data/code statement. |
-| §2.5 Limitations enumeration | item 23 (limitations) | item 41 (limitations) | item 27 (limitations) | item 19 (limitations) | item 11 (limitations) | Enumerate, do not narrate generally. |
-| §10.4 Challenge statement | (implicit in Background) | item 4 (rationale) | item 5 (rationale) | item 4 (rationale) | item 4 (rationale) | "Why this is hard" overlaps with rationale items. |
+| §2.4 Reproducibility block | Data sharing; Code sharing | Availability | Data and code availability | Data availability; Code / prompt availability | Data availability | All require explicit data/code statement. |
+| §2.5 Limitations enumeration | Limitations | Limitations | Study limitations | Limitations | No matching item | Enumerate, do not narrate generally. |
+| §10.4 Challenge statement | Background | Background | Scientific background | Background — context | No matching item | "Why this is hard" overlaps with background/rationale items. |
 
 ## Workflow
 
@@ -36,4 +43,7 @@ This table maps each AIO rule (sections 1-12 of `SKILL.md`) to the corresponding
 
 ## Anti-hallucination
 
-Item numbers above are derived from the most recent published version of each guideline. Verify against the EQUATOR Network entry before citing item numbers in a manuscript — guideline updates renumber items.
+This file carries no item numbers on purpose: an earlier version restated them by hand and they
+disagreed with the check-reporting checklists. Take item numbers from the check-reporting
+checklist, and verify them against the EQUATOR Network entry before citing them in a manuscript —
+guideline updates renumber items.

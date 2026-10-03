@@ -38,16 +38,22 @@ provenance:
 # Counts (canonical numbers — NEVER edit without re-freezing)
 # ---------------------------------------------------------------------------
 
-# Studies in the final pool (Phase 4 extraction candidate set).
+# Each count must equal its UID list below; scripts/check_pool_consistency.py
+# fails the lock otherwise.
+
+# Studies in the final pool (Phase 4 extraction candidate set)
+# = number of distinct UIDs in include_uids + mixed_uids.
 final_pool_n: 0
 
-# Total INCLUDE decisions across rounds (post-adjudication).
+# INCLUDE decisions (post-adjudication) = number of UIDs in include_uids.
+# Mixed studies are NOT counted here; they go in mixed_count.
 include_count: 0
 
-# Total EXCLUDE decisions (full-text excluded).
+# EXCLUDE decisions (full-text excluded) = number of UIDs in exclude_uids.
 exclude_count: 0
 
-# Mixed (eligible for some outcomes, excluded for others).
+# Mixed (eligible for some outcomes, excluded for others)
+# = number of UIDs in mixed_uids.
 mixed_count: 0
 
 # ---------------------------------------------------------------------------
