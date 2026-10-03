@@ -160,6 +160,17 @@
   2; `other:<description>` is a Minor `UNLISTED_METHOD`); only an adjudicated expert reference
   clears the reference standard and only a blinded reader study clears the reader-study axis.
   `--plan` keeps the keyword check unchanged and prints a PROSE_MODE notice.
+- **model-assessment** (#650): the metric-reporting gate reads a declared `metrics_manifest.json`
+  (`--manifest`) instead of results keywords, so "we did not compute HD95", "FROC was not
+  performed", a "saliency map" or the Decathlon "MSD" no longer counts as a reported metric.
+  Values come from an allow-list drawn from `metric_guide.md` (grounded synonyms folded; an
+  off-list value, wrong type or unknown key exits 2; `other:<description>` is a Minor
+  `UNLISTED_METHOD`). `--report` keeps the keyword check and prints a PROSE_MODE notice.
+- **revise** (#651): `check_response_claims.py --values revision_values.json` checks the declared
+  revision-time numerical audit table against the body: each value must be in the paragraph or
+  table row that holds its anchor (number formats folded; .docx tracked changes read as
+  accepted), else `RESPONSE_VALUE_MISMATCH` (major); unreadable numbers or an approximate anchor
+  give `RESPONSE_VALUE_NOT_ASSESSED` (minor). Output without `--values` is unchanged.
 - **radiomics-ml: the pipeline gate fails closed.** `check_radiomics_ml.py` no longer clears
   features >= events because dimensionality reduction is declared, counts events as the minority
   class, flags a missing or unrecognised feature-selection stage, accepts stability and
