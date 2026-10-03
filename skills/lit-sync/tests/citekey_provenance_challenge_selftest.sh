@@ -17,6 +17,12 @@
 #   8. NO_IDENTIFIER folds into UNRESOLVED   (a note with no DOI is called "never added")
 #   9. the PMID lookup is dropped            (a DOI-less note cannot find its real key)
 #  10. an ambiguous key is still suggested   (the rename that merges two papers' notes)
+#  11. the DOI/key mismatch check is dropped (a real key on the wrong paper reads as OK)
+#  12. hidden folders judged on the full path (a vault under ../ or a dot-folder: 0 notes)
+#  13. the BOM is not stripped               (a BOM-prefixed note is silently skipped)
+#  14. frontmatter is truncated              (a long frontmatter note is silently skipped)
+#  15. unclosed literature frontmatter skipped (its key is never checked)
+#  16. a zero-note scan passes --strict      (a check that never ran reads as clean)
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -36,8 +42,33 @@ src = pathlib.Path(src_path).read_text(encoding="utf-8")
 
 MUTATIONS = {
     "--strict fires on UNRESOLVED too": (
-        'if args.strict and counts["INVENTED"]:',
-        'if args.strict and (counts["INVENTED"] or counts["UNRESOLVED"]):',
+        'if args.strict and (counts["INVENTED"] or counts["MISMATCH"] or counts["UNPARSED"]):',
+        'if args.strict and (counts["INVENTED"] or counts["MISMATCH"] or counts["UNPARSED"]'
+        ' or counts["UNRESOLVED"]):',
+    ),
+    "DOI/key mismatch check removed": (
+        "        elif (citekey in keys and doi_key and doi_key != citekey\n",
+        "        elif (False and doi_key and doi_key != citekey\n",
+    ),
+    "hidden test applied to the full path": (
+        "if any(part.startswith(\".\") for part in rel_parts):",
+        "if any(part.startswith(\".\") for part in path.parts):",
+    ),
+    "BOM not stripped": (
+        'text = path.read_text(encoding="utf-8-sig", errors="ignore")',
+        'text = path.read_text(encoding="utf-8", errors="ignore")',
+    ),
+    "frontmatter truncated again": (
+        'text = text.replace("\\r\\n", "\\n")',
+        'text = text.replace("\\r\\n", "\\n")[:4000]',
+    ),
+    "unclosed literature frontmatter skipped": (
+        "                yield path, None\n",
+        "                pass\n",
+    ),
+    "zero-note scan passes --strict": (
+        "        if args.strict:\n            return 2\n",
+        "        if False:\n            return 2\n",
     ),
     "empty-library guard removed": (
         "        return 2\n\n    rows = []",
@@ -48,8 +79,8 @@ MUTATIONS = {
         "if False:\n            continue",
     ),
     "DOI suggestion disabled": (
-        'suggestion = doi_to_key.get(doi, "") if doi else ""',
-        'suggestion = ""',
+        'doi_key = doi_to_key.get(doi, "") if doi else ""',
+        'doi_key = ""',
     ),
     "filename check removed": (
         'verdict = "OK" if path.stem == citekey else "FILENAME"',

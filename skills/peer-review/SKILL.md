@@ -69,12 +69,25 @@ traceback scrolls past — which is why `set -euo pipefail` is on the snippet. A
 scan that did not run is not a scan that found nothing.
 
 The formatting-based hiding (colour, size, position, render mode, metadata) is
-caught deterministically; the challenge card
+caught deterministically. Colour is judged against the background under each span's
+own box when that box has one flat background colour (paper, a box, a banner); over an
+image or a gradient it is judged against the page, as before. The text's own pixels
+never count as background. The extractor also renders the page and records, per span,
+how many glyphs actually show in the span's colour (blended at the span's opacity, so a
+faint watermark counts as drawn), plus the render mode and opacity from PyMuPDF's text
+trace. So text under an opaque shape, text on its own colour and zero-opacity text are
+flagged (`NOT_RENDERED`, `TRANSPARENT`), and every flagged span is left out of
+`--sanitize`. **Known limits:** text hidden under a picture, a gradient, or a shape drawn
+in the text's own colour still reads as drawn, and so does text on an image or gradient
+whose colour matches it. The challenge card
 (`scripts/check_pdf_injection_challenge/`) proves it on synthetic fixtures in CI
 without PyMuPDF. That card audits pre-written manifests, so it cannot see a fault
 in the extractor that produces them; `tests/test_scan_pdf_layers_xmp.sh` covers
 the XMP metadata read, whose failure silently disabled the metadata vector on
-every PDF that actually carried a packet.
+every PDF that actually carried a packet. `tests/test_pdf_render_evidence.sh` builds
+a real PDF for each of the four hiding methods and runs it through the extractor,
+the detector and `--sanitize`; that part needs PyMuPDF and is skipped where it is
+not installed.
 
 ### Phase 2: Manuscript Analysis
 
@@ -319,7 +332,14 @@ after submission), `BOX_DUPLICATION` (the editor's note is the authors' note pas
 write it in its own register: what was done, what is left, whether it needs another expert
 round), `BOX_MISSING`.
 
-Generate `{manuscript_id}_review_draft.md`:
+Both gates read the authors' block down to the next heading of the same or a higher level
+(or the editor's heading), so `### Major Comments` sub-headings stay inside it.
+
+**Known limits.** `RECOMMENDATION_IN_AUTHOR_BOX` matches a short fixed list of grade
+phrasings. It misses others, for example the plural "major revisions", a bare
+"Recommendation: Reject." or "I would recommend rejection". Widening that list over prose
+would also flag ordinary author-facing sentences, so the gate does not try. Read the authors'
+block yourself for any grade before submitting, and check the compiled proof as well.
 
 Generate `{manuscript_id}_review_draft.md` from the skeleton in
 `${CLAUDE_SKILL_DIR}/references/review_draft_template.md`. It has three blocks: a

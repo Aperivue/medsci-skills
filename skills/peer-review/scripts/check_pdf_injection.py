@@ -15,7 +15,14 @@ Signals:
   LOW_CONTRAST   span colour within CONTRAST_THRESH of its local background
   TINY_FONT      span font size below MIN_FONT_PT
   OFF_PAGE       span with less than OFF_PAGE_VISIBLE_FRAC of its box on-page
-  INVISIBLE      text drawn under PDF text render mode 3 (invisible)
+  INVISIBLE      text drawn under PDF text render mode 3 (invisible): from the
+                 content-stream walk, or a span the extractor marked render_mode 3
+  TRANSPARENT    span the extractor found painted at opacity 0
+  NOT_RENDERED   span of which fewer than MIN_INKED_GLYPH_FRAC of the glyphs show,
+                 in the page render, any pixel closer to the span's colour than to
+                 the background under it: covered by a later shape, drawn on its own
+                 colour, or not painted. Only for a span that is on-page; OFF_PAGE
+                 already explains the rest.
   METADATA       document-info / XMP value carrying an instruction-style phrase
   INJECTION      an instruction-style phrase in the text layer (HIGH when it also
                  sits inside a hidden run; LOW when only in visible prose)
@@ -31,7 +38,10 @@ exactly as before, and the label text still takes part in the injection scan.
 Manifest schema (produced by scan_pdf_layers.py):
   {"source": str,
    "spans": [{"page": int, "text": str, "size": float,
-              "color": [r,g,b], "bg": [r,g,b], "visible_frac": float}, ...],
+              "color": [r,g,b], "bg": [r,g,b], "visible_frac": float,
+              # optional, written by the current extractor; absent = not checked
+              "glyphs": int, "glyphs_inked": int, "render_mode": 3, "opacity": float},
+             ...],
    "invisible_strings": [{"page": int, "text": str}, ...],
    "metadata": {field: value, ...}}
 
@@ -56,6 +66,7 @@ from dataclasses import dataclass, field, asdict
 CONTRAST_THRESH = 40.0        # sRGB Euclidean distance; below this text ~ background
 MIN_FONT_PT = 4.0             # spans smaller than this are effectively invisible
 OFF_PAGE_VISIBLE_FRAC = 0.5   # a span with <50% of its box on-page is off-page
+MIN_INKED_GLYPH_FRAC = OFF_PAGE_VISIBLE_FRAC  # same half-the-span rule, for glyphs the render shows
 
 # A figure/table label, matched against the WHOLE span (whitespace collapsed), never
 # a prefix. The label vocabulary plus at most three alphanumerics cannot spell an
@@ -81,7 +92,8 @@ INJECTION_PATTERNS = [
 ]
 INJECTION_RE = [re.compile(p, re.I) for p in INJECTION_PATTERNS]
 
-_HIDDEN_KINDS = ("LOW_CONTRAST", "TINY_FONT", "OFF_PAGE", "INVISIBLE")
+_HIDDEN_KINDS = ("LOW_CONTRAST", "TINY_FONT", "OFF_PAGE", "INVISIBLE", "TRANSPARENT",
+                 "NOT_RENDERED")
 _SEV_ORDER = {"HIGH": 0, "MEDIUM": 1, "LOW": 2, "INFO": 3}
 _VERDICT_RANK = {"CLEAN": 0, "SUSPICIOUS": 1, "INJECTION DETECTED": 2}
 
@@ -160,6 +172,19 @@ def audit(manifest: dict) -> tuple[Report, str]:
             reasons.append(f"TINY_FONT {size:.1f}pt")
         if vfrac < OFF_PAGE_VISIBLE_FRAC:
             reasons.append(f"OFF_PAGE {vfrac*100:.0f}% of box on-page")
+        # Rendering evidence from the extractor. A span get_text() reports is not
+        # necessarily a span anyone can see: render mode 3 and opacity 0 come back
+        # as ordinary spans, and so does text under an opaque shape or on its own
+        # colour. Left in the visible text, they went to the LLM as "safe".
+        if sp.get("render_mode") == 3:
+            reasons.append("INVISIBLE render mode 3")
+        if sp.get("opacity") is not None and float(sp["opacity"]) <= 0.0:
+            reasons.append("TRANSPARENT opacity 0")
+        glyphs, inked = sp.get("glyphs"), sp.get("glyphs_inked")
+        if (glyphs and inked is not None and vfrac >= OFF_PAGE_VISIBLE_FRAC
+                and int(inked) < MIN_INKED_GLYPH_FRAC * int(glyphs)):
+            reasons.append(f"NOT_RENDERED {int(inked)}/{int(glyphs)} glyphs drawn in the text "
+                           "colour (covered, same colour as what is under it, or not painted)")
         if len(reasons) == 1 and reasons[0].startswith("OFF_PAGE") and _is_figure_label(txt):
             # Kept in the hidden text the injection scan reads, so that scan behaves
             # exactly as before; only this span's own finding stops counting.

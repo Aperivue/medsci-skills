@@ -62,6 +62,10 @@ def check_arithmetic(n: dict[str, int]) -> list[dict]:
         ("screened = identified - duplicates", "screened", "identified", "duplicates"),
         ("sought = screened - excluded_screening", "sought", "screened", "excluded_screening"),
         ("retrieved = sought - not_retrieved", "retrieved", "sought", "not_retrieved"),
+        # PRISMA 2020: reports assessed for eligibility = reports sought - reports not
+        # retrieved. Links the retrieval box to the eligibility box; without it a
+        # broken chain between them (e.g. 50 retrieved, 60 assessed) passed.
+        ("assessed = sought - not_retrieved", "assessed", "sought", "not_retrieved"),
         ("included = assessed - excluded_eligibility", "included", "assessed", "excluded_eligibility"),
     ]
     out = []

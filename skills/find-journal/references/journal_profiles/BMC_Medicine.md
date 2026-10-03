@@ -28,4 +28,4 @@ clinical research, translational medicine, global health, epidemiology, public h
 - **Field:** General medicine
 
 ## Special Notes
-BMC Medicine is one of the leading fully OA general medicine journals (IF ~7-9). Fast peer review (~30 days first decision). Registered reports supported. Strong in systematic reviews and multi-site clinical studies. EQUATOR network reporting guidelines strictly enforced. Accepts transfers from other BMC journals. AI policy: follows ICMJE — disclose AI use in Methods.
+BMC Medicine is one of the leading fully OA general medicine journals. Fast peer review (~30 days first decision). Registered reports supported. Strong in systematic reviews and multi-site clinical studies. EQUATOR network reporting guidelines strictly enforced. Accepts transfers from other BMC journals. AI policy: follows ICMJE — disclose AI use in Methods.

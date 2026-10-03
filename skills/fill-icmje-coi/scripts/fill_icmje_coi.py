@@ -63,19 +63,30 @@ def _replace_in_zip(src: Path, dst: Path, replacements: dict[str, str]) -> None:
             if item.filename == DOCUMENT_XML:
                 text = data.decode("utf-8")
                 for old, new in replacements.items():
-                    if old and old not in text:
+                    if old not in text:
                         raise ValueError(
                             f"[{dst.name}] seed string not found in document.xml: {old!r}\n"
                             f"Dump with: unzip -p <seed.docx> word/document.xml | grep -o '<w:t[^>]*>[^<]*</w:t>'"
                         )
-                    if old:
-                        # XML-escape new value (& < > " ')
-                        escaped = (new.replace("&", "&amp;")
-                                      .replace("<", "&lt;")
-                                      .replace(">", "&gt;"))
-                        text = text.replace(old, escaped)
+                    # XML-escape new value (& < >)
+                    escaped = (new.replace("&", "&amp;")
+                                  .replace("<", "&lt;")
+                                  .replace(">", "&gt;"))
+                    text = text.replace(old, escaped)
                 data = text.encode("utf-8")
             zout.writestr(item, data)
+
+
+def _require_nonempty(fields: dict[str, str]) -> None:
+    """Reject empty/blank seed or new strings.
+
+    An empty seed string matches nothing and used to be skipped, leaving the
+    seed author's name/title/date in every generated form while the run
+    reported success. Refuse instead of passing silently.
+    """
+    empty = [k for k, v in fields.items() if not isinstance(v, str) or not v.strip()]
+    if empty:
+        raise ValueError("empty value for: " + ", ".join(empty))
 
 
 def fill_icmje_forms(
@@ -90,6 +101,12 @@ def fill_icmje_forms(
     filename_template: str = "ICMJE_COI_{idx:02d}_{slug}.docx",
 ) -> list[Path]:
     """Generate one filled docx per author. Returns list of written paths."""
+    authors = list(authors)
+    _require_nonempty({
+        "seed_name": seed_name, "seed_title": seed_title, "seed_date": seed_date,
+        "new_title": new_title, "new_date": new_date,
+    })
+    _require_nonempty({f"author #{idx}": name for idx, name in authors})
     out_dir.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
     for idx, author_name in authors:
@@ -119,6 +136,16 @@ def main() -> int:
     args = p.parse_args()
 
     authors = [tuple(x) for x in json.loads(args.authors)]
+    try:
+        _require_nonempty({
+            "--seed-name": args.seed_name, "--seed-title": args.seed_title,
+            "--seed-date": args.seed_date, "--new-title": args.new_title,
+            "--new-date": args.new_date,
+        })
+        _require_nonempty({f"--authors entry {idx}": name for idx, name in authors})
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 2
     print(f"Seed: {args.seed}")
     print(f"Output dir: {args.out_dir}")
     print(f"Authors: {len(authors)}")

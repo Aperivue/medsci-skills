@@ -113,7 +113,9 @@ logs the switch. Set `documentclass` yourself to override it.
 
 xelatex can finish successfully with missing glyphs. `render_pdf.sh` counts the
 `Missing character` warnings pandoc relays: if there are any, it lists each glyph
-(code point, count, font) and **exits 4** — the PDF is written but incomplete.
+(code point, count, font) and **exits 4** — the PDF is written but incomplete. It reads them from
+pandoc's JSON `--log` (yours if you pass one after `--`), so a pass-through `--quiet` does not
+hide them.
 `--allow-missing-glyphs` prints the same list and exits 0. Academic markdown
 routinely carries glyphs a default Latin font misses: transition arrows (→ ↑ ↓),
 math operators (− ≤ ≥ ± √ ∪ × ≈ ≠), stats Greek (κ μ σ β), bullets/marks (• ★ ✓),
@@ -128,7 +130,10 @@ python3 scripts/scan_glyph_coverage.py input.md --font "/path/to/body.ttc" --fon
 ```
 
 Without `--font` it groups the risky glyphs by class (advisory); with `--font` + `fonttools` it
-reports which are absent from one face's preferred Unicode cmap, never combining coverage across
+checks every non-ASCII character of the source that the font is asked to draw — not only the
+five classes, so `°`, `µ`, `²`, `‰`, `∞` and `–` are covered too — and reports which are absent
+from one face's preferred Unicode cmap (format characters such as a BOM or zero-width joiner, and
+the no-break spaces and `…` that pandoc writes as ASCII TeX, are not looked up), never combining coverage across
 collection faces — choose the face (index and PostScript name are in the report) that matches the
 rendered font. A missing dependency, unreadable font, missing face selection or invalid index is
 reported as `font_checked: false` with a reason in `font_check`; an empty `missing_in_font` list

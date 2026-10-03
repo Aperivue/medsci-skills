@@ -208,6 +208,33 @@ class MissingGlyphs(unittest.TestCase):
         self.assertIn("U+26A0", result.stderr)
         self.assertIn("--allow-missing-glyphs", result.stderr)
 
+    def test_quiet_does_not_hide_missing_glyphs(self):
+        # pandoc --quiet drops the warning from stderr; the verdict reads the JSON log.
+        for wrapper in (("--", "--quiet"), ("--quiet",)):
+            with self.subTest(wrapper=wrapper):
+                result = self.render(True, *wrapper)
+                self.assertEqual(result.returncode, 4, result.stderr)
+                self.assertNotIn("[render_pdf] ok", result.stderr)
+                self.assertIn("U+26A0", result.stderr)
+                self.assertIn("x2", result.stderr)
+
+    def test_caller_log_is_kept_and_read(self):
+        log = self.root / "caller log.json"
+        for wrapper in (("--", "--quiet", "--log", str(log)), ("--", f"--log={log}")):
+            with self.subTest(wrapper=wrapper):
+                result = self.render(True, *wrapper)
+                self.assertEqual(result.returncode, 4, result.stderr)
+                self.assertIn("U+26A0", result.stderr)
+                self.assertIn("MissingCharacter", log.read_text(encoding="utf-8"))
+
+    def test_quiet_clean_render_is_ok(self):
+        for wrapper in (("--", "--quiet"), ("--", "--quiet", "--log", str(self.root / "l.json"))):
+            with self.subTest(wrapper=wrapper):
+                result = self.render(False, *wrapper)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("[render_pdf] ok", result.stderr)
+                self.assertNotIn("WARN", result.stderr)
+
     def test_clean_render_is_ok(self):
         result = self.render(False)
         self.assertEqual(result.returncode, 0, result.stderr)

@@ -6,7 +6,9 @@ about their journal, their specialty, or their department — and who has never 
 request and has no reason to learn how. Every step that a maintainer would do by hand is done
 here; the author's only job is to read what is about to be sent and say yes.
 
-It refuses to run unless the safety scan has passed, and it prints the exact payload before
+It refuses to run unless the safety scan has passed on exactly the files it is about to send
+(safety.json records each scanned file's sha256; any file missing from it, changed since, or not
+text is refused), and it prints the exact payload before
 it does anything irreversible. `--dry-run` is the default in the skill's workflow: it shows
 the whole plan, sends nothing, and exits.
 
@@ -26,6 +28,7 @@ Stdlib only (shells out to `git` and `gh`).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 import subprocess
@@ -52,21 +55,78 @@ def gh_state() -> str:
     return "ready" if p.returncode == 0 else "unauthenticated"
 
 
+def _unrecognised(path: Path, why: str) -> None:
+    print(f"error: unrecognised input {path}: {why}", file=sys.stderr)
+    sys.exit(2)
+
+
+def _read_json(path: Path) -> object:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as e:
+        _unrecognised(path, str(e))
+    return None  # unreachable
+
+
 def load(changes: Path, safety: Path) -> tuple[dict, dict]:
-    ch = json.loads(changes.read_text(encoding="utf-8"))
-    sf = json.loads(safety.read_text(encoding="utf-8"))
+    ch = _read_json(changes)
+    sf = _read_json(safety)
+    if not isinstance(ch, dict) or not isinstance(ch.get("changes"), list) or not all(
+            isinstance(c, dict) and {"kind", "skill", "path", "abs"} <= set(c) for c in ch["changes"]):
+        _unrecognised(changes, "not a find_local_changes.py --json report")
+    if not isinstance(sf, dict) or sf.get("detector") != "check_contribution_safety" \
+            or not isinstance(sf.get("files"), list):
+        _unrecognised(safety, "not a check_contribution_safety.py report that records file hashes "
+                      "(re-run the safety scan with --changes)")
+    if not ch["changes"]:
+        raise SystemExit("There is nothing to contribute — no local changes were found.")
     if sf.get("blockers"):
         raise SystemExit(
             "The safety scan found patient-level data or a credential in what you are about to send.\n"
             "Nothing will be submitted. Remove those lines and re-run the scan."
+        )
+    # The scan must cover exactly what is about to be sent, byte for byte. A scan of another file
+    # (`--text`), of an earlier version, or of a set that skipped a binary file clears nothing.
+    if sf.get("mode") != "changes":
+        raise SystemExit(
+            "This safety report was not produced from qc/local_changes.json (it scanned a single\n"
+            "file with --text). Run the scan with --changes on what you are sending. Nothing has been sent."
+        )
+    payload: dict[str, str] = {}
+    problems: list[str] = []
+    for c in ch["changes"]:
+        if c["kind"] == "deleted":
+            continue
+        name = f"{c['skill']}/{c['path']}"
+        p = Path(c["abs"])
+        if not p.is_file():
+            problems.append(f"{name}: missing on disk")
+            continue
+        raw = p.read_bytes()
+        try:
+            raw.decode("utf-8")
+        except UnicodeDecodeError:
+            problems.append(f"{name}: not UTF-8 text (binary); it cannot be scanned or read, so it cannot be sent")
+            continue
+        payload[name] = hashlib.sha256(raw).hexdigest()
+    scanned = {f.get("file"): f.get("sha256") for f in sf["files"] if isinstance(f, dict)}
+    for name, h in sorted(payload.items()):
+        if name not in scanned:
+            problems.append(f"{name}: not covered by the safety scan")
+        elif scanned[name] != h:
+            problems.append(f"{name}: changed since the safety scan")
+    for name in sorted(set(scanned) - set(payload)):
+        problems.append(f"{name}: in the safety scan but not in this contribution")
+    if problems:
+        raise SystemExit(
+            "The safety scan does not match what would be sent:\n  " + "\n  ".join(problems)
+            + "\nRe-run the scan on exactly these files. Nothing has been sent."
         )
     if not sf.get("safe_to_send", False):
         raise SystemExit(
             "The safety scan is not clean. Fix the findings (or explicitly drop the files that carry\n"
             "them from the contribution) and re-run it. Nothing has been sent."
         )
-    if not ch.get("changes"):
-        raise SystemExit("There is nothing to contribute — no local changes were found.")
     return ch, sf
 
 
