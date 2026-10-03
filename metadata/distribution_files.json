@@ -2768,8 +2768,8 @@
     },
     {
       "path": "skills/manage-refs/SKILL.md",
-      "size": 16362,
-      "sha256": "6c60b69f1b7d062eba18a55e43ea78091e92baa594401f88b0e17853c3a2486b"
+      "size": 16559,
+      "sha256": "0ed36281bee86f5d104942b81484ad2234d1b0854352071f2ca026beb031d743"
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
@@ -2918,8 +2918,8 @@
     },
     {
       "path": "skills/manage-refs/references/check_xref_symptoms.md",
-      "size": 4778,
-      "sha256": "8b79058d7817ac8eab6b6e72a4d7a6df3592b44112509f0b41ba57157108f731"
+      "size": 4818,
+      "sha256": "0b5599fe369bf46a011be3951ba50f8e6e329bb60ba327fc97c99456babbb0c2"
     },
     {
       "path": "skills/manage-refs/scripts/_vendor_citation_writer.py",
@@ -2958,8 +2958,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_csl_render.py",
-      "size": 13854,
-      "sha256": "9535ea0041ada69c7d0eb0ce5d63cf543c5ac125e0366cdc206f6771d4d6ebf4"
+      "size": 15895,
+      "sha256": "fd2a688c739e60e267b6faec255e3baca75191ad26a37a3e81e394c03dbb17f1"
     },
     {
       "path": "skills/manage-refs/scripts/check_reference_duplication.py",
@@ -2968,8 +2968,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_xref.py",
-      "size": 34933,
-      "sha256": "2855663f1f5fba8b9b7ddc214ae811890365794f03d4c4d7455914f3b596769f"
+      "size": 36305,
+      "sha256": "c8ed6856f392843021db8d259fe83550b1a596d14e734990832c5a5e9be6a0db"
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",
@@ -2983,8 +2983,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/md_marker_convert.py",
-      "size": 10569,
-      "sha256": "aa55557b997aa913da1e74398ea8591b860328a921105af7d5441de46eecaeb8"
+      "size": 11418,
+      "sha256": "06aaa2fef6b41f1c1bd6ea9495a1c3704f5f6a1aeaea3f0e63ee82b68d3806b3"
     },
     {
       "path": "skills/manage-refs/scripts/pre_submission_gate.sh",
@@ -2993,8 +2993,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/render_pandoc.sh",
-      "size": 6546,
-      "sha256": "6516a22635b04d7494ef2c82072c2722bf3a0ee945295e85dc576a50c6fb8248"
+      "size": 6650,
+      "sha256": "31c1bdec77ad4d56e016d66827a8d0226948dbf1abbb308ece6561a71c47d6dd"
     },
     {
       "path": "skills/manage-refs/scripts/strip_source_metadata.lua",

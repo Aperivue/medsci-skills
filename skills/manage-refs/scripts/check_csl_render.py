@@ -24,6 +24,14 @@ a journal (``journal``/``journaltitle``) but carries no ``shortjournal`` fails t
 check by key. That scan reads only the .bib, so it is reported even when pandoc is
 unavailable (exit 1, with a note that the render checks did not run).
 
+In the render itself, an entry whose full journal title is contained in its own
+``shortjournal`` ("Cancers" in "Cancers (Basel)") is NOT_ASSESSED for full-vs-abbreviated,
+never FAIL: a correct abbreviation always contains the full title. It is listed in
+``abbrev_not_assessed`` and named in a minor note.
+
+--bib must be a BibTeX (.bib) file; a CSL-JSON or YAML bibliography has no BibTeX
+entries to sample and exits 2.
+
 Exit codes:
   0  output matches journal spec
   1  spec mismatch (in-text / DOI / abbreviation)
@@ -213,19 +221,38 @@ def analyze(csl: str, bib: str) -> dict:
     flat = " ".join(txt.split()).lower()
     doi = 1 if any(bib_field(entries[k], "doi").lower() in flat
                    for k in keys if bib_field(entries[k], "doi")) else 0
-    full = False
+    # The sampled entries' own titles are removed before the full journal title is looked for: a
+    # journal named in an article title ("Synthetic reports of ...") is not the container title.
+    searched = flat
+    unmatched_titles: list[str] = []
     for k in keys:
-        jfull = bib_field(entries[k], "journal") or bib_field(entries[k], "journaltitle")
-        jshort = bib_field(entries[k], "shortjournal")
-        if jfull and jfull.lower() != jshort.lower() and jfull.lower() in flat:
+        title = bib_field(entries[k], "title").lower()
+        if title and title in searched:
+            searched = searched.replace(title, " ")
+        elif title:
+            unmatched_titles.append(title)
+    full = False
+    not_assessed: list[str] = []
+    for k in keys:
+        jfull = (bib_field(entries[k], "journal") or bib_field(entries[k], "journaltitle")).lower()
+        jshort = bib_field(entries[k], "shortjournal").lower()
+        if not jfull or jfull == jshort:
+            continue
+        # "Cancers" inside "Cancers (Basel)": a correct abbreviation always contains the full title,
+        # so the render cannot tell the two apart. Likewise a journal name inside an article title
+        # that the render did not print verbatim. Neither is a verdict either way.
+        if jfull in jshort or any(jfull in t for t in unmatched_titles):
+            not_assessed.append(k)
+            continue
+        if jfull in searched:
             full = True
     return {"intext": intext, "doi": doi, "abbrev_full_detected": full,
-            "superscript_runs": sup}
+            "abbrev_not_assessed": not_assessed, "superscript_runs": sup}
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csl", required=True)
-    ap.add_argument("--bib", required=True)
+    ap.add_argument("--bib", required=True, help="BibTeX (.bib) file; CSL-JSON/YAML is not parsed")
     ap.add_argument("--journal", help="spec key (jkms, radiology, ...)")
     ap.add_argument("--expect-intext", choices=["superscript", "bracket", "paren"])
     ap.add_argument("--expect-doi", type=int, choices=[0, 1])
@@ -276,6 +303,10 @@ def main():
     if exp.get("abbrev") == "yes" and got["abbrev_full_detected"]:
         fails.append("journal names appear FULL — need NLM abbreviation "
                      "(fill_journal_abbrev.py to add shortjournal)")
+    if exp.get("abbrev") == "yes" and got["abbrev_not_assessed"]:
+        print("NOTE (minor): full-vs-abbreviated journal name NOT_ASSESSED for "
+              f"{', '.join(got['abbrev_not_assessed'])}: the full title is part of its own "
+              "abbreviation or article title, so the render cannot tell them apart", file=sys.stderr)
     if fails:
         print("FAIL:", "; ".join(fails), file=sys.stderr)
         sys.exit(1)

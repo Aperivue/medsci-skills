@@ -250,6 +250,83 @@ BIB
     fi
   done
   rm -rf "$esc_dir"
+  # A full journal title contained in its own abbreviation ("Cancers" in "Cancers (Basel)"): a
+  # correct short-form render always contains the full title, so the verdict is NOT_ASSESSED, never
+  # FAIL. main cleared these (exit 0) and so must this; the entries are named in a minor note.
+  sub_dir="$(mktemp -d)"
+  cat > "$sub_dir/refs.bib" <<'BIB'
+@article{can2020,
+  title        = {A synthetic tumour cohort},
+  author       = {Alpha, Ada},
+  journal      = {Cancers},
+  shortjournal = {Cancers (Basel)},
+  year         = {2020},
+  doi          = {10.1234/can.2020.001}
+}
+@article{dia2021,
+  title        = {A synthetic imaging cohort},
+  author       = {Beta, Boris},
+  journal      = {Diagnostics},
+  shortjournal = {Diagnostics (Basel)},
+  year         = {2021},
+  doi          = {10.1234/dia.2021.002}
+}
+@article{med2022,
+  title        = {A synthetic registry},
+  author       = {Gamma, Grace},
+  journal      = {Medicine},
+  shortjournal = {Medicine (Baltimore)},
+  year         = {2022},
+  doi          = {10.1234/med.2022.003}
+}
+BIB
+  for flags in "--expect-abbrev yes" "--journal radiology"; do
+    # shellcheck disable=SC2086
+    out="$(python3 "$SCRIPT" --csl "$STYLES/vancouver.csl" --bib "$sub_dir/refs.bib" $flags 2>&1)"; rc=$?
+    if [[ $rc -eq 0 && "$out" == *'"abbrev_full_detected": false'* && "$out" == *"NOT_ASSESSED"* \
+          && "$out" != *"journal names appear FULL"* ]]; then
+      pass "full title inside its own abbreviation -> NOT_ASSESSED, exit 0 ($flags)"
+    else
+      bad "full title inside its own abbreviation ($flags) (rc=$rc): $out"
+    fi
+  done
+  # The journal name as words of the article title is not the container title: the short-form CSL
+  # clears (main: exit 0), and a CSL that does print the long title still fails.
+  sed 's/<text form="short" strip-periods="true" variable="container-title"\/>/<text variable="container-title"\/>/' \
+    "$STYLES/vancouver.csl" > "$sub_dir/full_title.csl"
+  cat > "$sub_dir/title.bib" <<'BIB'
+@article{syn2021,
+  title        = {Synthetic reports of widget reliability},
+  author       = {Beta, Boris},
+  journal      = {Synthetic Reports},
+  shortjournal = {Synth Rep},
+  year         = {2021},
+  doi          = {10.1234/sr.2021.002}
+}
+BIB
+  out="$(python3 "$SCRIPT" --csl "$STYLES/vancouver.csl" --bib "$sub_dir/title.bib" --expect-abbrev yes 2>&1)"; rc=$?
+  if [[ $rc -eq 0 && "$out" == *'"abbrev_full_detected": false'* ]]; then
+    pass "control: journal name in the article title is not a full container title"
+  else
+    bad "journal name in article title, short-form CSL (rc=$rc): $out"
+  fi
+  out="$(python3 "$SCRIPT" --csl "$sub_dir/full_title.csl" --bib "$sub_dir/title.bib" --expect-abbrev yes 2>&1)"; rc=$?
+  if [[ $rc -eq 1 && "$out" == *'"abbrev_full_detected": true'* ]]; then
+    pass "full-title CSL still fails when the journal name is also in the article title"
+  else
+    bad "journal name in article title, full-title CSL (rc=$rc): $out"
+  fi
+  # A CSL-JSON bibliography is not BibTeX: there is nothing to sample, so the check says so (exit 2)
+  # instead of rendering a sample that cites nothing and printing PASS.
+  printf '[{"id":"cj2020","type":"article-journal","title":"A synthetic study","container-title":"Synthetic Reports","issued":{"date-parts":[[2020]]}}]\n' \
+    > "$sub_dir/refs.json"
+  out="$(python3 "$SCRIPT" --csl "$STYLES/vancouver.csl" --bib "$sub_dir/refs.json" 2>&1)"; rc=$?
+  if [[ $rc -eq 2 && "$out" == *"no bibliography entries found"* && "$out" != *"PASS"* ]]; then
+    pass "CSL-JSON --bib -> exit 2, nothing to render"
+  else
+    bad "CSL-JSON --bib (rc=$rc): $out"
+  fi
+  rm -rf "$sub_dir"
   csl_check vancouver --journal JKMS
   if [[ $rc -ne 2 && "$out" != *"unknown --journal"* ]]; then
     pass "--journal is matched case-insensitively"

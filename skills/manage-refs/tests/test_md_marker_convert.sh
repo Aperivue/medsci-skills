@@ -80,6 +80,23 @@ ck "  [5] still reported"                      1 "$(grep -c 'UNMAPPED.*\[5\]' "$
 ck "  converted keys untouched"                "Prior studies [@AAA, @BBB, @CCC] and [@DDD] agree; see also [5]." \
    "$(cat "$WORK/rerun.md")"
 
+echo "==== 4. bracketed numbers in prose (reviewer counterexamples) ===="
+# A year range or an interval is structurally the same as an unmapped citation ("[5]" with a
+# four-entry map), so it is reported and the default run fails; --allow-partial is the documented
+# escape. Either way the text is left exactly as written, as main left it.
+printf 'Data from [2019-2021] were used [1].\n' > "$WORK/years.md"
+printf 'Scores lie in [0, 1] as shown [2].\n' > "$WORK/interval.md"
+printf 'See the site [1].\n\n[1]: http://example.org\n' > "$WORK/reflink.md"
+ck "year range [2019-2021]: exit 1, named"     "1 1" \
+   "$(conv years.md years_out.md --to-keys) $(grep -c 'UNMAPPED.*\[2019-2021\]' "$WORK/years_out.md.err")"
+ck "  --allow-partial: exit 0, text untouched" "0 Data from [2019-2021] were used [@AAA]." \
+   "$(conv years.md years_ok.md --to-keys --allow-partial) $(cat "$WORK/years_ok.md")"
+ck "interval [0, 1]: exit 1, named"            "1 1" \
+   "$(conv interval.md interval_out.md --to-keys) $(grep -c 'UNMAPPED.*\[0, 1\]' "$WORK/interval_out.md.err")"
+ck "  --allow-partial: exit 0, text untouched" "0 Scores lie in [0, 1] as shown [@BBB]." \
+   "$(conv interval.md interval_ok.md --to-keys --allow-partial) $(cat "$WORK/interval_ok.md")"
+ck "reference-link definition [1]: exit 0"     0 "$(conv reflink.md reflink_out.md --to-keys)"
+
 echo "==== NEGATIVE CONTROLS ===="
 ck "a fully mapped manuscript: exit 0"         0 "$(conv clean.md clean_out.md --to-keys)"
 ck "  no WARNING"                              0 "$(grep -c 'WARNING' "$WORK/clean_out.md.err")"

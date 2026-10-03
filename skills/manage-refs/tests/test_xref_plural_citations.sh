@@ -169,6 +169,16 @@ As shown in Figure 1, the effect held. <!-- note to self -->
 MD
 ck "control: a comment elsewhere does not hide a live legend" 1 "$(run inline_comment.md partial.docx)"
 ck "  Figure 2 is MISSING_DOCX"                     MISSING_DOCX "$(status_of inline_comment.md Figure:2)"
+# Mask edge cases a reviewer raised: a four-backtick fence holding an inner ``` fence, and a literal
+# '<!--' inside inline code. Either may mis-size the mask; neither may block what main cleared.
+printf '## Results\n\nAs shown in Figure 1, the effect held.\n\n## Figure Legends\n\n**Figure 1.** Study flow diagram.\n\n````markdown\nAn example fence:\n```\ncode\n```\n**Figure 2.** Kaplan-Meier survival curves.\n````\n' \
+  > "$WORK/fence4.md"
+printf '## Results\n\nAs shown in Figure 1, the effect held. Write `<!--` to start a comment.\n\n## Figure Legends\n\n**Figure 1.** Study flow diagram.\n\n**Figure 2.** Kaplan-Meier survival curves.\n\nA later note -->\n' \
+  > "$WORK/inline_code_comment.md"
+ck "4-backtick fence with inner fence: exit 0"       0 "$(run fence4.md partial.docx)"
+ck "  Figure 2 stays UNCITED"                       UNCITED "$(status_of fence4.md Figure:2)"
+ck "'<!--' in inline code: exit 0"                  0 "$(run inline_code_comment.md partial.docx)"
+ck "  Figure 2 stays UNCITED"                       UNCITED "$(status_of inline_code_comment.md Figure:2)"
 
 echo "==== --docx given but python-docx unavailable: the audit did not run ===="
 # extract_docx_captions used to return {} — "the DOCX holds no floats" — so every float became
