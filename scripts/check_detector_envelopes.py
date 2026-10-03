@@ -30,13 +30,23 @@ current tree and fails for
 What the verdict check can see, stated rather than implied: it reads SOURCE, not output.
 It finds `summary.verdict` written as
   * `"summary": {..., "verdict": <expr>}` in a dict literal,
-  * `summary = {..., "verdict": <expr>}`, or
+  * `summary = {...}`, `summary: dict = {...}` or `<x>["summary"] = {...}` with a
+    "verdict" key, or
   * `summary["verdict"] = <expr>` / `<x>["summary"]["verdict"] = <expr>`,
 and resolves <expr> through string literals, `a if c else b`, `a or b`, and a local name whose
 assignments in the same function are themselves resolvable. It does NOT see a verdict computed
 any other way (a report-object property, a lookup table, a value read from input), a verdict at
 the envelope top level, the stdout final line, or the exit code. A detector whose verdict it
 cannot read is not counted as conforming: it fails unless it is grandfathered with a reason.
+
+Known limits (a detector can pass while still confusing a reader; review catches these):
+  * a conforming summary.verdict can coexist with an off-vocabulary verdict elsewhere in the
+    envelope (top level, per claim), which the gate does not inspect;
+  * every value a readable expression can take is checked, but not WHEN it is taken — an
+    "OK" written for a run that skipped a check passes, because coverage is a runtime fact;
+  * a local name is resolved through every assignment to it in the same function, whichever
+    one actually reaches the summary;
+  * a script outside DETECTOR_GLOBS (e.g. an older gate not named check_*.py) is not scanned.
 
 Exit 0 when every JSON-emitting detector self-identifies and every summary.verdict conforms or
 is grandfathered exactly. With --strict, exit 1 otherwise.
@@ -212,9 +222,10 @@ def summary_verdicts(src: str) -> tuple[int, set[str], bool]:
             for k, v in zip(n.keys, n.values):
                 if isinstance(k, ast.Constant) and k.value == "summary" and isinstance(v, ast.Dict):
                     sites += [(e, n) for e in verdict_in(v)]
-        if isinstance(n, ast.Assign):
-            for t in n.targets:
-                if isinstance(t, ast.Name) and t.id == "summary" and isinstance(n.value, ast.Dict):
+        if isinstance(n, (ast.Assign, ast.AnnAssign)) and n.value is not None:
+            for t in (n.targets if isinstance(n, ast.Assign) else [n.target]):
+                # summary = {...} / summary: dict = {...} / x["summary"] = {...}
+                if is_summary(t) and isinstance(n.value, ast.Dict):
                     sites += [(e, n) for e in verdict_in(n.value)]
                 if (isinstance(t, ast.Subscript) and isinstance(t.slice, ast.Constant)
                         and t.slice.value == "verdict" and is_summary(t.value)):

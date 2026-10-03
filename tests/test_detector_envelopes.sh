@@ -26,6 +26,15 @@ ck() {
   fi
 }
 
+# An exit-1 case must also fail for the RIGHT reason: the gate's message for it is grepped.
+fails_with() {  # $1 label, $2 gate, $3 fixed string expected in the gate's output
+  local out rc
+  out="$(python3 "$2" --strict 2>&1)"; rc=$?
+  ck "$1" 1 "$rc"
+  printf '%s\n' "$out" | grep -qF -- "$3"
+  ck "  ...with its message" 0 "$?"
+}
+
 # 1) the live repo self-identifies
 python3 "$G" --strict > /dev/null 2>&1
 ck "live repo: every JSON detector self-identifies" 0 "$?"
@@ -43,12 +52,8 @@ import json
 from pathlib import Path
 Path("out.json").write_text(json.dumps({"claims": []}, indent=2))
 PY
-python3 "$G" --strict > /dev/null 2>&1
-ck "unlabelled JSON envelope fails" 1 "$?"
+fails_with "unlabelled JSON envelope fails" "$G" 'JSON envelope does not carry "detector": "check_unlabelled_probe"'
 
-OUT="$(python3 "$G" 2>&1)"
-echo "$OUT" | grep -q "check_unlabelled_probe"
-ck "the offending detector is named" 0 "$?"
 
 # b) WRONG detector name (a clone that kept its parent's label) -> must fail
 cat > "$VICTIM/check_unlabelled_probe.py" <<'PY'
@@ -56,8 +61,7 @@ import json
 from pathlib import Path
 Path("out.json").write_text(json.dumps({"detector": "check_something_else", "claims": []}, indent=2))
 PY
-python3 "$G" --strict > /dev/null 2>&1
-ck "a clone carrying the WRONG detector name fails" 1 "$?"
+fails_with "a clone carrying the WRONG detector name fails" "$G" 'JSON envelope does not carry "detector": "check_unlabelled_probe"'
 
 # c) correctly labelled, conforming summary.verdict -> passes again
 cat > "$VICTIM/check_unlabelled_probe.py" <<'PY'
@@ -74,8 +78,7 @@ ck "correctly labelled envelope passes" 0 "$?"
 cat > "$VICTIM/check_unlabelled_probe.py" <<'PY'
 print("no json here")
 PY
-python3 "$G" --strict > /dev/null 2>&1
-ck "a detector with no JSON output must be declared" 1 "$?"
+fails_with "a detector with no JSON output must be declared" "$G" 'check_unlabelled_probe.py: emits no JSON'
 
 # --- verdict vocabulary ---------------------------------------------------------------
 probe() {  # $1 = python expression for summary.verdict
@@ -95,10 +98,7 @@ ck "verdict OK / MAJOR_CANDIDATE / NOT_ASSESSED passes" 0 "$?"
 
 # f) a value outside the vocabulary (a Minor-only synonym) fails, and is named
 probe '"MAJOR_CANDIDATE" if n_major else "REVIEW"'
-python3 "$G" --strict > /dev/null 2>&1
-ck "verdict outside the vocabulary fails" 1 "$?"
-python3 "$G" 2>&1 | grep -q "check_unlabelled_probe.py: summary.verdict uses \['REVIEW'\]"
-ck "the out-of-vocabulary value is named" 0 "$?"
+fails_with "verdict outside the vocabulary fails" "$G" "check_unlabelled_probe.py: summary.verdict uses ['REVIEW']"
 
 # g) labelled envelope with a top-level verdict but no summary.verdict fails
 cat > "$VICTIM/check_unlabelled_probe.py" <<'PY'
@@ -106,13 +106,33 @@ import json
 from pathlib import Path
 Path("out.json").write_text(json.dumps({"detector": "check_unlabelled_probe", "verdict": "OK"}, indent=2))
 PY
-python3 "$G" --strict > /dev/null 2>&1
-ck "no readable summary.verdict fails" 1 "$?"
+fails_with "no readable summary.verdict fails" "$G" 'check_unlabelled_probe.py: no summary.verdict the gate can read'
 
 # h) a verdict the gate cannot read statically fails rather than counting as conforming
 probe 'compute_verdict()'
+fails_with "unreadable summary.verdict fails" "$G" 'summary.verdict is computed in a way the gate cannot read'
+
+# i) other spellings of the summary dict are read too
+cat > "$VICTIM/check_unlabelled_probe.py" <<'PY'
+import json
+result = {"detector": "check_unlabelled_probe", "claims": []}
+result["summary"] = {"n_major": 0, "verdict": "OK"}
+print(json.dumps(result))
+PY
 python3 "$G" --strict > /dev/null 2>&1
-ck "unreadable summary.verdict fails" 1 "$?"
+ck 'x["summary"] = {..."verdict": "OK"} passes' 0 "$?"
+sed -i 's/"verdict": "OK"/"verdict": "REVIEW"/' "$VICTIM/check_unlabelled_probe.py"
+fails_with 'x["summary"] = {..."verdict": "REVIEW"} fails' "$G" "summary.verdict uses ['REVIEW']"
+
+cat > "$VICTIM/check_unlabelled_probe.py" <<'PY'
+import json
+def run(n_major: int) -> dict:
+    summary: dict = {"n_major": n_major, "verdict": "MAJOR_CANDIDATE" if n_major else "OK"}
+    return {"detector": "check_unlabelled_probe", "summary": summary}
+print(json.dumps(run(0)))
+PY
+python3 "$G" --strict > /dev/null 2>&1
+ck 'annotated summary: dict = {...} passes' 0 "$?"
 
 # --- grandfather ratchet: a copy of the gate with one extra entry for the probe -------
 # The copy sits beside the real gate so it resolves the same ROOT; removed on exit.
@@ -135,27 +155,20 @@ python3 "$G2" --strict > /dev/null 2>&1
 ck "grandfathered detector, unchanged values, passes" 0 "$?"
 
 probe '"FLAG" if n_major else "REVIEW"'
-python3 "$G2" --strict > /dev/null 2>&1
-ck "grandfathered detector adding a new value fails" 1 "$?"
+fails_with "grandfathered detector adding a new value fails" "$G2" "summary.verdict gained ['FLAG']"
 
 probe '"MAJOR_CANDIDATE" if n_major else "OK"'
-python3 "$G2" --strict > /dev/null 2>&1
-ck "stale entry (detector now conforms) fails" 1 "$?"
-python3 "$G2" 2>&1 | grep -q "remove its stale GRANDFATHERED entry"
-ck "the stale entry is reported as stale" 0 "$?"
+fails_with "stale entry (detector now conforms) fails" "$G2" 'remove its stale GRANDFATHERED entry'
 
 with_entry 'frozenset({"REVIEW", "FLAG"})'
 probe '"MAJOR_CANDIDATE" if n_major else "REVIEW"'
-python3 "$G2" --strict > /dev/null 2>&1
-ck "stale entry (fewer outliers than recorded) fails" 1 "$?"
+fails_with "stale entry (fewer outliers than recorded) fails" "$G2" "no longer emits ['FLAG']"
 
 with_entry 'None'
-python3 "$G2" --strict > /dev/null 2>&1
-ck "entry recorded unreadable, now readable, fails" 1 "$?"
+fails_with "entry recorded unreadable, now readable, fails" "$G2" 'grandfathered as having no readable summary.verdict, but the gate now reads one'
 
 rm -rf "$REPO_ROOT/skills/_envelope_selftest_tmp"
-python3 "$G2" --strict > /dev/null 2>&1
-ck "entry naming a removed detector fails" 1 "$?"
+fails_with "entry naming a removed detector fails" "$G2" 'GRANDFATHERED entry names no current JSON-emitting detector'
 rm -f "$G2"
 
 # 5) and the repo is clean again once the fixtures are gone
