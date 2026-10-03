@@ -87,11 +87,9 @@ Run the MA check query.
 |------------|-------------------|------------|-------------|
 | 0-2 | 0 | No | Blue Ocean |
 | 3-10 | 0 | No | **Green Field** |
-| 3-10 | 1-2 | No | Yellow |
-| 10-30 | 0 | No | Green Field (upgraded) |
-| 10-30 | 1-2 | No | Yellow |
-| 10-30 | 3+ | No | Yellow |
-| 30+ | Any | No | Yellow (borderline Red) |
+| 11-30 | 0 | No | Green Field (upgraded) |
+| 1-30 | 1+ | No | Yellow |
+| >30 | Any | No | Yellow (borderline Red) |
 | Any | Any | Yes (recent) | Red |
 | Any | Any | Yes (outdated) | Yellow |
 

@@ -19,15 +19,15 @@ Synthesized from recent SR-MA peer-review cycles. Drives the Phase 4 extraction 
 
 3. **Diagnostic subset N transparency** in mixed DTA + prognostic MAs: report `sample_n_dta_pool` separately from `sample_n_prognostic_pool` with explicit prevalence. Aggregate N in Abstract misleads readers about diagnostic-subset power.
 
-4. **Small-k subgroups are not robust (k < 4)**: a subgroup test driven by a single study (k=1) is descriptive-only, and the same caution extends to k=2–3 — heterogeneity and the trend are not estimable from so few strata. Any subgroup with k < 4 must be labelled descriptive / exploratory rather than entered into a formal subgroup interaction test. Post-hoc subgroups require a PROSPERO amendment with a visible record.
+4. **Small-k subgroups are not robust (k < 4, house heuristic)**: a subgroup test driven by a single study (k=1) is descriptive-only, and the same caution extends to k=2–3 — heterogeneity and the trend are not estimable from so few strata. Any subgroup with k < 4 must be labelled descriptive / exploratory rather than entered into a formal subgroup interaction test. Post-hoc subgroups require a PROSPERO amendment with a visible record.
 
 5. **Supplementary 8-file package** is the minimum bar for high-impact journals: PRISMA checklist, PROSPERO PDF, full search strategy, full-text exclusion list with reasons, per-study extraction table, per-study x per-domain RoB, subgroup forests, sensitivity / publication-bias analyses. See `templates/supplementary_8file_checklist.md`.
 
-6. **PROSPERO 14-char ID format** (`^CRD42\d{9}$` = `CRD42` + 4-digit year + 5-digit sequence, e.g. `CRD42024500001`). A 15-character ID is a stray-digit transcription error; pre-2020 IDs may be shorter. Validate with `grep -oE 'CRD42[0-9]+'` + length assert, and request the live registration URL in the cover letter for protocol cross-check.
+6. **PROSPERO 14-char ID format** (`^CRD42\d{9}$` = `CRD42` followed by 9 digits, 14 characters, e.g. `CRD42024500001`). A 15-character ID is a stray-digit transcription error. Validate with `grep -oE 'CRD42[0-9]+'` + length assert, and request the live registration URL in the cover letter for protocol cross-check.
 
 7. **AI Disclosure presence** for SR-MA submissions to RYAI / Radiology / RSNA / Lancet / JAMA / BMJ / Nature families. Absence triggers MINOR-to-MAJOR finding at peer review.
 
-8. **Sensitivity analyses are recomputed, not copied** (Phase 6b rule 5). Leave-one-out / erosion / alternative-model effect sizes identical to the primary analysis to 2 decimals across ≥4 values means the recomputation did not run. Re-derive from the modified dataset; the inputs (means/SDs/counts) change even when the effect size is close.
+8. **Sensitivity analyses are recomputed, not copied** (Phase 6b rule 5). Leave-one-out / erosion / alternative-model effect sizes identical to the primary analysis to 2 decimals across ≥4 values means the recomputation may not have run (small shifts can round to the same value; confirm from the script output). Re-derive from the modified dataset; the inputs (means/SDs/counts) change even when the effect size is close.
 
 9. **Outcome harmonization before pooling.** Studies that report the same-named outcome under different definitions (an imaging-detected event vs a clinically diagnosed one; different thresholds) must not be presented as a single pooled range or pooled estimate. Split by ascertainment method (or pool only the harmonizable subset) and state the definition per stratum — a "6.9–46%" range that silently mixes imaging-detected and clinical events is a heterogeneity artifact, not a finding.
 
