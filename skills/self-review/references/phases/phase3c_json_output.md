@@ -41,7 +41,7 @@ When `--json` is passed, or when invoked by `/write-paper` Phase 7, append a mac
 - `overall_score`: Integer 0-100 reflecting manuscript submission readiness
 - `verdict`: `"PASS"` (score >= 85, no fatal issues) or `"REVISE"`
 - `severity`: `"fatal"`, `"major"`, or `"minor"`
-- `category`: Letter code from the 10-category system (A-J)
+- `category`: Letter code from the 12-category system (A-L; K is SR/MA-only, L is advisory)
 - `fixable_by_ai`: `true` if the issue can be resolved by editing manuscript text with existing data; `false` if it requires new data, analyses, or human judgment (e.g., design changes, IRB decisions, missing experiments)
 - `requires_reanalysis` *(optional, default `false`)*: `true` when closing the finding needs a **committed analysis re-run against the real data**, not a prose edit — power/MDE re-simulation under the full model, first-visit/one-record-per-subject dedup, an extended- or reduced-adjustment sensitivity model, optimism correction of calibration. Always implies `fixable_by_ai: false`. Additive and backwards-compatible; parsers that do not expect it must ignore it. Route these to `/analyze-stats` (see Phase 4).
 - `suggested_fix`: Specific, actionable instruction. If `fixable_by_ai` is true, this must be concrete enough for the fixer to execute without ambiguity.
