@@ -469,7 +469,7 @@ python3 "${CLAUDE_SKILL_DIR}/../analyze-stats/scripts/rating_monotonicity.py" \
 | Verdict | Severity |
 |---|---|
 | `PRIMARY_REASSIGNED` | **Major** — the primary was re-designated after results were known |
-| `EVALUE_ARITHMETIC`, `EVALUE_NON_PRIMARY` | **Major** — recompute for the *declared primary* estimate |
+| `EVALUE_ARITHMETIC` | **Major** — recompute for the *declared primary* estimate; `EVALUE_NON_PRIMARY` is an advisory flag (check which estimate the E-value bounds) |
 | `PROMISED_ABSENT`, `DISK_UNREPORTED`, `PROMISED_STAT_NO_VALUE` | **Major** |
 | `SUPP_INTERNAL_LABEL`, `SUPP_PLACEHOLDER`, `SUPP_BUILD_MARKER`, `SUPP_RESPONSE_FRAMING`, `SUPP_PLANNING_RESIDUE`, `SUPP_XREF_UNRESOLVED` | **Major** — a slip in a supplement is as fatal at a technical check as one in the body |
 | `CITATION_ORDER` | **Major**; `CITATION_GAP` **Minor** |
