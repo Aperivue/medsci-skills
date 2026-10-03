@@ -94,7 +94,7 @@ Combine the inputs into a single `grep -E` alternation pattern (pipe-separated).
 Run the bundled audit script. The first argument is the skill directory; the second is the user-specific alternation pattern from Pre-scan Setup.
 
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/audit_skill.sh <source_skill_path> \
+bash ${CLAUDE_SKILL_DIR}/scripts/audit_skill.sh --strict <source_skill_path> \
     "<First Last>|<native-script name>|<Institution>|<Hospital>"
 ```
 
@@ -109,7 +109,11 @@ The script scans ten categories, plus the user pattern:
 7. **Location specifics** (Seoul / Busan / Daegu / Tokyo / Beijing / Shanghai / Boston / Stanford and Korean variants)
 8. **Blockquote dated precedent** (`> YYYY-MM-DD ...` lines that reveal an internal review timeline)
 9. **Author-style filenames** (`<Surname>{Year}_*` pattern, e.g., `<Surname>2025_<Journal>_Fig01.png`; allow-list excludes generic tokens like `Issue2024_`, `Sample2025_`)
-10. **Binary EXIF metadata** (DOCX / PPTX / XLSX / PDF / PNG / JPG / TIFF — scanned via `exiftool` when installed; skipped otherwise, with an install hint)
+10. **Binary EXIF metadata** (DOCX / PPTX / XLSX / PDF / PNG / JPG / TIFF — scanned via `exiftool` for home paths, email addresses and the user pattern, matched case-insensitively. If binaries are present and `exiftool` is not installed, the RESULT line reads INCOMPLETE and `--strict` exits 3)
+
+Exit codes: 0 clean, 1 findings, 2 usage error / invalid user regex / a scan that could not run, 3 (`--strict` only) a check that could not run. Only exit 0 means clean.
+
+Known limits: the Korean role branch (item 5) requires the honorific `-nim` suffix. A bare third-person mention (a Korean name followed by the role word without `-nim`) is not caught by this script, because separating it from job descriptions such as "advising professor" needs a stoplist that `grep -E` cannot express. Check such mentions by hand.
 
 ### Cross-validation
 
@@ -208,7 +212,7 @@ Present license audit table:
 
 ### Final PII Re-check
 
-Run `audit_skill.sh` one final time on the cleaned skill. Must return exit code 0.
+Run `audit_skill.sh --strict` one final time on the cleaned skill. Must return exit code 0.
 
 ### Cross-Platform Adapter Review
 

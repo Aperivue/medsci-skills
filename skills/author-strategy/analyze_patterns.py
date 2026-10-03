@@ -98,16 +98,32 @@ def plot_author_position(df: pd.DataFrame, report_dir: Path):
     plt.close()
 
 
-def plot_journal_tier_heatmap(df: pd.DataFrame, report_dir: Path):
+def _journal_column(df: pd.DataFrame) -> pd.Series:
+    """Journal name as PubMed recorded it (ISO abbreviation, else full title)."""
+    abbrev = df["journal_abbrev"] if "journal_abbrev" in df.columns else pd.Series("", index=df.index)
+    full = df["journal"] if "journal" in df.columns else pd.Series("", index=df.index)
+    abbrev = abbrev.fillna("").astype(str).str.strip()
+    full = full.fillna("").astype(str).str.strip()
+    return abbrev.where(abbrev != "", full).replace("", "(no journal)")
+
+
+def plot_journal_heatmap(df: pd.DataFrame, report_dir: Path, top_n: int = 10):
+    """Study type x most frequent journals (verbatim names, counts only).
+
+    Venue-impact tier is never inferred from journal names (no impact metric is in PubMed).
+    """
     fig, ax = plt.subplots(figsize=(12, 8))
-    pivot = df.groupby(["study_type", "journal_tier"]).size().unstack(fill_value=0)
-    tier_order = ["Lancet family", "Nature family", "NEJM/BMJ/JAMA", "IF>=10", "Other"]
-    pivot = pivot.reindex(columns=[c for c in tier_order if c in pivot.columns], fill_value=0)
+    journals = _journal_column(df)
+    top = journals.value_counts().head(top_n).index
+    sub = df.assign(_journal=journals)[journals.isin(top)]
+    pivot = sub.groupby(["study_type", "_journal"]).size().unstack(fill_value=0)
+    pivot = pivot.reindex(columns=[c for c in top if c in pivot.columns], fill_value=0)
     pivot = pivot.loc[pivot.sum(axis=1).sort_values(ascending=False).index]
     sns.heatmap(pivot, annot=True, fmt="d", cmap="YlOrRd", ax=ax, linewidths=0.5)
-    ax.set_title("Study Type x Journal Tier (count)", fontsize=14, fontweight="bold")
+    ax.set_title(f"Study Type x Most Frequent Journals (top {top_n}, count)", fontsize=14, fontweight="bold")
+    ax.set_xlabel("Journal (as recorded in PubMed; venue-impact tier not inferred)")
     plt.tight_layout()
-    fig.savefig(report_dir / "04_journal_tier_heatmap.png", dpi=150, bbox_inches="tight")
+    fig.savefig(report_dir / "04_journal_heatmap.png", dpi=150, bbox_inches="tight")
     plt.close()
 
 
@@ -153,26 +169,24 @@ def plot_strategy_roi(df: pd.DataFrame, report_dir: Path):
     for st in df["study_type"].value_counts().index:
         subset = df[df["study_type"] == st]
         n = len(subset)
-        high_tier = subset["journal_tier"].isin(
-            ["Lancet family", "Nature family", "NEJM/BMJ/JAMA", "IF>=10"]).mean() * 100
         first_last = subset["author_position"].isin(["first", "last"]).mean() * 100
-        data.append({"type": st, "count": n, "high_tier_pct": high_tier, "first_last_pct": first_last})
+        data.append({"type": st, "count": n, "first_last_pct": first_last})
     plot_df = pd.DataFrame(data)
     ax.scatter(
-        plot_df["high_tier_pct"], plot_df["first_last_pct"],
+        plot_df["count"], plot_df["first_last_pct"],
         s=plot_df["count"] * 3,
         c=[COLORS.get(t, "#cccccc") for t in plot_df["type"]],
         alpha=0.7, edgecolors="black", linewidths=0.5
     )
     for _, row in plot_df.iterrows():
         ax.annotate(f'{row["type"]}\n(n={row["count"]})',
-                    (row["high_tier_pct"], row["first_last_pct"]),
+                    (row["count"], row["first_last_pct"]),
                     fontsize=8, ha="center", va="bottom")
-    ax.set_xlabel("% High-Tier Journal (IF>=10)", fontsize=12)
+    # Venue-impact tier is unavailable (never inferred), so the x-axis is volume.
+    ax.set_xlabel("Publications of this study type (count)", fontsize=12)
     ax.set_ylabel("% First or Last Author (positional)", fontsize=12)
-    ax.set_title("Strategy ROI: Journal Quality vs Author Position vs Volume", fontsize=14, fontweight="bold")
+    ax.set_title("Strategy ROI: Volume vs Author Position by Study Type", fontsize=14, fontweight="bold")
     ax.axhline(y=50, color="gray", linestyle="--", alpha=0.3)
-    ax.axvline(x=20, color="gray", linestyle="--", alpha=0.3)
     plt.tight_layout()
     fig.savefig(report_dir / "07_strategy_roi.png", dpi=150, bbox_inches="tight")
     plt.close()
@@ -182,8 +196,6 @@ def generate_report(df: pd.DataFrame, report_dir: Path, author_name: str):
     total = len(df)
     types = df["study_type"].value_counts()
     positions = df["author_position"].value_counts()
-    high_tier = len(df[df["journal_tier"].isin(
-        ["Lancet family", "Nature family", "NEJM/BMJ/JAMA", "IF>=10"])])
     first_last = len(df[df["author_position"].isin(["first", "last"])])
 
     # Top 3 study types
@@ -215,7 +227,7 @@ def generate_report(df: pd.DataFrame, report_dir: Path, author_name: str):
 | Total PubMed publications | {total} |
 | Year range | {year_range} |
 | {recent_year} publications | {recent_count} |
-| High-tier journals (Lancet/Nature/NEJM/BMJ/JAMA/IF>=10) | {high_tier} ({high_tier / total * 100:.1f}%) |
+| Venue-impact tier | unavailable [VERIFY] (no impact metric in PubMed; never inferred from journal names) |
 | First or last author (positional heuristic) | {first_last} ({first_last / total * 100:.1f}%) |
 
 ## Study Type Breakdown
@@ -244,7 +256,7 @@ def generate_report(df: pd.DataFrame, report_dir: Path, author_name: str):
 
 1. **Primary strategy**: {types.index[0]} ({types.iloc[0]} papers, {types.iloc[0] / total * 100:.1f}%)
 2. **Secondary strategy**: {types.index[1] if len(types) > 1 else "N/A"} ({types.iloc[1] if len(types) > 1 else 0} papers)
-3. **High-tier placement rate**: {high_tier / total * 100:.1f}%
+3. **Venue-impact tier**: unavailable [VERIFY]; not inferred from journal names
 4. **First/last positional rate** (positional heuristic, not leadership): {first_last / total * 100:.1f}%
 
 ## Visualizations
@@ -252,10 +264,10 @@ def generate_report(df: pd.DataFrame, report_dir: Path, author_name: str):
 - `01_yearly_stacked.png` — yearly publication count by study type
 - `02_study_type_pie.png` — study type distribution
 - `03_author_position.png` — author position overall and by study type
-- `04_journal_tier_heatmap.png` — study type x journal tier
+- `04_journal_heatmap.png` — study type x most frequent journals (counts; no tier)
 - `05_topic_distribution.png` — topic clusters
 - `06_growth_curve.png` — cumulative publication growth
-- `07_strategy_roi.png` — journal quality vs author position vs volume
+- `07_strategy_roi.png` — volume vs author position by study type
 
 ---
 Generated: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M')}
@@ -287,8 +299,8 @@ def main():
     print("Saved: 02_study_type_pie.png")
     plot_author_position(df, report_dir)
     print("Saved: 03_author_position.png")
-    plot_journal_tier_heatmap(df, report_dir)
-    print("Saved: 04_journal_tier_heatmap.png")
+    plot_journal_heatmap(df, report_dir)
+    print("Saved: 04_journal_heatmap.png")
     plot_topic_distribution(df, report_dir)
     print("Saved: 05_topic_distribution.png")
     plot_growth_curve(df, report_dir)

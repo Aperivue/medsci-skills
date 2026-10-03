@@ -67,6 +67,9 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from xml.etree import ElementTree as ET
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from check_slide_tells import slide_parts  # noqa: E402
+
 DETECTOR = "check_text_overflow"
 
 A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
@@ -158,10 +161,8 @@ def deck_geometry(pptx: Path) -> Tuple[float, float, Dict[int, List[Tuple[float,
         w_emu = int(sz.get("cx")) if sz is not None else 12192000
         h_emu = int(sz.get("cy")) if sz is not None else 6858000
 
-        names = sorted(
-            (n for n in z.namelist() if re.fullmatch(r"ppt/slides/slide\d+\.xml", n)),
-            key=lambda n: int(re.search(r"(\d+)", n.rsplit("/", 1)[1]).group(1)),
-        )
+        # Presentation order, which is the order the PDF's pages are in — not slideN.xml numbering.
+        names = [n for n, _notes in slide_parts(z)]
         for i, n in enumerate(names, start=1):
             root = ET.fromstring(z.read(n))
             tree = root.find(f".//{P}cSld/{P}spTree")
@@ -241,10 +242,8 @@ def deck_paragraphs(pptx: Path) -> Dict[int, List[str]]:
     """{slide: [paragraph opening text]} for every visible shape, table cell and group member."""
     paras: Dict[int, List[str]] = {}
     with zipfile.ZipFile(pptx) as z:
-        names = sorted(
-            (n for n in z.namelist() if re.fullmatch(r"ppt/slides/slide\d+\.xml", n)),
-            key=lambda n: int(re.search(r"(\d+)", n.rsplit("/", 1)[1]).group(1)),
-        )
+        # Presentation order, which is the order the PDF's pages are in — not slideN.xml numbering.
+        names = [n for n, _notes in slide_parts(z)]
         for i, n in enumerate(names, start=1):
             root = ET.fromstring(z.read(n))
             tree = root.find(f".//{P}cSld/{P}spTree")

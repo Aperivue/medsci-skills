@@ -50,8 +50,19 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/assess_acceptance_readiness.py <manuscript_o
 
 It returns flags in four categories — DESIGN_CEILING, UNFIXABLE_DEFECT,
 IMPORTANCE_RISK, CLAIM_MISMATCH — and a ceiling verdict
-(`NO STRUCTURAL CEILING …` / `IMPORTANCE-FRAMING REVIEW …` /
+(`NO LISTED SIGNAL MATCHED - NOT A DESIGN CLEARANCE …` / `IMPORTANCE-FRAMING REVIEW …` /
 `SPECIALTY / TOLERANT-VENUE OR DESIGN FIX …` / `HIGH-IMPACT VENUE UNLIKELY …`).
+
+The script reads UTF-8 markdown or plain text only. A .docx, .pdf, .doc or other non-text
+file exits 2 with no report ("No scan was run"): convert it (e.g. `pandoc -t markdown`) and
+rerun, or fall back to 2.5.2. It skips the References/Bibliography section.
+
+**Known limits.** The scan matches listed phrases, line by line. It does not understand
+negation or context ("Unlike prior single-center studies…" still flags single-center), and it
+misses paraphrases ("one institution", "has not been externally validated", the same patients
+in training and test sets). So an empty result is not a clearance: apply the §3 taxonomy with
+judgement (as in 2.5.2) before treating feasibility as uncapped, and adjudicate each flag
+before it demotes a venue.
 
 ### 2.5.2 If only pasted text is available
 

@@ -112,7 +112,7 @@ autonomous_rationale: why this default is safe for unattended runs
 
 ### N8. Audit Recovery Branch (Step 7.4a trigger)
 - **phase:** after /self-review with fatal finding
-- **context:** self-review returned `accuracy` / `data_fidelity` / `protocol_mismatch` / `numerical_claim` fatal
+- **context:** the self-review JSON has `fatal_count > 0` or any `issues[].severity == "fatal"` (any category A–J; self-review emits letter categories, so the trigger is the severity, not a category name)
 - **question:** "Self-review flagged a fatal structural issue. Which recovery?"
 - **options:**
   1. MA manuscript → /meta-analysis Phase 10 (v{N}→v{N+1} rebuild) — high cost, required for MA fidelity
