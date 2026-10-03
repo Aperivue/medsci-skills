@@ -1,0 +1,10 @@
+{
+  "task": "segmentation",
+  "metrics": ["dice", "hd95"],
+  "ci_reported": false,
+  "classification": {"n_classes": null, "averaging": "none"},
+  "detection": {"match_criterion": "none", "threshold": null},
+  "interactive": {"interaction_axis": "none", "initial_vs_converged": false, "per_case_time": false},
+  "generative": {"downstream_task": "none"},
+  "notes": "Replace every value with what the Results report: list only reported metrics, set ci_reported, and fill the sub-object for your task (the others are read but not used). Use \"none\" for absent and \"other:<description>\" for a value not listed."
+}

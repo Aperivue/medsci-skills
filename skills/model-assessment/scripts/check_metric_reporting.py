@@ -41,12 +41,23 @@ CHECKS (verdicts; which apply depends on --task):
                                   the headline metric.
 
 INPUTS
-  --report  metrics report / results markdown (required).
-  --task    segmentation | classification | detection | interactive | generative (required).
+  --manifest  metrics_manifest.json: the reported metrics DECLARED as structured fields
+              (preferred; template in templates/metrics_manifest.json, schema in
+              references/metrics_manifest_schema.md). Each value must come from the
+              field's allow-list or be "other:<description>"; anything else, a wrong
+              type or an unknown key exits 2 and names the field. The verdicts above fire
+              on what is declared (the keyword lists above are prose mode's; the manifest
+              values are in the schema). The gate checks the declaration, not the numbers.
+  --report    metrics report / results markdown (prose mode). Prose mode tests keyword
+              presence with a short negation window, and says so. With --manifest,
+              --report is not read.
+  --task      segmentation | classification | detection | interactive | generative
+              (required in prose mode; in manifest mode it must match "task" if given).
 
 OUTPUT
   A table (stdout) and, with --out, a JSON artifact:
-    {report, task, claims[{verdict, severity, detail, where}], summary}
+    {report|manifest, mode, task, claims[{verdict, severity, detail, where}], summary}
+  Manifest mode adds UNLISTED_METHOD (Minor) for each "other:<description>" value.
 
 Stdlib-only. Exit codes: 0 clean (or report-only), 1 Major claim(s) (with --strict),
 2 input/usage error.
@@ -56,6 +67,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -253,7 +265,250 @@ def analyze(report: str, task: str) -> dict:
             "no confidence interval / uncertainty is reported for the headline metric")
 
     n_major = sum(1 for c in claims if c["severity"] == "Major")
-    return {"report": report, "task": task, "claims": claims,
+    return {"report": report, "mode": "prose", "task": task, "claims": claims,
+            "summary": {"n_claims": len(claims), "n_major": n_major,
+                        "verdict": "MAJOR_CANDIDATE" if n_major else "OK"}}
+
+
+# --------------------------------------------------------------------------- manifest mode
+# Allow-lists (compared after _key(): lower case, '-' and spaces -> '_'). Every value is a
+# metric or scheme named in references/metric_guide.md or metric_selection_grounding.md.
+TASKS = {"segmentation", "classification", "detection", "interactive", "generative"}
+OVERLAP = {"dice", "iou"}
+BOUNDARY = {"hd95", "hausdorff", "nsd", "surface_distance"}
+DETECTION_M = {"froc", "map"}
+SIMILARITY = {"mse", "rmse", "mae", "psnr", "ssim", "snr", "cnr"}
+METRICS = (OVERLAP | BOUNDARY | DETECTION_M | SIMILARITY |
+           {"pixel_accuracy", "accuracy", "auroc", "auprc", "sensitivity", "specificity",
+            "ppv", "npv", "brier", "calibration_slope", "calibration_intercept", "ece",
+            "noc", "likert_visual_score"})
+AVERAGING = {"one_vs_rest", "macro", "micro", "pairwise", "obuchowski"}
+MATCH = {"iou_threshold", "centroid_threshold", "mask_threshold"}
+INTERACTION = {"dice_vs_interactions", "interactions_to_threshold"}
+DOWNSTREAM = {"segmentation", "detection", "classification", "quantitative_measurement"}
+ALIASES = {"jaccard": "iou", "dsc": "dice", "hd": "hausdorff", "auc": "auroc", "roc_auc": "auroc",
+           "pr_auc": "auprc", "mean_average_precision": "map",
+           "assd": "surface_distance", "masd": "surface_distance", "surface_dice": "nsd",
+           "normalised_surface_dice": "nsd", "normalized_surface_dice": "nsd",
+           "sensitivity_per_false_positive": "froc", "sensitivity_per_fp": "froc",
+           "recall": "sensitivity", "precision": "ppv", "normalised_surface_distance": "nsd",
+           "normalized_surface_distance": "nsd", "one_vs_one": "pairwise"}
+
+TOP_KEYS = {"task", "metrics", "ci_reported", "classification", "detection", "interactive",
+            "generative", "notes"}
+SUB_KEYS = {
+    "classification": {"n_classes", "averaging"},
+    "detection": {"match_criterion", "threshold"},
+    "interactive": {"interaction_axis", "initial_vs_converged", "per_case_time"},
+    "generative": {"downstream_task"},
+}
+
+OTHER = re.compile(r"^\s*other\s*:(.*)$", re.IGNORECASE | re.DOTALL)
+
+
+class ManifestError(ValueError):
+    pass
+
+
+def _reject_constant(name: str):
+    raise ManifestError(f"{name} is not a valid JSON number")
+
+
+def _finite_float(text: str) -> float:
+    v = float(text)
+    if not math.isfinite(v):
+        raise ManifestError(f"{text[:40]} is not a finite number")
+    return v
+
+
+def _short(v) -> str:
+    r = repr(v)
+    return r if len(r) <= 80 else r[:77] + "..."
+
+
+def _key(v: str) -> str:
+    k = re.sub(r"[\s\-]+", "_", v.strip().lower())
+    return ALIASES.get(k, k)
+
+
+def _enum(value, allowed: set, where: str, unlisted: list) -> str:
+    """One allow-listed value, "none", or "other:<description>"; anything else is an error."""
+    if not isinstance(value, str) or not value.strip():
+        raise ManifestError(f"{where}: expected a non-empty string, got {_short(value)}")
+    k = _key(value)
+    if k == "none" or k in allowed:
+        return k
+    om = OTHER.match(value)
+    if om:
+        if not om.group(1).strip():
+            raise ManifestError(f"{where}: 'other:' needs a description")
+        if _key(om.group(1)) == "none":
+            return "none"
+        unlisted.append((where, value.strip()))
+        return "other"
+    raise ManifestError(f"{where}: {_short(value)} is not one of {sorted(allowed | {'none'})} "
+                        f"(use \"other:<description>\" for one not listed)")
+
+
+def _enum_list(value, allowed: set, where: str, unlisted: list) -> list:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        value = [value]
+    if not isinstance(value, list):
+        raise ManifestError(f"{where}: expected a list of strings, got {type(value).__name__}")
+    out = [_enum(v, allowed, f"{where}[{i}]", unlisted) for i, v in enumerate(value)]
+    if "none" in out and len(out) > 1:
+        raise ManifestError(f"{where}: 'none' cannot be combined with other values")
+    return list(dict.fromkeys(v for v in out if v != "none"))
+
+
+def _obj(m: dict, key: str) -> dict:
+    v = m.get(key)
+    if v is None:
+        return {}
+    if not isinstance(v, dict):
+        raise ManifestError(f"{key}: expected an object, got {type(v).__name__}")
+    extra = set(v) - SUB_KEYS[key]
+    if extra:
+        raise ManifestError(f"{key}: unknown key(s) {sorted(extra)}; allowed {sorted(SUB_KEYS[key])}")
+    return v
+
+
+def _bool(v, where: str):
+    if v is not None and not isinstance(v, bool):
+        raise ManifestError(f"{where}: expected true/false, got {_short(v)}")
+    return v
+
+
+def _int(v, where: str, minimum: int):
+    if v is None:
+        return None
+    if isinstance(v, bool) or not isinstance(v, int) or v < minimum:
+        raise ManifestError(f"{where}: expected an integer >= {minimum}, got {_short(v)}")
+    return v
+
+
+def analyze_manifest(path: str, task_arg: str | None) -> dict:
+    try:
+        m = json.loads(Path(path).read_text(encoding="utf-8-sig"), parse_constant=_reject_constant,
+                       parse_float=_finite_float)
+    except (OSError, ValueError, RecursionError) as e:   # ValueError covers JSONDecodeError
+        raise ManifestError(f"cannot read manifest: {e}")
+    if not isinstance(m, dict):
+        raise ManifestError("manifest must be a JSON object")
+    extra = set(m) - TOP_KEYS
+    if extra:
+        raise ManifestError(f"unknown top-level key(s) {sorted(extra)}; allowed {sorted(TOP_KEYS)}")
+    unlisted: list = []
+
+    task = m.get("task")
+    if task is None:
+        if task_arg is None:
+            raise ManifestError("task: missing (set it in the manifest or pass --task)")
+        task = task_arg
+    else:
+        task = _enum(task, TASKS, "task", [])
+        if task not in TASKS:
+            raise ManifestError(f"task: must be one of {sorted(TASKS)}")
+        if task_arg is not None and task_arg != task:
+            raise ManifestError(f"task: manifest says {task!r} but --task is {task_arg!r}")
+
+    metrics = set(_enum_list(m.get("metrics"), METRICS, "metrics", unlisted))
+    ci = _bool(m.get("ci_reported"), "ci_reported")
+    clf = _obj(m, "classification")
+    n_classes = _int(clf.get("n_classes"), "classification.n_classes", 2)
+    averaging = _enum_list(clf.get("averaging"), AVERAGING, "classification.averaging", unlisted)
+    det = _obj(m, "detection")
+    match = (_enum(det["match_criterion"], MATCH, "detection.match_criterion", unlisted)
+             if det.get("match_criterion") is not None else None)
+    thr = det.get("threshold")   # recorded, not gated
+    if thr is not None and (isinstance(thr, bool) or not isinstance(thr, (int, float))
+                            or (isinstance(thr, float) and not math.isfinite(thr)) or thr < 0):
+        raise ManifestError(f"detection.threshold: expected a finite number >= 0, got {_short(thr)}")
+    inter = _obj(m, "interactive")
+    axis = _enum_list(inter.get("interaction_axis"), INTERACTION, "interactive.interaction_axis",
+                      unlisted)
+    conv = _bool(inter.get("initial_vs_converged"), "interactive.initial_vs_converged")
+    ptime = _bool(inter.get("per_case_time"), "interactive.per_case_time")
+    gen = _obj(m, "generative")
+    downstream = _enum_list(gen.get("downstream_task"), DOWNSTREAM, "generative.downstream_task",
+                            unlisted)
+
+    claims = []
+
+    def add(v, sev, d, where):
+        claims.append({"verdict": v, "severity": sev, "detail": d, "where": where})
+
+    if task in ("segmentation", "interactive"):
+        if "pixel_accuracy" in metrics:
+            add("PIXEL_ACCURACY_SEG", "Major",
+                "pixel/voxel accuracy is declared for segmentation — misleading on imbalanced masks; "
+                "report Dice/IoU with a boundary metric instead", "metrics")
+        if metrics & OVERLAP and not metrics & BOUNDARY:
+            add("NO_BOUNDARY_METRIC", "Major",
+                "Dice/IoU is declared without a boundary metric (HD95 / NSD / surface distance) — "
+                "overlap alone is shape- and size-insensitive; pair it with a boundary metric, "
+                "per structure", "metrics")
+    if task == "interactive":
+        if not axis and "noc" not in metrics:   # NoC is the interactions-to-threshold metric
+            add("INTERACTIVE_NO_INTERACTION_COUNT", "Major",
+                "no interaction axis declared (Dice-vs-interactions, interactions-to-threshold or NoC) — "
+                "a single Dice evaluates a promptable method as if it were one-shot",
+                "interactive.interaction_axis")
+        if conv is not True:
+            add("INTERACTIVE_NO_CONVERGENCE", "Minor",
+                "no initial-prompt vs converged/peak Dice split declared",
+                "interactive.initial_vs_converged")
+        if ptime is not True:
+            add("INTERACTIVE_NO_TIME", "Minor",
+                "no per-case interaction/inference time declared", "interactive.per_case_time")
+    elif task == "classification":
+        acc, auroc = "accuracy" in metrics, "auroc" in metrics
+        if acc and not auroc and not {"sensitivity", "specificity"} <= metrics:
+            add("ACCURACY_ONLY", "Major",
+                "accuracy is declared without AUROC (or a sensitivity + specificity pair) — accuracy "
+                "is prevalence-dependent and misleading under imbalance", "metrics")
+        if auroc and "auprc" not in metrics:
+            add("AUPRC_MISSING", "Minor",
+                "AUROC is declared without AUPRC — add AUPRC with the test-set prevalence (its "
+                "no-skill value)", "metrics")
+        if n_classes is not None and n_classes > 2 and (acc or auroc) and not averaging:
+            add("MULTICLASS_NO_AVERAGING", "Minor",
+                f"a {n_classes}-class classification declares AUROC/accuracy without an aggregation "
+                "scheme (one-vs-rest, macro/micro, pairwise, Obuchowski)", "classification.averaging")
+    elif task == "detection":
+        if not metrics & DETECTION_M:
+            add("DETECTION_METRIC_MISSING", "Major",
+                "no detection metric (FROC / mAP) declared — patient-level accuracy is not a "
+                "detection metric", "metrics")
+        elif match in (None, "none"):
+            add("DETECTION_METRIC_MISSING", "Major",
+                "a detection metric is declared but no match criterion (IoU / centroid / mask "
+                "threshold) — FROC and mAP are undefined without it", "detection.match_criterion")
+    elif task == "generative":
+        has_sim = bool(metrics & SIMILARITY)
+        if has_sim and not downstream:
+            add("GENERATIVE_NO_DOWNSTREAM", "Major",
+                "image-quality similarity is declared without a downstream-task evaluation — "
+                "similarity does not establish clinical utility", "generative.downstream_task")
+        if not has_sim:
+            add("GENERATIVE_NO_SIMILARITY", "Minor",
+                "no image-quality metric declared (MSE / RMSE / MAE / PSNR / SSIM, or SNR / CNR)",
+                "metrics")
+
+    if ci is not True:
+        add("CI_MISSING", "Minor",
+            "no confidence interval declared for the headline metric", "ci_reported")
+
+    for where, value in unlisted:
+        effect = ("is recorded but satisfies no metric check" if where.startswith("metrics[")
+                  else "counts as covering this field")
+        add("UNLISTED_METHOD", "Minor",
+            f"{value!r} is not on the allow-list; it {effect} — confirm it by eye", where)
+
+    n_major = sum(1 for c in claims if c["severity"] == "Major")
+    return {"manifest": path, "mode": "manifest", "task": task, "claims": claims,
             "summary": {"n_claims": len(claims), "n_major": n_major,
                         "verdict": "MAJOR_CANDIDATE" if n_major else "OK"}}
 
@@ -269,18 +524,38 @@ def render(result: dict) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Task-correct metric-reporting gate (model-assessment).")
-    ap.add_argument("--report", required=True, help="metrics report / results markdown")
-    ap.add_argument("--task", required=True,
+    ap.add_argument("--manifest", help="metrics_manifest.json with the declared metrics (preferred)")
+    ap.add_argument("--report", help="metrics report / results markdown (prose mode)")
+    ap.add_argument("--task",
                     choices=["segmentation", "classification", "detection", "interactive", "generative"])
     ap.add_argument("--out", help="write JSON artifact to this path")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any Major claim exists")
     ap.add_argument("--quiet", action="store_true", help="suppress stdout table")
     args = ap.parse_args()
 
-    if not Path(args.report).is_file():
-        sys.stderr.write(f"ERROR: --report not found: {args.report}\n")
+    if args.manifest is not None:
+        if not Path(args.manifest).is_file():
+            sys.stderr.write(f"ERROR: --manifest not found: {args.manifest}\n")
+            return 2
+        if args.report is not None:
+            sys.stderr.write("NOTE: --manifest given; --report is not read\n")
+        try:
+            result = analyze_manifest(args.manifest, args.task)
+        except (ManifestError, ValueError, OverflowError, RecursionError) as e:
+            # any unreadable manifest is an input error (exit 2), never a Major (exit 1)
+            sys.stderr.write(f"ERROR: {args.manifest}: {e}\n")
+            return 2
+    elif args.report is not None:
+        if args.task is None:
+            sys.stderr.write("ERROR: --task is required with --report\n")
+            return 2
+        if not Path(args.report).is_file():
+            sys.stderr.write(f"ERROR: --report not found: {args.report}\n")
+            return 2
+        result = analyze(args.report, args.task)
+    else:
+        sys.stderr.write("ERROR: pass --manifest (preferred) or --report\n")
         return 2
-    result = analyze(args.report, args.task)
 
     if not args.quiet:
         print("=" * 41)
@@ -288,6 +563,11 @@ def main() -> int:
         print("=" * 41)
         print(render(result))
         print()
+        if result["mode"] == "prose":
+            print("PROSE_MODE: keyword presence with a short negation window; declare the metrics "
+                  "in --manifest for a field-level check.")
+        else:
+            print("Manifest mode: checks what is declared, not the reported numbers.")
         s = result["summary"]
         print(f"MAJOR candidate: {s['n_major']} metric-reporting issue(s)." if s["n_major"]
               else "OK: task-correct metrics with uncertainty reported.")

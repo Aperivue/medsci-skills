@@ -25,3 +25,10 @@ metrics are named, not their values — it never recomputes a number.
 ## Expected (`verify.sh`, network-free)
 - `seg_bad` flags `NO_BOUNDARY_METRIC` + `PIXEL_ACCURACY_SEG`; `seg_good` passes.
 - `clf_bad` flags `ACCURACY_ONLY`; `clf_good` passes.
+
+## Manifest mode
+`fixture/manifest_*.json` declare the same mismatches as `metrics_manifest.json` fields
+(`--manifest`): Dice + pixel accuracy without a boundary metric, FROC without a match criterion,
+accuracy + sensitivity without specificity or AUROC. Each is flagged; `manifest_seg_good.json`
+passes; an off-list metric exits 2. A declared list is not misread by negation ("FROC was not
+performed") or by word sense ("saliency map", the Decathlon "MSD").
