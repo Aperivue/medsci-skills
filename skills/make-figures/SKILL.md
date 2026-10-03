@@ -499,20 +499,15 @@ exclusion, the spine box count minus the exclusions after it must equal the next
 (`A - Σ(exclusions after A) == B`). It warns loudly on any imbalance and, with `--strict-cascade`,
 refuses to build — catching figure arithmetic drift (a dropped exclusion leaving the figure short of
 the analytic N) that text and prose gates miss. Run `scripts/_strobe_cascade.py --config
-figure1_strobe.yaml --strict` to check a config without rebuilding the diagram. The same helper reads
-the `generate_flow_diagram.R` nodes/edges schema (a `style: dashed` edge marks an exclusion box) and
-the R script runs it before rendering (warning by default; `--strict-cascade` refuses to render). A
-config in neither schema exits 2; under `--strict`, a config with no checkable exclusion link also
-exits 2 rather than reporting OK. In the nodes/edges schema every box on a link (the box before, the
-exclusion, the box after) must have one unambiguous total: its only `n = X`, or a stated total, i.e.
-an `n = X` alone on the first or last line that equals the sum of the other counts ("Excluded
-(n = 100):" then reasons summing to 100). A box that lists parts with no stated total (a PRISMA 2020
-"Records identified from: Databases (n = …) Registers (n = …)" box, exclusion reasons, sub-cohorts)
-makes that link `NOT_ASSESSED`: reported, never guessed and never a `CASCADE_IMBALANCE`.
+figure1_strobe.yaml --strict` to check a config without rebuilding the diagram. A config in neither
+schema exits 2; under `--strict`, a spine config with no checkable exclusion link also exits 2 rather
+than reporting OK.
 
-Known limits: a dashed edge used for a non-subtractive side note on a linear step (e.g. "Lost to
-follow-up" beside an ITT "Analyzed" box that keeps the full count) is read as an exclusion and
-flagged; draw such notes with a solid edge or as a separate chain node.
+Known limits: the `generate_flow_diagram.R` nodes/edges schema is recognised but not evaluated; the
+helper prints `NOT_ASSESSED` and exits 0. Reading which box a dashed exclusion is subtracted from was
+tried and flagged correct diagrams (an exclusion beside the box just before an exposed/unexposed or
+index-positive/negative split, when the previous step has its own exclusion), so that finding is left
+open. Check every dashed exclusion against its adjacent boxes by eye.
 
 For STROBE the canonical KJR/Radiology/BMJ submission flow is:
 

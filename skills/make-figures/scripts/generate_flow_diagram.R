@@ -6,9 +6,7 @@
 #   Rscript generate_flow_diagram.R \
 #       --type {strobe|consort|prisma|stard} \
 #       --config <path/to/counts.yaml> \
-#       --out   <path/to/output_prefix> \
-#       [--strict-cascade]   # refuse to render if the exclusion cascade does not close
-#                            # (or the _strobe_cascade.py check cannot run)
+#       --out   <path/to/output_prefix>
 #
 # Output:
 #   <prefix>.pdf            true vector PDF (journal submission)
@@ -33,14 +31,6 @@
 #       arrow: true        # false -> no arrowhead
 #       constraint: true   # false -> layout ignores this edge
 #
-# Cascade check (_strobe_cascade.py, run before rendering): a node reached by a `style: dashed`
-# edge is read as an exclusion subtracted on that step. Each box's total is its only `n = X`, or
-# an `n = X` alone on the first or last line that equals the sum of its other counts
-# ("Excluded (n = 100):\n- reason (n = 60)\n- reason (n = 40)"); a link with a box that lists
-# parts with no stated total is reported NOT_ASSESSED, never guessed. Do not use a dashed
-# edge for a non-subtractive side note on a linear step (e.g. "Lost to follow-up" beside an ITT
-# "Analyzed" box that keeps the full count): it is read as an exclusion and flagged.
-#
 # Dependencies: DiagrammeR, DiagrammeRsvg, rsvg, yaml, librsvg (system).
 
 suppressPackageStartupMessages({
@@ -50,12 +40,10 @@ suppressPackageStartupMessages({
 # ---- CLI parsing ------------------------------------------------------------
 parse_args <- function() {
   args <- commandArgs(trailingOnly = TRUE)
-  out  <- list(type = NULL, config = NULL, out = NULL, strict_cascade = FALSE)
+  out  <- list(type = NULL, config = NULL, out = NULL)
   i <- 1L
   while (i <= length(args)) {
-    key <- args[[i]]
-    if (key == "--strict-cascade") { out$strict_cascade <- TRUE; i <- i + 1L; next }
-    val <- args[[i + 1L]]
+    key <- args[[i]]; val <- args[[i + 1L]]
     if (key == "--type")   out$type   <- val
     if (key == "--config") out$config <- val
     if (key == "--out")    out$out    <- val
@@ -131,36 +119,8 @@ render <- function(dot, prefix) {
                  png600 = paste0(prefix, "_600.png")))
 }
 
-# ---- Exclusion-cascade closure ----------------------------------------------
-# The counts a reviewer reads live in the box labels, so assert before rendering that every
-# dashed exclusion closes (box - exclusion = adjacent box) via _strobe_cascade.py. Warn by
-# default; with --strict-cascade refuse to render on an imbalance or when the check cannot run.
-cascade_check <- function(config, strict) {
-  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  helper <- if (length(file_arg))
-    file.path(dirname(sub("^--file=", "", file_arg[[1]])), "_strobe_cascade.py") else ""
-  py <- Sys.which("python3")
-  not_run <- function(why) {
-    msg <- paste0("cascade check could not run: ", why)
-    if (strict) stop(msg, "; refusing to render (--strict-cascade)", call. = FALSE)
-    message("WARNING: ", msg)
-  }
-  if (!nzchar(py)) return(not_run("python3 not found"))
-  if (!file.exists(helper)) return(not_run(paste("helper not found:", helper)))
-  res <- suppressWarnings(system2(py, c(shQuote(helper), "--config", shQuote(config), "--strict"),
-                                  stdout = TRUE, stderr = TRUE))
-  status <- attr(res, "status"); if (is.null(status)) status <- 0L
-  if (length(res)) message(paste(res, collapse = "\n"))
-  if (status == 1L && strict)
-    stop("exclusion cascade does not close; refusing to render (--strict-cascade)", call. = FALSE)
-  if (status == 1L) message("WARNING: exclusion cascade does not close (see above)")
-  if (status > 1L) not_run(sprintf("helper exited %d (see above)", status))
-  invisible(status)
-}
-
 main <- function() {
   a <- parse_args()
-  cascade_check(a$config, a$strict_cascade)
   cfg <- yaml::read_yaml(a$config)
   # Type is informational for now (same style applies).
   # Future: load type-specific defaults from references/exemplar_diagrams/<type>/template.dot
