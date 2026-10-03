@@ -1,0 +1,13 @@
+ACCEPTANCE-READINESS PRE-FLIGHT
+file: manuscript.md
+note: advisory lexical scan — flags cap the venue tier a design can support;
+      not an acceptance prediction and not auto-fixable.
+
+flags:
+  L4  [UNFIXABLE_DEFECT] circular design / validation :: predicting a label from inputs that encode it is structurally guaranteed, not a finding
+  L5  [DESIGN_CEILING] surrogate / non-invasive marker as endpoint :: a surrogate endpoint without a hard clinical or histologic endpoint caps clinical-impact claims
+  L6  [DESIGN_CEILING] pilot / preliminary framing :: appropriate for tolerant venues; high-impact originals expect a definitive design
+  L9  [IMPORTANCE_RISK] incremental-gain framing :: incremental contribution is the single most common desk-rejection reason (~52%)
+
+summary: design_ceiling=2 unfixable_defect=1 importance_risk=1 claim_mismatch=0 total=4
+ceiling: HIGH-IMPACT VENUE UNLIKELY WITHOUT A DESIGN CHANGE

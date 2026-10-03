@@ -32,14 +32,18 @@ CHECKS (verdicts):
   5. WEIGHTS_PROVENANCE_UNKNOWN     pretrained weights are used and the corpus they were trained
                                     on is not stated — so what is in them cannot be reasoned
                                     about, including whether your evaluation set is.
+  6. DEVELOPED_ON_UNSTATED          the 'developed_on' key is absent, so check 1 could not run.
+  7. EVALUATION_ARMS_UNSTATED       the 'evaluation_arms' key is absent, so checks 1-2 could not run.
+  8. INTENDED_USE_UNSTATED          'intended_use' is absent, so check 4 could not run.
+                                    (An explicit empty list states "none" and is not a finding.)
 
   MINOR (each is a fact to record, not necessarily a defect)
-  6. TASK_MISMATCH                  the model's declared task differs from the study's.
-  7. NO_VERSION_PIN                 no commit, tag or revision — "we used nnU-Net" is not a
+  9. TASK_MISMATCH                  the model's declared task differs from the study's.
+ 10. NO_VERSION_PIN                 no commit, tag or revision — "we used nnU-Net" is not a
                                     reproducible statement.
-  8. VALIDATION_UNREPORTED          no reported validation (dataset + metric) recorded.
-  9. HARDWARE_UNVERIFIED            hardware compatibility claimed but never executed.
- 10. LICENCE_UNVERIFIED             a licence is named but its source file is not, so it came
+ 11. VALIDATION_UNREPORTED          no reported validation (dataset + metric) recorded.
+ 12. HARDWARE_UNVERIFIED            hardware compatibility claimed but never executed.
+ 13. LICENCE_UNVERIFIED             a licence is named but its source file is not, so it came
                                     from a badge or a memory rather than from the artifact.
 
 DOSSIER (JSON)
@@ -66,7 +70,10 @@ INPUTS
 
 OUTPUT
   A findings table (stdout) and, with --out, a JSON artifact.
-  Exit 1 under --strict when any Major finding exists. Stdlib-only.
+  Exit 1 under --strict when any Major finding exists. Exit 2 on an input the gate cannot read
+  (invalid JSON; 'developed_on' or 'weights.trained_on' not a list of strings; 'evaluation_arms'
+  not a list of objects; 'intended_use' outside research | commercial | clinical_deployment).
+  Stdlib-only.
 """
 from __future__ import annotations
 
@@ -80,7 +87,6 @@ from pathlib import Path
 DATASET_ALIASES = {
     "decathlon": ["msd"],
     "medicalsegmentationdecathlon": ["msd"],
-    "medical": ["msd"],  # only via the multi-token form below
 }
 MULTI_TOKEN_ALIASES = {
     ("medical", "segmentation", "decathlon"): ["msd"],
@@ -88,17 +94,50 @@ MULTI_TOKEN_ALIASES = {
 }
 NONCOMMERCIAL_MARKERS = ("-nc-", "-nc", "noncommercial", "non-commercial",
                          "research-only", "researchonly", "cc-by-nc")
-RESTRICTED_USES = {"commercial", "clinical_deployment", "clinical-deployment", "deployment",
-                   "product"}
+# intended_use is an enum, compared after token normalisation ("clinical deployment" and
+# "clinical-deployment" both read as clinical_deployment). A value outside it is an input error.
+RESTRICTED_USES = {"commercial", "clinical_deployment", "deployment", "product"}
+KNOWN_USES = RESTRICTED_USES | {"research"}
+
+
+class InputError(ValueError):
+    """The dossier holds a field the gate cannot read; reported as exit 2, never as a pass."""
 
 
 def _tokens(name: str) -> tuple[str, ...]:
-    toks = tuple(t for t in re.split(r"[^a-z0-9]+", str(name).strip().lower()) if t)
-    if toks in MULTI_TOKEN_ALIASES:
-        return tuple(MULTI_TOKEN_ALIASES[toks])
-    if len(toks) == 1 and toks[0] in DATASET_ALIASES and toks[0] != "medical":
-        return tuple(DATASET_ALIASES[toks[0]])
+    toks = _split(name)
+    # An alias is canonicalised where it opens the name, so a family name followed by a task
+    # suffix ("Medical Segmentation Decathlon Task03 Liver") resolves like the bare family.
+    for key in sorted(MULTI_TOKEN_ALIASES, key=len, reverse=True):
+        if toks[:len(key)] == key:
+            return tuple(MULTI_TOKEN_ALIASES[key]) + toks[len(key):]
+    if toks and toks[0] in DATASET_ALIASES:
+        return tuple(DATASET_ALIASES[toks[0]]) + toks[1:]
     return toks
+
+
+def _split(name) -> tuple[str, ...]:
+    return tuple(t for t in re.split(r"[^a-z0-9]+", str(name).strip().lower()) if t)
+
+
+def _is_noncommercial(spdx: str) -> bool:
+    """Non-commercial / research-only markers, read on the raw string and on its tokens, so
+    "CC BY NC 4.0" and "Non Commercial" read like "CC-BY-NC-4.0" and "non-commercial"."""
+    if any(m in spdx for m in NONCOMMERCIAL_MARKERS):
+        return True
+    toks = _split(spdx)
+    pairs = set(zip(toks, toks[1:]))
+    return bool({"nc", "noncommercial", "researchonly"} & set(toks)
+                or {("non", "commercial"), ("research", "only")} & pairs)
+
+
+def _str_list(value, field: str) -> list[str]:
+    """A dataset list must be a JSON list of strings. A bare string would be iterated one
+    character at a time and silently match nothing, so it is rejected instead."""
+    if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
+        raise InputError(f"'{field}' must be a JSON list of dataset names (strings), "
+                         f"got {type(value).__name__}: {json.dumps(value)[:80]}")
+    return value
 
 
 def datasets_match(a: str, b: str) -> bool:
@@ -126,11 +165,26 @@ def analyze(dossier_path: str) -> dict:
         claims.append({"verdict": verdict, "severity": severity, "detail": detail,
                        "where": sorted(where or [])[:12], "n_where": len(where or [])})
 
-    arms = d.get("evaluation_arms") or []
+    if not isinstance(d, dict):
+        raise InputError("the dossier must be a JSON object")
+    arms = d.get("evaluation_arms")
+    if arms is None:
+        claim("EVALUATION_ARMS_UNSTATED", "Major",
+              "no 'evaluation_arms' recorded, so neither benchmark-provenance check could run; "
+              "list every arm with its dataset (an empty list states there are none yet)")
+        arms = []
+    if not isinstance(arms, list) or not all(isinstance(a, dict) for a in arms):
+        raise InputError("'evaluation_arms' must be a JSON list of objects with a 'dataset' "
+                         f"field, got: {json.dumps(arms)[:80]}")
     arm_datasets = [(a.get("name") or "?", a.get("dataset") or "") for a in arms]
 
     # ---- the conflict neither the licence nor the citation count reveals ------
-    developed_on = d.get("developed_on") or []
+    if d.get("developed_on") is None:
+        claim("DEVELOPED_ON_UNSTATED", "Major",
+              "no 'developed_on' recorded, so whether an evaluation arm reuses the model's own "
+              "development benchmark could not be checked; record the paper's account of where "
+              "the method was built and tuned (an empty list states it was none)")
+    developed_on = _str_list(d.get("developed_on") or [], "developed_on")
     hits = [f"{nm} ({ds}) <- developed on {dev}"
             for nm, ds in arm_datasets for dev in developed_on if datasets_match(ds, dev)]
     if hits:
@@ -143,7 +197,7 @@ def analyze(dossier_path: str) -> dict:
     # ---- the strong form: your eval set is in the weights ---------------------
     weights = d.get("weights") or {}
     pretrained = bool(weights.get("pretrained"))
-    trained_on = weights.get("trained_on") or []
+    trained_on = _str_list(weights.get("trained_on") or [], "weights.trained_on")
     leaks = [f"{nm} ({ds}) in the training corpus ({tr})"
              for nm, ds in arm_datasets for tr in trained_on if datasets_match(ds, tr)]
     if leaks:
@@ -158,7 +212,15 @@ def analyze(dossier_path: str) -> dict:
     # ---- licence -------------------------------------------------------------
     lic = d.get("licence") or d.get("license") or {}
     spdx = _norm(lic.get("spdx") or lic.get("name"))
-    use = _norm(d.get("intended_use"))
+    raw_use = d.get("intended_use")
+    use = "_".join(_split(raw_use)) if isinstance(raw_use, str) else ""
+    if raw_use is None or (isinstance(raw_use, str) and not use):
+        claim("INTENDED_USE_UNSTATED", "Major",
+              "no 'intended_use' recorded, so whether the licence permits the use could not be "
+              "checked; state research, commercial or clinical_deployment")
+    elif use not in KNOWN_USES:
+        raise InputError(f"'intended_use' is {json.dumps(raw_use)}; expected one of "
+                         "research | commercial | clinical_deployment")
     if not spdx:
         claim("LICENCE_UNSTATED", "Major",
               "no licence recorded. An unstated licence is not a permissive one — it is an "
@@ -168,7 +230,7 @@ def analyze(dossier_path: str) -> dict:
             claim("LICENCE_UNVERIFIED", "Minor",
                   f"licence '{spdx}' is named but the file it was read from is not recorded; "
                   "a badge in a README is not the licence")
-        if use in RESTRICTED_USES and any(m in spdx for m in NONCOMMERCIAL_MARKERS):
+        if use in RESTRICTED_USES and _is_noncommercial(spdx):
             claim("LICENCE_INCOMPATIBLE", "Major",
                   f"licence '{spdx}' restricts use to non-commercial or research purposes while "
                   f"the declared intended use is '{use}'")
@@ -241,6 +303,9 @@ def main() -> int:
         result = analyze(a.dossier)
     except json.JSONDecodeError as exc:
         print(f"input error: dossier is not valid JSON: {exc}", file=sys.stderr)
+        return 2
+    except InputError as exc:
+        print(f"input error: {exc}", file=sys.stderr)
         return 2
 
     if not a.quiet:

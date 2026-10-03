@@ -37,6 +37,10 @@ INPUTS
   --task       segmentation (default) | classification | detection | synthesis | ssl.
   --out        output repo directory (default: model_repo).
   --seed / --val-frac / --test-frac / --in-channels / --out-channels / --base-channels.
+               (--task finetune is a softmax CrossEntropy head and needs --out-channels >= 2.)
+  --preprocessing-manifest  imaging-data preprocessing_manifest.json: reuse its patient-level
+               split_assignment + split_seed instead of drawing a new split (exit 2 if unusable).
+  IDs are compared after stripping surrounding whitespace.
 
 OUTPUT
   A self-contained repo under --out (tree printed to stdout). Deterministic given the
@@ -346,7 +350,7 @@ def _read_split(repo_root):
     assign = {}
     with (Path(repo_root) / "splits" / "split_assignment.csv").open(encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            assign[row[ID_COL]] = row["split"]
+            assign[row[ID_COL].strip()] = row["split"]
     return assign
 
 
@@ -354,7 +358,7 @@ class ScaffoldDataset(Dataset):
     def __init__(self, manifest_csv, repo_root, split, transform=None):
         assign = _read_split(repo_root)
         self.rows = [r for r in csv.DictReader(open(manifest_csv, encoding="utf-8"))
-                     if assign.get(r[ID_COL]) == split]
+                     if assign.get((r.get(ID_COL) or "").strip()) == split]
         self.transform = transform
 
     def __len__(self):
@@ -388,7 +392,7 @@ def _read_split(repo_root):
     assign = {}
     with (Path(repo_root) / "splits" / "split_assignment.csv").open(encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            assign[row[ID_COL]] = row["split"]
+            assign[row[ID_COL].strip()] = row["split"]
     return assign
 
 
@@ -396,7 +400,7 @@ class ScaffoldDataset(Dataset):
     def __init__(self, manifest_csv, repo_root, split, transform=None):
         assign = _read_split(repo_root)
         self.rows = [r for r in csv.DictReader(open(manifest_csv, encoding="utf-8"))
-                     if assign.get(r[ID_COL]) == split]
+                     if assign.get((r.get(ID_COL) or "").strip()) == split]
         self.transform = transform
 
     def __len__(self):
@@ -430,7 +434,7 @@ def _read_split(repo_root):
     assign = {}
     with (Path(repo_root) / "splits" / "split_assignment.csv").open(encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            assign[row[ID_COL]] = row["split"]
+            assign[row[ID_COL].strip()] = row["split"]
     return assign
 
 
@@ -438,7 +442,7 @@ class ScaffoldDataset(Dataset):
     def __init__(self, manifest_csv, repo_root, split):
         assign = _read_split(repo_root)
         self.rows = [r for r in csv.DictReader(open(manifest_csv, encoding="utf-8"))
-                     if assign.get(r[ID_COL]) == split]
+                     if assign.get((r.get(ID_COL) or "").strip()) == split]
 
     def __len__(self):
         return len(self.rows)
@@ -468,7 +472,7 @@ def _read_split(repo_root):
     assign = {}
     with (Path(repo_root) / "splits" / "split_assignment.csv").open(encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            assign[row[ID_COL]] = row["split"]
+            assign[row[ID_COL].strip()] = row["split"]
     return assign
 
 
@@ -476,7 +480,7 @@ class ScaffoldDataset(Dataset):
     def __init__(self, manifest_csv, repo_root, split):
         assign = _read_split(repo_root)
         self.rows = [r for r in csv.DictReader(open(manifest_csv, encoding="utf-8"))
-                     if assign.get(r[ID_COL]) == split]
+                     if assign.get((r.get(ID_COL) or "").strip()) == split]
 
     def __len__(self):
         return len(self.rows)
@@ -506,7 +510,7 @@ def _read_split(repo_root):
     assign = {}
     with (Path(repo_root) / "splits" / "split_assignment.csv").open(encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            assign[row[ID_COL]] = row["split"]
+            assign[row[ID_COL].strip()] = row["split"]
     return assign
 
 
@@ -514,7 +518,7 @@ class ScaffoldDataset(Dataset):
     def __init__(self, manifest_csv, repo_root, split, augment=None):
         assign = _read_split(repo_root)
         self.rows = [r for r in csv.DictReader(open(manifest_csv, encoding="utf-8"))
-                     if assign.get(r[ID_COL]) == split]
+                     if assign.get((r.get(ID_COL) or "").strip()) == split]
         self.augment = augment
 
     def __len__(self):
@@ -1014,12 +1018,15 @@ def _build_backbone(in_channels, base, pretrained):
     if pretrained:
         try:
             import timm
-        except ImportError:
-            print("NOTE: timm not installed; using a random-init stand-in. Install timm to "
-                  "load the pretrained weights recorded in PRETRAINED.md (PRETRAINED_SOURCE).")
-        else:
-            name = PRETRAINED_SOURCE.split(":", 1)[-1]
-            return timm.create_model(name, pretrained=True, in_chans=in_channels, num_classes=0)
+        except ImportError as e:
+            # Never fall back to a random-init stand-in here: the checkpoint and PRETRAINED.md
+            # would still name PRETRAINED_SOURCE, so the recorded provenance would be false.
+            raise ImportError(
+                "pretrained=True but timm is not installed, so the pretrained weights recorded "
+                "in PRETRAINED.md (" + PRETRAINED_SOURCE + ") cannot be loaded. Install timm, "
+                "or call build_model(pretrained=False) for a random-init smoke test.") from e
+        name = PRETRAINED_SOURCE.split(":", 1)[-1]
+        return timm.create_model(name, pretrained=True, in_chans=in_channels, num_classes=0)
     return _SmallBackbone(in_channels, base)
 
 
@@ -1065,7 +1072,7 @@ def _read_split(repo_root):
     assign = {}
     with (Path(repo_root) / "splits" / "split_assignment.csv").open(encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            assign[row[ID_COL]] = row["split"]
+            assign[row[ID_COL].strip()] = row["split"]
     return assign
 
 
@@ -1073,7 +1080,7 @@ class ScaffoldDataset(Dataset):
     def __init__(self, manifest_csv, repo_root, split, transform=None):
         assign = _read_split(repo_root)
         self.rows = [r for r in csv.DictReader(open(manifest_csv, encoding="utf-8"))
-                     if assign.get(r[ID_COL]) == split]
+                     if assign.get((r.get(ID_COL) or "").strip()) == split]
         self.transform = transform
 
     def __len__(self):
@@ -1156,7 +1163,8 @@ def main():
         if val_loss < best_val:
             best_val = val_loss
             torch.save({"epoch": epoch, "model": model.state_dict(),
-                        "seed": SEED, "pretrained_source": PRETRAINED_SOURCE}, "best.pt")
+                        "seed": SEED, "pretrained_source": PRETRAINED_SOURCE,
+                        "backbone_class": type(model.backbone).__name__}, "best.pt")
 
 
 if __name__ == "__main__":
@@ -1230,6 +1238,7 @@ split:
   test_frac: __TEST_FRAC__
   assignment: splits/split_assignment.csv
   seed_file: splits/split_seed.txt
+  source: __SPLIT_SOURCE__
 manifest: __MANIFEST_NAME__
 __PRETRAINED_BLOCK__"""
 
@@ -1249,7 +1258,7 @@ REPRO_MD = """# Reproducibility
 
 Generated by `model-scaffold` (task: __TASK__, arch: __ARCH__) with reproducibility baked in.
 
-- **Split**: patient-level, seed-locked (`splits/split_assignment.csv`, seed `__SEED__`);
+- **Split**: patient-level, seed-locked (`splits/split_assignment.csv`, seed `__SPLIT_SEED__`);
   disjoint by construction. Verify with `/model-assessment`
   (`check_split_leakage.py --splits splits/split_assignment.csv --strict`).
 - **Seed**: `__SEED__` applied to random / numpy / torch / torch.cuda; cuDNN deterministic
@@ -1268,7 +1277,7 @@ METHODS_MD = """# Methods stub (generated by model-scaffold — fill the [VERIFY
 A `__ARCH__` model was trained for __TASK__ (in=`__IN_CH__`, out=`__OUT_CH__`, base
 `__BASE__`). Data were split at the **patient level** (val=__VAL_FRAC__, test=__TEST_FRAC__;
 [VERIFY: report n patients per split from splits/split_assignment.csv]) with the assignment
-frozen and seed-locked (seed __SEED__), so no patient contributed images to more than one
+frozen and seed-locked (seed __SPLIT_SEED__), so no patient contributed images to more than one
 partition. All random number generators (Python, NumPy, PyTorch, CUDA) were seeded and cuDNN
 was set deterministic. Held-out performance is reported as
 [VERIFY: task-correct metrics with 95% CIs over >= 3 seeds] on the test split.
@@ -1328,6 +1337,81 @@ def split_patients(ids, seed, val_frac, test_frac):
     return assign
 
 
+# The same row rules imaging-data's check_preprocessing_leakage.py applies to split_assignment
+# (its SPLIT_SYNONYM and _patient), so a manifest that gate accepts is read here the same way.
+# Keep the two in step: a row it accepts and this rejects only fails closed (exit 2).
+UPSTREAM_SPLIT_SYNONYM = {
+    "train": "train", "training": "train",
+    "val": "val", "validation": "val", "valid": "val", "dev": "val",
+    "test": "test", "testing": "test", "holdout": "test", "hold-out": "test",
+    "eval": "test", "evaluation": "test",
+}
+UPSTREAM_PATIENT_KEYS = ("patient_id", "subject_id", "patient", "id")
+
+
+def _upstream_patient(r):
+    """The row's patient ID as a stripped string (a numeric 0 is an ID, a blank is not)."""
+    for key in UPSTREAM_PATIENT_KEYS:
+        value = r.get(key)
+        if value is not None and not isinstance(value, (dict, list)) and str(value).strip():
+            return str(value).strip()
+    return None
+
+
+def _upstream_split(r):
+    sp = r.get("split")
+    sp = str(sp).strip().lower() if sp is not None else ""
+    return UPSTREAM_SPLIT_SYNONYM.get(sp, sp)
+
+
+def load_upstream_split(path, ids):
+    """Read the patient-level split from an imaging-data preprocessing_manifest.json so the repo
+    trains on the SAME split that imaging-data's normalisation-leakage gate checked, instead of
+    drawing a new one. Returns (assign, seed); exits 2 on anything it cannot use."""
+    p = Path(path)
+    if not p.is_file():
+        sys.stderr.write(f"ERROR: --preprocessing-manifest not found: {path}\n")
+        sys.exit(2)
+    try:
+        doc = json.loads(p.read_text(encoding="utf-8"))
+    except ValueError as e:
+        sys.stderr.write(f"ERROR: --preprocessing-manifest {path} is not valid JSON: {e}\n")
+        sys.exit(2)
+    rows = doc.get("split_assignment") if isinstance(doc, dict) else None
+    if not isinstance(rows, list) or not rows:
+        sys.stderr.write(f"ERROR: --preprocessing-manifest {path} has no split_assignment rows\n")
+        sys.exit(2)
+    seed = doc.get("split_seed")
+    if isinstance(seed, bool) or not isinstance(seed, int):
+        sys.stderr.write(f"ERROR: --preprocessing-manifest {path} has no integer split_seed; "
+                         "an imported split must be seed-locked\n")
+        sys.exit(2)
+    assign, bad = {}, []
+    for i, r in enumerate(rows):
+        pid = _upstream_patient(r) if isinstance(r, dict) else None
+        sp = _upstream_split(r) if isinstance(r, dict) else None
+        if pid is None or sp not in ("train", "val", "test"):
+            bad.append(i)
+            continue
+        if assign.setdefault(pid, sp) != sp:
+            sys.stderr.write(f"ERROR: --preprocessing-manifest {path}: patient '{pid}' is assigned to "
+                             f"both {assign[pid]} and {sp}; the split is not patient-disjoint\n")
+            sys.exit(2)
+    if bad:
+        sys.stderr.write(f"ERROR: --preprocessing-manifest {path}: {len(bad)} split_assignment row(s) "
+                         "lack a patient ID (patient_id/subject_id/patient/id) or a split that "
+                         "maps to train/val/test "
+                         f"(first: row {bad[0]})\n")
+        sys.exit(2)
+    missing = sorted(set(ids) - set(assign))
+    if missing:
+        sys.stderr.write(f"ERROR: {len(missing)} patient(s) in --manifest have no split in "
+                         f"--preprocessing-manifest (first: '{missing[0]}'); the two describe "
+                         "different cohorts\n")
+        sys.exit(2)
+    return {pid: assign[pid] for pid in set(ids)}, seed
+
+
 # Values that come from the user's data or command line and land inside a Python string literal
 # (`ID_COL = "__ID_COL__"`). A CSV header or --from-pretrained value containing `"` or `\` used to be
 # pasted in raw: the generated repo did not parse, or ran whatever the value spelled.
@@ -1361,8 +1445,18 @@ def main() -> int:
     ap.add_argument("--from-pretrained", default="timm:resnet50.a1_in1k",
                     help="pretrained-weight source recorded as provenance (--task finetune); "
                          "e.g. timm:resnet50.a1_in1k, MedSAM, or a URL/DOI")
+    ap.add_argument("--preprocessing-manifest",
+                    help="imaging-data preprocessing_manifest.json: reuse its split_assignment and "
+                         "split_seed instead of drawing a new split (--seed/--val-frac/--test-frac "
+                         "are then not used for the split)")
     ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args()
+
+    if args.task == "finetune" and args.out_channels < 2:
+        # FT_LOSSES is a softmax CrossEntropy: one output gives a constant score of 1.0 and a loss of 0.
+        sys.stderr.write(f"ERROR: --task finetune needs --out-channels >= 2 (the number of classes; "
+                         f"got {args.out_channels}). A binary target is --out-channels 2.\n")
+        return 2
 
     man = Path(args.manifest)
     if not man.is_file():
@@ -1376,14 +1470,19 @@ def main() -> int:
         sys.stderr.write("ERROR: manifest has no rows\n")
         return 2
     id_col = _pick_id_col(header, args.id_col)
-    ids = [r[id_col] for r in rows if (r.get(id_col) or "").strip()]
+    # IDs are compared after stripping surrounding whitespace ('P01' and 'P01 ' are one patient);
+    # the generated dataset.py looks rows up the same way.
+    ids = [r[id_col].strip() for r in rows if (r.get(id_col) or "").strip()]
     if not ids:
         sys.stderr.write(f"ERROR: no values in ID column '{id_col}'\n")
         return 2
 
     task = TASKS[args.task]
     arch = args.arch or task["arch"]
-    assign = split_patients(ids, args.seed, args.val_frac, args.test_frac)
+    if args.preprocessing_manifest:
+        assign, split_seed = load_upstream_split(args.preprocessing_manifest, ids)
+    else:
+        assign, split_seed = split_patients(ids, args.seed, args.val_frac, args.test_frac), args.seed
 
     out = Path(args.out)
     (out / "splits").mkdir(parents=True, exist_ok=True)
@@ -1392,9 +1491,18 @@ def main() -> int:
         w.writerow([id_col, "split"])
         for pid in sorted(assign):
             w.writerow([pid, assign[pid]])
-    (out / "splits" / "split_seed.txt").write_text(f"{args.seed}\n", encoding="utf-8")
+    (out / "splits" / "split_seed.txt").write_text(f"{split_seed}\n", encoding="utf-8")
 
     is_finetune = args.task == "finetune"
+    if args.preprocessing_manifest:
+        # The fractions describe the imported split as it is, not the unused --val/--test-frac.
+        n_all = len(assign)
+        val_frac = round(sum(v == "val" for v in assign.values()) / n_all, 3)
+        test_frac = round(sum(v == "test" for v in assign.values()) / n_all, 3)
+        split_source = f"imported from {Path(args.preprocessing_manifest).name} (imaging-data)"
+    else:
+        val_frac, test_frac = args.val_frac, args.test_frac
+        split_source = "drawn by scaffold.py (seeded patient-level permutation)"
     pretrained_block = (
         f"pretrained:\n  source: {args.from_pretrained}\n  provenance: PRETRAINED.md\n"
         if is_finetune else ""
@@ -1402,7 +1510,8 @@ def main() -> int:
     repl = {
         "__SEED__": args.seed, "__IN_CH__": args.in_channels, "__OUT_CH__": args.out_channels,
         "__BASE__": args.base_channels, "__TASK__": args.task, "__ARCH__": arch,
-        "__ID_COL__": id_col, "__VAL_FRAC__": args.val_frac, "__TEST_FRAC__": args.test_frac,
+        "__ID_COL__": id_col, "__VAL_FRAC__": val_frac, "__TEST_FRAC__": test_frac,
+        "__SPLIT_SEED__": split_seed, "__SPLIT_SOURCE__": split_source,
         "__MANIFEST_NAME__": man.name, "__SEED_FN__": SEED_FN, "__CASE_COUNT_FN__": CASE_COUNT_FN,
         "__PRETRAINED_SOURCE__": args.from_pretrained, "__PRETRAINED_BLOCK__": pretrained_block,
     }
@@ -1421,7 +1530,9 @@ def main() -> int:
     ns = sum(1 for v in assign.values() if v == "test")
     if not args.quiet:
         print(f"scaffolded {args.task}/{arch} repo -> {out}/")
-        print(f"  patients: {len(assign)} (train={nt} val={nv} test={ns}), seed={args.seed}")
+        src = (f"imported from {args.preprocessing_manifest}" if args.preprocessing_manifest
+               else "drawn here")
+        print(f"  patients: {len(assign)} (train={nt} val={nv} test={ns}), split seed={split_seed} ({src})")
         print("  files: " + ", ".join(sorted(files) + ["splits/split_assignment.csv", "splits/split_seed.txt"]))
     return 0
 

@@ -5,18 +5,24 @@
 # audited the same way before being moved into a public repo.
 #
 # Usage:
-#   audit_skill.sh <skill_directory> [extra_patterns]
+#   audit_skill.sh [--strict] <skill_directory> [extra_patterns]
 #
 # Arguments:
 #   skill_directory  Path to a single skill (must contain SKILL.md).
 #   extra_patterns   Optional `grep -E` alternation pattern of names /
 #                    institutions / collaborator handles to add. Example:
 #                      "jane doe|MIT Medical|@gmail\.com"
+#                    Matched case-insensitively, in text and in EXIF fields.
+#   --strict         Treat a check that could not run as a failure (exit 3).
 #
 # Exit codes:
-#   0  Clean -- no findings
+#   0  Clean -- no findings (without --strict, a check that could not run
+#      is reported as INCOMPLETE on the RESULT line but still exits 0)
 #   1  Findings detected -- review required before publication
-#   2  Usage error
+#   2  Usage error, an invalid extra_patterns regex, or a scan whose grep
+#      failed (an error is never reported as CLEAN)
+#   3  --strict only: no findings, but a check could not run (binary files
+#      present and exiftool not installed)
 #
 # Coverage parity with medsci-skills/scripts/validate_skills.sh:
 #   rule 6  Personal precedent (text)            yes
@@ -24,8 +30,8 @@
 #   rule 7b Real personal email                  yes
 #   rule 7c Author{Year}_ filename pattern       yes
 #   rule 8  Blockquote dated precedent           yes
-#   rule 10 Binary EXIF metadata (DOCX/PDF/PNG)  yes (skipped silently if
-#                                                exiftool not installed)
+#   rule 10 Binary EXIF metadata (DOCX/PDF/PNG)  yes (reported as INCOMPLETE
+#                                                if exiftool is not installed)
 #
 # False-positive guard: text scans use `grep --binary-files=without-match`
 # so compiled `.pyc`, raster `.png` byte-stream collisions, and `git` pack
@@ -33,9 +39,20 @@
 
 set -u
 
+STRICT=0
+ARGS=()
+for a in "$@"; do
+    if [ "$a" = "--strict" ]; then
+        STRICT=1
+    else
+        ARGS+=("$a")
+    fi
+done
+set -- ${ARGS[@]+"${ARGS[@]}"}
+
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then
     cat >&2 <<USAGE
-Usage: audit_skill.sh <skill_directory> [extra_patterns]
+Usage: audit_skill.sh [--strict] <skill_directory> [extra_patterns]
 
 Examples:
   audit_skill.sh ~/.claude/skills/my-skill
@@ -52,11 +69,23 @@ if [ ! -d "$SKILL_DIR" ]; then
     exit 2
 fi
 
+# Reject an extra_patterns regex grep cannot compile. Scanning with it would
+# fail on every file and the user's own name check would silently go inert.
+if [ -n "$EXTRA_PATTERNS" ]; then
+    grep -E -- "$EXTRA_PATTERNS" </dev/null >/dev/null 2>&1
+    if [ $? -eq 2 ]; then
+        echo "Error: extra_patterns is not a valid grep -E regex: $EXTRA_PATTERNS" >&2
+        exit 2
+    fi
+fi
+
 # Resolve to absolute path so the report shows useful locations.
 SKILL_DIR="$(cd "$SKILL_DIR" && pwd)"
 
 FOUND=0
 TOTAL=0
+ERRORS=0       # a grep that failed (rc 2): the category was not evaluated
+INCOMPLETE=""  # checks that could not run, e.g. EXIF without exiftool
 
 # Color output only when stdout is a TTY.
 if [ -t 1 ]; then
@@ -89,10 +118,28 @@ scan_text() {
     local category="$1"
     local pattern="$2"
     local whitelist="${3:-}"   # optional grep -E pattern; matches removed before counting
-    local results
-    results=$(grep -rinE --binary-files=without-match \
-        "${TEXT_EXCLUDES[@]}" \
-        "$pattern" "$SKILL_DIR" 2>/dev/null || true)
+    local byte_locale="${4:-}" # "byte": run grep under LC_ALL=C (pattern holds raw UTF-8 bytes)
+    local results rc errfile
+    errfile=$(mktemp)
+    if [ "$byte_locale" = "byte" ]; then
+        results=$(LC_ALL=C grep -rinE --binary-files=without-match \
+            "${TEXT_EXCLUDES[@]}" \
+            -- "$pattern" "$SKILL_DIR" 2>"$errfile")
+    else
+        results=$(grep -rinE --binary-files=without-match \
+            "${TEXT_EXCLUDES[@]}" \
+            -- "$pattern" "$SKILL_DIR" 2>"$errfile")
+    fi
+    rc=$?
+    if [ "$rc" -ge 2 ]; then
+        # grep could not evaluate this category (bad regex, unreadable file).
+        # Never let that read as "no matches".
+        ERRORS=1
+        echo
+        echo "${RED}## $category${NC} ERROR: grep failed (rc=$rc); category not fully evaluated"
+        sed 's/^/  /' "$errfile" | head -5
+    fi
+    rm -f "$errfile"
     if [ -n "$whitelist" ] && [ -n "$results" ]; then
         results=$(printf '%s\n' "$results" | grep -vE "$whitelist" || true)
     fi
@@ -141,18 +188,13 @@ scan_filenames() {
 }
 
 # ---------------------------------------------------------------------
-# Helper: optional EXIF scan via exiftool. Skipped silently if exiftool is
-# not installed (publish-skill users are not expected to have it). When
-# present, mirrors validate_skills.sh rule 10.
+# Helper: optional EXIF scan via exiftool. If binary files are present and
+# exiftool is not installed, the check is recorded as INCOMPLETE (exit 3
+# under --strict) rather than reported as clean. When present, mirrors
+# validate_skills.sh rule 10, plus the email and (case-insensitive) user
+# patterns used by the text scans.
 # ---------------------------------------------------------------------
 scan_exif() {
-    if ! command -v exiftool >/dev/null 2>&1; then
-        echo "${YEL}## Binary EXIF metadata${NC} skipped (exiftool not installed)"
-        echo "  Install: brew install exiftool   # macOS"
-        echo "           sudo apt-get install -y libimage-exiftool-perl   # Ubuntu"
-        return 0
-    fi
-
     local binary_files=()
     while IFS= read -r -d '' f; do
         binary_files+=("$f")
@@ -166,10 +208,15 @@ scan_exif() {
         return 0
     fi
 
-    local pii_pattern='/Users/[a-zA-Z]|/home/[a-zA-Z]'
-    if [ -n "$EXTRA_PATTERNS" ]; then
-        pii_pattern="${pii_pattern}|${EXTRA_PATTERNS}"
+    if ! command -v exiftool >/dev/null 2>&1; then
+        echo "${YEL}## Binary EXIF metadata${NC} NOT CHECKED (exiftool not installed; ${#binary_files[@]} binary file(s) unscanned)"
+        echo "  Install: brew install exiftool   # macOS"
+        echo "           sudo apt-get install -y libimage-exiftool-perl   # Ubuntu"
+        INCOMPLETE="${INCOMPLETE}EXIF metadata of ${#binary_files[@]} binary file(s) (exiftool not installed); "
+        return 0
     fi
+
+    local pii_pattern='/Users/[a-zA-Z]|/home/[a-zA-Z]'
 
     local exif_dump
     exif_dump=$(exiftool -S \
@@ -190,7 +237,17 @@ scan_exif() {
         fi
         [ -z "$line" ] && continue
         [ -z "$current_file" ] && continue
-        if echo "$line" | grep -qE "$pii_pattern"; then
+        local hit=0
+        if printf '%s\n' "$line" | grep -qE -- "$pii_pattern"; then
+            hit=1
+        elif printf '%s\n' "$line" | grep -E -- "$EMAIL_PATTERN" \
+                | grep -qvE -- "$EMAIL_WHITELIST"; then
+            hit=1
+        elif [ -n "$EXTRA_PATTERNS" ] \
+                && printf '%s\n' "$line" | grep -qiE -- "$EXTRA_PATTERNS"; then
+            hit=1
+        fi
+        if [ "$hit" -eq 1 ]; then
             hits="${hits}${current_file}: ${line}"$'\n'
         fi
     done <<< "$exif_dump"
@@ -206,6 +263,16 @@ scan_exif() {
     fi
 }
 
+# Shared by the text scan and the EXIF scan.
+EMAIL_PATTERN='[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+EMAIL_WHITELIST='example\.com|example\.org|example\.net|your@email|user@host|noreply@|placeholder|<your-email>|<email>'
+
+# Hangul syllable block U+AC00..U+D7A3 spelled as UTF-8 byte sequences, so the
+# class needs no locale collation ([가-힣] makes GNU grep fail with "Invalid
+# collation character" under C.UTF-8, and never matches under C/POSIX).
+# Used only with scan_text's "byte" mode (LC_ALL=C).
+HANGUL_SYL=$'(\xEA[\xB0-\xBF][\x80-\xBF]|[\xEB\xEC][\x80-\xBF][\x80-\xBF]|\xED[\x80-\x9D][\x80-\xBF]|\xED\x9E[\x80-\xA3])'
+
 echo "=========================================="
 echo "PII Audit: $SKILL_DIR"
 echo "=========================================="
@@ -219,9 +286,8 @@ scan_text "Hardcoded Paths" \
 # rule 7b: real personal email addresses. The whitelist matches common
 # placeholder / example / RFC-reserved domains so the script does not
 # flag legitimate documentation samples.
-EMAIL_WHITELIST='example\.com|example\.org|example\.net|your@email|user@host|noreply@|placeholder|<your-email>|<email>'
 scan_text "Email Addresses" \
-    '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' \
+    "$EMAIL_PATTERN" \
     "$EMAIL_WHITELIST"
 
 # Internal infrastructure leakage.
@@ -233,12 +299,17 @@ scan_text "IP Addresses / Internal URLs" \
 scan_text "Institutional References" \
     '\b(SNUH|AMC|SMC|KAIST|SNU|ASAN|MGH|UCSF)\b|Mayo Clinic|Johns Hopkins|Samsung Medical|Severance|Asan Medical'
 
-# rule 6 cont.: titled academic roles with adjacent surname. The 님 is optional — it is the
-# polite form for ADDRESSING someone, and prose mentioning a colleague in the third person drops
-# it (`김OO 교수 회신에서…`). Requiring it calibrated this scan to the one shape such a mention
-# does not take. Kept in step with scripts/check_precedent.py and check_contribution_safety.py.
+# rule 6 cont.: titled academic roles with adjacent surname.
+# Run in byte mode: the Hangul class is spelled as UTF-8 bytes (HANGUL_SYL). The old
+# `[가-힣]` range made grep exit 2 under UTF-8 locales, which silently disabled this whole
+# category (English branches included); under C/POSIX it degraded to a byte set that in
+# effect still required the 님 suffix. The 님 stays required here: without it the name slot
+# swallows job descriptions (`지도 교수`), and scripts/check_precedent.py suppresses those with
+# a lookahead stoplist that grep -E cannot express. Known limit: a bare third-person
+# `<name> 교수` is not caught by this script (check_precedent.py does catch it).
 scan_text "Academic Roles with Names" \
-    'professor [A-Z][a-z]+|Prof\. [A-Z]|Dr\. [A-Z][a-z]+|PGY[0-9]|[가-힣]{2,4}[[:space:]]*(교수님?|선생님?|박사님?|원장님?)'
+    "professor [A-Z][a-z]+|Prof\\. [A-Z]|Dr\\. [A-Z][a-z]+|PGY[0-9]|${HANGUL_SYL}{2,4}[[:space:]]*(교수|선생|박사|원장)님" \
+    "" byte
 
 # Language-default hardcoding.
 scan_text "Language Hardcoding" \
@@ -269,7 +340,18 @@ fi
 # --- Summary -----------------------------------------------------------
 echo
 echo "=========================================="
-if [ "$FOUND" -eq 0 ]; then
+if [ "$ERRORS" -ne 0 ]; then
+    echo "${RED}RESULT: ERROR -- at least one check could not run ($TOTAL finding(s) among the checks that did)${NC}"
+    echo "=========================================="
+    exit 2
+elif [ "$FOUND" -eq 0 ] && [ -n "$INCOMPLETE" ]; then
+    echo "${YEL}RESULT: INCOMPLETE (0 findings; not checked: ${INCOMPLETE%; })${NC}"
+    echo "=========================================="
+    if [ "$STRICT" -eq 1 ]; then
+        exit 3
+    fi
+    exit 0
+elif [ "$FOUND" -eq 0 ]; then
     echo "${GRN}RESULT: CLEAN (0 findings)${NC}"
     echo "=========================================="
     exit 0

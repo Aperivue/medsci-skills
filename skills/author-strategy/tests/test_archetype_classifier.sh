@@ -11,8 +11,13 @@
 #   C) stdlib pubmed_parse target-author attribution: a co-author's ORCID is never
 #      borrowed; ORCID is authoritative; surname-alone collision -> unknown.
 #   D) rubric .md <-> .yaml sync via render_archetype_doc.py --check.
+#   E) a supplied ORCID/initials that contradicts every same-surname author -> unknown,
+#      no namesake metadata; compatible (abbreviated) initials still attribute.
+#   F) venue-impact tier is never inferred from a journal name; no high-tier rate.
+#   G) A3 'AI-pivot hybrid' needs AI papers and a clinical foundation before them.
 #
-# Requires PyYAML (a declared dependency, present in CI). No pandas/Biopython needed.
+# Requires PyYAML (a declared dependency, present in CI); part F also needs pandas and
+# matplotlib (both installed in CI; seaborn is stubbed if absent). No Biopython needed.
 set -u
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -221,6 +226,152 @@ check_rc "C: target-author attribution (no borrowed ORCID; ORCID authoritative; 
 # ---------------------------------------------------------------------------
 python3 "$SKILL_DIR/render_archetype_doc.py" --check >/dev/null 2>&1
 check_rc "D: trajectory_archetypes.md in sync with the YAML rubric" "$?"
+
+# ---------------------------------------------------------------------------
+# Part E — a supplied ORCID / initials is a constraint, not a tie-breaker
+# ---------------------------------------------------------------------------
+python3 <<'PY'
+import pubmed_parse as P
+
+def xml(authors, journal="J Synth Imaging"):
+    a = "".join(
+        "<Author><LastName>%s</LastName><Initials>%s</Initials>%s"
+        "<AffiliationInfo><Affiliation>%s</Affiliation></AffiliationInfo></Author>"
+        % (ln, ini, ("<Identifier Source=\"ORCID\">%s</Identifier>" % orc) if orc else "", aff)
+        for ln, ini, orc, aff in authors)
+    return ("<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>900002</PMID><Article>"
+            "<Journal><Title>%s</Title><ISOAbbreviation>%s</ISOAbbreviation>"
+            "<JournalIssue><PubDate><Year>2020</Year></PubDate></JournalIssue></Journal>"
+            "<ArticleTitle>Synthetic placeholder</ArticleTitle><AuthorList>%s</AuthorList>"
+            "</Article></MedlineCitation></PubmedArticle></PubmedArticleSet>") % (journal, journal, a)
+
+namesake = xml([("Kim", "AB", "", "Aff One"), ("Lee", "XY", "0000-0009-9999-9999", "Namesake Inst")])
+
+# POSITIVE: the only same-surname author carries a DIFFERENT ORCID -> namesake, not the target.
+r = P.records_from_xml(namesake, "Lee", "JK", "0000-0001-0000-0001")[0]
+assert r["match_basis"] == "orcid-conflict", r["match_basis"]
+assert r["author_position"] == "unknown", r
+assert r["target_orcid"] == "" and r["target_affiliation"] == "" and r["target_initials"] == "", r
+
+# POSITIVE: no ORCID supplied, initials contradict (JK vs XY) -> initials-conflict, unknown.
+r = P.records_from_xml(namesake, "Lee", "JK")[0]
+assert r["match_basis"] == "initials-conflict", r["match_basis"]
+assert r["author_position"] == "unknown" and r["target_orcid"] == "", r
+
+# POSITIVE: ORCID supplied and unmatched; the remaining no-ORCID candidate is chosen, the
+# different-ORCID namesake is never picked even though it is listed first.
+two = xml([("Lee", "JK", "0000-0009-9999-9999", "Namesake Inst"), ("Park", "MN", "", "x"),
+           ("Lee", "JK", "", "Target Inst")])
+r = P.records_from_xml(two, "Lee", "JK", "0000-0001-0000-0001")[0]
+assert r["match_basis"] == "initials" and r["author_position"] == "last", r
+assert r["target_affiliation"] == "Target Inst" and r["target_orcid"] == "", r
+
+# NEGATIVE controls (must stay attributed exactly as before):
+# compatible abbreviated initials (PubMed 'J' vs supplied 'JK') -> surname-unique.
+short = xml([("Kim", "AB", "", "a"), ("Lee", "J", "", "Target Inst")])
+r = P.records_from_xml(short, "Lee", "JK")[0]
+assert r["match_basis"] == "surname-unique" and r["author_position"] == "last", r
+# ORCID supplied, the unique same-surname author has no ORCID -> surname-unique.
+noorc = xml([("Kim", "AB", "", "a"), ("Lee", "JK", "", "Target Inst")])
+r = P.records_from_xml(noorc, "Lee", "", "0000-0001-0000-0001")[0]
+assert r["match_basis"] == "surname-unique" and r["target_affiliation"] == "Target Inst", r
+# matching ORCID still authoritative.
+r = P.records_from_xml(namesake, "Lee", "JK", "https://orcid.org/0000-0009-9999-9999")[0]
+assert r["match_basis"] == "orcid" and r["author_position"] == "last", r
+print("part-E-ok")
+PY
+check_rc "E: conflicting ORCID/initials -> unknown, no namesake metadata; compatible initials still attribute" "$?"
+
+# ---------------------------------------------------------------------------
+# Part F — venue-impact tier is never inferred from a journal name
+# ---------------------------------------------------------------------------
+python3 <<'PY'
+import os, sys, tempfile, types
+from pathlib import Path
+import pubmed_parse as P
+
+# POSITIVE: names the old substring list promoted to a tier now carry the unavailable marker.
+for j in ["BMJ Open", "JAMA Netw Open", "J Cell Mol Med", "Gut Liver", "Cell Rep",
+          "Allergy Asthma Immunol Res", "Lancet", "N Engl J Med", "Nature", ""]:
+    assert P.classify_journal_tier(j) == P.JOURNAL_TIER_UNAVAILABLE, (j, P.classify_journal_tier(j))
+xml = (Path(os.environ["FIXTURES"]) / "two_samesurname_authors.xml").read_text()
+assert P.records_from_xml(xml, "Smith", "AB")[0]["journal_tier"] == P.JOURNAL_TIER_UNAVAILABLE
+
+# The report must not compute a high-tier rate, even from a legacy CSV whose journal_tier
+# column still holds the old inferred labels.
+try:
+    import pandas as pd
+except ImportError:
+    sys.stderr.write("ENV-ERR: pandas missing (needed for analyze_patterns.generate_report)\n"); sys.exit(2)
+import matplotlib; matplotlib.use("Agg")
+try:
+    import seaborn  # noqa: F401
+except ImportError:
+    sys.modules["seaborn"] = types.ModuleType("seaborn")  # report generation does not use it
+import warnings; warnings.filterwarnings("ignore")
+import analyze_patterns as A
+df = pd.DataFrame({
+    "pmid": ["1", "2", "3", "4"], "year": [2019, 2020, 2021, 2021],
+    "journal": ["BMJ Open", "Gut Liver", "Cell Rep", "J Synth"],
+    "journal_abbrev": ["BMJ Open", "Gut Liver", "Cell Rep", "J Synth"],
+    "journal_tier": ["NEJM/BMJ/JAMA", "IF>=10", "IF>=10", "Other"],
+    "author_position": ["first", "last", "middle", "unknown"],
+    "study_type": ["Other", "Other", "SR/MA", "Other"], "topic": ["Other"] * 4,
+})
+out = Path(tempfile.mkdtemp())
+A.generate_report(df, out, "Synthetic")
+rep = (out / "analysis_report.md").read_text()
+assert "High-tier" not in rep and "IF>=10" not in rep, rep
+assert "Venue-impact tier | unavailable [VERIFY]" in rep, rep
+# NEGATIVE control: the counts that were already right are unchanged.
+assert "| Total PubMed publications | 4 |" in rep, rep
+assert "| First or last author (positional heuristic) | 2 (50.0%) |" in rep, rep
+assert "04_journal_heatmap.png" in rep and "journal_tier_heatmap" not in rep
+print("part-F-ok")
+PY
+check_rc "F: journal tier unavailable (no substring tier, no high-tier rate in report)" "$?"
+
+# ---------------------------------------------------------------------------
+# Part G — A3 'AI-pivot hybrid' needs AI papers and a clinical foundation first
+# ---------------------------------------------------------------------------
+python3 <<'PY'
+import os, pathlib
+import classify_archetypes as C
+rub, _ = C.load_rubric(pathlib.Path(os.environ["RUBRIC"]))
+
+def rec(pmid, title, year, pos="first", st="Other", n=5):
+    return {"pmid": str(pmid), "title": title, "abstract": "", "year": str(year),
+            "n_authors": str(n), "author_position": pos, "study_type": st, "topic": "Other"}
+
+# POSITIVE 1: no AI paper at all; 'Multimodal analgesia' and 'claims database' titles.
+no_ai = [rec(100 + i, f"Cohort study of postoperative outcomes {i}", 2010 + i) for i in range(8)]
+no_ai += [rec(120, "Multimodal analgesia after knee arthroplasty", 2018, "last"),
+          rec(121, "Multimodal analgesia in spine surgery", 2019, "last"),
+          rec(122, "Opioid prescribing in a national claims database", 2019, "first")]
+r = C.score_archetypes(no_ai, rub)["archetypes"]["A3"]
+assert not r["surfaced"], r
+assert r["fired_signals"] == [], r
+
+# POSITIVE 2: the only AI paper is the FIRST paper -> no clinical foundation, no pivot.
+ai_first = [rec(200, "Deep learning for fracture detection", 2010, "middle", "AI/ML")]
+ai_first += [rec(201 + i, f"Cohort study of fracture outcomes {i}", 2010 + i) for i in range(9)]
+r = C.score_archetypes(ai_first, rub)["archetypes"]["A3"]
+assert not r["surfaced"] and "no_clinical_foundation_before_ai" in r["negatives_fired"], r
+
+# One AI-fraction statistic is ONE signal (no confidence inflation from a duplicate).
+ids = [s["id"] for s in rub["archetypes"]["A3"]["signals"] if s.get("metric") == "ai_term_fraction"]
+assert len(ids) == 1, ids
+
+# NEGATIVE control: clinical foundation then AI papers still surfaces A3.
+pivot = [rec(300 + i, f"Clinical imaging of carotid disease {i}", 2010 + i) for i in range(6)]
+pivot += [rec(310, "Deep learning for plaque detection", 2019, "last", "AI/ML"),
+          rec(311, "A convolutional model for stenosis grading", 2020, "last", "AI/ML"),
+          rec(312, "External validation of a deep learning model", 2021, "last", "AI/ML")]
+r = C.score_archetypes(pivot, rub)["archetypes"]["A3"]
+assert r["surfaced"] and not r["negatives_fired"], r
+print("part-G-ok")
+PY
+check_rc "G: A3 not surfaced on non-AI 'multimodal'/'claims' corpus or AI-first corpus; real pivot surfaces" "$?"
 
 echo "fail=$fail"
 [ "$fail" -eq 0 ] && echo "ALL PASS" || echo "FAILURES: $fail"

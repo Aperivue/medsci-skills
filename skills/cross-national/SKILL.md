@@ -74,7 +74,7 @@ output `[VERIFY: variable_name]` and ask the user to confirm it against the data
    | Alcohol | ALQ121 + ALQ111 | Frequent (current drinker): any ALQ121 frequency except "Never in the last year"; Occasional (past-year abstainer): "Never in the last year"; Never (lifetime non-drinker): ALQ111 == "No" (ALQ121 will be NA) |
    | Obesity | BMXBMI (BMX_J, kg/m²) | ≥30 (WHO cutoff, NOT Asian) |
    | PHQ-9 | DPQ010~DPQ090 | "Not at all"→0, "Several days"→1, "More than half the days"→2, "Nearly every day"→3; sum ≥10 = depression |
-   | Diabetes | LBXGLU (GLU_J, fasting subsample, mg/dL), LBXGH (GHB_J, %), DIQ010 | LBXGLU≥126 \| LBXGH≥6.5 \| DIQ010=="Yes" (DIQ010: "Yes" / "No" / "Borderline"). CRITICAL: fasting glucose is GLU_J LBXGLU, not BIOPRO_J LBXSGL — CDC says the serum LBXSGL should not be used to determine undiagnosed diabetes; an analysis that uses LBXGLU needs the fasting-subsample weight (step 3) |
+   | Diabetes | LBXGLU (GLU_J, fasting subsample, mg/dL), LBXGH (GHB_J, %), DIQ010 | LBXGLU≥126 \| LBXGH≥6.5 \| DIQ010=="Yes" (DIQ010: "Yes" / "No" / "Borderline"). CRITICAL: fasting glucose is GLU_J LBXGLU, not BIOPRO_J LBXSGL — CDC says the serum LBXSGL should not be used to determine undiagnosed diabetes; an analysis that uses LBXGLU needs the fasting-subsample weight (step 3). LBXGLU is NA for non-fasters, and in R `NA \| TRUE` is TRUE but `NA \| FALSE` is NA, so this composite goes missing only for non-fasters who would be non-diabetic; dropping those NAs under WTMEC2YR inflates prevalence. Either analyse the FPG composite only in the fasting domain with the fasting weight, or use the non-fasting variant `LBXGH>=6.5 \| DIQ010=="Yes"` on WTMEC2YR, and say which in `variable_mapping.csv` |
    | CVD | MCQ160B/C/D/E | MCQ160B=="Yes" (CHF) \| MCQ160C=="Yes" (CHD) \| MCQ160D=="Yes" (angina) \| MCQ160E=="Yes" (MI); labels "Yes" / "No" / "Don't know" |
    | HTN | BPXOSY2+3, BPXODI2+3, BPQ020 | mean(BPXOSY2, BPXOSY3)≥140 \| mean(BPXODI2, BPXODI3)≥90 \| BPQ020=="Yes" (BPXOSY3 is the 3rd reading, not an average; the mean of the 2nd and 3rd matches KNHANES) |
    | Education | DMDEDUC2 | 5 text levels |
@@ -84,7 +84,8 @@ output `[VERIFY: variable_name]` and ask the user to confirm it against the data
    The weight follows the files: the single-cycle `_J` tables above take WTMEC2YR; WTMECPRP goes
    only with the pre-pandemic `P_` files (P_DEMO, P_BMX, ...). A variable from the fasting
    subsample (GLU_J LBXGLU, TRIGLY_J LBXTR/LBDLDL) takes the fasting weight instead: WTSAF2YR
-   (`_J`) or WTSAFPRP (`P_`). Pooling cycles follows the NCHS rules: divide each cycle's weight by
+   (`_J`) or WTSAFPRP (`P_`); a variable that combines a fasting-subsample component with full-sample ones
+   (diabetes above) is defined only in that fasting domain, so it cannot enter a WTMEC2YR model. Pooling cycles follows the NCHS rules: divide each cycle's weight by
    the number of cycles pooled (1999–2002 has its own 4-year weights), and to combine 2015–2016
    with 2017–March 2020 use 2/5.2 × WTMEC2YR and 3.2/5.2 × WTMECPRP.
 
