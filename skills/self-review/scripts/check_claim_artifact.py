@@ -29,6 +29,11 @@ INPUTS
   --prereg      pre-registration / protocol / project.yaml text (for estimand
                 provenance). Optional; without it only the post-hoc-reassignment
                 language scan and the E-value check run.
+  --evalues     evalues.json: the E-values the manuscript reports, declared with
+                their risk ratio and CI (references/evalues_schema.md). Each is
+                recomputed (VanderWeele-Ding; the CI E-value from the limit nearest
+                1, and 1 when the CI includes 1) over the printed precision of every
+                number. Optional; the prose E-value scan runs either way.
 
 OUTPUT  (--out path)
   {"claims": [{claim_id, type, prose_value, artifact_source, verdict, detail}],
@@ -39,9 +44,15 @@ OUTPUT  (--out path)
                   primary token overlap — confirm against the registration first),
                   PRIMARY_DISCLOSURE_NOTE (honest manuscript-stage disclosure),
                   EVALUE_NON_PRIMARY, EVALUE_UNVERIFIABLE, FLAG_NO_PREREG_PRIMARY.
+  With --evalues: EVALUE_DECLARED_MISMATCH (Major: the declared point or CI
+                  E-value cannot come from the declared RR at any value its rounding
+                  allows); Minor EVALUE_DECLARED_NOT_IN_TEXT (the declared point
+                  E-value is not a number in the manuscript), UNLISTED_METHOD and
+                  EVALUE_DECLARED_NOT_ASSESSED (an "other:<description>" measure).
 
 Stdlib-only (re / json / math / argparse). Exit codes: 0 clean (or report-only),
-1 a Major verdict exists (with --strict), 2 input/usage error.
+1 a Major verdict exists (with --strict), 2 input/usage error or a malformed
+--evalues file (the message names the field).
 """
 
 from __future__ import annotations
@@ -51,6 +62,7 @@ import json
 import math
 import re
 import sys
+from decimal import Context, Decimal, InvalidOperation
 from pathlib import Path
 
 from _frontmatter import strip_frontmatter
@@ -391,7 +403,247 @@ def check_registration_chronology(manuscript: str) -> list[dict]:
     return claims
 
 
-MAJOR = {"PRIMARY_REASSIGNED", "EVALUE_ARITHMETIC", "REGISTRATION_CHRONOLOGY"}
+# --- Declared E-values (--evalues evalues.json) -----------------------------
+# {"entries": [{"id", "measure", "estimate", "ci_low", "ci_high", "evalue_point",
+#   "evalue_ci"?, "location"?}], "notes"?}. Schema: references/evalues_schema.md.
+# The prose scan above cannot read every way an E-value is written and cannot see a
+# CI-limit E-value (SR-02); a declared table can be checked exactly. Every printed
+# number is rounded, so each value is read as the interval of its printed precision
+# and a Major fires only when the recomputed and declared intervals cannot meet.
+EV_TOP_KEYS = {"entries", "notes"}
+EV_ENTRY_KEYS = {"id", "measure", "estimate", "ci_low", "ci_high", "evalue_point",
+                 "evalue_ci", "location"}
+EV_NUM_KEYS = ("estimate", "ci_low", "ci_high", "evalue_point", "evalue_ci")
+# Only the risk ratio: no reference in this repository states an OR->RR or HR->RR
+# conversion, so an OR or HR is declared as "other:<description>" or converted first.
+EV_MEASURES = {"rr": "rr", "risk_ratio": "rr"}
+_EV_OTHER = re.compile(r"^\s*other\s*:(.*)$", re.I | re.S)
+_EV_NUMSTR = re.compile(r"^\s*(\d+(?:\.\d+)?|\.\d+)\s*$")
+_EV_TEXT_NUM = re.compile(r"(?<![\d.])(\d+(?:\.\d+)?)(?![\d])")
+_EV_MIN, _EV_MAX = Decimal("1e-300"), Decimal("1e300")
+_EV_CTX = Context(prec=50)
+
+
+class EValuesError(ValueError):
+    pass
+
+
+class _JNum(str):
+    """A JSON number literal, kept as its printed text so its precision survives."""
+
+
+def _ev_short(v) -> str:
+    if isinstance(v, str):
+        r = repr(str(v))
+    elif isinstance(v, (list, dict)):
+        r = f"a {type(v).__name__}"
+    else:
+        r = repr(v)
+    return r if len(r) <= 60 else r[:57] + "..."
+
+
+def _ev_reject_constant(name: str):
+    raise EValuesError(f"{name} is not a finite number")
+
+
+def _ev_number(v, where: str) -> Decimal:
+    if isinstance(v, _JNum):
+        text = str(v)
+    elif isinstance(v, str) and not isinstance(v, bool):
+        if not _EV_NUMSTR.match(v):
+            raise EValuesError(f"{where}: {_ev_short(v)} is not a plain decimal number "
+                               "(digits with an optional decimal point, no sign or exponent)")
+        text = v.strip()
+    else:
+        raise EValuesError(f"{where}: expected a number or a number string, got {_ev_short(v)}")
+    if len(text) > 400:
+        raise EValuesError(f"{where}: {_ev_short(text)} is out of range")
+    try:
+        d = Decimal(text)
+    except InvalidOperation:
+        raise EValuesError(f"{where}: {_ev_short(text)} is not a number")
+    if not d.is_finite() or not math.isfinite(float(d)):
+        raise EValuesError(f"{where}: {_ev_short(text)} is not a finite number")
+    if d <= 0:
+        raise EValuesError(f"{where}: {_ev_short(text)} must be greater than 0")
+    if not (_EV_MIN <= d <= _EV_MAX):
+        raise EValuesError(f"{where}: {_ev_short(text)} is out of range (1e-300 to 1e300)")
+    return d
+
+
+def load_evalues(path: Path) -> list[dict]:
+    try:
+        m = json.loads(path.read_text(encoding="utf-8-sig"), parse_constant=_ev_reject_constant,
+                       parse_float=_JNum, parse_int=_JNum)
+    except (OSError, ValueError, RecursionError) as e:   # ValueError covers JSONDecodeError
+        raise EValuesError(f"cannot read evalues file: {str(e)[:200]}")
+    if not isinstance(m, dict):
+        raise EValuesError("evalues file must be a JSON object with an \"entries\" list")
+    extra = set(m) - EV_TOP_KEYS
+    if extra:
+        raise EValuesError(f"unknown top-level key(s) {_ev_short(sorted(extra))}; "
+                           f"allowed {sorted(EV_TOP_KEYS)}")
+    entries = m.get("entries")
+    if not isinstance(entries, list) or not entries:
+        raise EValuesError("entries: expected a non-empty list")
+    out = []
+    for i, e in enumerate(entries):
+        w = f"entries[{i}]"
+        if not isinstance(e, dict):
+            raise EValuesError(f"{w}: expected an object")
+        extra = set(e) - EV_ENTRY_KEYS
+        if extra:
+            raise EValuesError(f"{w}: unknown key(s) {_ev_short(sorted(extra))}; "
+                               f"allowed {sorted(EV_ENTRY_KEYS)}")
+        eid = e.get("id")
+        if not isinstance(eid, str) or isinstance(eid, _JNum) or not eid.strip():
+            raise EValuesError(f"{w}.id: expected a non-empty string")
+        meas = e.get("measure")
+        if not isinstance(meas, str) or isinstance(meas, _JNum) or not meas.strip():
+            raise EValuesError(f"{w}.measure: expected a string")
+        om = _EV_OTHER.match(meas)
+        if om:
+            if not om.group(1).strip():
+                raise EValuesError(f"{w}.measure: 'other:' needs a description")
+            measure = "other"
+        else:
+            key = re.sub(r"[\s\-]+", "_", meas.strip().lower())
+            if key not in EV_MEASURES:
+                raise EValuesError(
+                    f"{w}.measure: {_ev_short(meas)} is not one of ['rr']; no conversion from an "
+                    "OR or HR to a risk ratio is stated in this skill's references, so declare a "
+                    "converted RR as \"rr\" or write \"other:<description>\"")
+            measure = EV_MEASURES[key]
+        loc = e.get("location")
+        if loc is not None and (not isinstance(loc, str) or isinstance(loc, _JNum)):
+            raise EValuesError(f"{w}.location: expected a string")
+        nums = {}
+        for k in EV_NUM_KEYS:
+            if k not in e:
+                if k == "evalue_ci":
+                    continue
+                raise EValuesError(f"{w}.{k}: required")
+            nums[k] = _ev_number(e[k], f"{w}.{k}")
+        if not (nums["ci_low"] <= nums["estimate"] <= nums["ci_high"]):
+            raise EValuesError(f"{w}: expected ci_low <= estimate <= ci_high, got "
+                               f"{nums['ci_low']} / {nums['estimate']} / {nums['ci_high']}")
+        out.append({"id": eid.strip(), "measure": measure, "measure_raw": meas.strip(),
+                    "location": loc, **nums})
+    return out
+
+
+def _half_unit(d: Decimal) -> Decimal:
+    """Half a unit in the last printed place of d ("2.30" -> 0.005, "2" -> 0.5)."""
+    return Decimal(5).scaleb(d.as_tuple().exponent - 1)
+
+
+def _ev_dec(g: Decimal) -> Decimal:
+    """VanderWeele-Ding E-value on the RR scale (g = RR, or 1/RR when RR < 1)."""
+    if g < 1:
+        g = _EV_CTX.divide(Decimal(1), g)
+    return _EV_CTX.add(g, _EV_CTX.sqrt(_EV_CTX.multiply(g, _EV_CTX.subtract(g, Decimal(1)))))
+
+
+def _ev_range(lo: Decimal, hi: Decimal) -> tuple[Decimal, Decimal]:
+    """[Emin, Emax] of the E-value over every RR in [lo, hi]."""
+    a, b = _ev_dec(lo), _ev_dec(hi)
+    if lo <= 1 <= hi:
+        return Decimal(1), max(a, b)
+    return min(a, b), max(a, b)
+
+
+def _ev_ci_range(e: dict) -> tuple[Decimal, Decimal]:
+    """[Emin, Emax] of the CI E-value (near-null limit; 1 when the CI includes 1) over
+    every estimate and limit inside their printed-precision intervals."""
+    est, lo, hi = e["estimate"], e["ci_low"], e["ci_high"]
+    p_lo, p_hi = est - _half_unit(est), est + _half_unit(est)
+    vals: list[Decimal] = []
+    if p_hi > 1:   # estimate may lie above 1: the near-null limit is ci_low
+        h = _half_unit(lo)
+        vals += [Decimal(1) if x <= 1 else _ev_dec(x) for x in (lo - h, lo + h)]
+    if p_lo < 1:   # estimate may lie below 1: the near-null limit is ci_high
+        h = _half_unit(hi)
+        vals += [Decimal(1) if x >= 1 else _ev_dec(x) for x in (hi - h, hi + h)]
+    if p_lo <= 1 <= p_hi:
+        vals.append(Decimal(1))
+    return min(vals), max(vals)
+
+
+def _fmt(d: Decimal) -> str:
+    return f"{float(d):.4g}"
+
+
+def _text_numbers(manuscript: str) -> set[Decimal]:
+    out = set()
+    for m in _EV_TEXT_NUM.finditer(manuscript.replace("·", ".")):
+        tok = m.group(1)
+        if len(tok) <= 40:
+            out.add(Decimal(tok))
+    return out
+
+
+def check_declared_evalues(manuscript: str, entries: list[dict]) -> list[dict]:
+    claims: list[dict] = []
+    in_text = _text_numbers(manuscript)
+    for e in entries:
+        cid = f"EVDECL-{e['id']}"
+        where = f" ({e['location']})" if e["location"] else ""
+        if e["measure"] == "other":
+            claims.append({
+                "claim_id": cid, "type": "evalue_declared",
+                "prose_value": f"measure {e['measure_raw']}",
+                "artifact_source": "evalues.json",
+                "verdict": "UNLISTED_METHOD",
+                "detail": f"measure {e['measure_raw']!r}{where} is not on the allow-list ['rr']; "
+                          "recorded, not recomputed.",
+            })
+            claims.append({
+                "claim_id": cid, "type": "evalue_declared",
+                "prose_value": f"E-value {e['evalue_point']}",
+                "artifact_source": "evalues.json",
+                "verdict": "EVALUE_DECLARED_NOT_ASSESSED",
+                "detail": "the E-value arithmetic was not checked because the measure is not a "
+                          "risk ratio; convert to an RR and declare \"rr\", or check it by hand.",
+            })
+        else:
+            checks = [("point", "E-value", _ev_range(e["estimate"] - _half_unit(e["estimate"]),
+                                                     e["estimate"] + _half_unit(e["estimate"])),
+                       e["evalue_point"])]
+            if "evalue_ci" in e:
+                checks.append(("ci", "CI E-value", _ev_ci_range(e), e["evalue_ci"]))
+            for tag, label, (emin, emax), decl in checks:
+                h = _half_unit(decl)
+                d_lo, d_hi = decl - h, decl + h
+                ok = not (emax < d_lo or emin > d_hi)
+                src = (f"RR {e['estimate']} ({e['ci_low']}-{e['ci_high']})")
+                rng = (f"recomputes to {_fmt(emin)}-{_fmt(emax)} over the printed precision"
+                       if emin != emax else f"recomputes to {_fmt(emin)}")
+                claims.append({
+                    "claim_id": f"{cid}-{tag}", "type": "evalue_declared",
+                    "prose_value": f"{label} {decl}",
+                    "artifact_source": f"recomputed (VanderWeele-Ding) from declared {src}",
+                    "verdict": "OK" if ok else "EVALUE_DECLARED_MISMATCH",
+                    "detail": (f"declared {label} {decl}{where} is consistent with {src}: {rng}."
+                               if ok else
+                               f"declared {label} {decl}{where} (read as {_fmt(d_lo)}-{_fmt(d_hi)}) "
+                               f"cannot come from {src}: it {rng}"
+                               + ("; the CI E-value uses the confidence limit nearest 1, and is 1 "
+                                  "when the CI includes 1." if tag == "ci" else ".")),
+                })
+        if e["evalue_point"] not in in_text:
+            claims.append({
+                "claim_id": cid, "type": "evalue_declared",
+                "prose_value": f"E-value {e['evalue_point']}",
+                "artifact_source": "manuscript text",
+                "verdict": "EVALUE_DECLARED_NOT_IN_TEXT",
+                "detail": f"the declared E-value {e['evalue_point']}{where} is not a number anywhere "
+                          "in the manuscript; check the declaration matches what is reported.",
+            })
+    return claims
+
+
+MAJOR = {"PRIMARY_REASSIGNED", "EVALUE_ARITHMETIC", "REGISTRATION_CHRONOLOGY",
+         "EVALUE_DECLARED_MISMATCH"}
 
 
 def main() -> int:
@@ -399,6 +651,8 @@ def main() -> int:
     ap.add_argument("--manuscript", required=True, help="manuscript markdown/text")
     ap.add_argument("--prereg", help="pre-registration / protocol / project.yaml text")
     ap.add_argument("--scripts", help="analysis-scripts directory (reconcile code primary/co-primary labels)")
+    ap.add_argument("--evalues", help="evalues.json: declared E-values to recompute "
+                    "(see references/evalues_schema.md)")
     ap.add_argument("--out", help="write JSON artifact to this path")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any Major verdict")
     args = ap.parse_args()
@@ -407,6 +661,17 @@ def main() -> int:
     if not mp.is_file():
         sys.stderr.write(f"ERROR: manuscript not found: {args.manuscript}\n")
         return 2
+    evalues = None
+    if args.evalues is not None:
+        ep = Path(args.evalues)
+        if not ep.is_file():
+            sys.stderr.write(f"ERROR: evalues file not found: {args.evalues}\n")
+            return 2
+        try:
+            evalues = load_evalues(ep)
+        except (EValuesError, ValueError, OverflowError, RecursionError, ArithmeticError) as e:
+            sys.stderr.write(f"ERROR: {args.evalues}: {e}\n")
+            return 2
     # Collapse hard-wrap newlines to spaces so a sentence-level claim is not split
     # across lines (the decimal points inside HR/E-value figures must survive).
     def _unwrap(t: str) -> str:
@@ -431,12 +696,15 @@ def main() -> int:
     claims = (check_estimand(manuscript, prereg, prereg_raw) + check_evalue(manuscript)
               + check_code_labels(manuscript, args.scripts)
               + check_registration_chronology(manuscript))
+    if evalues is not None:
+        claims += check_declared_evalues(manuscript, evalues)
     n_major = sum(1 for c in claims if c["verdict"] in MAJOR)
     n_flag = sum(1 for c in claims if c["verdict"] not in MAJOR and c["verdict"] != "OK")
 
     result = {
         "manuscript": str(mp),
         "prereg": args.prereg,
+        **({"evalues": args.evalues} if evalues is not None else {}),
         "claims": claims,
         "summary": {"n_claims": len(claims), "n_major": n_major, "n_flag": n_flag,
                     "verdict": "MAJOR_CANDIDATE" if n_major else ("REVIEW" if n_flag else "OK")},
