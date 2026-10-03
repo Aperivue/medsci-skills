@@ -4863,8 +4863,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 45319,
-      "sha256": "d13b8916264cdead1a3354b0024b6d873d52f710e60b0ac91cb5c568912a2881"
+      "size": 45738,
+      "sha256": "8446813691baa94f72458438058dc005bf60ed4bcc9942692d298a81235b5e0b"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -5208,8 +5208,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",
-      "size": 26560,
-      "sha256": "f71ce3c1feb9263ed019e867e988b16a51e387b0cb0b12f4c8a3d1efc9154e01"
+      "size": 28051,
+      "sha256": "a02c1344f6744fe388b356ad066061a10c2278517aa625535a1fc5ed6ac5cd0c"
     },
     {
       "path": "skills/self-review/scripts/check_classical_style.py",
@@ -5223,8 +5223,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_confounding_completeness.py",
-      "size": 24758,
-      "sha256": "c87c0fa9434890114e6a50cfb3fee2f2452202fe300c1e56ae7376bca315b19a"
+      "size": 25288,
+      "sha256": "bb48e53e87c4fb4fc0a20991f8701472a8083705c09cc26f75b99ff2cc23a837"
     },
     {
       "path": "skills/self-review/scripts/check_cv_leakage.py",
@@ -5518,13 +5518,23 @@
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts.py",
-      "size": 15908,
-      "sha256": "1bd2078af89a02637d0de614a69c9481da698cfb544e05c95ee56f5eb9991daf"
+      "size": 18927,
+      "sha256": "62b1e77eebff548f9a2c606d47753489720dcb16cc81ef0237eb75dfa1100751"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/adjusted.txt",
-      "size": 413,
-      "sha256": "9a3e9f2255f27e72a84ce695e97edf40f928b8f14e587beda9212420f4e8c4de"
+      "size": 467,
+      "sha256": "df46852f5296a61e941d31c11346d79fb42899bf886e0201d176d945c771e70b"
+    },
+    {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/adjusted_context.txt",
+      "size": 475,
+      "sha256": "ea23cab4ce93ba729f07a61aecae72afe24435f64c37a50184e17fa5a616f279"
+    },
+    {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/alpha_only.txt",
+      "size": 597,
+      "sha256": "0af72329a1304bf3372941906c9e6202e14320732647e0c7e18abf07f372907f"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/bad.txt",
@@ -5533,8 +5543,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/cross.txt",
-      "size": 902,
-      "sha256": "3d0f143357150d2df61af839fb960a580bcab0a68f724e48016bbcb6299939f0"
+      "size": 1019,
+      "sha256": "4118a2d5f20690b97f8328748f86cac6a21f92fa1e633e672c723ab394cd20ed"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/cross_ok.txt",
@@ -5542,9 +5552,14 @@
       "sha256": "16e901061f4a5c7825951375a072918c21cd721512623c63372cd9a6509a0861"
     },
     {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/footnote_crude.txt",
+      "size": 366,
+      "sha256": "46d1a50ad32456008483a2e8b3f10115eed347b83578befba1d6d9bd652200be"
+    },
+    {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/missing_denom.txt",
-      "size": 418,
-      "sha256": "4681bc55eff7724290887fbc9f7ca225f5e0c2c88347484f4ab7961c697b8569"
+      "size": 472,
+      "sha256": "9d7529b6b89c9cf074624980f7a1d55c26342070f7ed61699798355a97f14908"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/none.txt",
@@ -5562,6 +5577,16 @@
       "sha256": "d9ef348aedd99e3ab6ec829db97a75c44150b9efa203ada115abf5f59f776958"
     },
     {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/fixture/p_adjusted_context.md",
+      "size": 769,
+      "sha256": "12cd99c9581193d7ab7c374b9e17fbcc7acebd2b5ec76e229629d16d6de43b4f"
+    },
+    {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/fixture/p_alpha_only.md",
+      "size": 238,
+      "sha256": "571ffdc0889d5e3eeb125858e3e1a14d56dc28fa965adea44642443a86ec4cd6"
+    },
+    {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/fixture/p_bad.md",
       "size": 206,
       "sha256": "b22b3cae304a8986a9b9ec49377601dc96f791fbbc0e04cd8adaf7c9952707dc"
@@ -5575,6 +5600,11 @@
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/fixture/p_cross_ok.md",
       "size": 732,
       "sha256": "16a5f47f8a44e5ded1b878ec753f5f6fce3e0eb68ac36b5db2eaf1dd1d358ea9"
+    },
+    {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/fixture/p_footnote_crude.md",
+      "size": 288,
+      "sha256": "4b8754958d2a400d0e55f34a44538e801a8f31cd2ba4636ba8340ce8545a3b6d"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/fixture/p_missing_denom.md",
@@ -5593,13 +5623,13 @@
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/problem.md",
-      "size": 3776,
-      "sha256": "5e21d4aad2ae573bf53f6d51c0bd288829a368ee80576f2293268032d86b0261"
+      "size": 5074,
+      "sha256": "08dd883c8f72bcb7a62c151a841e8c59b13e987e05c2acf2d9ca7f4535f886aa"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/verify.sh",
-      "size": 3221,
-      "sha256": "aceab8a2fa69bceaa0c8c75f78bd461c31f8f825cc7c76e5425c21659ee2f953"
+      "size": 4131,
+      "sha256": "76fa2980cb66a794f59af453ae815e97b6635ddd78fc35e59b46a5bb238d15e3"
     },
     {
       "path": "skills/self-review/scripts/check_reviewer_team_consistency.py",
@@ -5628,8 +5658,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_table_percentages.py",
-      "size": 12481,
-      "sha256": "1eff7fba78a721adbbf94846a17586fb39ebb9dedc2d8d6775a954df10e5bb2a"
+      "size": 13878,
+      "sha256": "16987aecfe8b58ecf2e8750c9499403609187536335bade083685e3c5c597091"
     },
     {
       "path": "skills/self-review/scripts/check_table_percentages_challenge/expected/bad.txt",
@@ -5645,6 +5675,16 @@
       "path": "skills/self-review/scripts/check_table_percentages_challenge/expected/precision.txt",
       "size": 319,
       "sha256": "bf3528d3dea1566bdd572908f152889a69bbf75058a8300d0f101742bc9167d5"
+    },
+    {
+      "path": "skills/self-review/scripts/check_table_percentages_challenge/expected/precision_footnote.txt",
+      "size": 616,
+      "sha256": "14785040f55ebb1b55b91aeb3bea037bddc75e91acf8d7d1dd34cce81f9a2ad8"
+    },
+    {
+      "path": "skills/self-review/scripts/check_table_percentages_challenge/expected/precision_footnote_bad.txt",
+      "size": 492,
+      "sha256": "1a86c10be1662741a48602ba4a88967d006f68ec7d99e3c89bd46520da9ba8bf"
     },
     {
       "path": "skills/self-review/scripts/check_table_percentages_challenge/expected/precision_ok.txt",
@@ -5667,19 +5707,29 @@
       "sha256": "3b65eaf16b469c1c19f57e87307f148462e3d32798aa8bb26a567972ac0f5da5"
     },
     {
+      "path": "skills/self-review/scripts/check_table_percentages_challenge/fixture/table_precision_footnote.md",
+      "size": 262,
+      "sha256": "cb10dd240852c2e466e25575349712db7e4be776cb20b33e1c51e2c328dd326e"
+    },
+    {
+      "path": "skills/self-review/scripts/check_table_percentages_challenge/fixture/table_precision_footnote_bad.md",
+      "size": 262,
+      "sha256": "4ae2807d39b88c027370ac727533ab2b41c20d14483d30c6c5bb9dddb531fc29"
+    },
+    {
       "path": "skills/self-review/scripts/check_table_percentages_challenge/fixture/table_precision_ok.md",
       "size": 422,
       "sha256": "5d3f433d1b5fad0c9f9ee14cc6e796a7a4a64c6e85f1b6cb45f58052229cbf02"
     },
     {
       "path": "skills/self-review/scripts/check_table_percentages_challenge/problem.md",
-      "size": 2645,
-      "sha256": "cf2579daf85965b2e40597e359c10052686661daa80bf61703c93fa3143c5ee8"
+      "size": 3231,
+      "sha256": "9c776669e61382114e3ef21374d62ed92b9fb474eb84d6f64ca2170d0161847a"
     },
     {
       "path": "skills/self-review/scripts/check_table_percentages_challenge/verify.sh",
-      "size": 3190,
-      "sha256": "bfbc9fcce6b34477f1717fa2fb6545690cad77ec4277417dc35422f07514de47"
+      "size": 4175,
+      "sha256": "f22805f501ce6bece2b5729b509a3bd9c55ace95d03d59625bb7ae40867d50d1"
     },
     {
       "path": "skills/self-review/scripts/cohort_arith_binding_challenge/fixture/binding_negatives.md",

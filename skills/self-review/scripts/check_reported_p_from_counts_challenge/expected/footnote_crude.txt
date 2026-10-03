@@ -1,0 +1,3 @@
+== NON-REPRODUCIBLE P ==  fixture/p_footnote_crude.md
+non_reproducible=1
+[MAJOR] P_NOT_REPRODUCIBLE L6  row 'Hypertension' (45/100 vs 25/100) reports P<0.001, but recomputes to Fisher 0.00468 / Yates 0.00485 / uncorrected 0.00303 (closest Pearson chi-square (uncorrected); table family ≈ Fisher exact); the computed P exceeds the reported bound under every family

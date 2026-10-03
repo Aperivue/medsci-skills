@@ -46,8 +46,10 @@ rather than trusting the count blindly.
 
 P cells are read as plain decimals, bounds ("<0.001") or scientific notation
 ("3e-05", "2.1x10^-5", "2.1×10⁻⁵"). A non-empty P cell that is not a number in
-[0, 1] (and not NA / NS / a dash) is an input error: it is named and the run exits 2,
-never read as "balanced".
+[0, 1] is an input error: it is named and the run exits 2, never read as "balanced".
+Accepted no-number markers (read as a missing P; a trailing footnote marker such as
+"†", "*" or "^a" is stripped first): NA, N/A, n.a., NR, NE, NC, NT, "not tested",
+"not significant", Ref., reference, and a dash; NS / n.s. read as not significant.
 
 Stdlib-only (csv / json / re / argparse). Exit codes: 0 clean (or report-only),
 1 unadjusted-imbalanced rows found (with --strict), 2 input/usage error (including
@@ -185,7 +187,11 @@ def _pick_col(header: list[str], hints: tuple[str, ...], override: str | None) -
 # "2.1x10^-5", "2.1×10⁻⁵" (superscripts and the Unicode minus are normalised first).
 _P_NUM = r"(\d*\.?\d+)(?:\s*(?:e|(?:x|×|\*)\s*10\s*\^?)\s*([-+]?\d+))?"
 _SUPERSCRIPT = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺−", "0123456789-+-")
-_P_MISSING = ("na", "n/a", "n.a.", "nr", "n.r.", "ne", "n.e.", "ref", "ref.", "reference",
+# Missing / not-applicable / reference markers (read as no P, as main read any cell
+# without a number): NA, n.a., NR, NE (not estimable), NC (not calculated), NT / "not
+# tested", Ref., "not significant" printed without a number.
+_P_MISSING = ("na", "n/a", "n.a.", "nr", "n.r.", "ne", "n.e.", "nc", "n.c.", "nt", "n.t.",
+              "not tested", "not significant", "ref", "ref.", "reference",
               "-", ".", "—", "–")
 # Trailing footnote markers on a cell: "N/A†", "NA^a", "0.03*", "NE‡".
 _FOOTNOTE_TAIL = re.compile(r"(?:\s*(?:[*†‡§¶#]+|\^[a-z]+))+$")

@@ -31,12 +31,19 @@ carry no `%` and do not sum to 100, are never misread as percentages.
   (15.3% / 26.7%): inside 0.5 pp, wrong at the printed one-decimal precision.
 - `fixture/table_precision_ok.md` — the same counts printed correctly at one decimal and
   as integers, half-unit ties (`1 (12.5%)` of 8) and two-decimal cells (`1 (33.33%)` of 3).
+- `fixture/table_precision_footnote.md` — `23 (15.4%)` / `18 (15.1%)` on a row labelled
+  `Current smoker^a` whose footnote gives 149 / 119 with known status: off only at the
+  printed precision on a footnoted row, so the row's own denominator may explain it.
+- `fixture/table_precision_footnote_bad.md` — the same row printed `23 (16.4%)`, 1.1 pp off.
 
 ## Expected
 - `expected/bad.txt` — `MISMATCH FOUND`, two `PERCENT_MISMATCH` rows; exit 1 under `--strict`.
 - `expected/ok.txt` — `OK`, zero findings; exit 0 under `--strict`.
 - `expected/precision.txt` — two `PERCENT_MISMATCH`; exit 1 under `--strict`.
 - `expected/precision_ok.txt` — `OK`; exit 0 under `--strict`.
+- `expected/precision_footnote.txt` — `OK` with two MINOR `PERCENT_PRECISION_NOTE`; exit 0.
+- `expected/precision_footnote_bad.txt` — one `PERCENT_MISMATCH` (plus the MINOR note on the
+  other cell); exit 1 under `--strict`.
 
 `verify.sh` diffs both stdout outputs against `expected/` and asserts the exit-code
 contract (bad → 1, ok → 0). Network-free, stdlib-only.

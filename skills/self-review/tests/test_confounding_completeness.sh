@@ -168,7 +168,7 @@ done
 rm -f "$OUT.err"
 # Missing / reference markers, with or without a trailing footnote marker, are a missing P
 # (as on main), not an unreadable one; a footnoted number still parses.
-for pcell in "N/A†" "NA^a" "n.a." "NE" "Ref."; do
+for pcell in "N/A†" "NA^a" "n.a." "NE" "Ref." "NC" "NT" "not tested" "not significant" "NC‡" "n.c."; do
     printf 'Covariate,Exposed,Unexposed,P\nAge,"55 ± 10","54 ± 10",0.40\nSmoking,80 (40%%),40 (20%%),%s\n' "$pcell" > "$SCI"
     python3 "$SCRIPT" --table1 "$SCI" --adjusted-list "Age" >/dev/null 2>&1
     check "P '$pcell': read as missing (exit 0, not 2)" test "$?" -eq 0

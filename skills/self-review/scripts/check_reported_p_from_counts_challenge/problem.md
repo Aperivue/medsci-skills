@@ -15,16 +15,19 @@ Pearson's chi-square with and without Yates' correction in pure stdlib
 (`math.comb` / `math.erfc`), calibrates the family on the rows that reproduce to
 ≤ 1e-3 (the family is only named in the message), and flags a row
 (`P_NOT_REPRODUCIBLE`) when, under **every** family, the reported P differs by more
-than one order of magnitude, sits on the other side of alpha (default 0.05; a printed
-value whose rounding interval straddles alpha is not judged), or is an upper bound
-(`<0.001`) the computed P exceeds. Continuous rows (mean ± SD, median [IQR]) are
+than one order of magnitude, or is an upper bound (`<0.001`) the computed P exceeds.
+A reported P on the other side of alpha (default 0.05; a printed value whose rounding
+interval straddles alpha is not judged) under every family is a MINOR advisory,
+`P_ALPHA_CROSSING`, that never fails `--strict`: the table cannot prove the P is a crude
+2x2 P, so it may be adjusted or use a different denominator. Continuous rows (mean ± SD, median [IQR]) are
 skipped. A single-row table is checked. A P printed on the first level of a
 multi-level variable (next row: counts, empty P) is an omnibus P and is not judged by
 the alpha or bound rules. The alpha, bound and single-row rules need the crude 2x2 to be the
 row's own table: both cells must print a % equal to count / header n at its printed
 precision (a smaller missing-data denominator fails this), and the P must not be
-model-based (an adjusted / multivariable / model P header, or an OR / HR / RR / beta /
-estimate column). Other rows keep only the order-of-magnitude rule (tables with >= 2
+model-based (an adjusted / multivariable / model / regression / weighted P header, an
+OR / HR / RR / beta / estimate column, or adjusted / multivariable / regression /
+weighted in the table's caption or footnotes). Other rows keep only the order-of-magnitude rule (tables with >= 2
 count rows) and the report adds a `LIMITED` line counting them. When no count row with a P is found the report says
 `NOT CHECKED` instead of claiming every P reproduces.
 
@@ -46,12 +49,26 @@ count rows) and the report adds a `LIMITED` line counting them. When no count ro
   footnote giving 60 per group with BMI, P 0.03 (true for 20/60 vs 32/60) -> not judged
   against the header n; a count row with no % likewise.
 
+- `fixture/p_adjusted_context.md` — 20/100 vs 30/100 at P 0.03 (crude Fisher ≈ 0.14) under a
+  `P*` header whose footnote says adjusted (logistic regression); the same under a plain
+  `P value` header with the adjustment in the caption; and `<0.001` against a crude ≈ 0.005
+  under an inverse-probability-weighted footnote -> not judged by the boundary rules.
+- `fixture/p_alpha_only.md` — 40/100 vs 30/100 printed `0.04` (true ≈ 0.18) and nothing else
+  wrong -> MINOR advisory only.
+- `fixture/p_footnote_crude.md` — a `P value*` header whose footnote names Fisher's exact
+  test, 45/100 vs 25/100 printed `<0.001` (true ≈ 0.005), then a prose paragraph that
+  mentions an adjusted analysis -> the bound rule still fires.
+
 ## Expected
 - `expected/bad.txt` — one `P_NOT_REPRODUCIBLE`; exit 1 under `--strict`.
 - `expected/ok.txt` — `OK`; exit 0.
-- `expected/cross.txt` — three `P_NOT_REPRODUCIBLE`; exit 1 under `--strict`.
+- `expected/cross.txt` — two `P_NOT_REPRODUCIBLE` and one MINOR `P_ALPHA_CROSSING`; exit 1
+  under `--strict`.
 - `expected/cross_ok.txt` — `OK`; exit 0.
 - `expected/none.txt` — `NOT CHECKED`; exit 0.
-- `expected/adjusted.txt`, `expected/missing_denom.txt` — `OK` with a `LIMITED` line; exit 0.
+- `expected/adjusted.txt`, `expected/missing_denom.txt`, `expected/adjusted_context.txt` — `OK`
+  with a `LIMITED` line; exit 0.
+- `expected/alpha_only.txt` — `OK` with one MINOR `P_ALPHA_CROSSING`; exit 0 under `--strict`.
+- `expected/footnote_crude.txt` — one `P_NOT_REPRODUCIBLE`; exit 1 under `--strict`.
 
 `verify.sh` diffs both outputs and asserts the exit-code contract. Network-free, stdlib-only.

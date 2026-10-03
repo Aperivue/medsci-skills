@@ -263,6 +263,20 @@ def _ci_limit_evalue(lo: float, hi: float) -> float:
     return evalue_point(lo if lo > 1.0 else hi)
 
 
+def _in_aside(sent: str, pos: int, ev_lo: int, ev_hi: int) -> bool:
+    """True when sent[pos] lies inside a parenthesis pair that sits wholly outside the
+    E-value phrase sent[ev_lo:ev_hi] (it closes before the phrase or opens after it)."""
+    stack = []
+    for k, ch in enumerate(sent):
+        if ch == "(":
+            stack.append(k)
+        elif ch == ")" and stack:
+            o = stack.pop()
+            if o < pos < k and (k < ev_lo or o >= ev_hi):
+                return True
+    return False
+
+
 def check_evalue(manuscript: str) -> list[dict]:
     claims = []
     for i, m in enumerate(EVALUE_RE.finditer(manuscript), 1):
@@ -331,6 +345,21 @@ def check_evalue(manuscript: str) -> list[dict]:
             continue
         eff, (rel, recomputed, ci_note) = (matching or fits)[0]
         rr = float(eff.group(2))
+        if rel > EVALUE_TOL and _in_aside(sent, eff.start(), ev_lo, ev_hi):
+            # The only estimate the sentence binds sits in a parenthetical aside that does
+            # not hold the E-value phrase ("... (HR 1.52 for death), and the E-value for the
+            # risk difference was 1.90"): it need not be the estimate the E-value is for.
+            claims.append({
+                "claim_id": f"EVAL-{i}",
+                "type": "evalue",
+                "prose_value": f"E-value {stated}",
+                "artifact_source": f"{eff.group(1)} {rr} named only in a parenthetical aside",
+                "verdict": "EVALUE_UNVERIFIABLE",
+                "detail": (f"E-value {stated} does not recompute from {eff.group(1)} {rr} "
+                           f"({recomputed:.2f}), but that estimate sits in a parenthetical aside "
+                           f"outside the E-value phrase; confirm which estimate it was computed for."),
+            })
+            continue
         if rel > EVALUE_TOL:
             verdict = "EVALUE_ARITHMETIC"
             detail = (f"stated E-value {stated} but {eff.group(1)} {rr} recomputes to "

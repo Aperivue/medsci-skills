@@ -103,21 +103,21 @@
 - `check_perspective_structure_challenge/` (10 files)
 - `check_reference_adequacy.py`
 - `check_reported_p_from_counts.py`
-- `check_reported_p_from_counts_challenge/` (6 files)
+- `check_reported_p_from_counts_challenge/` (22 files)
 - `check_reviewer_team_consistency.py`
 - `check_rhetorical_density.py`
 - `check_rounded_delta.py`
 - `check_scope_coherence.py`
 - `check_supplement_hygiene.py`
 - `check_table_percentages.py`
-- `check_table_percentages_challenge/` (6 files)
+- `check_table_percentages_challenge/` (14 files)
 - `cohort_arith_binding_challenge/` (4 files)
 - `confounding_findings_challenge/` (4 files)
 - `disclosure_placement_challenge/` (3 files)
 - `refinement_regression.py`
 - `refinement_regression_challenge/` (20 files)
 - `refinement_stop.py`
-- `refinement_stop_challenge/` (21 files)
+- `refinement_stop_challenge/` (28 files)
 
 ## Source
 

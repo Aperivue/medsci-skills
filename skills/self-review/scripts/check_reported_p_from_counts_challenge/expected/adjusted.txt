@@ -1,4 +1,4 @@
 == OK ==  fixture/p_adjusted.md
 non_reproducible=0
 every reported P reproduces from its counts under a standard test.
-LIMITED: 2 row(s) checked to an order of magnitude only and 2 lone row(s) not checked, because the crude 2x2 is not established: the P is model-based (adjusted / multivariable P header or an effect-estimate column) or the row prints no % that ties its count to the header n (e.g. missing data).
+LIMITED: 2 row(s) checked to an order of magnitude only and 2 lone row(s) not checked, because the crude 2x2 is not established: the P is model-based (adjusted / multivariable / regression / weighted in the P header, caption or footnotes, or an effect-estimate column) or the row prints no % that ties its count to the header n (e.g. missing data).

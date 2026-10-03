@@ -165,6 +165,11 @@ ev_case 0 OK "The primary adjusted HR was 1.80 (95% CI 1.20-2.70); the E-value f
 ev_case 0 OK "The adjusted HR was 1.52 (95% CI 1.20-1.93) and the unadjusted HR was 1.80; the E-value was 2.41."
 ev_case 0 EVALUE_UNVERIFIABLE "The adjusted HR for the primary outcome was 1.52 (95% CI 1.20-1.93) and the unadjusted HR was 1.80; the E-value was 2.41."
 ev_case 0 EVALUE_UNVERIFIABLE "The adjusted HR for the primary outcome was 1.52 (95% CI 1.20-1.93) and the unadjusted HR was 1.80; the E-value was 4.50."
+# The only estimate bound sits in a parenthetical aside outside the E-value phrase, and the
+# E-value names another quantity: which estimate it is for cannot be read (main: advisory,
+# rc 0), so it stays EVALUE_UNVERIFIABLE. A parenthetical INSIDE the phrase still binds.
+ev_case 0 EVALUE_UNVERIFIABLE "The risk difference was 5.2% (HR 1.52 for death), and the E-value for the risk difference was 1.90."
+ev_case 1 EVALUE_ARITHMETIC "The E-value for the primary association (HR 1.52) was 3.10."
 # "the value" is not an E-value: no evalue claim at all.
 printf '## Results\n\nThe primary HR was 1.52, and the value to use when the pilot is thin is 0.50.\n' > "$EV"
 python3 "$SCRIPT" --manuscript "$EV" --out "$OUT" --strict >/dev/null 2>&1

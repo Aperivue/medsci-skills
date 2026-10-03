@@ -21,7 +21,9 @@ recoverable denominator emits ``PERCENT_DENOM_UNKNOWN`` (informational only).
 
 Tolerance: by default a printed percentage must equal the recomputed one rounded to the
 printed precision, i.e. differ by at most half a unit in its last printed place (0.5 pp
-for ``15%``, 0.05 pp for ``15.0%``). ``--tol X`` replaces that with a fixed X pp for
+for ``15%``, 0.05 pp for ``15.0%``). A cell that misses only that printed-precision rule
+(within 0.5 pp) on a row whose label ends in a footnote marker (``^a``, ``*``, ``†``) is a
+MINOR ``PERCENT_PRECISION_NOTE``: the footnote may give the row its own denominator. ``--tol X`` replaces that with a fixed X pp for
 every cell. Whether an INFERRED denominator explains a column is still judged at the
 0.5 pp default, so tightening the cell rule never turns a flagged column into INFO.
 
@@ -48,12 +50,15 @@ CELL_RE = re.compile(r"^\s*([0-9][0-9,]*)\s*\(\s*([0-9]+(?:\.[0-9]+)?)\s*(%?)\s*
 HEADER_N_RE = re.compile(r"\bn\s*=\s*([0-9][0-9,]*)", re.I)
 TOTAL_LABEL_RE = re.compile(r"^\s*(total|overall|all|entire cohort|full cohort|whole cohort)\b", re.I)
 SEP_RE = re.compile(r"^\s*\|?[\s:|-]*-[\s:|-]*\|?\s*$")
+# A row label that ends in a footnote marker ("Current smoker^a", "Obesity*", "BMI†",
+# "Smoker<sup>a</sup>", "Smokerᵃ"): the footnote may give the row its own denominator.
+LABEL_FOOTNOTE_RE = re.compile(r"(?:\^[A-Za-z0-9]+\^?|[*†‡§¶]+|<sup>[^<]*</sup>|[ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ]+)\s*$")
 
 
 @dataclass
 class Finding:
-    kind: str            # PERCENT_MISMATCH / PERCENT_DENOM_UNKNOWN
-    severity: str        # MAJOR / INFO
+    kind: str            # PERCENT_MISMATCH / PERCENT_PRECISION_NOTE / PERCENT_DENOM_UNKNOWN
+    severity: str        # MAJOR / MINOR / INFO
     table_line: int      # 1-indexed line of the table header
     cell: str
     detail: str
@@ -196,10 +201,20 @@ def audit(text: str, source: str, tol: float | None = None) -> Report:
                 cell_tol = _printed_tol(raw) if tol is None else tol
                 if diff > cell_tol:
                     shown = 1 if diff >= 0.05 else 2
-                    column_findings.append(Finding(
-                        "PERCENT_MISMATCH", "MAJOR", lineno, f"{label}: {raw}",
-                        f"printed {_pct_text(raw) or format(pct, 'g')}% but {count}/{denom} ({src}) = {recomputed:.{max(1, shown)}f}% "
-                        f"(Δ{diff:.{shown}f}pp)"))
+                    msg = (f"printed {_pct_text(raw) or format(pct, 'g')}% but {count}/{denom} ({src}) = {recomputed:.{max(1, shown)}f}% "
+                           f"(Δ{diff:.{shown}f}pp)")
+                    if tol is None and diff <= DEFAULT_TOL and LABEL_FOOTNOTE_RE.search(label):
+                        # Off only at the printed precision, on a footnoted row: the footnote
+                        # may give the row its own (missing-data) denominator, which the table
+                        # does not show. Advisory, not a Major.
+                        column_findings.append(Finding(
+                            "PERCENT_PRECISION_NOTE", "MINOR", lineno, f"{label}: {raw}",
+                            msg + "; the row label carries a footnote marker, so its denominator "
+                                  "may differ from the column's (e.g. missing data): confirm "
+                                  "against the footnote"))
+                    else:
+                        column_findings.append(Finding(
+                            "PERCENT_MISMATCH", "MAJOR", lineno, f"{label}: {raw}", msg))
                 if diff <= fit_tol:
                     reconciled += 1
 

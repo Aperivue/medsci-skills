@@ -248,12 +248,16 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_dta_denominators.py" \
 **P0 Major** — not a rounding disagreement: one of the two numbers is wrong. Run the first two on
 **every** manuscript with a table; the third only on diagnostic-accuracy work.
 
-Known limits: `check_reported_p_from_counts.py` judges a P against alpha or a `<` bound only when
-the row's crude 2x2 is established (each cell prints a % equal to count / header n, and the P is not
-adjusted or model-based); other rows get only the order-of-magnitude check and a `LIMITED` line.
-`check_table_percentages.py` reads one denominator per column, so a row with its own missing-data
-denominator (`23 (15.4%)` under n = 150 with 149 known) is a `PERCENT_MISMATCH` unless the table
-prints that denominator in its own column or `n = N` header; confirm such rows against the footnote.
+Known limits: `check_reported_p_from_counts.py` judges a P against a `<` bound, or against alpha,
+only when the row's crude 2x2 is established (each cell prints a % equal to count / header n, and
+neither the P header, an effect-estimate column, the caption nor a footnote says adjusted /
+multivariable / regression / weighted); other rows get only the order-of-magnitude check and a
+`LIMITED` line. An alpha crossing is a Minor `P_ALPHA_CROSSING` advisory, never a Major: a P adjusted
+without saying so in the table, or a paired test, still looks crude to the script.
+`check_table_percentages.py` reads one denominator per column. A cell that misses only at its printed
+precision (within 0.5 pp) on a footnoted row (`Current smoker^a | 23 (15.4%)` under n = 150 with 149
+known) is a Minor `PERCENT_PRECISION_NOTE`; an unfootnoted row, or a larger miss, is a
+`PERCENT_MISMATCH`. Confirm footnoted rows against the footnote.
 
 ### Phase 2.5a: Numerical Source-Fidelity Audit (External)
 
@@ -466,7 +470,8 @@ python3 "${CLAUDE_SKILL_DIR}/../analyze-stats/scripts/rating_monotonicity.py" \
 
 Known limits: the E-value check reads the singular "E-value" only (plural "E-values were ..." is
 not read), and a sentence naming more than one effect estimate whose E-value fits none of them is
-`EVALUE_UNVERIFIABLE`, not `EVALUE_ARITHMETIC`; check those by hand.
+`EVALUE_UNVERIFIABLE`, not `EVALUE_ARITHMETIC`, as is one whose only estimate sits in a parenthetical
+aside outside the E-value phrase; check those by hand.
 
 **Checks no script makes** (prose judgement):
 
