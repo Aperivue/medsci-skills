@@ -115,6 +115,47 @@ t=[f['type'] for f in d['findings']]
 sys.exit(0 if t.count('placeholder_strength_claim')==1 else 1)
 " && ok "placeholder_strength_claim on the strength+marker line only" || bad "placeholder_strength_claim mis-detected"
 
+# 4c. F1: write-paper's own templates left unfilled, and bare verification markers,
+#     must each block (exit 1) on their own. Fixtures are the literal template lines.
+i=0
+while IFS= read -r line; do
+  i=$((i+1))
+  printf '# Acknowledgments\n\n%s\n' "$line" > "$WORK/tpl_$i.md"
+  run --manuscript "$WORK/tpl_$i.md" --quiet
+  [ $? -eq 1 ] && ok "template/marker blocks: $line" || bad "should block: $line"
+done <<'TPL'
+The authors acknowledge the use of [Claude/tool name] ([Anthropic/developer]) for
+In accordance with [Journal Name]'s policy on AI-assisted writing, we disclose that
+analysis code, which was reviewed and validated by [statistician/author].
+An artificial intelligence language model (GPT-4o, [developer]) was used to assist
+The model was accessed between [date range].
+Statistical analyses were performed using Python {version} (Python Software Foundation).
+{Model name} was used for data extraction.
+The model ({company}) was accessed between {start date} and {end date}.
+{Tool name} was used for language editing.
+Sepsis was defined by the clinical criteria [VERIFY].
+Smith J, et al. A cited paper. 2020. [UNVERIFIED - NEEDS MANUAL CHECK]
+The pooled sensitivity was 0.82 [VERIFY-CSV].
+Response rates were modest [VERIFY: exact figures pending].
+TPL
+
+# 4d. negative control: filled-in disclosures and ordinary braces/brackets stay clean
+cat > "$WORK/filled.md" <<'EOF'
+# Acknowledgments
+
+The authors acknowledge the use of Claude (Anthropic) for writing assistance.
+Statistical analyses were performed using Python and R, as reported in the journal.
+The build used \texttt{version} strings and pandoc attributes {#fig:roc width=50%}.
+We reviewed the VERIFY trial [@smith2020] and an unverified claim in the text.
+EOF
+run --manuscript "$WORK/filled.md" --out "$WORK/filled.json" --quiet
+rc=$?
+python3 -c "
+import json,sys
+d=json.load(open('$WORK/filled.json'))
+sys.exit(0 if not d['findings'] and d['submission_safe'] is True else 1)
+" && [ $rc -eq 0 ] && ok "filled-in templates: zero findings" || bad "filled-in templates should be clean"
+
 # 5. missing file -> exit 2
 run --manuscript "$WORK/nope.md" --quiet
 [ $? -eq 2 ] && ok "missing file exits 2" || bad "missing file should exit 2"

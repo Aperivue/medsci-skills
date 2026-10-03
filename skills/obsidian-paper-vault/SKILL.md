@@ -50,7 +50,8 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/extract_pdfs.py" <pdf_folder> <text_cache_f
 
 Defaults to 12 pages, which covers abstract through discussion for most papers. If notes come
 out generic, the text file is abstract-only or its OCR is poor: re-extract with more pages or
-check the source PDF.
+check the source PDF. A PDF with no extractable text (an image-only scan) is reported as
+`FAILED … (needs OCR)` and gets no `.txt`; OCR it or read it interactively, never batch it.
 
 **Never hand a PDF path to a subagent.** A subagent that cannot open a file does not report
 failure — it writes the note from training data, and the result is a plausible note with

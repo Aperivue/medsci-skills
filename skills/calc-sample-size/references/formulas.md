@@ -530,10 +530,11 @@ Cohen J. Statistical Power Analysis for the Behavioral Sciences. 2nd ed. Lawrenc
 |-----------|-------------|---------|
 | `hr` | Expected hazard ratio (experimental vs control) | -- |
 | `p_alloc` | Proportion randomised to the experimental arm (1:1 → 0.5, 2:1 → 2/3) | 0.5 |
-| `median_ctrl` | Median survival in the control arm (months) | -- |
-| `accrual_time` | Accrual period, uniform entry (months) | 12 |
-| `follow_up` | Minimum follow-up after accrual closes (months) | 24 |
-| `annual_dropout` | Proportion lost to follow-up per year | 0.05 |
+| `time_unit` | Unit of `median_ctrl`, `accrual_time` and `follow_up`: `"months"` or `"years"` (any other value stops the block) | `"months"` |
+| `median_ctrl` | Median survival in the control arm (in `time_unit`) | -- |
+| `accrual_time` | Accrual period, uniform entry (in `time_unit`) | 12 |
+| `follow_up` | Minimum follow-up after accrual closes (in `time_unit`) | 24 |
+| `annual_dropout` | Proportion lost to follow-up per year (converted to a hazard per `time_unit`) | 0.05 |
 | `alpha` | Significance level (two-sided) | 0.05 |
 | `power` | Desired power | 0.80 |
 
@@ -555,12 +556,14 @@ Step 2 — patients. Exponential survival, uniform accrual over R, total duratio
 (F = minimum follow-up), exponential loss-to-follow-up hazard η:
 ```
 λ_c = ln 2 / median_ctrl        λ_e = HR·λ_c
-η   = −ln(1 − annual_dropout) / 12              (per month; use the unit of median_ctrl)
+η   = −ln(1 − annual_dropout) / k               (per time_unit: k = 12 for months, k = 1 for years)
 P(event | λ) = λ/(λ + η) · [ 1 − (e^{−(λ+η)F} − e^{−(λ+η)T}) / ((λ + η)·R) ]
 P̄ = p·P(event | λ_e) + (1 − p)·P(event | λ_c)
 N = D / P̄        (round each arm up)
 ```
-Dropout is already inside P̄; do not divide N by (1 − dropout) again.
+Dropout is already inside P̄; do not divide N by (1 − dropout) again. All three times and η must be in
+the same unit: entering years with η per month makes the dropout hazard 12 times too small and N too
+small, with no warning. Set `time_unit` instead of converting by hand.
 
 **Check**: median_ctrl 24 months, HR 0.70, R 12, F 24 (T 36), 5% lost per year, 1:1 → P̄ 0.4875,
 N 506.3 → **254 per arm, 508 total**
@@ -576,6 +579,7 @@ median_ctrl <- 24
 accrual_time <- 12
 follow_up <- 24
 annual_dropout <- 0.05
+time_unit <- "months"   # unit of median_ctrl, accrual_time, follow_up: "months" or "years"
 alpha <- 0.05
 power <- 0.80
 
@@ -584,7 +588,11 @@ n_events <- ceiling(d_raw)
 
 lambda_c <- log(2) / median_ctrl
 lambda_e <- hr * lambda_c
-eta <- -log(1 - annual_dropout) / 12
+periods_per_year <- c(months = 12, years = 1)
+if (!(time_unit %in% names(periods_per_year))) {
+  stop(sprintf("time_unit '%s' not recognised: use \"months\" or \"years\"", time_unit))
+}
+eta <- -log(1 - annual_dropout) / periods_per_year[[time_unit]]
 total_time <- accrual_time + follow_up
 p_event <- function(lambda) {
   a <- lambda + eta
@@ -617,6 +625,7 @@ median_ctrl = 24
 accrual_time = 12
 follow_up = 24
 annual_dropout = 0.05
+time_unit = "months"   # unit of median_ctrl, accrual_time, follow_up: "months" or "years"
 alpha = 0.05
 power = 0.80
 
@@ -625,7 +634,10 @@ n_events = math.ceil(d_raw)
 
 lambda_c = math.log(2) / median_ctrl
 lambda_e = hr * lambda_c
-eta = -math.log(1 - annual_dropout) / 12
+periods_per_year = {"months": 12, "years": 1}
+if time_unit not in periods_per_year:
+    raise ValueError(f"time_unit {time_unit!r} not recognised: use 'months' or 'years'")
+eta = -math.log(1 - annual_dropout) / periods_per_year[time_unit]
 total_time = accrual_time + follow_up
 
 def p_event(lam):

@@ -25,7 +25,6 @@ clinical oncology, cancer, clinical trial, immunotherapy, targeted therapy, radi
 
 ## Classification
 - **Tier:** Q1
-- **Impact Factor:** ~36
 - **Open Access:** Hybrid (optional OA)
 - **Field:** Oncology
 

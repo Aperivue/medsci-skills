@@ -15,6 +15,7 @@ Skips cleanly (exit 0) without python-pptx. Network-free.
 
     python3 skills/present-paper/tests/test_backup_off_the_clock.py
 """
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -64,6 +65,19 @@ CASES = [
     (["Reserved for the appendix of the guideline"], None),
     (["Supplemental oxygen was given to every patient"], None),
     (["58 tells us nothing — four numbers do"], None),
+    # the signposts people actually write must stay boundaries -- including a divider whose
+    # second word is a section noun (an earlier narrowing of the keyword rule dropped these)
+    (["Backup slides"], 0),
+    (["Appendix A: sensitivity analyses"], 0),
+    (["Supplementary"], 0),
+    (["백업 슬라이드"], 0),
+    (["Supplementary figures"], 0),
+    (["Supplementary analyses"], 0),
+    (["Supplementary data"], 0),
+    (["Supplementary tables"], 0),
+    (["Backup data"], 0),
+    (["Backup figures"], 0),
+    (["Appendix tables"], 0),
 ]
 for heads, want in CASES:
     prs = Presentation()
@@ -112,6 +126,47 @@ if "DECK_OVER_BUDGET" in verdicts(deck(TALK + BACKUP)):
 # ...but a genuinely over-long talk must still be caught, backup section or not.
 if "DECK_OVER_BUDGET" not in verdicts(deck([f"Point {i} matters here" for i in range(20)] + BACKUP)):
     fails.append("20 presented slides for a 10-min oral must still be caught")
+
+
+# A real divider worded with a section noun keeps the backup off the clock: 12 talk slides, the
+# divider, 8 backup slides, 10-min oral. Every one of these must stay OK.
+for head in ("Supplementary figures", "Supplementary analyses", "Supplementary data",
+             "Supplementary tables", "Backup data", "Backup figures", "Appendix tables"):
+    talk = [f"Point {i} matters here" for i in range(12)] + [head] + \
+           [f"Extra {i} matters here" for i in range(8)]
+    if "DECK_OVER_BUDGET" in verdicts(deck(talk)):
+        fails.append(f"divider {head!r} did not stop the clock (12 + divider + 8 at 10 min)")
+
+# Known limit (SKILL.md): a short finding that opens with a backup word ("Appendix perforation in
+# children") still stops the clock. The remedy is --backup-from N, and the CLI must say where the
+# clock stopped so the user can see it happened.
+talk = [f"Point {i} matters here" for i in range(20)]
+talk[1] = "Appendix perforation in children"
+r0 = subprocess.run([sys.executable, str(Path(budget.__file__)), str(deck(talk)), "--archetype",
+                     "conference_oral", "--minutes", "10"], capture_output=True, text=True)
+if "clock: stops at slide 2 (detected divider)" not in r0.stdout:
+    fails.append(f"the detected boundary must be printed: {r0.stdout}{r0.stderr}")
+r0 = subprocess.run([sys.executable, str(Path(budget.__file__)), str(deck(talk)), "--archetype",
+                     "conference_oral", "--minutes", "10", "--backup-from", "20"],
+                    capture_output=True, text=True)
+if "DECK_OVER_BUDGET" not in r0.stdout:
+    fails.append(f"--backup-from 20 must override the mis-detected divider: {r0.stdout}{r0.stderr}")
+
+# An explicit --backup-from overrides detection, and the CLI says where the clock stopped.
+SCRIPT = Path(budget.__file__)
+long_talk = deck([f"Point {i} matters here" for i in range(20)])
+if [f.verdict for f in budget.audit(long_talk, "conference_oral", 10, backup_from=11)
+        if f.verdict == "DECK_OVER_BUDGET"]:
+    fails.append("--backup-from 11 should leave 10 presented slides, within budget")
+r = subprocess.run([sys.executable, str(SCRIPT), str(long_talk), "--archetype", "conference_oral",
+                    "--minutes", "10", "--backup-from", "11"], capture_output=True, text=True)
+if r.returncode != 0 or "clock: stops at slide 11" not in r.stdout:
+    fails.append(f"--backup-from 11: want exit 0 and the boundary printed, got {r.returncode}: "
+                 f"{r.stdout}{r.stderr}")
+r = subprocess.run([sys.executable, str(SCRIPT), str(long_talk), "--archetype", "conference_oral",
+                    "--minutes", "10", "--backup-from", "99"], capture_output=True, text=True)
+if r.returncode != 2:
+    fails.append(f"--backup-from past the last slide must exit 2, got {r.returncode}")
 
 
 # --- legibility does NOT stop there -------------------------------------------------

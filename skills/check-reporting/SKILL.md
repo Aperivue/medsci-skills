@@ -278,9 +278,10 @@ numbers do not add up or disagree with the text.
 1. Choose the Figure 1 source, in this order: (a) `analysis/figures/Figure1_PRISMA.md` markdown
    manifest, (b) caption text in `manuscript.md`, (c) PPTX text run if a `.pptx` exists,
    (d) manual entry from PNG/SVG.
-2. Run the audit. It checks the four subtractions (screened = identified − duplicates;
+2. Run the audit. It checks the five subtractions (screened = identified − duplicates;
    sought-for-retrieval = screened − excluded at screening; retrieved = sought − not retrieved;
-   included = assessed for eligibility − excluded with reasons) and that the body-text PRISMA
+   assessed for eligibility = sought − not retrieved; included = assessed for eligibility −
+   excluded with reasons) and that the body-text PRISMA
    numbers match the Figure 1 boxes 1:1, and writes `qc/prisma_figure_audit.json`:
 
    ```bash
@@ -295,7 +296,9 @@ numbers do not add up or disagree with the text.
    (regex set, JSON schema, and edge cases: duplicates across databases, the citation-searching
    strand, dual-reviewer screening).
 3. By hand (the script does not do this): the reasons for exclusion in Methods and the Figure
-   legend must agree on counts and category names.
+   legend must agree on counts and category names, and when identification is split across
+   sources (databases, registers, other methods) the per-source counts must sum to the
+   `identified` total — the script reads only the first `identified` count.
 4. If `analysis/figures/_figure_manifest.md` (from `/make-figures`) exists, verify that the row
    whose `Type = prisma` (or `Type = prisma-dta`) points at the same file used as the audit
    source, and that its `Critic` field is `yes` or `partial` (not `no`). A missing row,
@@ -318,12 +321,17 @@ python "${CLAUDE_SKILL_DIR}/scripts/prisma_cascade_check.py" \
     --round2 2_Screening/round2.tsv \
     --round3 2_Screening/round3_adjudication.tsv \
     --manuscript manuscript.md \
-    --out qc/prisma_cascade.json
+    --out qc/prisma_cascade.json --strict
 ```
 
 The script counts `INCLUDE` / `EXCLUDE` / `MAYBE` decisions per round, computes the cascade, and
 reports per-stage drift where the manuscript's stage counts disagree. Treat any
 `manuscript_drift` entry as a P0 blocker — fix the prose to match the computed cascade and re-run.
+A `--manuscript` path that is not a file exits `2`. When the manuscript is read but none of the
+script's stage phrases is found in it, `manuscript_check` is `"unverifiable"`,
+`submission_safe` is `false`, an `UNVERIFIED` line is printed, and `--strict` exits `1`: the
+drift check did not run, so compare the prose stage counts to `stage_counts` by hand.
+`stages_compared` lists the stages that were actually checked.
 
 ### Step 4e: Reporting-Framework Naming Audit
 
@@ -393,12 +401,14 @@ literal templates for the four parts:
 
 **JSON field contract** (the part other skills depend on — get these right):
 
-- `compliance_pct` — `present / (total_items - na) * 100`, one decimal.
+- `compliance_pct` — `present / (total_items - na) * 100`, one decimal; `null` when every item
+  is N/A (`total_items == na`).
 - `action_items` — MISSING and PARTIAL only; PRESENT and N/A are excluded.
 - `fixable_by_ai` — `true` when the fix inserts or expands text using information already in the
   manuscript or inferable from it; `false` when it needs external facts the author alone holds
-  (registration number, IRB approval number, protocol details).
-- `suggested_fix` — concrete draft text, insertable as written.
+  (registration number, IRB approval number, protocol details, sample-size rationale and target).
+- `suggested_fix` — concrete draft text, insertable as written. A fix that still contains a
+  bracketed placeholder (`[N]`, `[rationale]`) is not insertable and is `fixable_by_ai: false`.
 - `source_sha256` — first 12 hex chars of the SHA-256 of the manuscript bytes, so a stale report
   cannot be silently attributed to a newer manuscript.
 

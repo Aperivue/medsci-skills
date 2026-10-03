@@ -88,7 +88,9 @@ applies the same taxonomy with judgement when only an abstract is available.
   when the document also carries a design-ceiling signal.
 
 ### Verdict bands (from the script + LLM judgement)
-- `NO STRUCTURAL CEILING DETECTED BY LEXICAL SCAN` → feasibility does not cap tier.
+- `NO LISTED SIGNAL MATCHED - NOT A DESIGN CLEARANCE; ASSESS DESIGN CEILING BY JUDGEMENT`
+  → the scan found none of its phrases; it misses paraphrases, so apply this taxonomy
+  with judgement before treating feasibility as uncapped.
 - `IMPORTANCE-FRAMING REVIEW RECOMMENDED` → tighten the contribution/novelty argument.
 - `SPECIALTY / TOLERANT-VENUE OR DESIGN FIX RECOMMENDED` → one ceiling/claim signal.
 - `HIGH-IMPACT VENUE UNLIKELY WITHOUT A DESIGN CHANGE` → unfixable defect, or ≥2

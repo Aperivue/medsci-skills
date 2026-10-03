@@ -200,8 +200,11 @@ def m_dual_genre_copresence(records, p):
     a_terms = [t.lower() for t in p["genre_a_terms"]]
     a_types = set(p.get("genre_a_study_types", []))
     b_terms = [t.lower() for t in p["genre_b_terms"]]
+    positions = set(p.get("positions") or [])
     a_hits, b_hits = [], []
     for r in records:
+        if positions and r.get("author_position") not in positions:
+            continue  # narrative requires the target as first/senior author on both genres
         text = (r.get("title", "") or "").lower() + " " + (r.get("abstract", "") or "").lower()
         if r.get("study_type") in a_types or any(t in text for t in a_terms):
             a_hits.append(r["pmid"])
@@ -250,6 +253,26 @@ def m_pure_ai_no_clinical_floor(records, p):
     return (ai / n) >= 0.999, {"pmids": []}
 
 
+def m_no_clinical_foundation_before_ai(records, p):
+    """Fires when no non-AI paper predates (strictly) the earliest AI paper.
+
+    A "clinical-foundation to AI pivot" needs clinical work first; an AI paper at the very
+    start of the dated record is not a pivot. Undated records are ignored; no dated AI
+    paper -> does not fire.
+    """
+    terms = [t.lower() for t in p["terms"]]
+    ai_years, other_years = [], []
+    for r in records:
+        y = _year(r)
+        if y is None:
+            continue
+        (ai_years if _is_ai(r, terms) else other_years).append(y)
+    if not ai_years:
+        return False, {"pmids": []}
+    first_ai = min(ai_years)
+    return (not any(y < first_ai for y in other_years)), {"pmids": []}
+
+
 METRICS = {
     "title_term_count": (m_title_term_count, "per_paper"),
     "study_type_fraction": (m_study_type_fraction, "corpus_level"),
@@ -262,6 +285,7 @@ METRICS = {
     "genre_pair_temporal": (m_genre_pair_temporal, "per_paper"),
     "senior_on_ai_papers": (m_senior_on_ai_papers, "per_paper"),
     "pure_ai_no_clinical_floor": (m_pure_ai_no_clinical_floor, "per_paper"),
+    "no_clinical_foundation_before_ai": (m_no_clinical_foundation_before_ai, "per_paper"),
 }
 
 

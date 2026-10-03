@@ -21,7 +21,8 @@
 # when no classoption is set, and says so.
 #
 # xelatex drops a character its font lacks and still succeeds. The wrapper counts
-# the "Missing character" warnings; any at all is exit 4 with the glyphs listed
+# the "Missing character" warnings in pandoc's JSON --log (kept even under
+# --quiet); any at all is exit 4 with the glyphs listed
 # (the PDF is written but incomplete) unless --allow-missing-glyphs is given.
 #
 # Exit: 0 ok, 1 usage, 2 input missing, 3 dependency missing, 4 missing glyphs,
@@ -194,9 +195,26 @@ ARGS=(
 
 echo "[render_pdf] in=$INPUT out=$OUTPUT infer=$INFER_COLWIDTHS" >&2
 echo "[render_pdf] font fallbacks: mainfont='$MAINFONT' CJK='$CJKFONT'; frontmatter overrides fallbacks, explicit pandoc -V/-M overrides frontmatter" >&2
+# The missing-glyph verdict reads pandoc's JSON --log, which records every
+# warning whatever the verbosity: a pass-through --quiet hides the warnings from
+# stderr but not from the log. A --log the caller passes is kept and read; else
+# the wrapper's own --log goes last, so a defaults file's log-file cannot replace it.
+JSON_LOG=""
+_prev=""
+for _a in ${EXTRA[@]+"${EXTRA[@]}"}; do
+  case "$_prev" in --log) JSON_LOG="$_a" ;; esac
+  case "$_a" in --log=*) JSON_LOG="${_a#--log=}" ;; esac
+  _prev="$_a"
+done
+LOG_ARGS=()
+if [[ -z "$JSON_LOG" ]]; then
+  JSON_LOG="$RENDER_TMP/pandoc.log.json"
+  LOG_ARGS=(--log "$JSON_LOG")
+fi
+rm -f "$JSON_LOG"
 # stderr goes to a file, not a pipe, so pandoc's exit status is kept as is.
 PANDOC_LOG="$RENDER_TMP/pandoc.stderr"
-if pandoc "${ARGS[@]}" ${EXTRA[@]+"${EXTRA[@]}"} "$WORK" 2>"$PANDOC_LOG"; then
+if pandoc "${ARGS[@]}" ${EXTRA[@]+"${EXTRA[@]}"} ${LOG_ARGS[@]+"${LOG_ARGS[@]}"} "$WORK" 2>"$PANDOC_LOG"; then
   PANDOC_RC=0
 else
   PANDOC_RC=$?
@@ -208,11 +226,33 @@ if [[ "$PANDOC_RC" -ne 0 ]]; then
 fi
 
 # xelatex succeeds when the font lacks a character; the character is just not
-# drawn. pandoc relays each drop as a "Missing character" warning.
-MISSING="$(grep -c 'Missing character' "$PANDOC_LOG" || true)"
+# drawn. pandoc records each drop as a MissingCharacter entry in its JSON log
+# (and, unless --quiet, as a "Missing character" warning on stderr). If the log
+# cannot be read, the check falls back to stderr and says so.
+GLYPH_SRC="$RENDER_TMP/missing.txt"
+if ! python3 - "$JSON_LOG" > "$GLYPH_SRC" <<'PY'
+import json
+import sys
+
+try:
+    with open(sys.argv[1], encoding="utf-8") as fh:
+        entries = json.load(fh)
+except (OSError, ValueError):
+    sys.exit(1)
+if not isinstance(entries, list):
+    sys.exit(1)
+for entry in entries:
+    if isinstance(entry, dict) and entry.get("type") == "MissingCharacter":
+        print("Missing character: " + str(entry.get("message", "")))
+PY
+then
+  echo "[render_pdf] WARN: could not read pandoc's JSON log ($JSON_LOG); the missing-glyph check falls back to stderr, which --quiet empties" >&2
+  grep 'Missing character' "$PANDOC_LOG" > "$GLYPH_SRC" || true
+fi
+MISSING="$(grep -c 'Missing character' "$GLYPH_SRC" || true)"
 if [[ "$MISSING" -gt 0 ]]; then
   echo "[render_pdf] $MISSING character(s) not drawn — the font has no glyph for:" >&2
-  python3 - "$PANDOC_LOG" >&2 <<'PY'
+  python3 - "$GLYPH_SRC" >&2 <<'PY'
 import re
 import sys
 from collections import Counter, OrderedDict
