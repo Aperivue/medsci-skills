@@ -3653,8 +3653,8 @@
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold.py",
-      "size": 59726,
-      "sha256": "d2f15e9c5d9c66088cba92943b9c9ccfaa0520b3dc92b95ce1903759d52b87fa"
+      "size": 59708,
+      "sha256": "a7eb2e95c812d8ff06049f9098f13277ac918d7864c0feae694018aea982288d"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/expected/split_assignment.csv",
