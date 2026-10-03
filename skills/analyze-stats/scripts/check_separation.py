@@ -37,8 +37,10 @@ the joint check was not run, and the OK line does not claim that the MLE exists.
 Both name the two remedies, because the choice between them is a study-design decision and
 not a numerical one:
 
-  1. Firth's penalised likelihood (`logistf` in R, `Logit(...).fit_regularized` in
-     statsmodels) — keeps one model, gives finite estimates.
+  1. Firth's penalised likelihood (`logistf` in R; statsmodels has no Firth fit —
+     `Logit(...).fit_regularized` is an L1 (lasso) penalty, not Firth — so in Python use a
+     dedicated Firth implementation or call `logistf`) — keeps one model, gives finite
+     estimates.
   2. A two-stage rule: classify the sign-positive cases directly, and model only the
      sign-negative remainder. When the sign is pathognomonic this is usually also the
      clinically meaningful design, because a sign-positive patient is already diagnosed and

@@ -365,9 +365,10 @@ def weighted_outcome_analysis(df, treatment_col, outcome_col, outcome_type, weig
 
     Weights enter as var_weights (not freq_weights: they are not case counts),
     and the SE is sandwich-robust (HC0) -- or cluster-robust by matched set when
-    `cluster` is given. Model-based SEs from a weighted fit are wrong: the
-    unstabilised-IPTW CI covered the true null effect in 77% of simulated
-    studies (Austin 2016, doi:10.1002/sim.7084). The robust SE ignores the
+    `cluster` is given. Model-based SEs from a weighted fit are wrong: their
+    CI can under-cover substantially, by an amount that depends on the
+    weights. For weighted Cox models, Austin 2016 (doi:10.1002/sim.7084)
+    found that only the bootstrap gave correct coverage. The robust SE ignores the
     estimation of the PS, which is conservative for the ATE; bootstrap the
     whole pipeline if precision is load-bearing.
     """
