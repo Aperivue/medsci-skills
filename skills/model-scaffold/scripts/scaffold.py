@@ -55,12 +55,17 @@ IMAGING-DATA QC HANDOFF (only when --preprocessing-manifest or --imaging-qc is g
   Reads the JSON reports of imaging-data's gates (check_dataset_profile,
   check_preprocessing_leakage, check_normalizer_domain; recognised by their "detector" field).
   With --preprocessing-manifest and no --imaging-qc, it looks in <manifest dir>/qc/ and
-  <manifest dir>/../qc/. A check_preprocessing_leakage report about a different manifest file
-  (its recorded "manifest" has another file name) is skipped and listed as skipped.
+  <manifest dir>/../qc/ (manifest path resolved first). --imaging-qc REPLACES that search, so an
+  empty directory records every gate NOT ASSESSED. A check_preprocessing_leakage report is skipped
+  only when its recorded "manifest" resolves (absolute, or relative to the report directory's
+  parent; "/" or "\\" separators) to a different existing file; ambiguous reports are read.
     - an unacknowledged Major claim -> refuse: exit 1, nothing written, each code + file listed;
-    - an acknowledged Major (--ack-qc CODE=REASON) -> proceeds; recorded with its reason;
+      any severity that is not Minor/Flag (case-insensitive) counts as Major, and so does a report
+      whose summary.n_major exceeds its listed Majors (QC_REPORT_INCONSISTENT);
+    - an acknowledged Major (--ack-qc CODE=REASON, once per code) -> proceeds; reason recorded;
     - Minor / Flag claims -> never block; carried forward as warnings;
-    - a gate with no report found -> recorded as NOT ASSESSED (never silent).
+    - a gate with no readable report -> NOT ASSESSED; unparseable / off-shape files -> UNREADABLE
+      (stderr + record), never silently dropped.
   Everything lands in IMAGING_QC.md, referenced from config.yaml and REPRODUCIBILITY.md, so the
   next step reads it. Without either flag the output is unchanged.
 
@@ -1436,8 +1441,11 @@ def load_upstream_split(path, ids):
 # them: in demo 05 an INTENSITY_SCALE_INCONSISTENT claim sat in qc/ while the model was built and
 # run. When the scaffold is pointed at imaging-data outputs it now reads those reports, refuses on an
 # unacknowledged Major, and writes every claim it did not stop on into the generated repo.
+# Fail closed throughout: a severity that is not plainly Minor/Flag blocks, a report whose summary
+# counts more Majors than it lists blocks, and a file it cannot read is reported, never dropped.
 IMAGING_QC_DETECTORS = ("check_dataset_profile", "check_preprocessing_leakage",
                         "check_normalizer_domain")
+NONBLOCKING_SEVERITIES = ("minor", "flag")
 
 
 def _qc_err(msg):
@@ -1445,34 +1453,80 @@ def _qc_err(msg):
     sys.exit(2)
 
 
+def _one_line(value):
+    """Collapse whitespace and newlines so a value cannot break the IMAGING_QC.md layout."""
+    return "" if value is None else " ".join(str(value).split())
+
+
 def parse_qc_acks(values):
-    """--ack-qc CODE=REASON -> {CODE: REASON}; exits 2 on a malformed or reasonless entry."""
+    """--ack-qc CODE=REASON -> {CODE: REASON}; exits 2 on a malformed code, an empty reason,
+    or a second acknowledgement of the same code."""
     acks = {}
     for v in values or []:
         code, sep, reason = v.partition("=")
-        code, reason = code.strip(), reason.strip()
-        if not sep or not reason or not code.replace("_", "").isalnum() or code.upper() != code:
-            _qc_err(f"--ack-qc expects CODE=reason with a non-empty reason (got {v!r})")
+        code, reason = code.strip(), _one_line(reason)
+        if not sep or not code or not code.replace("_", "").isalnum() or code.upper() != code:
+            _qc_err(f"--ack-qc: malformed CODE in {v!r}; expected an upper-case verdict code such "
+                    "as LABEL_EMPTY, then '=reason'")
+        if not reason:
+            _qc_err(f"--ack-qc {code}: the reason is empty; state why it is safe to proceed")
+        if code in acks:
+            _qc_err(f"--ack-qc {code}: duplicate acknowledgement; give one reason per code")
         acks[code] = reason
     return acks
 
 
-def _read_qc_report(path):
-    """The parsed report if `path` is an imaging-data QC JSON, else None."""
+def _shown(path):
+    """A path as it is shown: relative to the working directory when under it, else absolute."""
+    p = Path(path).resolve()
     try:
-        doc = json.loads(Path(path).read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return None
-    if (isinstance(doc, dict) and doc.get("detector") in IMAGING_QC_DETECTORS
-            and isinstance(doc.get("claims"), list)):
-        return doc
+        return str(p.relative_to(Path.cwd().resolve()))
+    except ValueError:
+        return str(p)
+
+
+def _detector_name(value):
+    """'check_dataset_profile', 'check_dataset_profile.py' or a path to it -> the gate name."""
+    name = str(value).replace("\\", "/").rsplit("/", 1)[-1]
+    name = name[:-3] if name.endswith(".py") else name
+    return name if name in IMAGING_QC_DETECTORS else None
+
+
+def _read_qc_file(path):
+    """('report', doc) for an imaging-data QC report, ('unreadable', why) for a file that cannot be
+    parsed or a gate report of the wrong shape, ('other', None) for unrelated JSON."""
+    try:
+        doc = json.loads(Path(path).read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError) as e:
+        return "unreadable", f"not parseable as JSON ({type(e).__name__})"
+    if not isinstance(doc, dict):
+        return "unreadable", f"top level is a JSON {type(doc).__name__}, not an object"
+    det = _detector_name(doc.get("detector", ""))
+    if det is None:
+        return "other", None
+    if not isinstance(doc.get("claims"), list):
+        return "unreadable", f"{det} report without a claims list"
+    doc = dict(doc, detector=det)
+    return "report", doc
+
+
+def _leakage_report_other_manifest(report_path, recorded, manifest):
+    """The reason to skip a leakage report, or None to read it. Skips only when the recorded path
+    demonstrably names a different existing file; anything ambiguous is read (fail closed)."""
+    rec = str(recorded).replace("\\", "/")
+    cand = Path(rec)
+    if not cand.is_absolute():
+        cand = report_path.resolve().parent.parent / rec
+    if cand.is_file() and cand.resolve() != manifest:
+        return f"audits {_shown(cand)}, a different file from {_shown(manifest)}"
     return None
 
 
 def collect_imaging_qc(qc_paths, preprocessing_manifest):
-    """Locate and read imaging-data QC reports. Returns (reports, searched, skipped):
-    reports = [(path_str, doc)], searched = where it looked, skipped = [(path_str, why)]."""
+    """Locate and read imaging-data QC reports. Returns (reports, searched, skipped, unreadable):
+    reports = [(path_str, doc)], skipped / unreadable = [(path_str, why)]."""
     candidates, searched = [], []
+    manifest = Path(preprocessing_manifest).resolve() if preprocessing_manifest else None
     if qc_paths:
         for raw in qc_paths:
             p = Path(raw)
@@ -1480,65 +1534,92 @@ def collect_imaging_qc(qc_paths, preprocessing_manifest):
                 searched.append(str(p))
                 candidates += sorted(p.glob("*.json"))
             elif p.is_file():
-                if _read_qc_report(p) is None:
-                    _qc_err(f"--imaging-qc {raw} is not an imaging-data QC report "
-                            f"(no 'detector' in {', '.join(IMAGING_QC_DETECTORS)} with a claims list)")
+                kind, why = _read_qc_file(p)
+                if kind != "report":
+                    _qc_err(f"--imaging-qc {raw} is not a readable imaging-data QC report "
+                            f"({why or 'no detector among ' + ', '.join(IMAGING_QC_DETECTORS)})")
                 searched.append(str(p))
                 candidates.append(p)
             else:
                 _qc_err(f"--imaging-qc not found: {raw}")
     else:
-        mdir = Path(preprocessing_manifest).parent
+        # Resolved first: from inside manifests/, Path("preprocessing_manifest.json").parent is "."
+        # and its parent is "." again, so ../qc was never searched.
+        mdir = manifest.parent
         for d in (mdir / "qc", mdir.parent / "qc"):
-            searched.append(str(d))
-            if d.is_dir() and not any(d.resolve() == Path(s).resolve() for s in searched[:-1]):
+            if _shown(d) in searched:
+                continue
+            searched.append(_shown(d))
+            if d.is_dir():
                 candidates += sorted(d.glob("*.json"))
-    reports, skipped, seen = [], [], set()
+    reports, skipped, unreadable, seen = [], [], [], set()
     for p in candidates:
         key = p.resolve()
         if key in seen:
             continue
         seen.add(key)
-        doc = _read_qc_report(p)
-        if doc is None:
+        kind, doc = _read_qc_file(p)
+        if kind == "unreadable":
+            unreadable.append((_shown(p), doc))
             continue
-        if (preprocessing_manifest and doc["detector"] == "check_preprocessing_leakage"
-                and doc.get("manifest")
-                and Path(str(doc["manifest"])).name != Path(preprocessing_manifest).name):
-            skipped.append((str(p), f"audits {Path(str(doc['manifest'])).name}, not "
-                                    f"{Path(preprocessing_manifest).name}"))
+        if kind != "report":
             continue
-        reports.append((str(p), doc))
-    return reports, searched, skipped
+        if manifest is not None and doc["detector"] == "check_preprocessing_leakage" and doc.get("manifest"):
+            why = _leakage_report_other_manifest(p, doc["manifest"], manifest)
+            if why:
+                skipped.append((_shown(p), why))
+                continue
+        reports.append((_shown(p), doc))
+    return reports, searched, skipped, unreadable
 
 
 def triage_imaging_qc(reports, acks):
     """Split claims into blocking (unacknowledged Major), acknowledged Major, and carried
-    (everything else). Each item: dict(code, severity, file, detail, reason?)."""
+    (Minor / Flag). Any severity that is not plainly Minor or Flag counts as Major. Each item:
+    dict(code, severity, file, detail, reason?)."""
     blocking, acked, carried = [], [], []
+
+    def place(item, major):
+        if not major:
+            carried.append(item)
+        elif item["code"] in acks:
+            item["reason"] = acks[item["code"]]
+            acked.append(item)
+        else:
+            blocking.append(item)
+
     for path, doc in reports:
+        n_major_listed = 0
         for c in doc["claims"]:
             if not isinstance(c, dict):
+                place({"code": "QC_CLAIM_MALFORMED", "severity": "Major", "file": path,
+                       "detail": f"a claim is not a JSON object: {_one_line(c)[:200]}"}, True)
+                n_major_listed += 1
                 continue
-            item = {"code": str(c.get("verdict", "?")), "severity": str(c.get("severity", "?")),
-                    "file": path, "detail": " ".join(str(c.get("detail", "")).split())}
+            sev_raw = _one_line(c.get("severity", ""))
+            major = sev_raw.casefold() not in NONBLOCKING_SEVERITIES
+            item = {"code": _one_line(c.get("verdict", "")) or "?",
+                    "severity": sev_raw or "(missing)", "file": path,
+                    "detail": _one_line(c.get("detail", ""))}
             where = c.get("split") or c.get("where")
             if where:
-                item["detail"] = f"[{where}] {item['detail']}"
+                item["detail"] = f"[{_one_line(where)}] {item['detail']}"
             if c.get("cases"):
-                item["detail"] += f" (cases: {', '.join(map(str, c['cases']))})"
-            if item["severity"] == "Major":
-                if item["code"] in acks:
-                    item["reason"] = acks[item["code"]]
-                    acked.append(item)
-                else:
-                    blocking.append(item)
-            else:
-                carried.append(item)
+                item["detail"] += f" (cases: {_one_line(', '.join(map(str, c['cases'])))})"
+            n_major_listed += major
+            place(item, major)
+        summary = doc.get("summary") if isinstance(doc.get("summary"), dict) else {}
+        n_major_said = summary.get("n_major")
+        if isinstance(n_major_said, int) and not isinstance(n_major_said, bool) \
+                and n_major_said > n_major_listed:
+            place({"code": "QC_REPORT_INCONSISTENT", "severity": "Major", "file": path,
+                   "detail": (f"summary.n_major is {n_major_said} but the report lists "
+                              f"{n_major_listed} Major claim(s); the report is incomplete or "
+                              "edited — re-run the gate")}, True)
     return blocking, acked, carried
 
 
-def render_imaging_qc_md(source, reports, searched, skipped, acked, carried):
+def render_imaging_qc_md(source, reports, searched, skipped, unreadable, acked, carried):
     found = {doc["detector"] for _, doc in reports}
     lines = [
         "# Imaging-data QC carried forward (generated by model-scaffold)",
@@ -1547,30 +1628,35 @@ def render_imaging_qc_md(source, reports, searched, skipped, acked, carried):
         "the scaffold unless it was acknowledged below; Minor and Flag claims did not stop it and are",
         "listed so they reach training, evaluation and the Methods instead of staying in `qc/`.",
         "",
-        f"- **Located**: {source}",
+        f"- **Located**: {_one_line(source)}",
         "- **Searched**: " + (", ".join(f"`{s}`" for s in searched) if searched else "(nothing)"),
         "",
         "## Reports read",
     ]
     if reports:
         for path, doc in reports:
-            n_major = sum(1 for c in doc["claims"] if isinstance(c, dict) and c.get("severity") == "Major")
+            n_major = sum(1 for c in doc["claims"] if not isinstance(c, dict)
+                          or _one_line(c.get("severity", "")).casefold() not in NONBLOCKING_SEVERITIES)
             lines.append(f"- `{doc['detector']}` — `{path}` ({len(doc['claims'])} claim(s), {n_major} Major)")
     else:
         lines.append("- (none)")
     for path, why in skipped:
         lines.append(f"- skipped `{path}`: {why}")
+    for path, why in unreadable:
+        lines.append(f"- UNREADABLE `{path}`: {why} — not read; if it is a gate report, that gate "
+                     "is not assessed")
     lines += ["", "## Not assessed"]
     missing = [d for d in IMAGING_QC_DETECTORS if d not in found]
-    if missing:
-        for d in missing:
-            note = (" (Phase 7; expected only before inference on a new cohort)"
-                    if d == "check_normalizer_domain" else "")
-            lines.append(f"- `{d}`: NOT ASSESSED — no report found{note}. Absence is not a pass.")
-    else:
+    for d in missing:
+        note = (" (Phase 7; expected only before inference on a new cohort)"
+                if d == "check_normalizer_domain" else "")
+        lines.append(f"- `{d}`: NOT ASSESSED — no readable report found{note}. Absence is not a pass.")
+    for path, _ in unreadable:
+        lines.append(f"- `{path}`: NOT ASSESSED — unreadable, so whatever it reports was not checked.")
+    if not missing and not unreadable:
         lines.append("- (every imaging-data gate has a report)")
     lines += ["", "## Acknowledged Major claims (scaffolded on the stated reason)"]
-    lines += ([f"- **{i['code']}** (Major, `{i['file']}`): {i['detail']}\n  - Acknowledged: {i['reason']}"
+    lines += ([f"- **{i['code']}** ({i['severity']}, `{i['file']}`): {i['detail']}\n  - Acknowledged: {i['reason']}"
                for i in acked] or ["- (none)"])
     lines += ["", "## Carried-forward warnings (not blocking)"]
     lines += ([f"- **{i['code']}** ({i['severity']}, `{i['file']}`): {i['detail']}" for i in carried]
@@ -1662,13 +1748,15 @@ def main() -> int:
     acks = parse_qc_acks(args.ack_qc)
     qc_md = None
     if args.imaging_qc or args.preprocessing_manifest:
-        reports, searched, skipped = collect_imaging_qc(args.imaging_qc, args.preprocessing_manifest)
+        reports, searched, skipped, unreadable = collect_imaging_qc(args.imaging_qc, args.preprocessing_manifest)
         blocking, acked, carried = triage_imaging_qc(reports, acks)
         used = {i["code"] for i in acked}
         for code in sorted(set(acks) - used):
             sys.stderr.write(f"WARNING: --ack-qc {code}: no unresolved Major claim with that code; "
                              "not recorded\n")
         if blocking:
+            for path, why in unreadable:
+                sys.stderr.write(f"UNREADABLE QC FILE: {path}: {why}\n")
             sys.stderr.write(f"REFUSED: {len(blocking)} unresolved Major imaging-data QC claim(s); "
                              "nothing was written.\n")
             for i in blocking:
@@ -1678,16 +1766,21 @@ def main() -> int:
             return 1
         source = ("--imaging-qc " + ", ".join(args.imaging_qc) if args.imaging_qc
                   else f"searched next to --preprocessing-manifest {Path(args.preprocessing_manifest).name}")
-        qc_md = render_imaging_qc_md(source, reports, searched, skipped, acked, carried)
+        qc_md = render_imaging_qc_md(source, reports, searched, skipped, unreadable, acked, carried)
         found = {doc["detector"] for _, doc in reports}
         not_assessed = [d for d in IMAGING_QC_DETECTORS if d not in found]
         if not reports:
             sys.stderr.write("NOTE: no imaging-data QC report found (searched: "
                              + ", ".join(searched) + "); recorded as NOT ASSESSED in IMAGING_QC.md\n")
+        for path, why in unreadable:
+            sys.stderr.write(f"UNREADABLE QC FILE: {path}: {why}; recorded as NOT ASSESSED\n")
+        for path, why in skipped:
+            sys.stderr.write(f"SKIPPED QC FILE: {path}: {why}\n")
         for i in carried:
             sys.stderr.write(f"CARRIED FORWARD: {i['code']} ({i['severity']}, {i['file']})\n")
         qc_block = (f"imaging_qc:\n  record: IMAGING_QC.md\n  reports: {len(reports)}\n"
                     f"  major_acknowledged: {len(acked)}\n  carried_forward: {len(carried)}\n"
+                    f"  unreadable: {len(unreadable)}\n"
                     f"  not_assessed: [{', '.join(not_assessed)}]\n")
         qc_line = ("\n- **Upstream imaging QC**: `IMAGING_QC.md` — /imaging-data verdicts carried into "
                    f"this repo ({len(acked)} acknowledged Major, {len(carried)} warning(s), "

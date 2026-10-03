@@ -9,7 +9,12 @@
 #   (d) a manifest with no QC report next to it is recorded as NOT ASSESSED, never silent;
 #   (e) a leakage report about a different manifest is skipped, not applied;
 #   (f) --imaging-qc on an explicit file / directory; malformed input exits 2;
-#   (g) without --preprocessing-manifest / --imaging-qc nothing about QC is emitted.
+#   (g) without --preprocessing-manifest / --imaging-qc nothing about QC is emitted;
+#   (h) run from inside manifests/ (relative spellings) ../qc is still searched;
+#   (i) fail closed: odd-cased / missing / unknown severity blocks; summary.n_major above the
+#       listed Majors blocks; unreadable QC files are reported and NOT ASSESSED;
+#   (j) leakage-report matching: Windows separators, same-name-different-file, ambiguous -> read;
+#   (k) --ack-qc: malformed code / duplicate code exit 2; newlines collapsed in the record.
 set -u
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -92,6 +97,7 @@ check "no QC report: config.yaml lists them" grep -q "^  not_assessed: \[check_d
 # (e) a leakage report about a DIFFERENT manifest is skipped (demo 05 keeps a naive one beside it);
 #     the sibling layout manifests/ + qc/ is found through <manifest dir>/../qc/
 mkdir -p "$WORK/sib/manifests" "$WORK/sib/qc"; printf '%s\n' "$PM" > "$WORK/sib/manifests/preprocessing_manifest.json"
+printf '%s\n' "$PM" > "$WORK/sib/manifests/preprocessing_manifest_naive.json"   # the other file exists
 cat > "$WORK/sib/qc/leak_naive.json" <<'JSON'
 {"detector": "check_preprocessing_leakage", "manifest": "manifests/preprocessing_manifest_naive.json", "claims": [{"verdict": "PREPROCESS_BEFORE_SPLIT", "severity": "Major", "detail": "x", "where": "t"}], "summary": {}}
 JSON
@@ -121,6 +127,83 @@ python3 "$SCAFFOLD" --manifest "$WORK/m.csv" --out "$WORK/plain" --seed 42 --qui
 check "plain scaffold: no IMAGING_QC.md" test ! -e "$WORK/plain/IMAGING_QC.md"
 check "plain scaffold: config.yaml has no imaging_qc block" bash -c "! grep -q imaging_qc '$WORK/plain/config.yaml'"
 check "plain scaffold: REPRODUCIBILITY.md unchanged" bash -c "! grep -q 'Upstream imaging QC' '$WORK/plain/REPRODUCIBILITY.md'"
+
+# (h) B1: from inside manifests/, both relative spellings must still reach ../qc (a Major there blocks)
+mkdir -p "$WORK/rel/manifests" "$WORK/rel/qc"; printf '%s\n' "$PM" > "$WORK/rel/manifests/preprocessing_manifest.json"
+profile_report "$WORK/rel/qc/dataset_profile.json" "$MAJOR"
+for spelling in preprocessing_manifest.json ./preprocessing_manifest.json; do
+    check "run inside manifests/ as '$spelling': ../qc Major blocks (exit 1)" bash -c \
+      "cd '$WORK/rel/manifests' && python3 '$SCAFFOLD' --manifest '$WORK/m.csv' --preprocessing-manifest '$spelling' --out '$WORK/rel/repo' --quiet >/dev/null 2>&1; test \$? -eq 1"
+done
+check "relative run wrote nothing" test ! -e "$WORK/rel/repo"
+
+# (i) N1 + N2: fail closed on severity, on an inconsistent summary, on unreadable files
+sev_case() {  # $1 label, $2 claims JSON, $3 extra report keys, $4 expected exit
+    mk_project "$1"
+    printf '{"detector": "check_dataset_profile", "claims": [%s]%s}\n' "$2" "$3" > "$WORK/$1/qc/dataset_profile.json"
+    run "$1"; test "$?" -eq "$4"; }
+check "severity 'major' (lower case) blocks"   sev_case s_lc '{"verdict": "LABEL_EMPTY", "severity": "major", "detail": "x"}' '' 1
+check "severity 'MAJOR ' (trailing space) blocks" sev_case s_uc '{"verdict": "LABEL_EMPTY", "severity": "MAJOR ", "detail": "x"}' '' 1
+check "missing severity blocks"                sev_case s_none '{"verdict": "LABEL_EMPTY", "detail": "x"}' '' 1
+check "unknown severity 'Critical' blocks"     sev_case s_unk '{"verdict": "LABEL_EMPTY", "severity": "Critical", "detail": "x"}' '' 1
+check "severity 'minor' / 'FLAG' do not block" sev_case s_min '{"verdict": "A_B", "severity": "minor", "detail": "x"}, {"verdict": "C_D", "severity": " FLAG", "detail": "y"}' '' 0
+check "summary.n_major 2 with no claims blocks" sev_case s_sum '' ', "summary": {"n_major": 2}' 1
+check "inconsistent summary named on stderr" grep -q QC_REPORT_INCONSISTENT "$WORK/s_sum/stderr"
+check "detector given as a script name is recognised" sev_case s_det '{"verdict": "LABEL_EMPTY", "severity": "Major", "detail": "x"}' ', "detector": "scripts/check_dataset_profile.py"' 1
+mk_project unread
+printf '{"detector": "check_dataset_profile", "claims": [' > "$WORK/unread/qc/truncated.json"
+printf '{"detector": "check_preprocessing_leakage", "claims": null}\n' > "$WORK/unread/qc/nullclaims.json"
+printf '[1, 2]\n' > "$WORK/unread/qc/list.json"
+printf '\xef\xbb\xbf{"detector": "check_normalizer_domain", "claims": [{"verdict": "NORMALIZER_SPLIT_DIVERGENCE", "severity": "Flag", "detail": "bom"}]}\n' > "$WORK/unread/qc/bom.json"
+printf '{"tool": "something_else", "claims": []}\n' > "$WORK/unread/qc/unrelated.json"
+run unread; rc=$?
+check "unreadable files do not pass silently: stderr names each" bash -c \
+  "grep -q 'UNREADABLE QC FILE: .*truncated.json' '$WORK/unread/stderr' && grep -q 'UNREADABLE QC FILE: .*nullclaims.json' '$WORK/unread/stderr' && grep -q 'UNREADABLE QC FILE: .*list.json' '$WORK/unread/stderr'"
+check "unreadable files listed in IMAGING_QC.md as NOT ASSESSED" bash -c \
+  "grep -q 'UNREADABLE .*truncated.json' '$WORK/unread/repo/IMAGING_QC.md' && grep -q 'nullclaims.json\`: NOT ASSESSED' '$WORK/unread/repo/IMAGING_QC.md'"
+check "a UTF-8 BOM report is read (Flag carried forward)" grep -q "NORMALIZER_SPLIT_DIVERGENCE\*\* (Flag" "$WORK/unread/repo/IMAGING_QC.md"
+check "unrelated JSON (no detector) is ignored" bash -c "! grep -q unrelated.json '$WORK/unread/repo/IMAGING_QC.md' '$WORK/unread/stderr'"
+check "config.yaml counts the unreadable files" grep -q "^  unreadable: 3" "$WORK/unread/repo/config.yaml"
+
+# (j) N3: leakage-report matching
+leak_case() {  # $1 label, $2 recorded manifest path (JSON-escaped), $3 make the other file (yes/no)
+    mkdir -p "$WORK/$1/manifests" "$WORK/$1/qc"; printf '%s\n' "$PM" > "$WORK/$1/manifests/preprocessing_manifest.json"
+    [ "$3" = yes ] && printf '%s\n' "$PM" > "$WORK/$1/manifests/preprocessing_manifest_naive.json"
+    printf '{"detector": "check_preprocessing_leakage", "manifest": "%s", "claims": [{"verdict": "PREPROCESS_BEFORE_SPLIT", "severity": "Major", "detail": "x"}]}\n' "$2" > "$WORK/$1/qc/leak.json"
+    python3 "$SCAFFOLD" --manifest "$WORK/m.csv" --preprocessing-manifest "$WORK/$1/manifests/preprocessing_manifest.json" \
+        --out "$WORK/$1/repo" --quiet >/dev/null 2>"$WORK/$1/stderr"; }
+leak_case l_win 'manifests\\preprocessing_manifest_naive.json' yes
+check "Windows-separated path to a different existing file is skipped (exit 0)" test "$?" -eq 0
+check "skip reason shown in IMAGING_QC.md" grep -q "skipped .*leak.json.: audits .*preprocessing_manifest_naive.json, a different file" "$WORK/l_win/repo/IMAGING_QC.md"
+leak_case l_amb 'elsewhere/preprocessing_manifest_naive.json' no
+check "recorded path that does not resolve is read, not skipped (exit 1)" test "$?" -eq 1
+leak_case l_same 'manifests/preprocessing_manifest.json' no
+check "report about this manifest is applied (exit 1)" test "$?" -eq 1
+mkdir -p "$WORK/l_twin/other"; leak_case l_twin 'other/preprocessing_manifest.json' no
+printf '%s\n' "$PM" > "$WORK/l_twin/other/preprocessing_manifest.json"
+python3 "$SCAFFOLD" --manifest "$WORK/m.csv" --preprocessing-manifest "$WORK/l_twin/manifests/preprocessing_manifest.json" \
+    --out "$WORK/l_twin/repo" --quiet >/dev/null 2>&1
+check "same file name, demonstrably different file: skipped (exit 0)" test "$?" -eq 0
+
+# (k) N4 + N5: ack hygiene
+ack_rc() { python3 "$SCAFFOLD" --manifest "$WORK/m.csv" --preprocessing-manifest "$WORK/major/preprocessing_manifest.json" \
+    --out "$WORK/major/rk" --quiet "$@" >/dev/null 2>"$WORK/ack.err"; echo $?; }
+check "lower-case ack code exits 2"                 test "$(ack_rc --ack-qc 'label_empty=x')" -eq 2
+check "lower-case ack code: error says malformed"   grep -q "malformed CODE" "$WORK/ack.err"
+check "duplicate ack for one code exits 2"          test "$(ack_rc --ack-qc 'LABEL_EMPTY=a' --ack-qc 'LABEL_EMPTY=b')" -eq 2
+check "duplicate ack: error says duplicate"         grep -q "duplicate" "$WORK/ack.err"
+rm -rf "$WORK/major/repo"
+run major --ack-qc "LABEL_EMPTY=line one
+## injected heading"
+check "newline in ack reason collapsed to one line" grep -q "Acknowledged: line one ## injected heading" "$WORK/major/repo/IMAGING_QC.md"
+check "no heading injected by the reason" bash -c "! grep -q '^## injected' '$WORK/major/repo/IMAGING_QC.md'"
+
+# (l) N6: --imaging-qc replaces the search; an empty directory is recorded NOT ASSESSED
+mkdir -p "$WORK/emptyqc"
+python3 "$SCAFFOLD" --manifest "$WORK/m.csv" --preprocessing-manifest "$WORK/major/preprocessing_manifest.json" \
+    --imaging-qc "$WORK/emptyqc" --out "$WORK/eq" --quiet >/dev/null 2>&1
+check "--imaging-qc empty dir replaces the search (Major beside manifest not read; exit 0)" test "$?" -eq 0
+check "--imaging-qc empty dir: gates NOT ASSESSED" grep -q "check_dataset_profile\`: NOT ASSESSED" "$WORK/eq/IMAGING_QC.md"
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

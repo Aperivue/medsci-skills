@@ -72,12 +72,16 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/scaffold.py \
 **The imaging-data QC handoff is enforced, not advisory.** With `--preprocessing-manifest` the
 scaffold also reads `/imaging-data`'s gate reports (`check_dataset_profile`,
 `check_preprocessing_leakage`, `check_normalizer_domain` JSON) from `<manifest dir>/qc/` and
-`<manifest dir>/../qc/`; `--imaging-qc <file|dir>` (repeatable) names them instead. A leakage report
-about a different manifest file is skipped and listed as skipped.
-- An unacknowledged **Major** claim refuses: exit 1, nothing written, each code + report listed.
-  Resolve it upstream and re-run the gate, or pass `--ack-qc CODE='reason'` — the reason is recorded.
+`<manifest dir>/../qc/` (the manifest path is resolved first). `--imaging-qc <file|dir>` (repeatable)
+**replaces** that search: pointed at an empty directory, every gate is recorded NOT ASSESSED. A
+leakage report is skipped only when its recorded manifest path resolves to a different existing file
+(the reason is shown); an ambiguous one is read.
+- A **Major** claim — or any severity that is not plainly Minor/Flag, or a report whose
+  `summary.n_major` exceeds its listed Majors — refuses: exit 1, nothing written, each code + report
+  listed. Resolve it upstream and re-run the gate, or pass `--ack-qc CODE='reason'` once per code.
 - **Minor / Flag** claims never block; they are carried forward as warnings.
-- A gate with no report is recorded as **NOT ASSESSED** — absence is never reported as a pass.
+- A gate with no readable report is **NOT ASSESSED**; an unparseable or off-shape file in `qc/` is
+  listed as UNREADABLE (stderr + record), never dropped.
 
 All of it lands in `model_repo/IMAGING_QC.md`, referenced from `config.yaml` (`imaging_qc:`) and
 `REPRODUCIBILITY.md`, so training, evaluation and the Methods read what `/imaging-data` found. Never
