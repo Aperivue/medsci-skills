@@ -1,0 +1,2 @@
+{"task": "classification", "metrics": ["accuracy", "sensitivity"], "ci_reported": true,
+ "notes": "the report says sensitivity and specificity were computed, but specificity was not reported"}

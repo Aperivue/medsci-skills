@@ -1,0 +1,1 @@
+{"task": "segmentation", "metrics": ["dice", "hd95"], "ci_reported": true}

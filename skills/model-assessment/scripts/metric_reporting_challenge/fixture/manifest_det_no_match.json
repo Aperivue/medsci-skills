@@ -1,0 +1,1 @@
+{"task": "detection", "metrics": ["froc", "sensitivity"], "ci_reported": true}

@@ -3323,8 +3323,8 @@
     },
     {
       "path": "skills/model-assessment/SKILL.md",
-      "size": 17741,
-      "sha256": "38e72392ab976b8a41ec98fcb0096dd0aa5ff727571394106ea9ab2196ad162b"
+      "size": 17856,
+      "sha256": "6ab7bf81211c723eaf091580735cc3bad72229e83acf36e4176a91fb4d78d017"
     },
     {
       "path": "skills/model-assessment/references/explainability_guide.md",
@@ -3340,6 +3340,11 @@
       "path": "skills/model-assessment/references/metric_selection_grounding.md",
       "size": 12358,
       "sha256": "10620f6b0c48f6571093e601bfa3afdcfddd1c63fb35878f4259811fffb7a1cf"
+    },
+    {
+      "path": "skills/model-assessment/references/metrics_manifest_schema.md",
+      "size": 4670,
+      "sha256": "074b46ffa2f2b9a6aa24ea77d06c4275d7e7f38f46a2604cb73edec6d8e14b37"
     },
     {
       "path": "skills/model-assessment/references/uncertainty_guide.md",
@@ -3388,8 +3393,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_metric_reporting.py",
-      "size": 18650,
-      "sha256": "1c2e773dde69de66a346255de9355bf2fdbcb213b4c3f91c565e2784cc7b3330"
+      "size": 32717,
+      "sha256": "a4b5c670cc9e8023ef4ce7174099056bf80e7650fa7c9661e416eb52d5712ab0"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage.py",
@@ -3507,6 +3512,26 @@
       "sha256": "a45e14485fb02f0ee790350235c652ea2b871aa16cfd89e12a32e49cd6e1b9ca"
     },
     {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/manifest_clf_bad.json",
+      "size": 193,
+      "sha256": "6d3bf5407861c8032f306ae7ea45e76a4f96cb53403916f52810a3d30ee9dcc3"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/manifest_det_no_match.json",
+      "size": 79,
+      "sha256": "b2c9ab821b50a3406c8a2581e007b3dbf5c7a055bc022ee0f2f1f42c4d50421f"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/manifest_seg_bad.json",
+      "size": 85,
+      "sha256": "dffb810737da881563baf364aac4b7bab73aeb3bc2556ad5ee6ddb0e20a8d1cd"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/manifest_seg_good.json",
+      "size": 75,
+      "sha256": "8b0456db1cfa87dd315648beddaa66d5b5a849a6816a6c6ef00dd45193455641"
+    },
+    {
       "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/multiclass_bad.md",
       "size": 128,
       "sha256": "0ab44d8dcdf4ec8281c7afb7db021e61bb368f2f30bd5ec49ed5bcf962319421"
@@ -3523,18 +3548,23 @@
     },
     {
       "path": "skills/model-assessment/scripts/metric_reporting_challenge/problem.md",
-      "size": 1599,
-      "sha256": "53610244ca42d3edb8d3f0aebb5da8ac892d8c6ccfc160e45e41b6daecc8522c"
+      "size": 2059,
+      "sha256": "a2b7947327397186dae7831698761e8fd76570b2d299ffb962c97de2af18ad36"
     },
     {
       "path": "skills/model-assessment/scripts/metric_reporting_challenge/verify.sh",
-      "size": 2642,
-      "sha256": "d7fce98b7085b0ddeaad09237925c1a645db0f18940749d971c2bcadb133f6cf"
+      "size": 3708,
+      "sha256": "3133a2c5aa1c8ab54c7e20be06207bf1edad72a1cc0dac13721fa77f4144a192"
     },
     {
       "path": "skills/model-assessment/skill.yml",
       "size": 7584,
       "sha256": "8d227d520bec3b1b0eed7b7ce391e4f95298fbaf71534c7f398f29d5aa32f499"
+    },
+    {
+      "path": "skills/model-assessment/templates/metrics_manifest.json",
+      "size": 615,
+      "sha256": "013dcd05fc0777b634d3eb085fe302f91175a5f98bc2b0314ac1a0108edf55c5"
     },
     {
       "path": "skills/model-card/SKILL.md",
