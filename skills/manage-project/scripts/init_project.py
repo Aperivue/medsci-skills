@@ -243,8 +243,9 @@ def main() -> int:
     print(f"OK: scaffolded {args.name} at {root} (contract={contract})")
     if args.ssot:
         print("NOTE: SSOT.yaml written but `qc/migration_complete` marker NOT set.")
-        print("      New SSOT-native projects are enforce-ready once the pipeline")
-        print("      validates the contract and touches qc/migration_complete.")
+        print("      To activate Phase 1C enforce, validate the contract and write the marker with:")
+        print(f"      python3 {Path(__file__).resolve().parent / 'migrate_project_to_ssot.py'} "
+              f"--project-root {root} --mark-complete")
     return 0
 
 

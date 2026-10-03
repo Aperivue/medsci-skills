@@ -22,7 +22,7 @@ cardiovascular medicine, Asia-Pacific cardiology, coronary artery disease, coron
 - Letter to the Editor
 
 ## Classification
-- **Tier:** Emerging Q1 (JACC family; SCI indexing expected 2027, anticipated IF ~5–6)
+- **Tier:** Emerging Q1 (JACC family; SCI indexing expected 2027)
 - **Open Access:** Full Gold OA
 - **Field:** Cardiovascular medicine — Asia-Pacific focus
 

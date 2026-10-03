@@ -209,6 +209,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_orchestrate_reachability.sh
 
+      - name: Run orchestrate QC-gate contract test (self-review fatal_count, check-reporting missing, N8 trigger)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/orchestrate/tests/test_qc_gate_contract.py
+
       - name: Run check_detector_envelopes.py (every detector's JSON names the detector that wrote it)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_detector_envelopes.py --strict
@@ -285,6 +289,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_hardcoded_locale.sh
 
+      - name: Run publish-skill audit_skill.sh regression test (a check that cannot run is never CLEAN)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/publish-skill/tests/test_audit_skill.sh
+
       - name: Run self-review panel-mode structural + PII test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_panel_mode.sh
@@ -324,6 +332,10 @@ jobs:
       - name: Run self-review feature-selection-outside-CV leakage gate test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_cv_leakage.sh
+
+      - name: Run obsidian-paper-vault extractor test (image-only PDF and max_pages<1 never yield an empty .txt)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/obsidian-paper-vault/tests/test_extract_pdfs.py
 
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -389,6 +401,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/peer-review/tests/test_scan_pdf_layers_xmp.sh
 
+      - name: "Run peer-review PDF render-evidence regression (hidden spans flagged and kept out of --sanitize)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/peer-review/tests/test_pdf_render_evidence.sh
+
       - name: "Run peer-review draft gates (length per comment; recommendation must stay in the editor box)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/peer-review/tests/test_review_draft_gates.sh
@@ -424,6 +440,10 @@ jobs:
       - name: "Run calc-sample-size worked-example test (every formula block reproduces its package value)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/calc-sample-size/tests/test_worked_examples.py
+
+      - name: "Run design-ai-benchmarking reader-allocation test (sizing block returns only possible allocations)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/design-ai-benchmarking/tests/test_reader_allocation.py
 
       - name: Run sync-submission asset-anonymization gate test (A2)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -511,6 +531,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_bib_last_field.sh
 
+      - name: "Run verify-refs entry-header test (an indented, spaced or parenthesised entry is its own record)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/verify-refs/tests/test_bib_entry_headers.sh
+
       - name: "Run verify-refs audit-source test (a committed audit must not carry an absolute path)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_audit_source_path.sh
@@ -596,6 +620,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/author-strategy/tests/test_archetype_classifier.sh
 
+      - name: Run replicate-study alcohol harmonization test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/replicate-study/tests/test_alcohol_harmonization.py -v
+
       # --- Tier 0/1 skill regression tests (existing + new, now CI-wired) ---
       - name: Run make-figures legend-reconcile test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -616,6 +644,10 @@ jobs:
       - name: Run clean-data reverse-coding test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/clean-data/tests/test_reverse_coding.sh
+
+      - name: Run clean-data profiling-template NA-token test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/clean-data/tests/test_profiling_template.sh
 
       - name: Run check_checklist_provenance.py (a checklist must say what it is and what was checked)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -688,6 +720,18 @@ jobs:
       - name: Run present-paper speaker-notes markdown test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/present-paper/tests/test_speaker_notes_markdown.py
+
+      - name: "Run present-paper deck-reading test (tables measured; slides and notes in presentation order)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/present-paper/tests/test_deck_reading.py
+
+      - name: "Run present-paper sharing-strip test (notes pages, comments, author, hidden slides)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/present-paper/tests/test_strip_notes_for_sharing.py
+
+      - name: "Run present-paper figure-extraction test (each crop from its own PDF; a skip fails)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/present-paper/tests/test_extract_pdf_figures.py
 
       - name: Run version-dataset manifest/verify test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -762,6 +806,10 @@ jobs:
       - name: "Run fill-protocol newline test (a line break must reach the page, not hide in w:t)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/fill-protocol/tests/test_fill_form_newlines.sh
+
+      - name: "Run fill-protocol integrity test (no deleted trailer, no retyped value, no surviving placeholder)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/fill-protocol/tests/test_fill_form_integrity.sh
 
       - name: Run fulltext-retrieval pdf_to_md helper test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -949,6 +997,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_checklist_fidelity.sh
 
+      - name: Run review-paper macro-skeleton test (scoping/systematic carry PRISMA Methods/Results slots)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/review-paper/tests/test_macro_skeleton.sh
+
       - name: Run check-reporting PRISMA-cascade test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_prisma_cascade.sh
@@ -956,6 +1008,10 @@ jobs:
       - name: Run check-reporting PRISMA Figure 1 audit test (Step 4d)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_prisma_figure.sh
+
+      - name: Run check-reporting report-template contract test (Part D JSON example)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/check-reporting/tests/test_report_template_contract.sh
 
       - name: Run manage-refs duplicate-bibliography gate test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -1068,6 +1124,14 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/search-lit/tests/test_pubmed_eutils.sh
 
+      - name: "Run search-lit parse_pubmed test (inline markup never truncates a title or abstract)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/search-lit/tests/test_parse_pubmed.sh
+
+      - name: "Run ma-scout test (an unknown esearch count is never 0; an unchecked PROSPERO is never clear)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/ma-scout/tests/test_esearch_count_and_prospero.sh
+
       - name: "Run DOI-record-match challenge (a resolvable DOI can belong to a different paper)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/search-lit/scripts/check_doi_record_match_challenge/verify.sh
@@ -1095,6 +1159,10 @@ jobs:
       - name: Run Phase-1c hook test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_phase1c_hooks.sh
+
+      - name: "Run manage-project SSOT-native mark-complete test (an --ssot project can reach enforce)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/manage-project/tests/test_ssot_mark_complete.sh
 
       - name: "Run check_test_wiring.py (a test CI never runs is a test that never runs)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

@@ -21,6 +21,10 @@ the title back.
     DOI_NOT_THIS_RECORD  the DOI resolves, and to a different paper than the row describes
     DOI_IS_CONTAINER     the DOI resolves to an issue, a supplement, a book or proceedings — a
                          container, not an article
+    DOI_IS_UPDATE_NOTICE the DOI resolves to a correction, erratum, retraction or similar notice
+                         that updates another DOI (Crossref `update-to`), not to the article. Its
+                         title is usually the article's own title behind a short prefix, so title
+                         similarity alone clears it.
     DOI_UNRESOLVED       the DOI does not resolve at all (reported, never silently dropped)
 
 WHAT THIS IS NOT
@@ -145,6 +149,23 @@ def resolved_title(msg: dict) -> str:
     return t[0] if t else ""
 
 
+def update_notice_targets(msg: dict) -> List[str]:
+    """-> "type -> DOI" for each entry of Crossref's structured `update-to` list.
+
+    A record that carries `update-to` is a notice about another DOI. A new-version update (a
+    revised record of the same work) is still the work itself, so it is not counted here.
+    """
+    out: List[str] = []
+    for u in msg.get("update-to") or []:
+        if not isinstance(u, dict):
+            continue
+        kind = str(u.get("type") or "").lower()
+        if "version" in kind:
+            continue
+        out.append(f"{kind or 'update'} -> {u.get('DOI') or '?'}")
+    return out
+
+
 def audit(rows: List[Dict[str, str]], id_col: str, title_col: str, doi_col: str,
           threshold: float, email: Optional[str], cache: Optional[Path],
           pause: float) -> List[Finding]:
@@ -187,6 +208,21 @@ def audit(rows: List[Dict[str, str]], id_col: str, title_col: str, doi_col: str,
                  "Following this DOI leads to the volume the paper is in, or to a whole "
                  "supplement of abstracts. Anyone sent there looks for a paper that is not "
                  "separately registered."],
+            ))
+            continue
+
+        updates = update_notice_targets(msg)
+        if updates and normalise(own_title) != normalise(got):
+            out.append(Finding(
+                DETECTOR, "DOI_IS_UPDATE_NOTICE", rid,
+                f"{rid}: the DOI resolves to a notice that updates another DOI "
+                f"({'; '.join(updates)}), not to the article (title similarity {ratio:.2f}).",
+                [f"doi: {doi}",
+                 f"row title:      {own_title[:100]!r}",
+                 f"resolved title: {got[:100]!r}",
+                 "A correction or retraction notice repeats the article's title, so a "
+                 "title-similarity match lands on it. The article's own DOI is the one the "
+                 "notice points to."],
             ))
             continue
 

@@ -33,7 +33,7 @@ Copy the block below into `{topic_folder}/README.md` and fill in the curly-brace
 - Existing MAs: {N} ({details, most recent year, scope limitations})
 - Consensus/Scholar Gateway cross-check: {result summary}
 - medRxiv/bioRxiv preprint MA: {yes/no}
-- Registered PROSPERO protocol: {yes (CRD#) / no}
+- Registered PROSPERO protocol: {yes (CRD#) / no / not checked (search unavailable or failed)}
 - {specific gap explanation — why a new MA is needed}
 
 ## Professor's Authority
@@ -80,7 +80,7 @@ Copy the block below into `{topic_folder}/README.md` and fill in the curly-brace
 - Consensus MCP: ✅/❌
 - Scholar Gateway: ✅/❌
 - bioRxiv/medRxiv: ✅/❌
-- PROSPERO: ✅
+- PROSPERO: {searched (match found: CRD#) / searched (no match) / not checked (unavailable/failed)} — query: `{query}`, date: {YYYY-MM-DD}
 ````
 
 ## Solo-Mode Adaptations (no supervisor)

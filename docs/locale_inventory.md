@@ -50,6 +50,7 @@ Buckets:
 | `skills/publish-skill/SKILL.md` | A | Language-hardcoding **detection** patterns (`한국어로`, `<한글이름> 교수님`) — the feature. |
 | `skills/publish-skill/scripts/audit_skill.sh` | A | Korean PII/name detection regex. |
 | `skills/publish-skill/references/pii-patterns.md` | A | Korean PII pattern examples for the auditor. |
+| `skills/publish-skill/tests/test_audit_skill.sh` | A | Synthetic Korean name + role fixtures for the auditor's regression test. |
 | `skills/sync-submission/scripts/check_asset_anonymization.py` | A | Korean institution-token **detection** regex (`병원\|의료원\|의과대학\|대학교\|연구윤리`) for the asset-anonymization gate — the feature. |
 | `skills/present-paper/scripts/inject_pronunciation_notes.py` | A | Korean pronunciation dictionary for Korean-presenter speaker notes. |
 | `skills/present-paper/SKILL.md` | A/D | `[ 발음 ]` pronunciation-section header example + bilingual trigger. |
@@ -61,6 +62,8 @@ Buckets:
 | `skills/sync-submission/scripts/author_registry_example.yaml` | A | `성명` as a hangul `native_names` example comment. |
 | `skills/replicate-study/references/harmonization_knhanes_nhanes.csv` | A | KNHANES authoritative Korean variable labels (`개인아이디`, `조사연도`). Notes already English. |
 | `skills/replicate-study/references/harmonization_3country.csv` | A | KNHANES authoritative Korean variable labels. |
+| `skills/replicate-study/tests/fixtures/main_alcohol_rows/harmonization_3country.csv` | A | Test fixture: rows copied from the reference CSV, keeping its KNHANES Korean variable labels. |
+| `skills/replicate-study/tests/fixtures/main_alcohol_rows/harmonization_knhanes_nhanes.csv` | A | Test fixture: rows copied from the reference CSV, keeping its KNHANES Korean variable labels. |
 | `skills/define-variables/SKILL.md` | A/D | KNHANES-style dictionary sheet/row example (`5-1.복부초음파 r12`) + bilingual trigger. |
 | `skills/render-pdf-doc/references/pandoc_korean_cheatsheet.md` | A | Korean-PDF rendering reference (the skill renders Korean academic PDFs). +label in PR3. |
 | `skills/render-pdf-doc/references/known_pitfalls.md` | A | Korean-PDF rendering failure-mode demonstrations. +label in PR3. |

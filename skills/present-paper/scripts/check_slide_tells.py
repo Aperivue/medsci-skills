@@ -54,6 +54,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import posixpath
 import re
 import sys
 import zipfile
@@ -68,6 +69,10 @@ A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
 P = "{http://schemas.openxmlformats.org/presentationml/2006/main}"
 
 EMU_PER_INCH = 914400
+
+R_ID = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
+PKG_REL = "{http://schemas.openxmlformats.org/package/2006/relationships}Relationship"
+NOTES_REL_TYPE = "/notesSlide"
 
 
 # ---------------------------------------------------------------------------------------------
@@ -158,8 +163,20 @@ def _first(el: ET.Element, path: str) -> Optional[ET.Element]:
     return found
 
 
+def shape_xfrm(el: ET.Element, kind: str) -> Optional[ET.Element]:
+    """The element holding a shape's position and size.
+
+    A graphicFrame (a table, a chart, SmartArt) carries it as `<p:xfrm>`, a direct child; every
+    other shape carries `<a:xfrm>` in its shape properties. Looking only for `<a:xfrm>` dropped
+    every table before any check saw it, so a slide of 8-pt table text read as empty.
+    """
+    if kind == "graphicFrame":
+        return el.find(f"{P}xfrm")
+    return el.find(f".//{A}xfrm")
+
+
 def parse_shape(el: ET.Element, kind: str) -> Optional[Shape]:
-    xfrm = el.find(f".//{A}xfrm")
+    xfrm = shape_xfrm(el, kind)
     if xfrm is None:
         return None
     off, ext = xfrm.find(f"{A}off"), xfrm.find(f"{A}ext")
@@ -205,6 +222,60 @@ def parse_shape(el: ET.Element, kind: str) -> Optional[Shape]:
                  has_arrow=has_arrow, is_textbox=is_textbox)
 
 
+def _rels(z: zipfile.ZipFile, part: str) -> List[ET.Element]:
+    """The relationships of `part`, or [] if it has none."""
+    d, base = posixpath.split(part)
+    name = posixpath.join(d, "_rels", base + ".rels")
+    if name not in z.namelist():
+        return []
+    return list(ET.fromstring(z.read(name)).iter(PKG_REL))
+
+
+def _target(part: str, rel: ET.Element) -> str:
+    target = rel.get("Target", "")
+    if target.startswith("/"):
+        return target.lstrip("/")
+    return posixpath.normpath(posixpath.join(posixpath.dirname(part), target))
+
+
+def slide_parts(z: zipfile.ZipFile) -> List[Tuple[str, Optional[str]]]:
+    """[(slide part, its notes part or None)] in PRESENTATION order.
+
+    The order a deck is shown in is `<p:sldIdLst>` in presentation.xml, resolved through
+    presentation.xml.rels — not the number in `slideN.xml`, which is only a part name. A slide moved
+    in the editor keeps its file name, so sorting by file number put a "Backup" divider moved to
+    the end back at slide 3 and stopped the clock there. Notes are found the same way, through the
+    slide's own relationship: python-pptx names notes parts in the order they were CREATED, so
+    `notesSlide1.xml` can belong to slide 3.
+
+    A slide id whose relationship or part is missing is not something to guess around: KeyError,
+    which every caller reports as an unreadable .pptx (exit 2).
+    """
+    pres = ET.fromstring(z.read("ppt/presentation.xml"))
+    rels = {r.get("Id"): r for r in _rels(z, "ppt/presentation.xml")}
+    names = set(z.namelist())
+    out: List[Tuple[str, Optional[str]]] = []
+    lst = pres.find(f"{P}sldIdLst")
+    for sid in (lst if lst is not None else []):
+        rid = sid.get(R_ID)
+        rel = rels.get(rid)
+        if rel is None:
+            raise KeyError(f"slide id {sid.get('id')} names relationship {rid!r}, which "
+                           "ppt/_rels/presentation.xml.rels does not define")
+        part = _target("ppt/presentation.xml", rel)
+        if part not in names:
+            raise KeyError(f"slide part {part} is listed in presentation.xml but missing")
+        notes = None
+        for r in _rels(z, part):
+            if r.get("Type", "").endswith(NOTES_REL_TYPE):
+                cand = _target(part, r)
+                if cand in names:
+                    notes = cand
+                break
+        out.append((part, notes))
+    return out
+
+
 def unmeasurable_text_shapes(path: Path) -> List[Tuple[int, str, str]]:
     """Shapes carrying text that `parse_shape` throws away — and why that is a hole, not a nicety.
 
@@ -230,10 +301,7 @@ def unmeasurable_text_shapes(path: Path) -> List[Tuple[int, str, str]]:
     """
     out: List[Tuple[int, str, str]] = []
     with zipfile.ZipFile(path) as z:
-        names = sorted(
-            (n for n in z.namelist() if re.fullmatch(r"ppt/slides/slide\d+\.xml", n)),
-            key=lambda n: int(re.search(r"(\d+)", n.rsplit("/", 1)[1]).group(1)),
-        )
+        names = [n for n, _notes in slide_parts(z)]
         for i, n in enumerate(names, start=1):
             root = ET.fromstring(z.read(n))
             tree = root.find(f".//{P}cSld/{P}spTree")
@@ -245,9 +313,14 @@ def unmeasurable_text_shapes(path: Path) -> List[Tuple[int, str, str]]:
                 text = "".join(t.text or "" for t in child.iter(f"{A}t")).strip()
                 if not text:
                     continue
-                xfrm = child.find(f".//{A}xfrm")
-                if xfrm is None:  # inherited outright — the correct case
-                    continue
+                kind = child.tag.split("}")[-1]
+                xfrm = shape_xfrm(child, kind)
+                if xfrm is None:
+                    if kind == "graphicFrame":
+                        # A graphicFrame has no layout to inherit from: <p:xfrm> is required.
+                        head = next((ln.strip() for ln in text.splitlines() if ln.strip()), text)
+                        out.append((i, "no <p:xfrm> — table/frame geometry never written", head))
+                    continue  # an sp/grpSp with no xfrm inherits outright — the correct case
                 off, ext = xfrm.find(f"{A}off"), xfrm.find(f"{A}ext")
                 why: List[str] = []
                 if off is None:
@@ -277,13 +350,9 @@ def read_deck(path: Path) -> Tuple[List[List[Shape]], List[str], int, int]:
         w = int(sz.get("cx")) if sz is not None else 12192000
         h = int(sz.get("cy")) if sz is not None else 6858000
 
-        names = sorted(
-            (n for n in z.namelist() if re.fullmatch(r"ppt/slides/slide\d+\.xml", n)),
-            key=lambda n: int(re.search(r"(\d+)", n.rsplit("/", 1)[1]).group(1)),
-        )
         slides: List[List[Shape]] = []
         notes: List[str] = []
-        for n in names:
+        for n, note_name in slide_parts(z):
             root = ET.fromstring(z.read(n))
             tree = root.find(f".//{P}cSld/{P}spTree")
             shapes: List[Shape] = []
@@ -296,9 +365,7 @@ def read_deck(path: Path) -> Tuple[List[List[Shape]], List[str], int, int]:
                             shapes.append(s)
             slides.append(shapes)
 
-            idx = int(re.search(r"(\d+)", n.rsplit("/", 1)[1]).group(1))
-            note_name = f"ppt/notesSlides/notesSlide{idx}.xml"
-            if note_name in z.namelist():
+            if note_name is not None:
                 nroot = ET.fromstring(z.read(note_name))
                 notes.append("".join(t.text or "" for t in nroot.iter(f"{A}t")))
             else:
