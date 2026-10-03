@@ -246,7 +246,7 @@ the quoted words are all present in order but separated by extraction debris (a 
 bled in from a two-column PDF, proof line numbers, a footnote marker, a hyphen split across a line).
 Look at it by eye; do not delete a quote because of this verdict — accurate quotes have nearly been
 deleted that way. A numeric citation counts only as a whole bracket element or inside a range
-(',' or ';' separated, spaces inside the bracket allowed, a range written with a hyphen or any dash):
+(',' or ';' separated, spaces inside the bracket allowed, a range written with a hyphen or a dash U+2010-U+2014, pandoc's escaped `\[5\]` accepted):
 a claimed [5] is not satisfied by [15]. A bracket that mixes numbers and words ("[5, see also 8]")
 is not read as a citation list, so a claim citing it is flagged; check it by eye.
 

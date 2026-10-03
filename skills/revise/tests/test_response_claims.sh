@@ -382,6 +382,13 @@ ck "claimed [5] found inside range '[3—7]' passes" 0 "$?"
 printf '## Discussion\nPrior work agrees [13—17].\n' > "$TMP/body_cit_em15.md"
 python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_em15.md" --strict > /dev/null 2>&1
 ck "claimed [5] is not satisfied by '[13—17]'" 1 "$?"
+# pandoc's docx-to-markdown output escapes brackets: \[5\]
+printf '## Discussion\nPrior work agrees \\[3, 5\\] and \\[8-9\\].\n' > "$TMP/body_cit_esc.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_esc.md" --strict > /dev/null 2>&1
+ck "claimed [5] found in pandoc-escaped '\\[3, 5\\]' passes" 0 "$?"
+printf '## Discussion\nPrior work agrees \\[15\\].\n' > "$TMP/body_cit_esc15.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_esc15.md" --strict > /dev/null 2>&1
+ck "claimed [5] is not satisfied by pandoc-escaped '\\[15\\]'" 1 "$?"
 
 echo "----"
 echo "test_response_claims: $pass passed, $fail failed"

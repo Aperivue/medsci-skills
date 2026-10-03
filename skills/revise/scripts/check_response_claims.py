@@ -85,8 +85,9 @@ CIT_BIBKEY = re.compile(r"\[@([A-Za-z0-9_:.\-]+)\]")
 CIT_AUTHOR = re.compile(r"\b([A-Z][A-Za-zÀ-ſ'-]{2,})\s+et\s+al\.?")
 # Numeric citations as the BODY may print them: ';' as a list separator and spaces inside
 # the bracket ('[5; 7]', '[ 5 ]') as well as the letter-side forms above. A range may use any
-# dash U+2010-U+2014 ('[5‑7]', '[5—7]') or a hyphen.
-BODY_CIT_NUMERIC = re.compile(r"\[\s*(\d{1,3}(?:\s*[,;\u2010-\u2014-]\s*\d{1,3})*)\s*\]")
+# dash U+2010-U+2014 ('[5‑7]', '[5—7]') or a hyphen. Pandoc's escaped brackets ('\[5\]')
+# count as brackets.
+BODY_CIT_NUMERIC = re.compile(r"\\?\[\s*(\d{1,3}(?:\s*[,;\u2010-\u2014-]\s*\d{1,3})*)\s*\\?\]")
 
 # Chars after a claim verb in which its object must START. A quotation that opens inside
 # the window is read to its own closing mark however long it runs: truncating it at the
