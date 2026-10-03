@@ -257,6 +257,9 @@ base) read as a changed number and flagged accurate quotes. Read every UNRESOLVE
 changed number or a flipped finding. A citation claim passes when ANY of its cited tokens is in the
 body, so "we now cite [15] and [16]" passes with only [15] inserted; check multi-citation claims by
 eye.
+A claim is read as a citation claim only when its verb says so ("cite", "reference"): "We added
+the citation [15]" or "We have added a reference to X [15]" is not checked. Read any added citation
+by eye; reading past the verb was withdrawn ("reference standard" fired).
 
 **If a reviewer called the manuscript too long or too dense, prove the body got shorter.**
 Answering a density comment point-by-point adds a sentence per point, so the revision that responds

@@ -323,21 +323,26 @@ printf '## Results\nThe sensitivity of the model was 0.95 in the external test s
 python3 "$V" --response "$TMP/resp_09.md" --manuscript "$TMP/body_095.md" --strict > /dev/null 2>&1
 ck "known limit: '0.9' vs '0.95' prefix clears (exit 0)" 0 "$?"
 
-# --- citation intent read past a leading 'We (have) added' --------------------------------
-# The leftmost verb alternative 'we (have) added' swallowed the match, so 'added the citation'
-# / 'added a reference' were never seen and the claim was never checked.
-printf '**Response 10.** We added the citation [15] to the Discussion.\n' > "$TMP/resp_cit_added.md"
+# --- citation intent comes from the claim verb only (SKILL.md Known limits) ----------------
+# 'We (have) added' is the leftmost verb alternative, so 'We added the citation [15]' is not
+# read as a citation claim. Reading intent words past the verb was tried and withdrawn: a bare
+# 'reference' fired on 'reference standard', and a citation in the NEXT sentence was taken as
+# the claimed one. These controls pin the clearance. Synthetic text only.
 printf '**Response 11.** We have added a reference to Tariq et al. [15] in the Discussion.\n' > "$TMP/resp_ref_added.md"
-python3 "$V" --response "$TMP/resp_cit_added.md" --manuscript "$TMP/body_bad.md" --strict > /dev/null 2>&1
-ck "'We added the citation [15]' absent fails (--strict)" 1 "$?"
-python3 "$V" --response "$TMP/resp_ref_added.md" --manuscript "$TMP/body_bad.md" --strict > /dev/null 2>&1
-ck "'We have added a reference to X [15]' absent fails" 1 "$?"
 python3 "$V" --response "$TMP/resp_ref_added.md" --manuscript "$TMP/body_good.md" --strict > /dev/null 2>&1
 ck "'We have added a reference to X [15]' present passes" 0 "$?"
 # control: an added SENTENCE that merely mentions a cited study is not a citation claim
 printf '**Response 12.** We added a limitation paragraph to the Discussion, as Tariq et al. [15] suggested.\n' > "$TMP/resp_not_cit.md"
 python3 "$V" --response "$TMP/resp_not_cit.md" --manuscript "$TMP/body_bad.md" --strict > /dev/null 2>&1
 ck "added text mentioning a study is not a citation claim" 0 "$?"
+# control: 'reference standard' (STARD) is not a citation, and 'Kim et al.' in the next
+# sentence is not the claimed citation
+printf '**Response 26.** We have added the reference standard for each lesion to Table 2, as requested. The consensus definition of Kim et al. was not adopted, because it requires follow-up imaging that was not available in our cohort.\n' > "$TMP/resp_refstd.md"
+printf '## Methods\nHistopathology was the reference standard [12]. The consensus definition [14] needs follow-up imaging, which was not available.\n' > "$TMP/body_refstd.md"
+python3 "$V" --response "$TMP/resp_refstd.md" --manuscript "$TMP/body_refstd.md" --strict > /dev/null 2>&1
+ck "'added the reference standard' is not a citation claim (--strict)" 0 "$?"
+python3 "$V" --response "$TMP/resp_refstd.md" --manuscript "$TMP/body_refstd.md" 2>&1 | grep -q RESPONSE_CITATION
+ck "'reference standard' reports no citation finding" 1 "$?"
 
 # --- numeric citations match whole bracket elements --------------------------------------
 printf '**Response 13.** We now cite [5] in the Discussion.\n' > "$TMP/resp_cit5.md"

@@ -189,30 +189,10 @@ def extract_claims(response: str):
             cits.append(("key", cm.group(1)))
         for cm in CIT_AUTHOR.finditer(window):
             cits.append(("author", cm.group(1)))
-        # Only treat a verb as a citation claim if the claim is citation-ish. The leftmost
-        # verb alternative wins, so in 'We have added a reference to X [15]' m.group(0) is
-        # just 'We have added': the intent words sit between the verb and the first citation
-        # token, in the same sentence, and are read there.
-        if cits and _citation_intent(m.group(0), window):
+        # only treat a verb as a citation claim if the verb itself is citation-ish
+        if cits and re.search(r"cit|reference", m.group(0), re.IGNORECASE):
             claims.append(("citation", cits, ctx))
     return claims
-
-
-def _citation_intent(verb: str, window: str) -> bool:
-    """True if the claim verb, or the same-sentence text between it and the first citation
-    token in the window, says a citation/reference was added."""
-    if re.search(r"cit|reference", verb, re.IGNORECASE):
-        return True
-    firsts = [rx.search(window) for rx in (CIT_NUMERIC, CIT_BIBKEY, CIT_AUTHOR)]
-    first = min((f.start() for f in firsts if f), default=0)
-    lead = window[:first]
-    brk = PARA_BREAK.search(lead)
-    if brk:
-        lead = lead[: brk.start()]
-    end = re.search(r"(?<!\bal)[.!?](?:\s|$)", lead)
-    if end:
-        lead = lead[: end.start()]
-    return bool(re.search(r"\bcit|\breference", lead, re.IGNORECASE))
 
 
 def grade_quote(body: str, quote: str) -> dict:
