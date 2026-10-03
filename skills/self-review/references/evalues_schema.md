@@ -40,9 +40,10 @@ decimals), so either works. These all exit 2 and name the field:
 **Formula.** The VanderWeele–Ding E-value on the risk-ratio scale is
 E = RR + sqrt(RR × (RR − 1)), with RR replaced by 1/RR when RR < 1. It is the formula
 `evalue_point()` in this script already uses for the prose check. The CI E-value uses the
-confidence limit nearest 1, and is 1 when the CI includes 1. That rule comes from
-`domain-probes/observational_confounding.md` O6 ("the point estimate and the bound nearest
-the null") and `phases/phase2_5f_claim_artifact.md` §3 ("near-null confidence limit").
+confidence limit nearest 1 (`domain-probes/observational_confounding.md` O6, "the point
+estimate and the bound nearest the null"; `phases/phase2_5f_claim_artifact.md` §3, "near-null
+confidence limit"). When the CI includes 1 there is no limit to explain away and the CI
+E-value is 1 — the same formula applied to RR = 1.
 
 **Rounding.** Every printed number is rounded. Each value is therefore read as the interval
 of its printed precision: `1.52` means 1.515 to 1.525, and `2.4` means 2.35 to 2.45.

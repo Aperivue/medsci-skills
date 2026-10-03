@@ -252,7 +252,7 @@ def load_tests(path: str) -> dict:
         raise TestsError("tests file must be a JSON object with a \"rows\" list")
     extra = set(m) - PT_TOP_KEYS
     if extra:
-        raise TestsError(f"unknown top-level key(s) {_pt_short(sorted(extra))}; allowed {sorted(PT_TOP_KEYS)}")
+        raise TestsError(f"unknown top-level key(s) {sorted(extra)}; allowed {sorted(PT_TOP_KEYS)}")
     alpha = Decimal("0.05")
     if "alpha" in m:
         a = m["alpha"]
@@ -276,7 +276,7 @@ def load_tests(path: str) -> dict:
             raise TestsError(f"{w}: expected an object")
         extra = set(r) - PT_ROW_KEYS
         if extra:
-            raise TestsError(f"{w}: unknown key(s) {_pt_short(sorted(extra))}; allowed {sorted(PT_ROW_KEYS)}")
+            raise TestsError(f"{w}: unknown key(s) {sorted(extra)}; allowed {sorted(PT_ROW_KEYS)}")
         label = r.get("row")
         if not isinstance(label, str) or isinstance(label, _JNum) or not _label_tokens(label):
             raise TestsError(f"{w}.row: expected the row's first-cell label (a non-empty string)")
@@ -311,9 +311,13 @@ def _p_interval(op: str, text: str) -> tuple[Decimal, Decimal, bool]:
     return max(Decimal(0), v - h), min(Decimal(1), v + h), False
 
 
+TOTAL_HEADER_RE = re.compile(r"\b(total|overall|all)\b", re.I)
+
+
 def _groups(header: list[str], group_cols: list[int]):
-    """The two compared group columns, or (None, reason). A Total column whose n is the sum
-    of the other columns is dropped first."""
+    """The two compared group columns, or (None, reason). A Total column is dropped first: its
+    header must name it (Total / Overall / All) AND its n must equal the sum of the others, so
+    the larger arm of an unequal-allocation trial (2:1:1) is never mistaken for a total."""
     ns = []
     for j in group_cols:
         raw = HEADER_N_RE.search(header[j]).group(1).replace(",", "")
@@ -324,7 +328,7 @@ def _groups(header: list[str], group_cols: list[int]):
     if len(cols) >= 3:
         for k, (j, nn) in enumerate(cols):
             rest = cols[:k] + cols[k + 1:]
-            if nn == sum(x for _, x in rest):
+            if nn == sum(x for _, x in rest) and TOTAL_HEADER_RE.search(header[j]):
                 cols = rest
                 break
     if len(cols) < 2:

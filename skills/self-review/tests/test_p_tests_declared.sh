@@ -147,5 +147,21 @@ bad2 "deep nesting"            "$(python3 -c 'print("{\"rows\":" + "["*100000 + 
 python3 "$SCRIPT" --manuscript "$MAN" --tests "$TMP/nope.json" >/dev/null 2>&1
 check "missing tests file: exit 2" test "$?" -eq 2
 
+# a 2:1:1 trial: the larger arm's n equals the sum of the others but it is not a Total column
+cat > "$TMP/arm211.md" <<'MD'
+| Event | Placebo (n = 200) | Drug 10 mg (n = 100) | Drug 20 mg (n = 100) | P value |
+|---|---|---|---|---|
+| Nausea | 10 (5.0) | 12 (12.0) | 13 (13.0) | 0.03 |
+| Headache | 20 (10.0) | 11 (11.0) | 9 (9.0) | 0.88 |
+MD
+printf '{"rows":[{"row":"Nausea","test":"chi2"}]}' > "$TMP/arm211.json"
+python3 "$SCRIPT" --manuscript "$TMP/arm211.md" --tests "$TMP/arm211.json" --strict >/dev/null 2>&1
+check "2:1:1 three-arm table: no Major (exit 0)" test "$?" -eq 0
+python3 "$SCRIPT" --manuscript "$TMP/arm211.md" --tests "$TMP/arm211.json" 2>&1 | grep -q "P_NOT_ASSESSED"
+check "2:1:1 three-arm table: P_NOT_ASSESSED" test "$?" -eq 0
+printf '{"alpha":0.05,"row":[]}' > "$TMP/badkey.json"
+python3 "$SCRIPT" --manuscript "$TMP/arm211.md" --tests "$TMP/badkey.json" 2>&1 | grep -q "\['row'\]"
+check "unknown key is named in the error" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

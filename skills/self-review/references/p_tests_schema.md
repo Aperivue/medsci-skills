@@ -43,8 +43,9 @@ These all exit 2 and name the field:
    `Statin` does not match `Statin use`. Tables are read the same way the order-of-magnitude
    rule reads them. A header cell with `n =` is a group column, and a header cell `P` or
    `P value` is the P column.
-2. **Groups.** Two group columns make a 2x2 table. With three or more, a Total column, whose
-   n equals the sum of the other columns' n, is dropped first. Only a table with exactly two
+2. **Groups.** Two group columns make a 2x2 table. With three or more, a Total column is
+   dropped first: its header must say Total, Overall or All, and its n must equal the sum of
+   the other columns' n (so the larger arm of a 2:1:1 trial is not taken for a total). Only a table with exactly two
    groups left is recomputed.
 3. **Counts.** Each group cell must be an integer count, optionally followed by
    `(percent)`.
@@ -90,5 +91,7 @@ nothing.
 - Counts written as `n/N`.
 - Tables that are not pipe tables.
 - A one-sided test, an exact mid-P, or a chi-square with more than one degree of freedom.
-  Declare these as `other:`.
+  Declare these as `other:`. This includes a multi-level categorical variable whose single P
+  is printed on its first level's row: declaring that row `chi2` recomputes a 2x2 for one
+  level and can give a Major.
 - Whether the declared test was the right test for the data.

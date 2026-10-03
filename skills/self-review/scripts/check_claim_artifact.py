@@ -418,7 +418,7 @@ EV_NUM_KEYS = ("estimate", "ci_low", "ci_high", "evalue_point", "evalue_ci")
 # conversion, so an OR or HR is declared as "other:<description>" or converted first.
 EV_MEASURES = {"rr": "rr", "risk_ratio": "rr"}
 _EV_OTHER = re.compile(r"^\s*other\s*:(.*)$", re.I | re.S)
-_EV_NUMSTR = re.compile(r"^\s*(\d+(?:\.\d+)?|\.\d+)\s*$")
+_EV_NUMSTR = re.compile(r"^\s*([0-9]+(?:\.[0-9]+)?|\.[0-9]+)\s*$")
 _EV_TEXT_NUM = re.compile(r"(?<![\d.])(\d+(?:\.\d+)?)(?![\d])")
 _EV_MIN, _EV_MAX = Decimal("1e-300"), Decimal("1e300")
 _EV_CTX = Context(prec=50)
@@ -481,7 +481,7 @@ def load_evalues(path: Path) -> list[dict]:
         raise EValuesError("evalues file must be a JSON object with an \"entries\" list")
     extra = set(m) - EV_TOP_KEYS
     if extra:
-        raise EValuesError(f"unknown top-level key(s) {_ev_short(sorted(extra))}; "
+        raise EValuesError(f"unknown top-level key(s) {sorted(extra)}; "
                            f"allowed {sorted(EV_TOP_KEYS)}")
     entries = m.get("entries")
     if not isinstance(entries, list) or not entries:
@@ -493,7 +493,7 @@ def load_evalues(path: Path) -> list[dict]:
             raise EValuesError(f"{w}: expected an object")
         extra = set(e) - EV_ENTRY_KEYS
         if extra:
-            raise EValuesError(f"{w}: unknown key(s) {_ev_short(sorted(extra))}; "
+            raise EValuesError(f"{w}: unknown key(s) {sorted(extra)}; "
                                f"allowed {sorted(EV_ENTRY_KEYS)}")
         eid = e.get("id")
         if not isinstance(eid, str) or isinstance(eid, _JNum) or not eid.strip():

@@ -5043,8 +5043,8 @@
     },
     {
       "path": "skills/self-review/references/evalues_schema.md",
-      "size": 5302,
-      "sha256": "ada2b7fbc5bc9eab118e7b3a5deaa9bc268137a0f0094bc809fe983055a87e4d"
+      "size": 5365,
+      "sha256": "329a8a7fbdcf08fdce8f7119a6c1babd53f099e87e062e266d6d6f3c7a763070"
     },
     {
       "path": "skills/self-review/references/exemplar_findings/README.md",
@@ -5088,8 +5088,8 @@
     },
     {
       "path": "skills/self-review/references/p_tests_schema.md",
-      "size": 4854,
-      "sha256": "d5ccd996032333dad131127f87fe74ec85e120a0473e55090fe2ed959a0fabb7"
+      "size": 5151,
+      "sha256": "53b8dffa7d9e0dc801f2bdd8b58aebf327cd4fe073ead1d31db10d578d90fce8"
     },
     {
       "path": "skills/self-review/references/panel_review_template.md",
@@ -5278,8 +5278,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",
-      "size": 35462,
-      "sha256": "503c20c3a019730198bcb067ca05e3cbe7ee72ec577a2a966f6fa99897e26d49"
+      "size": 35449,
+      "sha256": "6f695036b053f239fdf5ecf2ec8d212a0f6fdae1fcc662d67a90eaf278efb285"
     },
     {
       "path": "skills/self-review/scripts/check_classical_style.py",
@@ -5588,8 +5588,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts.py",
-      "size": 21866,
-      "sha256": "6bf3167a0de3de70b970b358e890dc6ae4e306ab41cb3ccd0fbc5ebfc03cef82"
+      "size": 22091,
+      "sha256": "16aeef0f28a1a365466937a75409fa3ece986477306e6a60bc422725d2411b75"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/bad.txt",
