@@ -467,7 +467,8 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
 
     if task in ("segmentation", "interactive"):
         if not metrics & OVERLAP:
-            headline_missing("SEGMENTATION_METRIC_MISSING", "overlap metric (Dice / IoU)")
+            headline_missing("SEGMENTATION_METRIC_MISSING",
+                             "overlap metric (Dice / IoU; surface Dice / NSD is a boundary metric)")
         if "pixel_accuracy" in metrics:
             add("PIXEL_ACCURACY_SEG", "Major",
                 "pixel/voxel accuracy is declared for segmentation — misleading on imbalanced masks; "

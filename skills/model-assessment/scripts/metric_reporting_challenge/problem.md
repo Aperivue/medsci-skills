@@ -34,4 +34,5 @@ passes; an off-list metric exits 2. A declared list is not misread by negation (
 performed") or by word sense ("saliency map", the Decathlon "MSD").
 A declaration with no headline metric (classification with none of accuracy / AUROC / AUPRC /
 sensitivity / specificity / PPV / NPV; segmentation with neither Dice nor IoU) is flagged
-`CLASSIFICATION_METRIC_MISSING` / `SEGMENTATION_METRIC_MISSING` (Major) instead of passing.
+`CLASSIFICATION_METRIC_MISSING` / `SEGMENTATION_METRIC_MISSING` (Major) instead of passing; Minor
+when only an `other:` metric is declared, since it may be the headline metric under another name.

@@ -3393,8 +3393,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_metric_reporting.py",
-      "size": 35017,
-      "sha256": "4bed56fb67c50b7d8bdfd8f2d6f505f3dcb59582808ee106c1f509237c74d999"
+      "size": 35087,
+      "sha256": "a927c124dc5a2a4444e7cd763b562ea60ea365e1644fd669cdc9551e6fb76c3c"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage.py",
@@ -3548,8 +3548,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/metric_reporting_challenge/problem.md",
-      "size": 2335,
-      "sha256": "254a1a7dcf21f60879534b6fe954296954f357ab396467c658dbd724516e3b31"
+      "size": 2439,
+      "sha256": "d369907191fef32753f503841727d68855b7464fcc026f271cc352f38e31e856"
     },
     {
       "path": "skills/model-assessment/scripts/metric_reporting_challenge/verify.sh",
