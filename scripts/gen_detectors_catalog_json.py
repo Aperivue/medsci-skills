@@ -56,6 +56,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_artifact_coverage": "numerical_cohort",
     "check_rounded_delta": "numerical_cohort",
     "check_pool_consistency": "numerical_cohort",
+    "check_ratio_ci_symmetry": "numerical_cohort",
     "detect_copy_divergence": "numerical_cohort",
     "derive_figure_legend_counts": "numerical_cohort",
     # Citation & reference integrity

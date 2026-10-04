@@ -1,0 +1,5 @@
+study,measure,estimate,lower,upper,ci_level,ci_method
+Study A,OR,2.00,1.35,3.96,95,
+Study B,OR,4.78,0.31,291.37,95,
+Study C,RR,1.20,1.35,1.80,95,
+Study D,HR,0.59,-0.42,0.82,95,
