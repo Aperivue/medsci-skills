@@ -46,7 +46,7 @@
 - **Metrics reported**: [NEEDS INPUT: segmentation → Dice + HD95/NSD per structure;
   classification → AUROC + AUPRC + sensitivity/specificity, with 95% CIs; detection → FROC/mAP]
 - **Operating point / threshold**: [NEEDS INPUT — fixed on train/tuning folds only]
-- **Run variance**: [NEEDS INPUT: mean ± SD over >= 3 seeds, or fixed seed + determinism caveat]
+- **Run variance**: [NEEDS INPUT: mean ± SD over >= 5 seeds, or fixed seed + determinism caveat]
 
 ## Quantitative Analyses
 - **Overall performance**: [NEEDS INPUT — numbers from executed evaluation only]
