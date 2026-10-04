@@ -124,7 +124,7 @@ Write Methods first — it is the most objective section and anchors the rest of
 - In AI Model or Statistical Analysis, include a same-backbone zero-shot/few-shot comparator when the
   claim is that fine-tuning, LoRA, prompt engineering, or a multi-agent wrapper improves performance.
 
-**Process:** Run the critic-fixer loop ([Critic Scoring Rubric](#critic-scoring-rubric)), then present the final Methods to the user.
+**Process:** Run the critic-fixer loop ([Critic Review Criteria](#critic-review-criteria)), then present the final Methods to the user.
 
 ---
 
@@ -291,9 +291,9 @@ meta-analyses), and the overclaiming guard.
 
 ---
 
-## Critic Scoring Rubric
+## Critic Review Criteria
 
-Phases 3–6 each run writer → critic → fixer: draft the section, have the critic score it with
+Phases 3–6 each run writer → critic → fixer: draft the section, have the critic review it with
 line-level feedback, revise, and repeat for up to 3 rounds. After 3 rounds without a pass, present
 the best version to the user with the remaining issues listed, and ask for guidance.
 
@@ -458,9 +458,9 @@ Severity levels: **ENFORCED** = pipeline halts on failure (cannot proceed to nex
 | 0 | Backbone-article auto-proposal (Phase 0 "Identify a backbone article" action) | ADVISORY | refs.bib has methodologically similar candidate | Surface to user; user accepts/declines |
 | 7.0 | Citekey resolution (delegate `/manage-refs scripts/check_citation_keys.py`) | ENFORCED | UNDEFINED keys present | Halt; resolve via `/lit-sync` then re-run |
 | 7.0 | `[@NEW:topic]` drain (delegate `/manage-refs`; `check_citation_keys.py` reports them as UNDEFINED, exit 1) | ENFORCED at 7.6 entry | `[@NEW:topic]` markers remain | Resolve each before DOCX render |
-| 7.1 | Classical-style QC (`check_classical_style.py`) | ENFORCED | § symbol > 0 OR an AI disclosure in the body of a journal that does not accept one there (per profile); more than 25 prose em-dashes is reported as Minor and does not halt | Auto-fix or HALT for senior MA reviewer prep |
+| 7.1 | Classical-style QC (`check_classical_style.py`) | ENFORCED | a § section cross-reference OR an AI disclosure in the body of a journal that does not accept one there (per profile); more than 25 prose em-dashes is reported as Minor and does not halt | Auto-fix or HALT for senior MA reviewer prep |
 | 7.2 | Reporting guideline compliance (`/check-reporting`) | ENFORCED at submission | <100% mandatory items present | Auto-fix MISSING; ADVISORY for partial |
-| 7.3 | Reference audit (`/verify-refs --strict`) | ENFORCED | `submission_safe: false` (any FABRICATED or MISMATCH row, or a non-empty `duplicate_findings[]`) | Halt; fix in Zotero, re-render refs.bib via `/lit-sync` |
+| 7.3 | Reference audit (`/verify-refs --strict`) | ENFORCED | `submission_safe: false` (any FABRICATED or MISMATCH row, or a non-empty `duplicate_findings[]`), or any UNVERIFIED row (`--strict` exits 1 on those too) | Halt; fix in Zotero, re-render refs.bib via `/lit-sync` |
 | 7.4 | Self-review fix loop (`/self-review --json --fix`) | ENFORCED | score below threshold after 2 iterations | Route to Step 7.4a Audit Recovery |
 | 7.4a | Audit Recovery branch (route to `/meta-analysis` Phase 10 for MA manuscripts) | ENFORCED in `--e2e` | self-review surfaced structural data issue | HALT with `RECOVERY_HALT_HUMAN_DECISION` if recovery validation fails twice |
 | 7.5 | Humanize density (`/humanize`) | ADVISORY | AI patterns > 2.0 / 1000 words | Sweep + flag remaining; user reviews |
