@@ -241,7 +241,6 @@
   and `REPRODUCIBILITY.md`; Minor claims are carried forward into `IMAGING_QC.md`, so a profiling
   warning now reaches a file the next step reads (demo 05's `INTENSITY_SCALE_INCONSISTENT`). Missing
   or unreadable reports are recorded NOT ASSESSED. Without the flags the output is unchanged.
-
 - **self-review recomputes P from reported test statistics** (#674). New
   `check_test_statistic_p.py` recomputes P for `t(df)`, `F(df1, df2)`, `χ2(df)` and `z` with their
   P in the same sentence, allowing for rounding on both sides. An inconsistent result is Minor
