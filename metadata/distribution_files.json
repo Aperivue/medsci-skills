@@ -53,8 +53,8 @@
     },
     {
       "path": "installers/medsci_txn.py",
-      "size": 24187,
-      "sha256": "f0847a29c3009715f3384c26bc5ba2262adef2bc64da0260d84cb5a0d8c2a679"
+      "size": 24176,
+      "sha256": "5448c8f05ea2724b3473355da86a4b299e3f28fa1e7b834a9f407e03c828b121"
     },
     {
       "path": "installers/session_update_check.py",
@@ -993,8 +993,8 @@
     },
     {
       "path": "skills/contribute/scripts/find_local_changes.py",
-      "size": 7584,
-      "sha256": "1dd82a3fe8383379531971b5db5f7262e48193efeed3a2147d5394138fca33d6"
+      "size": 7569,
+      "sha256": "d684bd27fc09190bda3cd2fb5df10d3a6601ce6959c4aacf38d7c7c256722746"
     },
     {
       "path": "skills/contribute/scripts/star_repo.py",
@@ -1273,8 +1273,8 @@
     },
     {
       "path": "skills/fill-icmje-coi/scripts/fill_icmje_coi.py",
-      "size": 6454,
-      "sha256": "01ce3b71c9ae35ec00311872f6bd8cca49dbfa4fab0988cd2a8788d44a947984"
+      "size": 6440,
+      "sha256": "43f7363d27667b949aa2d738d4bef1b6c29fe23c19416549b94096189fb387e9"
     },
     {
       "path": "skills/fill-icmje-coi/skill.yml",
@@ -1308,8 +1308,8 @@
     },
     {
       "path": "skills/fill-protocol/scripts/fill_form.py",
-      "size": 32103,
-      "sha256": "96315c2e55e2a5e73b026b788d90648d400540a73839dd12e1b87057bf914732"
+      "size": 31811,
+      "sha256": "bf2866a2381287abd5a9a1765067cfee6729ce3e7485dcd40dd52ce9813ace6d"
     },
     {
       "path": "skills/fill-protocol/scripts/inspect_template.py",
@@ -2553,8 +2553,8 @@
     },
     {
       "path": "skills/make-figures/scripts/build_prisma2020_template.py",
-      "size": 11498,
-      "sha256": "800104ca1d8eaaceb3a5db9c28f44581cafefa957ec136d13887bf6954b2e7be"
+      "size": 11493,
+      "sha256": "cf8b137e2c12c7ddf6f11ce8ea5e38dcffa64867b9846b792a717f99ba3937b8"
     },
     {
       "path": "skills/make-figures/scripts/build_strobe_template.py",
@@ -2608,13 +2608,13 @@
     },
     {
       "path": "skills/make-figures/scripts/generate_image.py",
-      "size": 3517,
-      "sha256": "cadd24f6443a52c7f76463edf68133e820c31ca80f4893442e63cd3f85bf37b0"
+      "size": 3503,
+      "sha256": "c3aeda2f8000e707e077dffb60353f7259d23a3b0a39201b1e5f94d4b8dd9961"
     },
     {
       "path": "skills/make-figures/scripts/generate_visual_abstract.py",
-      "size": 17203,
-      "sha256": "f5295c473b4559ccd664e089e0df175a607b836f62b8a348b7c09cca7e60a08d"
+      "size": 17128,
+      "sha256": "62a2904dc8b87bc552efcb8974521664bdc19b86d52d83acb95265a85514010c"
     },
     {
       "path": "skills/make-figures/scripts/render_core_figures.py",
@@ -2743,8 +2743,8 @@
     },
     {
       "path": "skills/manage-project/scripts/validate_project_contract.py",
-      "size": 9477,
-      "sha256": "081aa1a221c3c116d55b354501fd8dcf90906801ebe9eaff03f8db5e86aa77da"
+      "size": 9452,
+      "sha256": "727cea110aa1ce56cd541b528d251ae94f27b34100b252c67d8fc232579add61"
     },
     {
       "path": "skills/manage-project/skill.yml",
@@ -2968,13 +2968,13 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_xref.py",
-      "size": 36305,
-      "sha256": "c8ed6856f392843021db8d259fe83550b1a596d14e734990832c5a5e9be6a0db"
+      "size": 36287,
+      "sha256": "9ffeab9a69c0cb772e575454a77ef834953e0f0fcbe833436a71b5e7ae6a570b"
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",
-      "size": 5370,
-      "sha256": "a9d6ceab5a12832c3cbf9a329afef4afa9ed4964ad0e2a34dc5fa7ced5646bd1"
+      "size": 5365,
+      "sha256": "4d9d63c58eccef692c8a6b2cca01dc8046c6221c087ec865bdbf1d363b6052a6"
     },
     {
       "path": "skills/manage-refs/scripts/inject_zotero_cwyw.py",
@@ -3203,8 +3203,8 @@
     },
     {
       "path": "skills/meta-analysis/scripts/cohort_overlap_check.py",
-      "size": 9244,
-      "sha256": "1104565a5610d77a3f533c46e51c1ed507ffb400934bd82ef64394a6d7344b35"
+      "size": 9232,
+      "sha256": "7cbc0055804e63a096613b45592e316e9867f3fc15ec54753135596d6fed6e34"
     },
     {
       "path": "skills/meta-analysis/scripts/dta_extraction_qc.py",
@@ -4508,8 +4508,8 @@
     },
     {
       "path": "skills/present-paper/scripts/extract_pdf_figures.py",
-      "size": 10642,
-      "sha256": "de325fd64432ef94217a2478bec918d118a1b43670cdddb640eb0aab341ce41e"
+      "size": 10628,
+      "sha256": "cbde94de478b0bd1935fecb2ccc22966ed2eb3a8e2ade22532ad007b0ebcfcfc"
     },
     {
       "path": "skills/present-paper/scripts/inject_pronunciation_notes.py",
@@ -6423,8 +6423,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/preflight_gate.py",
-      "size": 31652,
-      "sha256": "3ee92270831bf8a1b293de21dc4a77d37b29dae83bc8f21e2933231ef5d3dc9c"
+      "size": 31632,
+      "sha256": "9821c6f7aebc6836d364ef8a1cf6ba50c64d4e5c6d371d5fb494f476a97aaaaa"
     },
     {
       "path": "skills/sync-submission/scripts/scope_drift_check.py",
@@ -6478,8 +6478,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/check_claim_fidelity.py",
-      "size": 33930,
-      "sha256": "eea3f2d6ec474c68c089401181403ce7a163b414b043962873cab7ecb9a5bf0c"
+      "size": 33919,
+      "sha256": "e33a5df1dbc5577217744f6fd8e00990c2eda805050f93f56e332569374d218a"
     },
     {
       "path": "skills/verify-refs/scripts/claim_fidelity_challenge/fixture/fulltext/10.1000_synthetic.oversight.md",
@@ -6528,8 +6528,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/verify_refs.py",
-      "size": 73477,
-      "sha256": "61020dd83737f4d079b339b6bf8a0b963bc08bdec55d7ebbe48a43586404f5ab"
+      "size": 73409,
+      "sha256": "040d782369a123522e5741086d183bec3977e989a3f69258084a339128e21c4a"
     },
     {
       "path": "skills/verify-refs/skill.yml",

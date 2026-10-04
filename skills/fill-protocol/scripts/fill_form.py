@@ -15,13 +15,11 @@ import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable
 
 import yaml
 from docx import Document
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import Pt
 from docx.text.paragraph import Paragraph
 from docx.table import _Cell
 
@@ -271,7 +269,6 @@ class FormFiller:
         new_content is split by \n\n into separate paragraphs (preserving the
         style of the first replaced paragraph).
         """
-        body = self.doc.element.body
         all_ps = list(self.doc.paragraphs)
 
         # Find header paragraph
@@ -316,9 +313,6 @@ class FormFiller:
             # No paragraphs between header and next section — just insert
             from copy import deepcopy
             template_p = all_ps[header_idx]._element
-            template_pPr = template_p.find(qn("w:pPr"))
-            template_r = template_p.find(qn("w:r"))
-            template_rPr = template_r.find(qn("w:rPr")) if template_r is not None else None
 
             insert_after = template_p
             # Blank line right after section header

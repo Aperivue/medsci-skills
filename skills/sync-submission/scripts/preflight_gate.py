@@ -47,7 +47,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCRIPTS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPTS_DIR))
-from sync_submission import resolve_canonical, submission_md_path, bundle_binding  # noqa: E402
+from sync_submission import resolve_canonical, bundle_binding  # noqa: E402
 
 PY = sys.executable
 

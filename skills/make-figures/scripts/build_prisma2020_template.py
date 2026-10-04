@@ -38,7 +38,7 @@ from pathlib import Path
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
-from pptx.util import Emu, Inches, Pt
+from pptx.util import Inches, Pt
 
 # ── Layout constants (inches) ────────────────────────────────────────────────
 SLIDE_W = 13.33

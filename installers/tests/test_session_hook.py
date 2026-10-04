@@ -22,7 +22,6 @@ from pathlib import Path
 
 INSTALLERS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(INSTALLERS))
-import medsci_txn  # noqa: E402
 import update  # noqa: E402
 
 HOOK_SCRIPT = INSTALLERS / "session_update_check.py"

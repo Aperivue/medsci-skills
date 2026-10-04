@@ -19,7 +19,7 @@ Usage:
   python fill_journal_abbrev.py --bib refs.bib --out refs_nlm.bib            # shortjournal only
   python fill_journal_abbrev.py --bib refs.bib --out refs_nlm.bib --titles   # + title double-brace
 """
-import argparse, re, json, time, urllib.request, urllib.parse, sys
+import argparse, re, json, time, urllib.request, urllib.parse
 
 EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 UA = {"User-Agent": "medsci-manage-refs/1.0"}
