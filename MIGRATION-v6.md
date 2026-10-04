@@ -70,7 +70,7 @@ it are gone (kept in the backup if you had changed that skill). Running it again
 - **Claude Code plugin marketplace:** the marketplace follows the repository's `main` branch.
   Auto-update for third-party marketplaces is off by default, so turn it on or run a manual plugin
   update from `/plugin`. Plugins are managed by Claude Code, not by the MedSci Skills installer,
-  so no backup is made. To stay on v6.0.1 rather than follow `main`, add the marketplace with that
+  so no backup is made. To stay on v6.1.0 rather than follow `main`, add the marketplace with that
   tag; see [the plugin section](docs/install.md#claude-code-plugin-marketplace).
 - **GitHub CLI (`gh skill`, a preview feature):** `gh skill update --all` updates the skills you
   already have. The three new skills are not among them, so install each by name with the same
