@@ -98,8 +98,8 @@ score.
   finding (2% prevalence) a system that always answers "negative" scores 98%. Report
   **per-class sensitivity/specificity** (or precision/recall/F1) with CIs, and **PPV/NPV at the
   real clinical prevalence**, not on an artificially balanced QA set; give accuracy only
-  alongside them (Reinke et al., *Nat Methods* 2024, the accuracy pitfall under class
-  imbalance; STARD 2015). State **how refusals/abstentions are scored** (counted wrong,
+  alongside them (Reinke et al., *Nat Methods* 2024, class imbalance as a source of metric
+  pitfalls; STARD 2015). State **how refusals/abstentions are scored** (counted wrong,
   excluded, or credited) — the choice can move the headline.
 
 ## Reader study for generated reports (ME7 → `READER_STUDY_MISSING`)

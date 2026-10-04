@@ -1023,8 +1023,8 @@
     },
     {
       "path": "skills/cross-national/references/chns_coding.md",
-      "size": 3863,
-      "sha256": "6e59c22379171f4042ce155897115d2129c9909434c4fc1211542bef0d31e3b8"
+      "size": 4071,
+      "sha256": "09ac8d478693f32558b2abe648bac0f6d87a4bebadb1778fb3f485a9c09d4dd9"
     },
     {
       "path": "skills/cross-national/skill.yml",
@@ -3008,8 +3008,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 34631,
-      "sha256": "3672f203bf5b48842073837f6990802bcbbd5f41c96eaaec6617d41c7d191e03"
+      "size": 34600,
+      "sha256": "e3f137979a133d48b1ca6d2e4ed63fa7198cf2c7a5a55563e1dfa9f0e354c5be"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -3103,8 +3103,8 @@
     },
     {
       "path": "skills/meta-analysis/references/phase6_statistical_synthesis.md",
-      "size": 17199,
-      "sha256": "a588f7cf21ee684c2df519d4858636cb2fe7931393a2b08e638504db09c7b71e"
+      "size": 17185,
+      "sha256": "ebc461a5c4d1d0bb97efbfb6df4f52e8a4f27b8bda84aeebf7c1d13d4de3c4a8"
     },
     {
       "path": "skills/meta-analysis/references/phase9_circulation.md",
@@ -3273,8 +3273,8 @@
     },
     {
       "path": "skills/mllm-eval/references/evaluation_axes.md",
-      "size": 12348,
-      "sha256": "9b983a251c05f833e88bf9073f31c972231ef51c2d91dc8a58b546edc3b7a8e8"
+      "size": 12352,
+      "sha256": "d0c8d77204b85aa3830bb6b8d75e5c003192c7a8f1e10dea05fc93250e63f577"
     },
     {
       "path": "skills/mllm-eval/scripts/check_mllm_eval_completeness.py",
@@ -3688,8 +3688,8 @@
     },
     {
       "path": "skills/model-selection/references/classification.md",
-      "size": 7256,
-      "sha256": "b40cde279736ad23ebb1770fea93c9be7a73411491bce9b10a6a3b299627def0"
+      "size": 7417,
+      "sha256": "84c7af3d8986788f0038204967d5aea06f0b6315f9cc48036c1391dca57bb428"
     },
     {
       "path": "skills/model-selection/references/detection.md",
@@ -3708,8 +3708,8 @@
     },
     {
       "path": "skills/model-selection/references/index.md",
-      "size": 5310,
-      "sha256": "da649fcf937076d708594085cd3aeae38f9ebe1e4e3f0ae313e8cf083792783b"
+      "size": 5343,
+      "sha256": "f1fcb2967ab9dab76df7f80b04591765e84e94693d1fbcb24864d2d4d8d9c1a2"
     },
     {
       "path": "skills/model-selection/references/segmentation.md",
