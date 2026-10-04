@@ -114,9 +114,12 @@ python3 "$SCRIPT" "$HERE/fixtures/gen_api_defaults.py" --out "$OUT" --strict --q
 check "exit 0 under --strict: API-default claims are Minor" test "$?" -eq 0
 check "ttest_ind without equal_var + default LogisticRegression next to exp(coef_)" \
     claims_are "[('API_DEFAULT_STUDENT_T','Minor',14),('API_DEFAULT_PENALIZED_OR','Minor',16)]"
-for f in gen_api_defaults_ok.py gen_api_lr_no_or.py gen_api_ttest.R; do
+for f in gen_api_defaults_ok.py gen_api_lr_no_or.py gen_api_ttest.R \
+         gen_api_statsmodels_ttest.py gen_api_or_other_model.py; do
     python3 "$SCRIPT" "$HERE/fixtures/$f" --out "$OUT" --strict --quiet >/dev/null 2>&1
-    check "exit 0 and no claim: stated equal_var / C / penalty, no OR, or R t.test ($f)" claims_are "[]"
+    check "exit 0: stated equal_var / C / penalty / l1_ratio, no exp(coef_), R t.test, or statsmodels ttest_ind ($f)" \
+        test "$?" -eq 0
+    check "no claim on $f" claims_are "[]"
 done
 python3 "$SCRIPT" "$HERE/fixtures/gen_api_unparseable.py" --out "$OUT" --strict --quiet >/dev/null 2>&1
 check "exit 0: unparseable file naming ttest_ind is API_DEFAULTS_NOT_ASSESSED" test "$?" -eq 0

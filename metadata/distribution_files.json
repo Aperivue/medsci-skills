@@ -198,8 +198,8 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 27907,
-      "sha256": "7fede635d905507278153733c0852a0f4ce1b8f047a8c285f44671a7c0295fbb"
+      "size": 27928,
+      "sha256": "ee32227f9665202c8c90ef85dc8053ed02e1290ada00ab1efa6aca8657bea174"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/agreement_reliability.md",
@@ -478,8 +478,8 @@
     },
     {
       "path": "skills/analyze-stats/scripts/check_generated_code.py",
-      "size": 24599,
-      "sha256": "2e65949e591a576f59fefc781d672362efebb74d066dd2247f23445fc086ded6"
+      "size": 26996,
+      "sha256": "85a843add5a5d967d79e60d6cd15a9a217e1a1b7236e500a236d480997bed981"
     },
     {
       "path": "skills/analyze-stats/scripts/check_separation.py",

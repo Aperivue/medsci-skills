@@ -18,5 +18,8 @@ model.fit(df[["age", "bmi"]], df["event"])
 odds_ratios = np.exp(model.coef_[0])
 ridge = LR(penalty="l2", max_iter=1000)   # a stated penalty is a choice
 ridge.fit(df[["age", "bmi"]], df["event"])
+lasso = LR(l1_ratio=1.0, solver="saga", max_iter=1000)  # sklearn >= 1.8 names the penalty so
+lasso.fit(df[["age", "bmi"]], df["event"])
 pd.Series(odds_ratios, index=["age", "bmi"]).to_csv("odds_ratios.csv")
-print(f"t = {t:.2f}, P = {p:.3f}; {t2:.2f}, {p2:.3f}; {ridge.score(df[['age', 'bmi']], df['event']):.3f}")
+print(f"t = {t:.2f}, P = {p:.3f}; {t2:.2f}, {p2:.3f}; {ridge.score(df[['age', 'bmi']], df['event']):.3f}; "
+      f"{lasso.score(df[['age', 'bmi']], df['event']):.3f}")
