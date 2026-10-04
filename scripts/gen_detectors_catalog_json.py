@@ -57,6 +57,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_artifact_coverage": "numerical_cohort",
     "check_rounded_delta": "numerical_cohort",
     "check_pool_consistency": "numerical_cohort",
+    "check_ratio_ci_symmetry": "numerical_cohort",
     "detect_copy_divergence": "numerical_cohort",
     "derive_figure_legend_counts": "numerical_cohort",
     # Citation & reference integrity
@@ -80,6 +81,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_text_overflow": "style_review",
     "check_generated_code": "style_review",
     "check_panel_diversity": "style_review",
+    "check_review_coverage": "style_review",
     "check_reviewer_team_consistency": "style_review",
     "check_paren_spans": "style_review",
     "check_training_hygiene": "style_review",

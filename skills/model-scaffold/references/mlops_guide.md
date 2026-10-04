@@ -45,8 +45,9 @@ into `train.py`. A hyperparameter that isn't in the config isn't reproducible.
 Pin `requirements.txt` to exact versions before publishing (`pip freeze`, or a `conda env
 export`). For a hard reproducibility guarantee, a Dockerfile / container digest removes "works
 on my machine". Record the CUDA / driver / GPU — some GPU ops are non-deterministic even with
-cuDNN deterministic set, which is why metrics are reported as **mean ± SD over ≥ 3 seeds**, not
-a single run.
+cuDNN deterministic set, which is why metrics are reported as **mean ± SD over ≥ 5 seeds**, not
+a single run (three runs give a very imprecise SD: 95% CI about 0.5-6 x the observed SD; with five
+runs about 0.6-2.9 x).
 
 ## Pipeline orchestration — use the framework's, not a new one
 For segmentation, **nnU-Net** owns preprocessing → training → inference as a pipeline; build
@@ -63,7 +64,7 @@ training run in CI — it is slow, non-deterministic, and not what CI is for.
 
 ## What to report (the MLOps reporting checklist)
 State, in Methods or a reproducibility appendix: the **compute environment** (framework +
-versions, CUDA / driver, GPU), the **seed(s)** and that metrics are mean ± SD over ≥ 3 seeds,
+versions, CUDA / driver, GPU), the **seed(s)** and that metrics are mean ± SD over ≥ 5 seeds,
 the **config** (as a supplement or a tracker link), the **dataset version** (`/version-dataset`
 hash), and the **tracking run** URL / ID. This is the reproducibility half of TRIPOD+AI /
 CLAIM 2024; `/check-reporting` covers the items.

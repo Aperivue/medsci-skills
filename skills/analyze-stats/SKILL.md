@@ -198,6 +198,10 @@ Fix every Major before reporting the script: `MISSING_SEED` (randomness with no 
 subset), `HARDCODED_ABS_PATH` (non-portable and a PII risk), and `INPLACE_SOURCE_OVERWRITE`
 (writing to the path read as input — never modify raw data; write derived outputs to a new
 path). Fix the flags `DEBUG_LEFTOVER` and `UNUSED_IMPORT` when tidying.
+Minor, Python only: `API_DEFAULT_STUDENT_T` (scipy's `ttest_ind` without `equal_var` is Student's
+t; state Welch or the reason for Student) and `API_DEFAULT_PENALIZED_OR` (`LogisticRegression`
+with none of `penalty`, `C`, `l1_ratio`, in a file that exponentiates a `coef_`). R's `t.test()`
+is Welch by default.
 
 ### Phase 4: Report
 

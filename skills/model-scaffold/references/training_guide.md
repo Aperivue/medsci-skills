@@ -26,9 +26,10 @@ whole cohort is preprocessing-before-split leakage — see `/model-assessment` M
 ## Optimisation defaults that travel well
 AdamW + a cosine or warmup schedule; gradient clipping for unstable losses; early
 stopping / best-checkpoint on the **validation** split (never the test set); automatic
-mixed precision (AMP) for speed. Report the metric as **mean ± SD over ≥ 3 seeds**, not
+mixed precision (AMP) for speed. Report the metric as **mean ± SD over ≥ 5 seeds**, not
 a single run (deep metrics move with seed/init; some GPU ops are non-deterministic even
-with cuDNN deterministic set).
+with cuDNN deterministic set). Three runs give a very imprecise SD (95% CI about 0.5-6 x
+the observed SD; with five runs about 0.6-2.9 x).
 
 ## Reproducibility record
 Before publishing, complete `REPRODUCIBILITY.md`: pinned `requirements.txt`

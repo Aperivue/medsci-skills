@@ -686,6 +686,14 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/meta-analysis/scripts/check_exclusion_code_validity_challenge/verify.sh
 
+      - name: "Run meta-analysis ratio-CI symmetry challenge (impossible CI -> Major; mistyped bound / undeclared exact CI -> Minor; Wald and declared CIs -> clean)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/meta-analysis/scripts/check_ratio_ci_symmetry_challenge/verify.sh
+
+      - name: Run meta-analysis ratio-CI symmetry test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/meta-analysis/tests/test_ratio_ci_symmetry.sh
+
       - name: Run generate-codebook test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/generate-codebook/tests/test_generate_codebook.sh
@@ -1005,6 +1013,14 @@ jobs:
       - name: "Run self-review perspective-structure challenge (IMRAD headings + flat abstract in a Perspective; genre-gated, Minor)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_perspective_structure_challenge/verify.sh
+
+      - name: "Run self-review coverage-ledger challenge (PASS over a not_assessed category is Major; legacy JSON is Minor)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/self-review/scripts/check_review_coverage_challenge/verify.sh
+
+      - name: "Run self-review coverage-ledger input-validation test (malformed ledger exits 2 naming the field)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/self-review/tests/test_review_coverage.sh
 
       - name: Run analyze-stats generated-code gate test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

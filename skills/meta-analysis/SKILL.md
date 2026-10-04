@@ -145,7 +145,7 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/prisma_5way_consistency.py --ssot prisma.yam
 Exclusion-code verdicts: `CODE_CONTRADICTS_ELIGIBILITY` (a code excludes a design the protocol
 includes — bulk study loss no other gate can see), `CODE_NOT_REGISTERED`, `CODE_RENUMBERED`. Verdicts,
 `NOT_ASSESSED` cases and known limits of all 3f gates: `references/phase3_screening_detail.md` §3f.
-- Known limit: PRISMA 5-way skips `after_dedup → full_text_assessed` (no key for records removed pre-screening).
+- Known limit: PRISMA 5-way still skips `after_dedup → full_text_assessed`; optional `prisma2020:` counts add report-level identities (§3f).
 
 **3f.5 Pool composition lock (MANDATORY at adjudication freeze).** Once 3f passes, freeze the pool
 into a single source-of-truth YAML that every downstream artifact can be checked against:
@@ -309,6 +309,14 @@ setting. R and detail in the same reference:
    estimate per study, a multivariate model, or robust variance estimation — not
    independent pooling.
 
+Before pooling transcribed ratio CIs (and back-deriving SEs), check them (columns `study, measure,
+estimate, lower, upper`, optional `ci_level` in percent and `ci_method`); `RATIO_CI_IMPOSSIBLE` is
+Major, `RATIO_CI_ASYMMETRIC` (Minor) means verify the transcription or declare `ci_method`:
+
+```bash
+python3 ${CLAUDE_SKILL_DIR}/scripts/check_ratio_ci_symmetry.py --extraction 2_Extraction/extraction.csv --out 2_Extraction/qc/ratio_ci.json --strict
+```
+
 ### Phase 6b: Post-Analysis Source Fidelity Audit (MANDATORY)
 
 **Goal**: Catch numerical hallucinations that survived the forward pipeline (CSV → .R → manuscript).
@@ -417,7 +425,7 @@ Re-read `references/empirical_lessons.md` before submission.
    | **22 / 15** | Certainty of evidence per outcome, and the method used to assess it | 9% |
    | **13f / 20d** | Sensitivity analysis: method and result | 28% (5/18) |
    | **18** | Risk of bias **per study**, shown study-by-study rather than as a pooled proportion | 32% |
-   | **13d** | Rationale for the synthesis model (see Phase 6 check 2) | 35% [VERIFY: the text implies 5/18 = 28%] |
+   | **13d** | Rationale for the synthesis model (see Phase 6 check 2) | 28% (5/18) |
    | **16b** | Studies that look eligible but were excluded, cited individually with the reason | 25% |
    | Abstract **#3, #12** | Eligibility criteria and registration inside the structured abstract | 0/24 each |
 

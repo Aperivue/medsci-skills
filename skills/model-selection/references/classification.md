@@ -26,7 +26,9 @@ note; never quote a benchmark you have not cited.
 - **Core idea**: identity skip connections let very deep nets train (the residual `F(x)+x`
   eases optimisation / vanishing gradients).
 - **When to use**: the **safe default** for 2-D medical classification; ResNet-50 is a
-  strong, well-understood, well-calibrated baseline that plays nicely with Grad-CAM.
+  strong, well-understood baseline that plays nicely with Grad-CAM. Like most deep networks it
+  tends to be over-confident: measure calibration on the validation split and recalibrate
+  (e.g. temperature scaling) before reporting probabilities.
 - **Medical-imaging use**: CXR multi-label classification, fundus grading, path-tile
   classification; a ResNet-FPN is the backbone for detection (see `segmentation.md`).
 - **Reference impl**: `timm` (`resnet50`, pretrained); torchvision.

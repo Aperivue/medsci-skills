@@ -201,8 +201,8 @@ def analyze(report: str, task: str) -> dict:
         if has(text, "dice_iou") and not has_affirmative(text, "boundary"):
             add("NO_BOUNDARY_METRIC", "Major",
                 "Dice/IoU is reported without a boundary metric (HD95 / NSD / surface distance) — "
-                "overlap alone is shape- and size-insensitive; pair it with a boundary metric, "
-                "per structure")
+                "overlap alone is shape-insensitive and penalises the same boundary error far more "
+                "on small structures; pair it with a boundary metric, per structure")
     if task == "interactive":
         # A promptable / interactive method's contribution is the accuracy-vs-interaction
         # trajectory and its efficiency, not a single operating point; a static Dice omits
@@ -476,8 +476,8 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
         if metrics & OVERLAP and not metrics & BOUNDARY:
             add("NO_BOUNDARY_METRIC", "Major",
                 "Dice/IoU is declared without a boundary metric (HD95 / NSD / surface distance) — "
-                "overlap alone is shape- and size-insensitive; pair it with a boundary metric, "
-                "per structure", "metrics")
+                "overlap alone is shape-insensitive and penalises the same boundary error far more "
+                "on small structures; pair it with a boundary metric, per structure", "metrics")
     if task == "interactive":
         if not axis and "noc" not in metrics:   # NoC is the interactions-to-threshold metric
             add("INTERACTIVE_NO_INTERACTION_COUNT", "Major",

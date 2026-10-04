@@ -30,6 +30,7 @@
 - `python3 scripts/check_pool_consistency.py`
 - `bash scripts/extract_assist_challenge/verify.sh  # deterministic, network-free`
 - `bash scripts/check_exclusion_code_validity_challenge/verify.sh  # deterministic, network-free`
+- `bash scripts/check_ratio_ci_symmetry_challenge/verify.sh  # deterministic, network-free`
 
 **Evidence** — `demo`
 
@@ -61,6 +62,8 @@
 - `check_exclusion_code_validity.py`
 - `check_exclusion_code_validity_challenge/` (6 files)
 - `check_pool_consistency.py`
+- `check_ratio_ci_symmetry.py`
+- `check_ratio_ci_symmetry_challenge/` (4 files)
 - `cohort_overlap_check.py`
 - `dta_extraction_qc.py`
 - `extract_assist.py`

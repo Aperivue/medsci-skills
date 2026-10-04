@@ -55,6 +55,8 @@
 - `bash scripts/refinement_stop_challenge/verify.sh  # terminal-state loop controller: zero-edit PASS / stop signal from qc/*.json`
 - `bash scripts/check_baseline_drift_challenge/verify.sh  # framing drift (strength/significance/scope/hedge) vs the last human-approved baseline`
 - `bash scripts/refinement_regression_challenge/verify.sh  # regression axis: fixed vs broke across runs (ledger); Mirror-Loop churn`
+- `bash scripts/check_review_coverage_challenge/verify.sh  # coverage ledger: PASS over a not_assessed category / probe is Major; legacy JSON without a ledger is Minor`
+- `bash tests/test_review_coverage.sh  # coverage-ledger input validation (exit 2 names the field), BOM, legacy --strict`
 - `bash scripts/check_perspective_structure_challenge/verify.sh  # IMRAD headings + flat abstract in a Perspective (genre-gated, Minor)`
 - `feed R0-numbered output into /revise`
 
@@ -111,6 +113,8 @@
 - `check_reference_adequacy.py`
 - `check_reported_p_from_counts.py`
 - `check_reported_p_from_counts_challenge/` (6 files)
+- `check_review_coverage.py`
+- `check_review_coverage_challenge/` (10 files)
 - `check_reviewer_team_consistency.py`
 - `check_rhetorical_density.py`
 - `check_rounded_delta.py`

@@ -3,7 +3,8 @@
 ## Problem
 The metric must match the task and the prevalence. The recurrent failures are a
 **segmentation** result reported as **pixel accuracy** or **Dice alone** (overlap is
-shape- and size-insensitive; pixel accuracy is meaningless on an imbalanced mask), a
+shape-insensitive and penalises the same boundary error far more on small structures;
+pixel accuracy is meaningless on an imbalanced mask), a
 **classification** result reported as **bare accuracy** on a balanced set (prevalence-
 dependent, hides minority-class failure), and a **detection** result with no FROC/mAP or
 no stated IoU criterion. These pass a prose read but are caught by Metrics Reloaded

@@ -1,0 +1,4 @@
+Review verdict read: PASS
+Coverage entries: 13 (assessed 12, not_applicable 1, not_assessed 0)
+
+OK (as declared): all 13 coverage entries are assessed or not_applicable with a reason.

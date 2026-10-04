@@ -6,7 +6,9 @@ a 2-country (KR+US) design needs none of it.
 ## CHNS Variable Coding Reference (validated via 3-country batch)
 
 **Data source**: cpc.unc.edu/projects/china (free registration)
-**Biomarker wave**: 2009 only (N=9,549). Other variables available 1989-2015.
+**Biomarker wave**: 2009 only (fasting blood was first collected in 2009; N=9,549 in the
+biomarker file — Yan et al. 2012, PMID 22738663, analysed 9,244 aged ≥ 7 with fasting blood and
+anthropometry, so confirm the N against the CHNS codebook). Other variables available 1989-2015.
 **Survey design**: No formal weights. Use `svydesign(id=~COMMID, weights=~1)` or cluster-robust SE.
 
 ### Key Files and Merge Strategy

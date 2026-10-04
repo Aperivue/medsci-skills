@@ -30,7 +30,7 @@ scope here by design.
 ## Coverage status, and the planned refresh
 
 The harnesses above are **v3.8-era**: E1 rests on 19 `DefectSpec` rows / 17 offline injectors and
-E7 is n=21, while the current catalog is **90 detectors**. Detectors added since are covered by
+E7 is n=21, while the current catalog is **91 detectors**. Detectors added since are covered by
 per-detector CI challenge cards — regression tripwires, not a benchmark.
 
 [`REFRESH_PROTOCOL.md`](REFRESH_PROTOCOL.md) pre-registers the refresh that closes that gap:
