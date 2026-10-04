@@ -362,7 +362,7 @@ Fix all issues found, then present to user.
 - [ ] `check_review_request_types.py --review <draft> --strict` exits 0 — every Major's ask classified disclosure vs computation; each computation request justified (existing tables cannot answer it) and its estimator named; no subset-vs-parent-cohort P value requested, no new-data request
 - [ ] Impossibility claims (requires/cannot/impossible/must/contradicts) restated as premise→conclusion + counterexample-tested; reviewer-requested new statistics re-derived from the manuscript's own cells (correctness ≠ presence)
 - [ ] Fatal flaw hierarchy stated in Confidential Comments (if applicable)
-- [ ] Reject recommendations (if used): Phase 2F conditions (design/validity flaw, speculative value, weak novelty) explicitly verified — at least 2 of 3 conditions met
+- [ ] Reject recommendations (if used): each Phase 2F condition (design/validity flaw, speculative value, weak novelty) answered with evidence, and the Reject follows from Phase 2F (conditions 2 and 3 both hold, or an unfixable defect governs the tier)
 - [ ] AI/method/review Major Revision (or reconsider-tier) recommendations: Phase 2F contribution/value gate checked; weak novelty + weak utility not silently softened; for review articles, weak-novelty/no-distinct-contribution treated as unfixable-in-current-form (escalate toward Reject); unfixable defects govern tier over fixable list; confidential note carries no Reject-grade language left inconsistent with a softer recommendation
 
 ## Tone and Calibration
