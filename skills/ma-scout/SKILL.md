@@ -181,7 +181,7 @@ server: "medrxiv"  (clinical topics; "biorxiv" for preclinical)
 | MA gap | 0 existing = best, 1-3 = check scope overlap, >5 = saturated |
 | Primary k | ≥8 for DTA, ≥6 for prognostic (minimum), ≥15 ideal |
 | Recency | Last MA >5 years old = update opportunity |
-| Competition | Check 2024-2026 for very recent MAs that block entry |
+| Competition | Check the last two years for very recent MAs that block entry |
 
 #### 2f. PROSPERO competition check (MANDATORY)
 
@@ -370,13 +370,13 @@ Before finalizing a topic as viable:
 - [ ] (A) Professor's publication record demonstrates clear authority in this area
 - [ ] (B) Clinical question refined to PICO/PIRD (not just a keyword)
 - [ ] (A) Confirmed MA = 0 or last MA >5 years (via PubMed E-utilities, not assumption)
-- [ ] **Cross-validated** via PubMed + Consensus + Scholar Gateway + bioRxiv/medRxiv — no hidden MAs with different terminology, no preprint MA in progress
+- [ ] **Cross-validated** via PubMed plus every connected semantic or preprint source (Consensus, Scholar Gateway, bioRxiv/medRxiv); a source that was unavailable is named and recorded as not checked, never as "no competing work found" — no hidden MAs with different terminology, no preprint MA in progress
 - [ ] Confirmed k_realistic ≥ 8 (DTA) or ≥ 6 (prognostic), where k_realistic = raw count × 0.15–0.30
       (§2g: keep 15–30% of raw hits, i.e. a 70–85% discount — not a 15–30% discount)
 - [ ] **PROSPERO searched** — the search ran and returned results (query + date recorded, §2f), and no
       registered competing protocol was found. A PROSPERO search that failed or was unavailable is
       "not checked", never "none found": this item stays open
-- [ ] No 2024-2026 competing MA in press or preprint
+- [ ] No competing MA from the last two years in press or preprint
 - [ ] Research question is specific enough for PROSPERO registration
 - [ ] (B) User's domain expertise sufficient for clinical interpretation (or co-author identified); 2nd reviewer identified or plan to recruit
 - [ ] (B) If self-led: user has ≥ 2 published MAs (otherwise, recommend co-author)

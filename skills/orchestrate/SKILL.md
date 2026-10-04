@@ -111,7 +111,7 @@ it. The rows below cover modes and flags, look-alike skills, and non-English phr
 ### Multi-skill workflows (plan then execute sequentially)
 
 The **Nodes** column lists the decision forks to render in interactive mode (Dialogue Protocol
-below); N1–N11 are defined in `${SKILL_DIR}/references/dialogue_nodes.md`.
+below); N1–N11 are defined in `${CLAUDE_SKILL_DIR}/references/dialogue_nodes.md`.
 
 | Scenario | Skill chain | Nodes |
 |----------|-------------|-------|
@@ -160,7 +160,7 @@ plan list and "Shall I proceed?", because that silently commits the paper type, 
 journal or recovery branch. Also pause at write-paper's built-in gates (outline approval, discussion
 planning).
 
-Load `${SKILL_DIR}/references/dialogue_nodes.md` the first time the pipeline enters a decision fork
+Load `${CLAUDE_SKILL_DIR}/references/dialogue_nodes.md` the first time the pipeline enters a decision fork
 in the current session; it holds each node's options, rendering template and autonomous default.
 
 **Per-fork execution sequence:**
@@ -273,7 +273,7 @@ next skill.
 At the termination of every `--e2e` invocation — whether the pipeline completed,
 halted at pre-flight, or halted on post-skill validation — the Worker MUST write
 `manuscript/<id>/REPORT.md` using the template at
-`${SKILL_DIR}/references/report_template.md`.
+`${CLAUDE_SKILL_DIR}/references/report_template.md`.
 
 - Copy every section of the template verbatim. Never delete a section. Empty fields are
   filled with `(none)` or `(unknown)` — never omitted, never collapsed.
@@ -312,7 +312,7 @@ emails are saved as a Gmail Draft only — never sent.
 
 ### Data Flow Contract
 
-Read `${SKILL_DIR}/references/data_flow_contract.md` when chaining a skill and you need what it
+Read `${CLAUDE_SKILL_DIR}/references/data_flow_contract.md` when chaining a skill and you need what it
 reads or writes (the Standard Pipeline above already names its own files).
 
 ### Post-E2E: Journal Selection & Submission Prep

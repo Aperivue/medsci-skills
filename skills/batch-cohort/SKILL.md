@@ -176,5 +176,5 @@ data file in README.
 When `cross_national: true`:
 - Generate paired scripts for each combination (Korea + US), using /cross-national's
   dual-survey-design approach
-- Summary matrix includes both countries side-by-side, with a direction-agreement column (✓ if
-  both countries show the same direction of effect)
+- Summary matrix includes both countries side-by-side, with a ratio-of-ORs column (95% CI; P) computed
+  as in `/cross-national` Phase 4, not a direction-agreement tick

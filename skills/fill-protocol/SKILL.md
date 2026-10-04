@@ -134,7 +134,7 @@ section_end:
 soffice --headless --convert-to pdf path/to/filled.docx
 ```
 
-Open the PDF and confirm: page count is sensible, no table row was split across pages, no font fell
+Without LibreOffice (a `.docx` template skips it), export the PDF from Word instead. Open the PDF and confirm: page count is sensible, no table row was split across pages, no font fell
 back to Times New Roman, all required fields are populated.
 
 Read `${CLAUDE_SKILL_DIR}/references/best_practices.md` when a label or section header does not

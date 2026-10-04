@@ -558,8 +558,8 @@
     },
     {
       "path": "skills/batch-cohort/SKILL.md",
-      "size": 9885,
-      "sha256": "7ae702a9ca4f98d4ea4e1247288830b70aa4ca82a693db299cda1950deb2aa72"
+      "size": 9905,
+      "sha256": "8f9b00b4e83b4261ba27e0a598245601e3d2d73816e9756aa18e4849f3fc17ed"
     },
     {
       "path": "skills/batch-cohort/skill.yml",
@@ -1033,8 +1033,8 @@
     },
     {
       "path": "skills/define-variables/SKILL.md",
-      "size": 7486,
-      "sha256": "d5a8d500cd7ac22ce42c5784080307511cb189bab80ed6da24b088f7388a6e9a"
+      "size": 7577,
+      "sha256": "9bf85903bf29437f41bdaaafbf46ee789262d5bf6d15989cfb3ebb9db5f62219"
     },
     {
       "path": "skills/define-variables/references/common_definitions.md",
@@ -1288,8 +1288,8 @@
     },
     {
       "path": "skills/fill-protocol/SKILL.md",
-      "size": 7032,
-      "sha256": "2d7082c97468d9cd792165d76e49652f96700620ceb0353226faa0d19e07333b"
+      "size": 7117,
+      "sha256": "dd6ff438de08576d65444b442f59d2dbcc8adb014108e32a869244fe5bf64baf"
     },
     {
       "path": "skills/fill-protocol/examples/example_irb_template.yaml",
@@ -2123,8 +2123,8 @@
     },
     {
       "path": "skills/intake-project/SKILL.md",
-      "size": 6287,
-      "sha256": "3caa38056147cf43b1bf8c51ff19ea7e7d811dafc2c9878d717c389905209420"
+      "size": 6630,
+      "sha256": "619e13d9ed4427b00d46b43ada7daadf873272a373c6c089d081258304e08b12"
     },
     {
       "path": "skills/intake-project/references/memory_templates.md",
@@ -2173,8 +2173,8 @@
     },
     {
       "path": "skills/ma-scout/SKILL.md",
-      "size": 21503,
-      "sha256": "6287818962889e01839c8ba07230fb7dd2fb75d777e2a48c28f4ab90cafe249c"
+      "size": 21677,
+      "sha256": "89ddf9a2705306e7c0f460a6006b749caba590ba3aa47d4d39c02ec9813b5ab1"
     },
     {
       "path": "skills/ma-scout/references/project_readme_template.md",
@@ -2198,8 +2198,8 @@
     },
     {
       "path": "skills/make-figures/SKILL.md",
-      "size": 33516,
-      "sha256": "131f2d9d12a2738a1ca0e3e90e52e691ff1bea8137e6d0a0c03febc3bb37643f"
+      "size": 33584,
+      "sha256": "38fc08aee5775b157572b4c189444c403579b7cfe9035e154643b616628b8b0d"
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/data_plot.md",
@@ -3653,8 +3653,8 @@
     },
     {
       "path": "skills/model-scaffold/SKILL.md",
-      "size": 12412,
-      "sha256": "12b9cedce1691f41d835a457cb0083a6ffb814f6feb513fafc6ce504b785bb7e"
+      "size": 12452,
+      "sha256": "d0c0d20bbeab5a428ce1054cf2dbba42c37a7248eb0734295a4cdd810c14273b"
     },
     {
       "path": "skills/model-scaffold/references/finetuning_guide.md",
@@ -3808,8 +3808,8 @@
     },
     {
       "path": "skills/obsidian-paper-vault/SKILL.md",
-      "size": 6331,
-      "sha256": "05a18e8c796b88fa027fc1cb3351b0914c9379f550cade5976306b836665368e"
+      "size": 6313,
+      "sha256": "996316c59d9cbb053c147e699b0b5fac972e32052689d02e9df9f6b15b9d13d7"
     },
     {
       "path": "skills/obsidian-paper-vault/assets/example_concept_note.md",
@@ -3868,8 +3868,8 @@
     },
     {
       "path": "skills/orchestrate/SKILL.md",
-      "size": 32906,
-      "sha256": "951ec562be5dfa409b5840b7b92473840988c6e90d0fab26bccc61f1af9b3a17"
+      "size": 32934,
+      "sha256": "da592551724b83f55a0d36bb9f9d9b9480a47dedfdf6997be8a9601d3f3ca5cc"
     },
     {
       "path": "skills/orchestrate/references/data_flow_contract.md",
@@ -4348,8 +4348,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 36625,
-      "sha256": "e185d2b8e091e14f911197fb56fb09b29db7ffc8738b571f62111327b1f9b3b8"
+      "size": 36610,
+      "sha256": "50bc7056660b1ef86c7df8900890c7a4eecf78e58b7732476c3e1a98c3868a6b"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -4553,8 +4553,8 @@
     },
     {
       "path": "skills/publish-skill/SKILL.md",
-      "size": 12628,
-      "sha256": "c6e9985e3b17208b5a5e86f20f316d2a57590367edeaba663f7c0ee0faabc916"
+      "size": 12914,
+      "sha256": "f05cd73ca9a1e94884ac5373142ebaadb1c7f7780effa0173ebc2c75b9c031b1"
     },
     {
       "path": "skills/publish-skill/references/classroom-distribution.md",

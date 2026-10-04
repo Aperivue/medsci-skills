@@ -55,7 +55,7 @@ For variables NOT in Tier 1, OR when subgroup justification is needed (Asian-spe
 e.g., "obstructive sleep apnea prevalence Korean health screening cohort"
 ```
 
-Cap: 5 queries per session. Stop early if the first 1-2 papers converge on the same definition.
+Stop searching a variable once the first 1-2 papers converge on the same definition. If more than five variables need Tier 2, list them and confirm with the user before running the rest.
 
 ### Tier 3 — Verification
 

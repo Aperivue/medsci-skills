@@ -25,7 +25,7 @@ in the generated `requirements.txt`); it does not reimplement them.
 
 ## When to use
 - You have a data manifest (one row per image, with a patient/subject ID) and want a reproducible,
-  leakage-safe starting repo for a segmentation model.
+  leakage-safe starting repo for a segmentation, classification, detection, synthesis or self-supervised model.
 - You want to **fine-tune a pretrained backbone** (transfer learning — the common clinician workflow:
   a `timm` / MONAI / MedSAM checkpoint adapted to your collected clinical data) with the freeze schedule,
   discriminative learning rates, and pretrained-weight provenance recorded (`--task finetune`).
@@ -33,7 +33,7 @@ in the generated `requirements.txt`); it does not reimplement them.
 ## When NOT to use
 - Auditing an already-trained model's validation design → `/model-assessment`.
 - Held-out metrics / calibration / bootstrap CIs → `/model-assessment` then `/analyze-stats`.
-- Choosing the architecture for the research question → `/model-selection` (when available).
+- Choosing the architecture for the research question → `/model-selection`.
 - Reimplementing MONAI / nnU-Net → out of scope (the scaffold integrates them).
 - LLM / MLLM evaluation → `/mllm-eval`.
 

@@ -328,7 +328,7 @@ Save final outputs to `analysis/figures/` (`analysis/figures/*.pdf`, `analysis/f
   LZW-compresses, and **verifies the result is pixel-identical** to that flatten. Use it when a
   portal accepts only `.tiff`/`.jpeg`/`.eps` (Springer Nature SNAPP) or caps figure size (JACC: Asia):
   ```bash
-  python3 scripts/export_portal_tiff.py --in figure.png --out figure.tiff --max-mb 25
+  python3 ${CLAUDE_SKILL_DIR}/scripts/export_portal_tiff.py --in figure.png --out figure.tiff --max-mb 25
   # exit 1 if still over the cap
   ```
 
@@ -415,7 +415,7 @@ unavailable.
 | STARD (DTA) | **`scripts/generate_flow_diagram.R --type stard`** | Same pipeline; supports 2x2 reference-standard split |
 | Pipeline Diagram | **D2** (legacy) | Until pipeline-diagram support is added to the R script |
 
-YAML config → `Rscript scripts/generate_flow_diagram.R --type <t> --config <yaml> --out <prefix>` →
+YAML config → `Rscript ${CLAUDE_SKILL_DIR}/scripts/generate_flow_diagram.R --type <t> --config <yaml> --out <prefix>` →
 PDF + 300/600 dpi PNG. Templates in `references/exemplar_diagrams/{strobe,consort,prisma,stard}/template_input.yaml`.
 Read `${CLAUDE_SKILL_DIR}/references/flow_diagram_recipe.md` when generating a flow diagram (YAML
 schema, fixed style, per-project `create_figure1.R` pattern, D2 fallback); a ROC curve or forest
@@ -498,7 +498,7 @@ The STROBE builder checks that the exclusion cascade closes: for every link that
 exclusion, the spine box count minus the exclusions after it must equal the next spine box
 (`A - Σ(exclusions after A) == B`). It warns loudly on any imbalance and, with `--strict-cascade`,
 refuses to build — catching figure arithmetic drift (a dropped exclusion leaving the figure short of
-the analytic N) that text and prose gates miss. Run `scripts/_strobe_cascade.py --config
+the analytic N) that text and prose gates miss. Run `python3 ${CLAUDE_SKILL_DIR}/scripts/_strobe_cascade.py --config
 figure1_strobe.yaml --strict` to check a config without rebuilding the diagram. A config in neither
 schema exits 2; under `--strict`, a spine config with no checkable exclusion link also exits 2 rather
 than reporting OK.
