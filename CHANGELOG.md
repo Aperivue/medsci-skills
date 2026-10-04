@@ -290,6 +290,10 @@
   new push to a pull request cancels the run it supersedes (pushes to `main` and `release/**` are
   never cancelled); each job has a timeout (30 minutes for `validate`, 15 for the others) instead of
   GitHub's six-hour default.
+- **The release workflow waits up to 30 minutes for npm.** The "npm must actually carry this
+  version" step now polls the registry for 1800 s instead of 600 s. 6.0.1 took about 25 minutes to
+  appear, so a release that had published correctly was marked failed and its npm payload
+  comparison never ran. Running out of time still fails the step.
 
 ### Documentation
 

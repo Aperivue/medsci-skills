@@ -355,7 +355,8 @@ jobs:
       # the registry rather than the job's own opinion of what it did.
       # npm answers `npm publish` with "Your package is being processed and may take a
       # few minutes to become available", and it means it: on 2026-09-24 the version took
-      # 5 min 20 s to appear. The first version of this check read the registry once,
+      # 5 min 20 s to appear, and on 2026-10-01 (6.0.1) about 25 min, past the 10-minute window
+      # this step then used. The first version of this check read the registry once,
       # immediately, and failed a release whose publish had in fact succeeded - and because
       # it failed, the payload comparison below never ran, so a spurious gate cost a real
       # verification. It waits for propagation now; what it must not do is give up waiting
@@ -385,7 +386,7 @@ jobs:
           WANT_LATEST=0
           [ "$NEWEST" = "$RELEASE_TAG" ] && WANT_LATEST=1
           # Overridable so the regression test can prove that running out of time FAILS.
-          WINDOW="${NPM_PROPAGATION_WINDOW:-600}"
+          WINDOW="${NPM_PROPAGATION_WINDOW:-1800}"
           DEADLINE=$(( $(date +%s) + WINDOW ))
           while :; do
             PUBLISHED="$(npm view "medsci-skills@${VER}" version 2>/dev/null || true)"
