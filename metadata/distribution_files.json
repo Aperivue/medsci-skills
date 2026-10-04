@@ -5723,8 +5723,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_test_statistic_p.py",
-      "size": 33757,
-      "sha256": "84ef067e517a1ce507b91961d175e5f1f8bd49745eb5bc55de7dd60257d98b60"
+      "size": 33960,
+      "sha256": "f58cb5e1908a21017167c6e83ff1b50545b92b0752d4a18de53ea977b436c982"
     },
     {
       "path": "skills/self-review/scripts/check_test_statistic_p_challenge/expected/bad.txt",

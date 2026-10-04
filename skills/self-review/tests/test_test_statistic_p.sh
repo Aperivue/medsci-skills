@@ -198,6 +198,9 @@ bad_input "malformed JSON"                   '[{"label":"A",'                   
 bad_input "deep nesting"                     "$(python3 -c 'print("["*100000 + "]"*100000)')" "cannot read GRIM file"
 printf '\xef\xbb\xbf[{"label": "A", "mean": 3.48, "n": 25}]\n' > "$TMP/g_bom.json"
 check "UTF-8 BOM accepted" test "$(rc python3 "$SCRIPT" --grim "$TMP/g_bom.json" --strict)" -eq 0
+printf 'A: \xcf\x87\x32(1) = 1 024.3, P < .001.\nB: F(2, 4000) = 1\xc2\xa0234.56, P < .001.\nC: F(2, 400) = 1\xe2\x80\x89234.5, P < .001.\nD: t(30) = 1\xe2\x80\xaf234, P < .001.\nE: \xcf\x87\x32(2) = 1\x27234.0, P < .001.\n' > "$TMP/space_sep.md"
+check "space / NBSP / thin-space / apostrophe thousands groups: no Major, nothing checked (exit 2 NOT_ASSESSED under --strict)" test "$(rc python3 "$SCRIPT" --manuscript "$TMP/space_sep.md" --strict)" -eq 2
+check "space-type thousands groups are reported as not checked" bash -c "python3 '$SCRIPT' --manuscript '$TMP/space_sep.md' | grep -q '5 test statistic(s) written with a thousands separator'"
 check "no input flag: exit 2" test "$(rc python3 "$SCRIPT")" -eq 2
 check "missing manuscript: exit 2" test "$(rc python3 "$SCRIPT" --manuscript "$TMP/nope.md")" -eq 2
 check "--alpha 1.5: exit 2" test "$(rc python3 "$SCRIPT" --manuscript "$FX/tsp_bad.md" --alpha 1.5)" -eq 2

@@ -201,8 +201,11 @@ _NUM = r"[-−–]?\s?\d+(?:[.·]\d+)?"
 _DF = r"\d+(?:[.·]\d+)?"
 # Whatever continues a number past _NUM (a thousands separator "1,024.3", a decimal comma
 # "2,10", e-notation "1e5", "1.2 × 10^5"). Captured as the last group so that the statistic is
-# never read truncated; a non-empty tail sends the result to P_STAT_NOT_ASSESSED.
-_TAIL = r"(?P<tail>(?:[,.·]\d|[eE]\s*[-−–+]?\d|\s*[×x*]\s*10\b(?:\s*\^?\s*[-−–+]?\d+)?)(?:[,.·]?\d)*)?"
+# never read truncated (comma, period, middle dot, space/NBSP/thin-space/apostrophe thousands
+# groups, e-notation, x 10^k); a non-empty tail sends the result to P_STAT_NOT_ASSESSED.
+_TAIL = (r"(?P<tail>(?:[,.·]\d|[ \u00a0\u2009\u202f'’]\d{3}(?!\d)|[eE]\s*[-−–+]?\d"
+         r"|\s*[×x*]\s*10\b(?:\s*\^?\s*[-−–+]?\d+)?)"
+         r"(?:[,.·]?\d|[ \u00a0\u2009\u202f'’]\d{3}(?!\d))*)?")
 _CHI = (r"(?:χ\s*(?:\^\s*)?(?:2|²)|(?<![A-Za-z])chi\s*(?:\^\s*)?(?:2|²)|"
         r"(?<![A-Za-z0-9_])X\s*(?:\^\s*)?(?:2|²)|χ<sup>2</sup>)")
 # (kind, regex, order): `order` maps the regex groups (tail excluded) to [df..., statistic].
