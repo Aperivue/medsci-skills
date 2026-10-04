@@ -170,69 +170,6 @@ not installed.
 6. **Prioritize**: Rank issues by impact on validity. Select top 3-5 for Major, 3-4 for Minor. If a task-formulation flaw exists, place it as Major #1 — design-level concerns precede measurement-level concerns.
 7. **Gate**: Present findings to user — "Here are the key issues I found — do you agree with this prioritization?"
 
-### Phase 2F: Recommendation Calibration for AI/Method and Review Papers
-
-Before finalizing **Major Revision** (or a journal's reconsider-after-revision tier) for an original AI, LLM,
-or methodology paper **— or for a Review / narrative / primer article —** explicitly run this calibration
-gate. It prevents a valid issue list from under-weighting contribution and priority.
-
-1. **Design/validity flaw**: Is there a central design, leakage, reference-standard, baseline, or workflow
-   mismatch that threatens the main claim?
-2. **Speculative value**: Is the clinical or research-use pathway weak, with no clear decision-impact,
-   workflow-change, downstream-validation, or actionability argument?
-3. **Weak novelty**: Is the work hard to distinguish from close prior AI/LLM extraction or validation
-   papers, or does it omit the baseline needed to show that the proposed adaptation adds value?
-
-**These take evidence, not opinions.** Answered from the manuscript's own framing they fail in one
-direction only — toward the revision tier. Three rules, with the incident, in
-`references/reviewer_calibration/recommendation_calibration.md`:
-
-- **3 answered "no"** must name what was checked: the validation status of each component
-  (composition of individually established parts is engineering, not a finding) and the tools already
-  delivering the claimed output.
-- **2 answered "no"** may not rest on the clinical need. The need is a fact about the world; the
-  question is this artifact's pathway to a decision.
-- **If the Phase 2 task-formulation audit fired, 3 defaults to YES** unless separately evidenced —
-  a contribution whose measured task differs from its claimed task has not been demonstrated.
-
-If 2 and 3 both hold, do not default to Major Revision simply because the review is constructive. In the
-confidential comments, state that the manuscript has a priority/contribution problem in addition to the
-fixable technical issues, and calibrate the recommendation toward the journal's stronger option (for
-example, reject/resubmission where that tier exists). If only 1 holds and the value/novelty case is strong,
-Major Revision remains appropriate.
-
-**Fixable vs unfixable tier-domination**: separate defects that a revision can repair (extraction errors,
-missing supplementary, a mislabeled table, an over-claiming sentence) from defects that cannot be repaired
-within the current submission (poolability of incommensurable studies, a broken construct, an invalid
-evaluation instrument). When both classes are present, the **unfixable** class governs the recommendation —
-do not let a long list of fixable items reframe an unfixable core as "addressable in revision."
-
-**Salvage-reframe that shrinks the contribution is NOT a fixable major revision.** When your proposed fix
-for a construct/validity flaw is to *narrow the claim* (a clinical claim reframed as a weaker technical
-signal, a full study reframed as a proof-of-concept), check whether that narrower framing survives
-the novelty/importance bar. If novelty/importance is ALREADY weak — your own scorecard, or a second
-opinion, puts Originality or Reader-interest at or below mid — then the reframe *reduces* the
-contribution and makes the importance problem worse, not better. A contribution shrunk to survive a
-validity flaw is a **Reject-leaning** outcome (the contribution is the product, not
-addressable-in-revision), not an encourage-major-revision. Deterministic trigger to self-audit: if
-your confidential note calls the claim narrower or more modest than the manuscript claims AND your
-recommendation is Reject-family-adjacent, do not upgrade it to major revision on the reframe.
-
-**Review/narrative/primer escalation** *(the contribution IS the product)*: for a review article there is no
-data to re-analyze; the distinct contribution — novelty, integrative synthesis, domain-specificity — is the
-deliverable itself. Therefore **weak novelty / no distinct contribution / not domain-specific is
-unfixable-in-current-form**: "add a distinct contribution" asks for a substantially different paper, so each
-gap looking individually "addressable in revision" is a trap. When RV1 (novelty) is a Major in a saturated
-space and no distinct contribution exists, escalate the recommendation one tier toward Reject (e.g.,
-reconsider → reject) rather than defaulting to the revision tier.
-
-**Confidential-note Reject-grade self-grep**: before committing the recommendation, re-read your own
-Confidential Comments to the Editor. If they contain Reject-grade language — "hard to distinguish from work
-it already cites," "cannot be resolved by minor editing," or **deferring the value/priority judgment to the
-editorial board** ("whether the incremental value clears the bar is a scope judgment I leave to the
-board") — that deferral is itself a Reject-grade tell, not a neutral hand-off. Re-examine plain Reject so the
-confidential note and the recommendation are consistent.
-
 ### Phase 2 Extensions — routing
 
 Each row fires **in addition to** the generic Phase 2 checklist; several can co-apply.
@@ -355,7 +292,7 @@ Authors** block (research summary + strengths, then Major, Minor, and a closing 
 - **Tier 1 Minimal (≤700w)**: R1 revisions, Minor Revision recommendations, reporting-only manuscripts. Major 1-3, Minor 3-5.
 - **Tier 2 Standard (700-1000w) ★ default — most reviews should land here**: typical first-round reviews with 1-2 design-level concerns. Major 3-5, Minor 4-6. Sweet spot 800-950w — sits just above the 90th percentile of peer reviewers, expressing design-level rigor without overwhelming editor parsimony.
 - **Tier 3 Extended (1000-1400w)**: justified only when (a) fatal-flaw hierarchy required (≥2 design-level limitations), (b) cross-domain methodology (medical AI × radiology × biostatistics), (c) task-formulation misframing critique, or (d) AI/LLM evaluation requiring model-spec + prompt + selection-bias + framing 4-layer audit. Major 3-5, Minor 5-7. Frequency cap: ≤20% of reviews rolling — if every review trends Tier 3, the niche signal dilutes.
-- **Hard cap 1400 words**. Measure with `awk + wc` (no estimation) — at Phase 3 mid-checkpoint and Phase 6 final.
+- **Hard cap 1400 words**. Measure with `check_review_length.py` (no estimation) — at Phase 3 mid-checkpoint and Phase 6 final.
 - Each Major: 5-8 lines (Tier 1-2) or 8-12 lines (Tier 3, with Why it matters + alternative framings).
 - **Reference-baseline ratio** (self-QC metric): compute `your_wc / 545` and report. Ratio > 2.0 (above 1090w) flags trim candidate. Ratio < 1.0 may indicate insufficient design-level rigor for AI/methodology critique reviews.
 
@@ -375,7 +312,7 @@ After drafting, verify mechanically:
 3. **Feasibility**: All suggested revisions achievable with existing data.
 4. **Word count (3-tier, measured)**: Run `check_review_length.py --review <draft> --tier N --strict`, not `awk + wc` by hand — raw markdown counts `**Major` and table pipes, and a total alone never says which comment to cut. Read the per-item table it prints. Identify which tier the Author section falls in (Tier 1 ≤700w / Tier 2 700-1000w ★ default / Tier 3 1000-1400w). Most reviews should land in Tier 2. If Tier 3, justify with a one-line rationale (which design-level concern warrants the extra length) and verify Tier 3 frequency stays ≤20% rolling. Hard cap 1400w. Also measure at Phase 3 mid-checkpoint, not only at final. Report **reference-baseline ratio** (`wc / 545w`) — ratio > 2.0 flags trim candidate.
 5. **Forbidden words / two-box integrity**: Run `check_review_boxes.py --review <draft> --strict`. No recommendation grade in Comments to the Authors, both blocks present, and the editor's block not a paste of the authors'.
-6. **Major #1 = task formulation flaw** (if present): if §3C-1 audit found framing mismatch, place it as Major #1. Do not let it be downgraded into adjacent measurement-level issues (selection bias, sample size).
+6. **Major #1 = task formulation flaw** (if present): if the Phase 2 step 3 task-formulation audit found a framing mismatch, place it as Major #1. Do not let it be downgraded into adjacent measurement-level issues (selection bias, sample size).
 7. **Request-type gate (deterministic)**: run `check_review_request_types.py --review <draft> --strict` on your own draft. Any MAJOR verdict blocks: reword the ask as disclosure, justify why the existing tables cannot answer it, or drop it. This is the Phase 3 rule with a script behind it.
 8. **AI pattern density (quantified threshold)**: em-dash ≤2 per 1000 words, structural rule-of-three ≤2 per Major comment, significance inflation ("genuinely", "truly", "indeed") 0 per Major, hedged Minor proportion ≥50% ("could", "would help", "I'd suggest" vs bare "Please [verb]").
 9. **Watling tone audit** (`references/aczel_2021_reviewer2_patterns.md`):
@@ -425,7 +362,7 @@ Fix all issues found, then present to user.
 - [ ] `check_review_request_types.py --review <draft> --strict` exits 0 — every Major's ask classified disclosure vs computation; each computation request justified (existing tables cannot answer it) and its estimator named; no subset-vs-parent-cohort P value requested, no new-data request
 - [ ] Impossibility claims (requires/cannot/impossible/must/contradicts) restated as premise→conclusion + counterexample-tested; reviewer-requested new statistics re-derived from the manuscript's own cells (correctness ≠ presence)
 - [ ] Fatal flaw hierarchy stated in Confidential Comments (if applicable)
-- [ ] Reject recommendations (if used): §1C condition checklist (design-level flaw + speculative practical value 3-trigger + novelty gap) explicitly verified — at least 2 of 3 conditions met
+- [ ] Reject recommendations (if used): each Phase 2F condition (design/validity flaw, speculative value, weak novelty) answered with evidence, and the Reject follows from Phase 2F (conditions 2 and 3 both hold, or an unfixable defect governs the tier)
 - [ ] AI/method/review Major Revision (or reconsider-tier) recommendations: Phase 2F contribution/value gate checked; weak novelty + weak utility not silently softened; for review articles, weak-novelty/no-distinct-contribution treated as unfixable-in-current-form (escalate toward Reject); unfixable defects govern tier over fixable list; confidential note carries no Reject-grade language left inconsistent with a softer recommendation
 
 ## Tone and Calibration
@@ -439,7 +376,7 @@ Fix all issues found, then present to user.
   analyzable and still below the journal's priority bar. When weak novelty and weak clinical/research
   utility both hold, surface that in Confidential Comments and calibrate the recommendation upward from the
   default Major Revision tier.
-- **Length proportionality**: Minor Revision ≤ 600 words; Major Revision ≤ 1000 words. Length signals difficulty — a Minor Revision review longer than the manuscript itself reads as Reviewer 2.
+- **Length proportionality**: the Phase 3 tier budgets govern (a Minor Revision review sits in Tier 1). Length signals difficulty — a Minor Revision review longer than the manuscript itself reads as Reviewer 2.
 
 ## Signature Review Patterns
 
@@ -452,7 +389,7 @@ Recurring high-yield checks — apply to every manuscript:
 5. **Overclaiming**: Language should match evidence level (CI overlap, small test sets, single-center)
 6. **Reproducibility**: Preprocessing, hyperparameters, segmentation protocols reported
 
-For survival / prognostic-model manuscripts, also apply the Phase 2B 8-probe audit (conditioning, censoring, competing risks, cutoff optimism, comparator horizon alignment, C-index variant transparency, calibration beyond discrimination, estimand provenance).
+For survival / prognostic-model manuscripts, also apply the Phase 2B S1–S9 audit (conditioning, censoring, competing risks, cutoff optimism, comparator horizon alignment, C-index variant transparency, calibration beyond discrimination, estimand provenance, panel-data / multistate variance).
 
 For radiomic feature-reproducibility / phantom parameter-sweep / reliability-filtering manuscripts, also apply the Phase 2C 4-probe audit (design-grid circularity, construct validity / proxy-target gap, transportability framing with Reject-escalate calibration, multiplicity).
 
