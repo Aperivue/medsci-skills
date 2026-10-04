@@ -62,15 +62,38 @@ printf '\xef\xbb\xbf' > "$WORK/bom.json"; cat "$FIX/pass_complete.json" >> "$WOR
 if python3 "$SCRIPT" --review "$WORK/bom.json" --strict --quiet; then printf '  PASS  %s\n' "BOM accepted"
 else printf '  FAIL  %s\n' "BOM accepted"; fail=$((fail+1)); fi
 
-# The legacy path stays green under --strict and still names itself in the envelope.
-rc=0; python3 "$SCRIPT" --review "$FIX/legacy_no_coverage.json" --strict --quiet --out "$WORK/legacy_out.json" || rc=$?
+# Lenient forms an LLM-written ledger uses: an empty optional reason, evidence as one string.
+python3 -c "
+import json,sys; d=json.load(open(sys.argv[1]))
+c=d['coverage']['categories']
+c['A']['evidence']=c['A'].get('evidence',['x'])[0] if c['A']['status']=='assessed' else c['A'].get('evidence')
+d['verdict']='REVISE'; c['B']={'status':'not_assessed','reason':''}
+json.dump(d,open(sys.argv[2],'w'))" "$FIX/pass_complete.json" "$WORK/lenient.json"
+rc=0; python3 "$SCRIPT" --review "$WORK/lenient.json" --strict --quiet || rc=$?
+if [ "$rc" -eq 0 ]; then printf '  PASS  %s\n' "empty optional reason and string evidence are accepted"
+else printf '  FAIL  %s\n' "lenient ledger forms (rc=$rc)"; fail=$((fail+1)); fi
+# Category L is advisory: a not_assessed L under PASS is Minor, not Major.
+python3 -c "
+import json,sys; d=json.load(open(sys.argv[1]))
+d['verdict']='PASS'; d['coverage']['categories']['L']={'status':'not_assessed'}
+json.dump(d,open(sys.argv[2],'w'))" "$FIX/pass_complete.json" "$WORK/pass_l_gap.json"
+rc=0; python3 "$SCRIPT" --review "$WORK/pass_l_gap.json" --strict --quiet --out "$WORK/pass_l_out.json" || rc=$?
 if [ "$rc" -eq 0 ] && python3 -c "
 import json,sys; d=json.load(open(sys.argv[1]))
+assert d['summary']['n_major']==0 and any(c['verdict']=='COVERAGE_GAP' for c in d['claims'])" "$WORK/pass_l_out.json"
+then printf '  PASS  %s\n' "PASS with category L not_assessed: Minor COVERAGE_GAP, exit 0"
+else printf '  FAIL  %s\n' "category L under PASS (rc=$rc)"; fail=$((fail+1)); fi
+
+# The legacy path (no coverage object) is NOT_ASSESSED: exit 0 normally, exit 2 under --strict.
+rc=0; python3 "$SCRIPT" --review "$FIX/legacy_no_coverage.json" --quiet --out "$WORK/legacy_out.json" || rc=$?
+rcs=0; python3 "$SCRIPT" --review "$FIX/legacy_no_coverage.json" --strict --quiet || rcs=$?
+if [ "$rc" -eq 0 ] && [ "$rcs" -eq 2 ] && python3 -c "
+import json,sys; d=json.load(open(sys.argv[1]))
 assert d['detector']=='check_review_coverage' and d['basis']=='declared'
-assert d['summary']['verdict']=='OK' and d['summary']['n_minor']==1 and d['summary']['n_major']==0
+assert d['summary']['verdict']=='NOT_ASSESSED' and d['summary']['n_minor']==1 and d['summary']['n_major']==0
 assert d['claims'][0]['verdict']=='COVERAGE_NOT_RECORDED'" "$WORK/legacy_out.json"
-then printf '  PASS  %s\n' "legacy JSON: OK + COVERAGE_NOT_RECORDED, exit 0 under --strict"
-else printf '  FAIL  %s\n' "legacy JSON path (rc=$rc)"; fail=$((fail+1)); fi
+then printf '  PASS  %s\n' "legacy JSON: NOT_ASSESSED + COVERAGE_NOT_RECORDED, exit 0 / 2 under --strict"
+else printf '  FAIL  %s\n' "legacy JSON path (rc=$rc, strict rc=$rcs)"; fail=$((fail+1)); fi
 
 # A not_assessed probe module under PASS is Major too, not only a category.
 mutate probe_gap_pass 'd["coverage"]["probes"]["observational_confounding"] = {"status": "not_assessed"}'

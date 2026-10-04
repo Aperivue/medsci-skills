@@ -78,7 +78,7 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_review_coverage.py" \
 
 - `COVERAGE_GAP_PASS` (**Major**, exit 1 under `--strict`): `PASS` over a `not_assessed` entry. Do not hand this JSON to a consumer: assess the entry or change the verdict to `REVISE`, rewrite the JSON, and re-run.
 - `COVERAGE_GAP` (Minor): a `not_assessed` entry under `REVISE`. List it in the report so the gap is not read as a clean category.
-- `COVERAGE_NOT_RECORDED` (Minor): no `coverage` object — a legacy JSON. It still validates (verdict `OK`, exit 0); new output must carry the ledger.
+- `COVERAGE_NOT_RECORDED` (Minor): no `coverage` object — a legacy JSON. Nothing can be checked, so the verdict is `NOT_ASSESSED` (exit 0, or 2 under `--strict`); new output must carry the ledger. An empty `reason` on a `not_assessed` entry counts as none, and `evidence` may be one string. Category L is advisory: L `not_assessed` under PASS is Minor `COVERAGE_GAP`.
 - Exit 2 names the malformed field (a missing letter, `assessed` without `evidence`, `not_applicable` without `reason`, an unknown probe module or verdict). Fix the JSON; never drop the ledger to get past it.
 
 The gate checks the ledger as declared (`"basis": "declared"`): that it is complete and consistent with the verdict, not that the work behind an `assessed` entry was done or that a `not_applicable` call is right for the manuscript type.

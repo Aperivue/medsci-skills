@@ -34,8 +34,10 @@ CLAIMS
   COVERAGE_GAP           (Minor) an entry is not_assessed under a REVISE verdict -- the gap does not
                          contradict the verdict, but it is reported so it is not read as clean.
   COVERAGE_NOT_RECORDED  (Minor) the JSON has no `coverage` object (written before the ledger
-                         existed). Treated as legacy, not as a failure: the run still reads the
-                         verdict and reports OK, so an older self_review.json keeps validating.
+                         existed). Nothing could be checked, so the summary verdict is
+                         NOT_ASSESSED (exit 2 under --strict, exit 0 otherwise), per
+                         docs/detector-conventions.md.
+A not_assessed category L under PASS is Minor COVERAGE_GAP, not Major: L is advisory.
 
 The ledger is the reviewer's own declaration ("basis": "declared"): this gate checks that the
 declaration is complete and consistent with the verdict, not that the work behind an `assessed`
@@ -100,9 +102,13 @@ def _entry(value, where: str) -> str:
     if status not in STATUSES:
         raise InputError(f"{where}.status: {status!r} is not one of {list(STATUSES)}")
     ev = value.get("evidence")
+    if _nonempty_str(ev):
+        ev = [ev]  # a single reference written as a string
     if ev is not None and not (isinstance(ev, list) and all(_nonempty_str(e) for e in ev)):
         raise InputError(f"{where}.evidence: expected a list of non-empty strings")
     reason = value.get("reason")
+    if status == "not_assessed" and isinstance(reason, str) and not reason.strip():
+        reason = None  # optional for not_assessed; an empty string means none was given
     if reason is not None and not _nonempty_str(reason):
         raise InputError(f"{where}.reason: expected a non-empty string")
     if status == "assessed" and not ev:
@@ -182,7 +188,11 @@ def analyze(obj: dict, review: str) -> dict:
 
     for where, reason in gaps:
         why = f" ({reason.strip()})" if reason else ""
-        if verdict == "PASS":
+        if verdict == "PASS" and where == "coverage.categories.L":
+            add("COVERAGE_GAP", "Minor",
+                f"{where} is not_assessed{why}; category L is advisory, so this does not block PASS, "
+                f"but its absence of findings is not a clean result", where)
+        elif verdict == "PASS":
             add("COVERAGE_GAP_PASS", "Major",
                 f"verdict is PASS but {where} is not_assessed{why}; a PASS needs every applicable "
                 f"category and loaded probe module assessed -- assess it, mark it not_applicable "
@@ -207,7 +217,8 @@ def analyze(obj: dict, review: str) -> dict:
             "n_not_assessed": counts["not_assessed"],
             "n_major": n_major,
             "n_minor": n_minor,
-            "verdict": "MAJOR_CANDIDATE" if n_major else "OK",
+            "verdict": ("MAJOR_CANDIDATE" if n_major
+                        else "NOT_ASSESSED" if "coverage" not in obj else "OK"),
         },
     }
 
@@ -243,6 +254,9 @@ def main(argv=None) -> int:
         if s["n_major"]:
             print(f"MAJOR candidate: PASS returned with {s['n_major']} not_assessed coverage entr"
                   f"{'y' if s['n_major'] == 1 else 'ies'}.")
+        elif s["verdict"] == "NOT_ASSESSED":
+            print("NOT ASSESSED: the self-review JSON has no coverage ledger (legacy format), so the "
+                  "verdict could not be checked against coverage.")
         elif s["n_minor"]:
             print(f"No Major issue (as declared): {s['n_minor']} Minor (see list).")
         else:
@@ -254,7 +268,9 @@ def main(argv=None) -> int:
         except OSError as e:
             print(f"ERROR: cannot write {args.out}: {e}", file=sys.stderr)
             return 2
-    return 1 if (args.strict and s["n_major"]) else 0
+    if args.strict and s["n_major"]:
+        return 1
+    return 2 if (args.strict and s["verdict"] == "NOT_ASSESSED") else 0
 
 
 if __name__ == "__main__":

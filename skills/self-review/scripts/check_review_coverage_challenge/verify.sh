@@ -30,10 +30,10 @@ check() {  # check <fixture> <expected rc> <expected summary.verdict> <expected 
 check pass_gap 1 MAJOR_CANDIDATE COVERAGE_GAP_PASS
 check pass_complete 0 OK ""
 check revise_gap 0 OK COVERAGE_GAP,COVERAGE_GAP
-check legacy_no_coverage 0 OK COVERAGE_NOT_RECORDED
+check legacy_no_coverage 2 NOT_ASSESSED COVERAGE_NOT_RECORDED
 
 if [ "$pass" -eq 1 ]; then
-  echo "PASS: a PASS over a not_assessed category is Major; the same review fully covered is silent; gaps under REVISE and a legacy JSON without a ledger are Minor and do not fail --strict."
+  echo "PASS: a PASS over a not_assessed category is Major; the same review fully covered is silent; gaps under REVISE are Minor and do not fail --strict; a legacy JSON without a ledger is NOT_ASSESSED (exit 2 under --strict)."
 else
   exit 1
 fi

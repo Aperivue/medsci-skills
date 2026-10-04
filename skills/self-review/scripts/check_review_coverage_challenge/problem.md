@@ -28,7 +28,7 @@ reason, an unknown probe module, an unknown verdict, NaN) is an input error: exi
 - `fixture/revise_gap.json` — REVISE with category I and the observational-confounding probe
   `not_assessed` → two `COVERAGE_GAP` Minors, exit 0 under `--strict`.
 - `fixture/legacy_no_coverage.json` — PASS with no `coverage` object → `COVERAGE_NOT_RECORDED`
-  Minor, verdict `OK`, exit 0 under `--strict`.
+  Minor, verdict `NOT_ASSESSED`, exit 2 under `--strict` (nothing could be checked).
 
 ## Expected
 - `expected/<fixture>.txt` — stdout for each fixture (golden diff).
