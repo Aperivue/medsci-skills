@@ -33,8 +33,11 @@ never fires the claim.
 
 INPUT  --extraction FILE  (.csv, or .tsv/.tab for tab-separated; UTF-8)
   Required columns (case-insensitive): study, measure, estimate, lower, upper.
-  Optional: ci_level (percent, default 95), ci_method.
-  Rows whose measure is not OR / RR / HR / IRR are skipped (not ratio measures).
+  Optional: ci_level (percent, 50 to <100, default 95; a fraction such as
+  0.95 is an input error), ci_method.
+  Rows whose measure is not exactly OR / RR / HR / IRR (case-insensitive) are
+  skipped; the final line and summary.skipped_measures name those labels, so
+  a ratio written another way ("aOR", "Odds ratio") is visible, not silent.
   On a ratio row, estimate / lower / upper must be plain decimals ("1.35");
   a blank or non-numeric value is an input error naming the row and column.
   ci_method containing "profile", "exact" or "bootstrap" skips the symmetry
@@ -45,7 +48,7 @@ OUTPUT (--out path)
    measure, estimate, lower, upper, ci_level, ci_method, se_log,
    asymmetry_lower_bound, symmetry}], "claims": [{verdict, severity, row,
    study, detail}], "summary": {n_rows, n_ratio_rows, n_skipped_measure,
-   n_symmetry_checked, n_major, n_minor, verdict}}
+   skipped_measures, n_symmetry_checked, n_major, n_minor, verdict}}
   se_log is the SE on the log scale back-derived from the printed CI with
   z = the standard-normal quantile for ci_level; null when a bound is <= 0 or
   upper <= lower.
@@ -55,7 +58,7 @@ has no ratio-measure row; otherwise OK (Minor claims are counted).
 
 Exit codes: 0 run completed (report-only, or --strict with no Major claim);
 1 --strict and a Major claim; 2 input/usage error (missing file or column,
-bad value), or --strict with NOT_ASSESSED.
+bad value, unwritable --out), or --strict with NOT_ASSESSED.
 
 Stdlib only.
 """
@@ -137,8 +140,9 @@ def ci_z(raw: str, where: str) -> tuple[float, float]:
         level = float(s)
     except ValueError:
         raise InputError(f"{where}: ci_level must be a percentage, got {raw!r}") from None
-    if not (math.isfinite(level) and 0.0 < level < 100.0):
-        raise InputError(f"{where}: ci_level must be between 0 and 100, got {raw!r}")
+    if not (math.isfinite(level) and 50.0 <= level < 100.0):
+        raise InputError(f"{where}: ci_level must be a percentage from 50 to below 100 "
+                         f"(write 95, not 0.95), got {raw!r}")
     return level, NormalDist().inv_cdf(1.0 - (1.0 - level / 100.0) / 2.0)
 
 
@@ -166,11 +170,13 @@ def analyze(path: Path) -> dict:
     out_rows: list[dict] = []
     claims: list[dict] = []
     n_skipped = 0
+    skipped_labels: set[str] = set()
     n_sym = 0
     for i, r in enumerate(rows, start=2):  # row 1 is the header
         measure = r.get("measure", "").strip().upper()
         if measure not in RATIO_MEASURES:
             n_skipped += 1
+            skipped_labels.add(r.get("measure", "").strip() or "<blank>")
             continue
         study = r.get("study", "")
         where = f"row {i}"
@@ -245,6 +251,7 @@ def analyze(path: Path) -> dict:
             "n_rows": len(rows),
             "n_ratio_rows": len(out_rows),
             "n_skipped_measure": n_skipped,
+            "skipped_measures": sorted(skipped_labels),
             "n_symmetry_checked": n_sym,
             "n_major": n_major,
             "n_minor": len(claims) - n_major,
@@ -281,6 +288,9 @@ def main() -> int:
         if not result["claims"]:
             print("| - | - | (none) | - | no claim fired |")
         print()
+        if s["n_skipped_measure"]:
+            print(f"Skipped {s['n_skipped_measure']} row(s) whose measure is not "
+                  f"OR/RR/HR/IRR: {', '.join(s['skipped_measures'])}.")
         if s["n_major"]:
             print(f"MAJOR candidate: {s['n_major']} impossible ratio CI(s); "
                   f"{s['n_minor']} Minor.")
@@ -293,10 +303,14 @@ def main() -> int:
             print(f"OK: {s['n_ratio_rows']} ratio CI(s) are possible and "
                   f"{s['n_symmetry_checked']} are log-symmetric within rounding.")
     if args.out:
-        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.out).write_text(
-            json.dumps({"detector": DETECTOR, **result}, indent=2, ensure_ascii=False) + "\n",
-            encoding="utf-8")
+        try:
+            Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.out).write_text(
+                json.dumps({"detector": DETECTOR, **result}, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8")
+        except OSError as exc:
+            sys.stderr.write(f"ERROR: cannot write --out {args.out}: {exc}\n")
+            return 2
     if args.strict and s["n_major"]:
         return 1
     if args.strict and s["verdict"] == "NOT_ASSESSED":

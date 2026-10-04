@@ -328,6 +328,11 @@ exclusion_reasons: {wrong_population: 6, wrong_outcome: 4}'
 #   P10 (negative): only reports_included declared -> its identities are
 #       NOT_ASSESSED, naming the undeclared terms; --strict exits 3.
 #   P11: unknown prisma2020 key / non-mapping section -> exit 2.
+#   P12 (negative): reports_included 18 = 15 via databases + 3 via citation
+#       searching, other_reports_included undeclared -> NOT_ASSESSED, never
+#       FAIL; declared 3 -> OK (P13); declared 2 -> FAIL (P14).
+#   P15 (negative): reports_excluded 0 with an empty reasons mapping is
+#       declared, so the reasons identity is OK, not "undeclared".
 # --------------------------------------------------------------------------
 P_OK='screening: {title_abstract_excluded: 620}
 prisma2020:
@@ -353,8 +358,8 @@ run_flow "P2: records_screened - TA excluded != reports_sought (FAIL)" 1 "prisma
 "$(printf '%s\n' "$P_OK" | sed 's/reports_sought: 80/reports_sought: 82/; s/reports_not_retrieved: 5/reports_not_retrieved: 7/')"
 run_flow "P3: sought - not_retrieved != assessed (FAIL)" 1 "prisma2020.reports_sought" FAIL \
 "$(printf '%s\n' "$P_OK" | sed 's/reports_not_retrieved: 5/reports_not_retrieved: 4/')"
-run_flow "P4: assessed - excluded != reports_included (FAIL)" 1 "prisma2020.reports_assessed" FAIL \
-"$(printf '%s\n' "$P_OK" | sed 's/reports_included: 15/reports_included: 16/')"
+run_flow "P4: assessed - excluded 15 > reports_included 14 (FAIL)" 1 "prisma2020.reports_assessed" FAIL \
+"$(printf '%s\n' "$P_OK" | sed 's/reports_included: 15/reports_included: 14/; s/studies_included: 12/studies_included: 11/')"
 run_flow "P5: reasons sum 55 < reports_excluded 60 (FAIL)" 1 "sum(prisma2020.reports_excluded_reasons)" FAIL \
 "$(printf '%s\n' "$P_OK" | sed 's/wrong_outcome: 25/wrong_outcome: 20/')"
 run_flow "P6: reasons sum 70 > reports_excluded 60 (NOT_ASSESSED)" 0 "sum(prisma2020.reports_excluded_reasons)" NOT_ASSESSED \
@@ -392,6 +397,16 @@ printf 'prisma2020: [1, 2]\n' > "$TMP/f/prisma.yaml"
 python3 "$SCRIPT" --ssot "$TMP/f/prisma.yaml" --project-root "$TMP/f" > /dev/null 2> "$TMP/f/err"
 assert_exit "P11: prisma2020 not a mapping (exit 2)" 2 $?
 if grep -q Traceback "$TMP/f/err"; then echo "  FAIL  P11: traceback"; fail=$((fail + 1)); fi
+
+P_OTHER="$(printf '%s\n' "$P_OK" | sed 's/reports_included: 15/reports_included: 18/')"
+run_flow "P12: 3 reports from other methods, undeclared (NOT_ASSESSED)" 0 "prisma2020.reports_assessed" NOT_ASSESSED \
+"$P_OTHER"
+run_flow "P13: other_reports_included 3 declared (OK)" 0 "prisma2020.reports_assessed" OK \
+"$(printf '%s\n  other_reports_included: 3' "$P_OTHER")"
+run_flow "P14: other_reports_included 2 declared, 17 != 18 (FAIL)" 1 "prisma2020.reports_assessed" FAIL \
+"$(printf '%s\n  other_reports_included: 2' "$P_OTHER")"
+run_flow "P15: reports_excluded 0 with empty reasons mapping (OK)" 0 "sum(prisma2020.reports_excluded_reasons)" OK \
+'prisma2020: {reports_excluded: 0, reports_excluded_reasons: {}}'
 
 # --------------------------------------------------------------------------
 # G: a non-numeric SSOT count is a clean exit 2, not a traceback.

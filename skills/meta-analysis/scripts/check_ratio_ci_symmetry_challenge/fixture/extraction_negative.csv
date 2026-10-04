@@ -3,6 +3,6 @@ Study A,OR,2.00,1.35,2.96,95,wald
 Study B,HR,0.59,0.42,0.82,,
 Study C,RR,0.800,0.679,0.943,90,
 Study D,OR,4.78,0.31,291.37,95,exact (conditional MLE)
-Study E,OR,9.00,0.70,258.14,95,profile likelihood
+Study E,OR,9.00,1.47,81.43,95,profile likelihood
 Study F,OR,1.0,1.0,1.1,,
 Study G,MD,-3.2,-5.1,-1.3,,

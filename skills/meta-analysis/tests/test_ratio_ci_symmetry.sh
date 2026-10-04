@@ -8,6 +8,10 @@
 #         Major (0.004 rounds to 0.00), final line "No Major issue".
 #   T1    TSV with a UTF-8 BOM and upper-case headers is read.
 #   R1    impossibility allows rounding: 1.2 (1.21, 1.50) is possible.
+#   I8    ci_level 0.95 (a fraction) exits 2, not a 0.95% CI.
+#   O1    --out pointing at a directory exits 2, no traceback.
+#   S1    a skipped non-ratio label ("aOR") is named in the summary and on the
+#         line before the final OK line.
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
@@ -49,6 +53,20 @@ printf '%s,ci_level\nA,OR,2.00,1.35,2.96,120\n' "$H" > "$TMP/i6.csv"
 run "$TMP/i6.csv"; check "I6: ci_level 120" 2 $rc; no_tb I6
 printf '%s\nA,OR,2.00,1.35,%s\n' "$H" "$(printf '9%.0s' $(seq 1 400))" > "$TMP/i7.csv"
 run "$TMP/i7.csv"; check "I7: overflowing number" 2 $rc; no_tb I7
+printf '%s,ci_level\nA,OR,2.00,1.35,2.96,0.95\n' "$H" > "$TMP/i8.csv"
+run "$TMP/i8.csv"; check "I8: ci_level 0.95 (fraction)" 2 $rc; no_tb I8
+grep -q "ci_level" "$TMP/err" || { echo "  FAIL  I8: error must name ci_level"; fail=$((fail + 1)); }
+printf '%s\nA,OR,2.00,1.35,2.96\n' "$H" > "$TMP/o1.csv"
+python3 "$SCRIPT" --extraction "$TMP/o1.csv" --out "$TMP" > "$TMP/out" 2> "$TMP/err"
+check "O1: --out is a directory" 2 $?; no_tb O1
+
+printf '%s\nA,OR,2.00,1.35,2.96\nB,aOR,1.50,1.10,2.05\n' "$H" > "$TMP/s1.csv"
+run "$TMP/s1.csv" --strict; check "S1: aOR row skipped, OR row OK" 0 $rc
+python3 -c "import json,sys; s=json.load(open(sys.argv[1]))['summary']; assert s['skipped_measures']==['aOR'] and s['n_skipped_measure']==1, s" "$TMP/out.json" \
+    || { echo "  FAIL  S1: skipped_measures"; fail=$((fail + 1)); }
+grep -q '^Skipped 1 row(s) whose measure is not OR/RR/HR/IRR: aOR' "$TMP/out" \
+    || { echo "  FAIL  S1: skipped line"; fail=$((fail + 1)); }
+tail -n 1 "$TMP/out" | grep -q '^OK:' || { echo "  FAIL  S1: final line"; fail=$((fail + 1)); }
 
 printf '%s\nA,MD,-3.2,-5.1,-1.3\n' "$H" > "$TMP/n1.csv"
 run "$TMP/n1.csv"; check "N1: no ratio row (NOT_ASSESSED, exit 0)" 0 $rc

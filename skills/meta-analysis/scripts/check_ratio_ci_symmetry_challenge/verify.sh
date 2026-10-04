@@ -65,4 +65,10 @@ assert "Study G" not in rows and r["summary"]["n_skipped_measure"] == 1, r["summ
 PY
 grep -q '^OK:' "$tmp/neg.out" || { echo "FAIL: negative final line" >&2; exit 1; }
 
+# Study E's profile-likelihood CI is asymmetric: without its ci_method it fires.
+grep '^Study E,' "$HERE/fixture/extraction_negative.csv" | sed 's/,profile likelihood$/,/' \
+  | { echo 'study,measure,estimate,lower,upper,ci_level,ci_method'; cat; } > "$tmp/e.csv"
+python3 "$DET" --extraction "$tmp/e.csv" --out "$tmp/e.json" > /dev/null
+python3 -c "import json,sys; r=json.load(open(sys.argv[1])); assert [c['verdict'] for c in r['claims']]==['RATIO_CI_ASYMMETRIC'], r['claims']" "$tmp/e.json"
+
 echo "PASS: positive flags 2 IMPOSSIBLE (Major) + 2 ASYMMETRIC (Minor), exit 1; negative is clean, exit 0, SEs match R."

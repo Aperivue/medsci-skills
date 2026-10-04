@@ -35,9 +35,14 @@ Exit 1 under `--strict`.
 **Negative** (`fixture/extraction_negative.csv`): the Study A Wald CI as
 printed; the hazard ratio for `sex` from R
 `coxph(Surv(time, status) ~ sex, data = lung)` (`0.59 (0.42, 0.82)`); a 90% CI
-(`exp(log(0.8) + c(-1,1)*qnorm(0.95)*0.1)` printed to three decimals); Study B
-with `ci_method: exact`; a profile-likelihood CI from R `confint()` on a
-logistic `glm` (`ci_method: profile likelihood`); `OR 1.0 (1.0, 1.1)`, which
+(`exp(log(0.8) + c(-1,1)*qnorm(0.95)*0.1)` printed to three decimals); the
+positive fixture's Study B exact CI, here as Study D with
+`ci_method: exact (conditional MLE)`; Study E, `OR 9.00 (1.47, 81.43)` with
+`ci_method: profile likelihood`, from R 4.3.3 with MASS:
+`d <- data.frame(x = c(0, 1), yes = c(2, 9), no = c(8, 4));`
+`f <- glm(cbind(yes, no) ~ x, family = binomial, data = d);`
+`exp(coef(f)["x"]); exp(confint(f, "x"))` (it is flagged as asymmetric when
+`ci_method` is left blank); `OR 1.0 (1.0, 1.1)`, which
 looks asymmetric as printed but is symmetric within one-decimal rounding (R:
 `exp(log(1.04) + c(-1,1)*qnorm(0.975)*0.03)`); and a mean difference, which is
 not a ratio row. No claim, exit 0, and the derived SEs match R.

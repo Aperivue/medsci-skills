@@ -60,6 +60,9 @@ Optional SSOT keys used only by the flow-identity checks:
 Optional PRISMA 2020 report-level section (flow identities only; these keys
 are NOT surface numbers, and an SSOT without the section is reported exactly
 as before). Unknown keys in it are an input error (exit 2):
+  The counts are the databases/registers column of the PRISMA 2020 diagram,
+  except reports_included and studies_included, which are the review totals
+  (both columns, and the previous version of an updated review).
     prisma2020:
       records_screened: 700         # after_dedup minus records removed before
                                     # screening (automation tools, other)
@@ -68,7 +71,10 @@ as before). Unknown keys in it are an input error (exit 2):
       reports_assessed: 75          # reports assessed for eligibility
       reports_excluded: 60
       reports_excluded_reasons: {wrong_population: 35, wrong_outcome: 25}
-      reports_included: 15          # reports of included studies
+      reports_included: 15          # reports of included studies (total)
+      other_reports_included: 0     # of those, reports from other methods
+                                    # (citation searching, websites, ...) or
+                                    # from the previous version of the review
       studies_included: 12          # studies included in review
   Identities (each listed only when one of its prisma2020 keys is declared;
   one with an undeclared term is NOT_ASSESSED, naming the term):
@@ -76,7 +82,10 @@ as before). Unknown keys in it are an input error (exit 2):
          (with records_screened undeclared, after_dedup is used instead and a
          mismatch is NOT_ASSESSED: records removed before screening)
        reports_sought - reports_not_retrieved = reports_assessed
-       reports_assessed - reports_excluded = reports_included
+       reports_assessed - reports_excluded + other_reports_included
+         = reports_included
+         (with other_reports_included undeclared, a reports_included above
+         assessed - excluded is NOT_ASSESSED, below it a FAIL)
        sum(reports_excluded_reasons, else exclusion_reasons) = reports_excluded
          (a sum above reports_excluded is NOT_ASSESSED, below it a FAIL)
        studies_included <= reports_included
@@ -286,6 +295,7 @@ def flow_identity_checks(ssot: dict[str, Any]) -> list[dict[str, Any]]:
 PRISMA2020_COUNT_KEYS = (
     "records_screened", "reports_sought", "reports_not_retrieved",
     "reports_assessed", "reports_excluded", "reports_included", "studies_included",
+    "other_reports_included",
 )
 PRISMA2020_KEYS = PRISMA2020_COUNT_KEYS + ("reports_excluded_reasons",)
 
@@ -372,15 +382,37 @@ def prisma2020_checks(ssot: dict[str, Any], dedup: int | None) -> list[dict[str,
                         lambda: (p["reports_sought"] - p["reports_not_retrieved"],
                                  p["reports_assessed"]))
 
-    # 3. reports assessed - reports excluded = reports included.
+    # 3. reports assessed - reports excluded (+ other methods) = reports included.
+    # reports_included is the review total; reports found by other methods
+    # (citation searching, websites) or carried over from a previous version
+    # are added below the databases/registers column, so without
+    # other_reports_included only a total SMALLER than assessed - excluded is
+    # certain to be wrong.
+    other = p["other_reports_included"]
     t3 = [("prisma2020.reports_assessed", p["reports_assessed"]),
           ("prisma2020.reports_excluded", p["reports_excluded"]),
           ("prisma2020.reports_included", p["reports_included"])]
-    if any(v is not None for _, v in t3):
-        strict_identity("prisma2020.reports_assessed - prisma2020.reports_excluded "
-                        "= prisma2020.reports_included", t3,
-                        lambda: (p["reports_assessed"] - p["reports_excluded"],
-                                 p["reports_included"]))
+    if any(v is not None for _, v in t3) or other is not None:
+        name = "prisma2020.reports_assessed - prisma2020.reports_excluded"
+        if other is not None:
+            name += " + prisma2020.other_reports_included"
+        name += " = prisma2020.reports_included"
+        missing = [n for n, v in t3 if v is None]
+        if missing:
+            undeclared(name, missing)
+        else:
+            lhs = p["reports_assessed"] - p["reports_excluded"] + (other or 0)
+            rhs = p["reports_included"]
+            if lhs == rhs:
+                row(name, "OK", lhs, rhs)
+            elif other is not None or rhs < lhs:
+                row(name, "FAIL", lhs, rhs)
+            else:
+                row(name, "NOT_ASSESSED", lhs, rhs,
+                    f"reports_included exceeds assessed - excluded by {rhs - lhs}; "
+                    "expected if reports came from other methods or a previous version. "
+                    "Declare prisma2020.other_reports_included (0 if none) to assess "
+                    "this identity")
 
     # 4. sum(reasons) = reports excluded. Reasons come from
     # prisma2020.reports_excluded_reasons, else from exclusion_reasons.
@@ -390,7 +422,7 @@ def prisma2020_checks(ssot: dict[str, Any], dedup: int | None) -> list[dict[str,
         else:
             reasons, rname = ssot.get("exclusion_reasons") or None, "exclusion_reasons"
         name = f"sum({rname}) = prisma2020.reports_excluded"
-        missing = ([] if reasons else [rname]) + (
+        missing = ([] if reasons is not None else [rname]) + (
             [] if p["reports_excluded"] is not None else ["prisma2020.reports_excluded"])
         if missing:
             undeclared(name, missing)
