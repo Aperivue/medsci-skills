@@ -30,6 +30,20 @@ scans emitted .py / .R scripts before they are reported as final and flags:
                           TODO/FIXME/XXX marker. (Flag)
   UNUSED_IMPORT           (Python only) an imported name never referenced again;
                           dead dependency. (Flag)
+  API_DEFAULT_STUDENT_T   (Python only) scipy.stats.ttest_ind(...) with no
+                          equal_var argument: scipy's default is the pooled-variance
+                          Student t; the skill's rule is Welch. (Minor: the author
+                          may have meant Student t; only the default is certain.)
+  API_DEFAULT_PENALIZED_OR (Python only) sklearn LogisticRegression(...) with neither
+                          penalty nor C, in a file that exponentiates coef_ or names
+                          odds ratios: the default is L2-penalised at C = 1.0, so the
+                          odds ratios are shrunk. C is accepted as intent because
+                          C=np.inf is how sklearn >= 1.8 turns the penalty off. (Minor)
+  API_DEFAULTS_NOT_ASSESSED (Python only) the file names ttest_ind or
+                          LogisticRegression but does not parse, so the two API-default
+                          checks could not run. (Minor)
+
+R's t.test() defaults to Welch (var.equal = FALSE), so R calls are not checked.
 
 The gate is conservative on the Major checks (it fires HARDCODED_DATA_LITERAL
 only on genuinely table-shaped literals, MISSING_SEED only when a real
@@ -321,12 +335,93 @@ def check_unused_imports_py(src: str) -> list[dict]:
     return claims
 
 
+# --- API defaults (Python only, Minor) --------------------------------------
+# Each rule restates a rule the skill's own references already give; the message cites it.
+WELCH_RULE = "references/analysis_guides/test_selection.md:78 (Welch's t-test by default)"
+SKLEARN_L2_RULE = ("references/analysis_guides/propensity_score.md:142 (sklearn's "
+                   "LogisticRegression is L2-penalised by default, C = 1.0)")
+ODDS_RATIO_NAME = re.compile(r"odds[ _-]?ratio", re.IGNORECASE)
+API_NAMES = re.compile(r"\bttest_ind\b|\bLogisticRegression\b")
+
+
+def _callee(node: ast.Call) -> str | None:
+    f = node.func
+    if isinstance(f, ast.Name):
+        return f.id
+    if isinstance(f, ast.Attribute):
+        return f.attr
+    return None
+
+
+def _has_kwarg(node: ast.Call, *names: str) -> bool:
+    """True when the call names one of `names` or passes **kwargs (which may set it)."""
+    return any(k.arg is None or k.arg in names for k in node.keywords)
+
+
+def _exponentiates_coef(node: ast.Call) -> bool:
+    if _callee(node) != "exp":
+        return False
+    return any(isinstance(n, ast.Attribute) and n.attr in ("coef_", "intercept_")
+               for a in node.args for n in ast.walk(a))
+
+
+def check_api_defaults_py(src: str) -> list[dict]:
+    """ttest_ind without equal_var; LogisticRegression without penalty/C next to odds ratios."""
+    if not API_NAMES.search(src):
+        return []
+    try:
+        tree = ast.parse(src)
+    except (SyntaxError, ValueError, RecursionError, MemoryError):
+        m = API_NAMES.search(src)
+        return [{
+            "verdict": "API_DEFAULTS_NOT_ASSESSED", "severity": "Minor",
+            "line": src[:m.start()].count("\n") + 1,
+            "detail": (f"'{m.group(0)}' appears but the file does not parse as Python, so its "
+                       f"API defaults (equal_var, penalty) were not checked"),
+        }]
+    alias = {"ttest_ind": "ttest_ind", "LogisticRegression": "LogisticRegression"}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            for a in node.names:
+                if a.name in ("ttest_ind", "LogisticRegression") and a.asname:
+                    alias[a.asname] = a.name
+    calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call)]
+    code = strip_py_comments_docstrings(src)
+    computes_or = (any(_exponentiates_coef(n) for n in calls)
+                   or bool(ODDS_RATIO_NAME.search(code)))
+    claims: list[dict] = []
+    t_calls = [n for n in calls if alias.get(_callee(n) or "") == "ttest_ind"
+               and not _has_kwarg(n, "equal_var")]
+    if t_calls:
+        n = min(t_calls, key=lambda c: (c.lineno, c.col_offset))
+        claims.append({
+            "verdict": "API_DEFAULT_STUDENT_T", "severity": "Minor", "line": n.lineno,
+            "detail": (f"ttest_ind() without equal_var runs scipy's default pooled-variance "
+                       f"Student t ({len(t_calls)} call(s)); the skill's rule is Welch, "
+                       f"{WELCH_RULE}: pass equal_var=False, or equal_var=True with the reason"),
+        })
+    lr_calls = [n for n in calls if alias.get(_callee(n) or "") == "LogisticRegression"
+                and not n.args and not _has_kwarg(n, "penalty", "C")]
+    if lr_calls and computes_or:
+        n = min(lr_calls, key=lambda c: (c.lineno, c.col_offset))
+        claims.append({
+            "verdict": "API_DEFAULT_PENALIZED_OR", "severity": "Minor", "line": n.lineno,
+            "detail": ("LogisticRegression() with neither penalty nor C is fitted with an L2 "
+                       "penalty at C = 1.0, and this file reports odds ratios from it, which "
+                       "are then shrunk towards 1; " + SKLEARN_L2_RULE + ". For odds ratios "
+                       "fit an unpenalised model (statsmodels Logit, or C=np.inf), or state "
+                       "the penalty"),
+        })
+    return claims
+
+
 def check_file(path: Path) -> list[dict]:
     lang = "py" if path.suffix.lower() == ".py" else "r"
     src = path.read_text(encoding="utf-8", errors="replace")
     claims = check_text_common(src, lang)
     if lang == "py":
         claims += check_unused_imports_py(src)
+        claims += check_api_defaults_py(src)
     for c in claims:
         c["file"] = str(path)
     return claims
