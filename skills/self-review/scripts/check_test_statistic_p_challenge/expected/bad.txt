@@ -1,0 +1,5 @@
+== Test statistic vs P (self-review) ==
+source: fixture/stat_bad.md  grim: -  alpha: 0.05
+statistics found: 2  recomputed: 2  GRIM entries checked: 0
+[Major] P_STAT_DECISION_ERROR L4  t(28) = 1.50, P = .03: the two-sided P recomputes to 0.144–0.146 over the statistic's rounding interval, outside the reported P at its printed precision; the reported P is below alpha 0.05 and the recomputed P above it.
+MAJOR candidate: 1 Major, 0 Minor.

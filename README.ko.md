@@ -58,7 +58,7 @@ v6에서 이름이 바뀐 스킬(옛 이름은 v7 전까지 계속 동작): `ima
 
 ## 환자 데이터와 안전
 
-식별 가능한 환자 데이터를 agent에 넘기지 마세요. `/deidentify`는 네트워크 연결이나 AI 호출 없이 로컬에서 실행됩니다. 정규식과 휴리스틱(11개국 locale pack)으로 protected health information(PHI)을 찾고, 사용자가 대화형으로 검토한 뒤 가명화합니다. `/analyze-stats`는 원자료 파일을 사용하기 전에 환자 식별정보가 들어 있는지 묻습니다. 이 스킬들은 연구 생산성 도구이지 clinical decision support가 아닙니다. 임상적으로 검증되지 않았고 전문가 검토를 대신하지 못하므로, 논문이나 임상 현장에서 사용하기 전에 자격을 갖춘 연구자가 모든 결과물을 확인해야 합니다. 92개의 deterministic detector는 정해진 항목(참고문헌 메타데이터, 산술, 체크리스트 항목, data leakage)을 다시 계산하거나 교차 확인합니다. 아무것도 걸리지 않았다는 것은 그 점검들이 문제를 찾지 못했다는 뜻일 뿐, 원고가 옳다는 뜻은 아닙니다. detector별 목록과 정식 평가 여부는 [MEDSCI_AUDIT.md](https://github.com/Aperivue/medsci-skills/blob/v6.0.1/MEDSCI_AUDIT.md)에, 참고문헌 조회에 쓰는 API 키 없는 공개 API는 [docs/connectors.md](https://github.com/Aperivue/medsci-skills/blob/v6.0.1/docs/connectors.md)에 정리되어 있습니다.
+식별 가능한 환자 데이터를 agent에 넘기지 마세요. `/deidentify`는 네트워크 연결이나 AI 호출 없이 로컬에서 실행됩니다. 정규식과 휴리스틱(11개국 locale pack)으로 protected health information(PHI)을 찾고, 사용자가 대화형으로 검토한 뒤 가명화합니다. `/analyze-stats`는 원자료 파일을 사용하기 전에 환자 식별정보가 들어 있는지 묻습니다. 이 스킬들은 연구 생산성 도구이지 clinical decision support가 아닙니다. 임상적으로 검증되지 않았고 전문가 검토를 대신하지 못하므로, 논문이나 임상 현장에서 사용하기 전에 자격을 갖춘 연구자가 모든 결과물을 확인해야 합니다. 93개의 deterministic detector는 정해진 항목(참고문헌 메타데이터, 산술, 체크리스트 항목, data leakage)을 다시 계산하거나 교차 확인합니다. 아무것도 걸리지 않았다는 것은 그 점검들이 문제를 찾지 못했다는 뜻일 뿐, 원고가 옳다는 뜻은 아닙니다. detector별 목록과 정식 평가 여부는 [MEDSCI_AUDIT.md](https://github.com/Aperivue/medsci-skills/blob/v6.0.1/MEDSCI_AUDIT.md)에, 참고문헌 조회에 쓰는 API 키 없는 공개 API는 [docs/connectors.md](https://github.com/Aperivue/medsci-skills/blob/v6.0.1/docs/connectors.md)에 정리되어 있습니다.
 
 ## 인용
 

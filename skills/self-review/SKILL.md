@@ -239,6 +239,10 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_table_percentages.py" \
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_reported_p_from_counts.py" \
   --manuscript manuscript.md --json --strict > qc/reported_p.json
 
+# Every t(df) / F(df1, df2) / χ2(df) / z with a P in its sentence, P recomputed from the statistic.
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_test_statistic_p.py" \
+  --manuscript manuscript.md --json --strict > qc/test_statistic_p.json   # add --grim grim.json
+
 # Diagnostic-accuracy only: sensitivity/specificity against the reference-standard denominators.
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_dta_denominators.py" \
   --manuscript manuscript.md --json --strict > qc/dta_denominators.json
@@ -247,6 +251,14 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_dta_denominators.py" \
 `PERCENT_MISMATCH`, `P_NOT_REPRODUCIBLE`, and `DTA_DENOMINATOR_MISMATCH` / `STAGE_ROWSUM` are
 **P0 Major** — not a rounding disagreement: one of the two numbers is wrong. Run the first two on
 **every** manuscript with a table; the third only on diagnostic-accuracy work.
+
+`check_test_statistic_p.py` reads the statistic and the P at their printed precision: a P no
+statistic in the rounding interval can give is `P_STAT_INCONSISTENT` (Minor), and Major
+`P_STAT_DECISION_ERROR` when the two also fall on opposite sides of alpha (`--alpha`). Adjusted or
+non-standard P values (corrected, exact, Welch, …) and results that match only the unstated
+one-sided P are never Major. `--grim` takes declared means
+(`[{"label", "mean", "n", "items"?, "decimals"?}]`): `GRIM_INCONSISTENT` (Major) when no integer
+sum gives the mean; `GRIM_NOT_ASSESSED` when n·items >= 10^decimals.
 
 To check each P against its own test, declare the tests as `p_tests.json` (copy
 `${CLAUDE_SKILL_DIR}/templates/p_tests.json`; schema in `references/p_tests_schema.md`) and add

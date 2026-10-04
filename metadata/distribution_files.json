@@ -4948,8 +4948,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 47276,
-      "sha256": "94d3908c2d0232b38146101f3d5f9197e29f93c5336254c7a8d8219cd86269da"
+      "size": 48142,
+      "sha256": "b06427864a90ec0d499d07120fffecf995f895aafd1d00405648160e0089c860"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -5802,6 +5802,41 @@
       "sha256": "f22805f501ce6bece2b5729b509a3bd9c55ace95d03d59625bb7ae40867d50d1"
     },
     {
+      "path": "skills/self-review/scripts/check_test_statistic_p.py",
+      "size": 33960,
+      "sha256": "f58cb5e1908a21017167c6e83ff1b50545b92b0752d4a18de53ea977b436c982"
+    },
+    {
+      "path": "skills/self-review/scripts/check_test_statistic_p_challenge/expected/bad.txt",
+      "size": 441,
+      "sha256": "d7455c24962bde560a49fd9a0dd128029cef07994f90d4212a83b07e9e2c2075"
+    },
+    {
+      "path": "skills/self-review/scripts/check_test_statistic_p_challenge/expected/ok.txt",
+      "size": 230,
+      "sha256": "c1c842822eb3064bb103b4af2f95d186c44acbf905b382608c26e4e349b66c5b"
+    },
+    {
+      "path": "skills/self-review/scripts/check_test_statistic_p_challenge/fixture/stat_bad.md",
+      "size": 189,
+      "sha256": "0f98fad3845c05464a250bc4920b690ddaf0dc67320f2c1f89e525a909c96d85"
+    },
+    {
+      "path": "skills/self-review/scripts/check_test_statistic_p_challenge/fixture/stat_ok.md",
+      "size": 190,
+      "sha256": "7543e2c131aee925b206921a4dcd3cf210ffabf3b3c4b88211d0a7a4f4ffe513"
+    },
+    {
+      "path": "skills/self-review/scripts/check_test_statistic_p_challenge/problem.md",
+      "size": 1573,
+      "sha256": "00cd85426be37d21d44d921aaa765430130af9e6d7d48509399cb742107f42de"
+    },
+    {
+      "path": "skills/self-review/scripts/check_test_statistic_p_challenge/verify.sh",
+      "size": 1667,
+      "sha256": "f96655841700dd17a090940d513986754f3edeb7120c9e37ea73f0804e7e6f1a"
+    },
+    {
       "path": "skills/self-review/scripts/cohort_arith_binding_challenge/fixture/binding_negatives.md",
       "size": 712,
       "sha256": "ff8eb93956ea0658da1c6a8d34e8f38ed05c66a47015190802e4923a2f7b897d"
@@ -6113,8 +6148,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 5314,
-      "sha256": "e84a75a0a539c958ed8415e99bfbb944d0ccbf0cb38db5c2e3a35119e017cc32"
+      "size": 5564,
+      "sha256": "a3fcc1c0a6bd689a4dc7be82a220b49285c0e7e58eb5162463757605e672911b"
     },
     {
       "path": "skills/self-review/templates/evalues.json",

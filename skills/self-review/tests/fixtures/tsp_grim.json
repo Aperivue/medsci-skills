@@ -1,0 +1,7 @@
+[
+  {"label": "Pain score, arm A", "mean": 3.48, "n": 25},
+  {"label": "Pain score, arm B", "mean": 3.47, "n": 25},
+  {"label": "Fatigue (3 items)", "mean": "2.50", "n": 10, "items": 3},
+  {"label": "Sleep", "mean": 5.19, "n": 28, "decimals": 2},
+  {"label": "Mood", "mean": 4.21, "n": 150}
+]

@@ -1,0 +1,4 @@
+== Test statistic vs P (self-review) ==
+source: fixture/stat_ok.md  grim: -  alpha: 0.05
+statistics found: 2  recomputed: 2  GRIM entries checked: 0
+OK: every recomputed P and declared mean is consistent at its printed precision.

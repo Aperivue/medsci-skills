@@ -51,6 +51,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_effect_stability": "numerical_cohort",
     "check_table_percentages": "numerical_cohort",
     "check_reported_p_from_counts": "numerical_cohort",
+    "check_test_statistic_p": "numerical_cohort",
     "check_dta_denominators": "numerical_cohort",
     "check_paired_difference_estimator": "numerical_cohort",
     "check_artifact_coverage": "numerical_cohort",

@@ -962,6 +962,14 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_p_tests_declared.sh
 
+      - name: Run self-review test-statistic-P challenge (recompute P from t / F / chi2 / z, stdlib)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/self-review/scripts/check_test_statistic_p_challenge/verify.sh
+
+      - name: Run self-review test-statistic-P test (rounding intervals, sidedness, declared GRIM)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/self-review/tests/test_test_statistic_p.sh
+
       - name: Run self-review DTA-denominator challenge (sens/spec vs reference-standard)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_dta_denominators_challenge/verify.sh
