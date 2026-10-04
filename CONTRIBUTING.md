@@ -301,7 +301,8 @@ and let the work accumulate into something a person would actually want to read 
 
 The rule is enforced by `scripts/check_release_cadence.py` (CI):
 
-- **At least 14 days since the last release.**
+- **No minimum gap is enforced.** The 14-day wait was removed in 6.1.0; `--min-days N` restores
+  one, and the hotfix and pinned-reference notes below then waive it.
 - **The release must carry something a user would notice.** Docs, CI and internal changes are fine
   to merge and a poor reason to make a hundred people update; they ride along with the next release
   that has a reason of its own.

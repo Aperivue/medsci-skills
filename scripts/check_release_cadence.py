@@ -33,7 +33,11 @@ believed). Those go out immediately, and say so in the changelog:
     so an end-to-end run could not complete.
 
 Usage:
-    check_release_cadence.py [--min-days 14] [--strict]
+    check_release_cadence.py [--min-days N] [--strict]
+
+The minimum gap defaults to 0 days: the maintainer removed the 14-day wait in 6.1.0. Pass
+--min-days N to enforce one; the hotfix and pinned-reference notes then waive it. The
+substance check (a changelog section with something a user would notice) always applies.
 
 It is a no-op unless a release is actually being prepared: if `CITATION.cff` still declares the
 version of the newest tag, there is nothing to check and it exits 0. Stdlib only (shells to git).
@@ -49,7 +53,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-MIN_DAYS = 14
+MIN_DAYS = 0  # no enforced wait since 6.1.0; --min-days N restores one
 
 # A release that fixes something already broken in the wild does not wait.
 HOTFIX = re.compile(r"^\s*\*\*Hotfix:?\*\*\s*(.+)$", re.MULTILINE | re.IGNORECASE)

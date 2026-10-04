@@ -267,6 +267,9 @@
 
 ### CI
 
+- **No minimum wait between releases.** `check_release_cadence.py` no longer requires 14 days
+  since the last release (maintainer decision); `--min-days N` restores a wait. A release still
+  needs a changelog section with something a user would notice.
 - **The validate job's Python packages are pinned** (#664). `.github/requirements-ci.txt` holds
   the full transitive set CI resolved on Python 3.11, so an upstream release cannot change a
   numerical test's result between two runs of the same commit; its header says how to refresh it.
