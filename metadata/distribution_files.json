@@ -618,8 +618,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 31451,
-      "sha256": "555ab2d45c5d853bf07e1fb6dc2809ad55e36507bc89422097649f8b18733c95"
+      "size": 31552,
+      "sha256": "e819b2df51946a1e895b455c7c1c3a4ea6e148ecb96027941d38cf20b7db0986"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -4753,8 +4753,8 @@
     },
     {
       "path": "skills/revise/SKILL.md",
-      "size": 25158,
-      "sha256": "7d7f85d3f96ed2cfc2936300bcf50a4204ad33f2c12b5fb8ba14b87d1f79b80e"
+      "size": 25288,
+      "sha256": "c551d3774625dba9e3c428b2cf68b9d74e688c09c2931ed9259749127346fb80"
     },
     {
       "path": "skills/revise/references/r2r_voice.md",
@@ -6558,8 +6558,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 36105,
-      "sha256": "7a46c0d8cbc219496ab73868215d60211feb667e59e6293d39d665e756c4b3c5"
+      "size": 36011,
+      "sha256": "645ce9011373c5882ffec6c4f046cc5cf41466654824c37de170df4230444bc6"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",

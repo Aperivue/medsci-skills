@@ -410,7 +410,7 @@ For R2+, acknowledge whether R1 concerns were fully resolved. If a reviewer rais
 
 ## Word Count Guidance
 
-- Response letter total: 5000-8000 words (including quoted reviewer comments)
+- Response letter total: no target. It is the per-comment responses below plus the quoted reviewer comments, so a short decision letter gets a short reply
 - Cover letter: 200-400 words (R1 only; on R2+ there is no separate cover letter — see Step 5)
 - MINOR response: 50-150 words
 - MAJOR response: 150-400 words
@@ -426,7 +426,7 @@ For R2+, acknowledge whether R1 concerns were fully resolved. If a reviewer rais
 | Comment classification (MAJOR / MINOR / REBUTTAL) | ENFORCED | comment unclassified or classification disputed | ask user; do not silently default |
 | Step 2.5 `[VERIFY-CSV]` tagging on revision-introduced numbers | ENFORCED | new numerical claim added without `[VERIFY-CSV]` tag | tag automatically; HALT until CSV cross-check completes |
 | Reference re-render after revisions touching citations | ENFORCED | any new `[@bibkey]` added in R1+ | route to `/manage-refs` for a re-render before R1 submission |
-| `/verify-refs --strict` post-revision | ENFORCED | FABRICATED / HIGH_MISMATCH_FIRST_AUTHOR > 0 | HALT R1 submission |
+| `/verify-refs --strict` post-revision | ENFORCED | `submission_safe: false` (any FABRICATED or MISMATCH row, or a non-empty `duplicate_findings[]`) | HALT R1 submission |
 | New analysis coordination | ENFORCED | reviewer asks for new analysis | route to `/analyze-stats` (and `/make-figures` if figure changes); never hand-write new numbers |
 | Body word count vs journal cap (revision-inflation trap) | ENFORCED after every revise pass | resolving majors pushes the body over the target journal's word limit | run `python3 "${CLAUDE_SKILL_DIR}/../sync-submission/scripts/check_wordcount_cap.py"` (`--journal-profile` or `--limit`; prefer the rendered DOCX count); `WORDCOUNT_OVER_CAP` blocks submission — relocate methods/sensitivity detail to the Supplement, do not silently exceed |
 | Cover letter to editor | ENFORCED at R1 submission | R1 missing editor cover letter | block submission |

@@ -297,25 +297,21 @@ Phases 3–6 each run writer → critic → fixer: draft the section, have the c
 line-level feedback, revise, and repeat for up to 3 rounds. After 3 rounds without a pass, present
 the best version to the user with the remaining issues listed, and ask for guidance.
 
-The critic scores six dimensions 0-20 each (total 0-120, scaled to 0-100): **Accuracy** (every
+The critic reviews six dimensions, with line-level feedback: **Accuracy** (every
 claim matches data/tables; effect directions correct), **Completeness** (all reporting-guideline
 elements and subsections present), **Clarity** (parseable on first read; no ambiguous referents),
 **Conciseness** (no filler or redundant hedging; within word budget), **Reporting** (this
 section's STARD/TRIPOD/CLAIM/etc. items addressed), **Humanness** (no AI Pattern Avoidance hits).
-
-Scoring guide: 18-20 publication-ready · 14-17 minor revisions · 10-13 moderate (structural or
-content gaps) · 0-9 major rewrite. **Pass:** overall ≥ 85/100 and no dimension below 12/20;
-otherwise run a fixer round.
+The section passes when no dimension carries an issue a journal reviewer would raise; otherwise
+run a fixer round.
 
 **Section boundaries (pass/fail, Phases 4 and 5):** in Results, no interpretation, no "why," no
 prior-literature references, no evaluative adjectives without numbers; in Discussion, no data
 absent from Results and no overclaiming beyond the evidence level. The critic MUST flag every
-violating sentence regardless of overall score, and the section cannot pass until the fixer moves
-or rewrites it.
+violating sentence, and the section cannot pass until the fixer moves or rewrites it.
 
-Report each round as `## Critic Report: {Section} -- Round {N}` with the overall and six dimension
-scores, issues by priority as `[Dimension] location: issue -> suggested fix`, and
-`Verdict: PASS | REVISE`.
+Report each round as `## Critic Report: {Section} -- Round {N}` with the issues by priority as
+`[Dimension] location: issue -> suggested fix`, and `Verdict: PASS | REVISE`.
 
 ---
 
@@ -462,9 +458,9 @@ Severity levels: **ENFORCED** = pipeline halts on failure (cannot proceed to nex
 | 0 | Backbone-article auto-proposal (Phase 0 "Identify a backbone article" action) | ADVISORY | refs.bib has methodologically similar candidate | Surface to user; user accepts/declines |
 | 7.0 | Citekey resolution (delegate `/manage-refs scripts/check_citation_keys.py`) | ENFORCED | UNDEFINED keys present | Halt; resolve via `/lit-sync` then re-run |
 | 7.0 | `[@NEW:topic]` drain (delegate `/manage-refs`; `check_citation_keys.py` reports them as UNDEFINED, exit 1) | ENFORCED at 7.6 entry | `[@NEW:topic]` markers remain | Resolve each before DOCX render |
-| 7.1 | Classical-style QC (`check_classical_style.py`) | ENFORCED | § symbol > 0 OR an AI disclosure in the body of a journal that does not accept one there (per profile) OR more than 25 prose em-dashes | Auto-fix or HALT for senior MA reviewer prep |
+| 7.1 | Classical-style QC (`check_classical_style.py`) | ENFORCED | § symbol > 0 OR an AI disclosure in the body of a journal that does not accept one there (per profile); more than 25 prose em-dashes is reported as Minor and does not halt | Auto-fix or HALT for senior MA reviewer prep |
 | 7.2 | Reporting guideline compliance (`/check-reporting`) | ENFORCED at submission | <100% mandatory items present | Auto-fix MISSING; ADVISORY for partial |
-| 7.3 | Reference audit (`/verify-refs --strict`) | ENFORCED | FABRICATED or HIGH_MISMATCH_FIRST_AUTHOR > 0 | Halt; fix in Zotero, re-render refs.bib via `/lit-sync` |
+| 7.3 | Reference audit (`/verify-refs --strict`) | ENFORCED | `submission_safe: false` (any FABRICATED or MISMATCH row, or a non-empty `duplicate_findings[]`) | Halt; fix in Zotero, re-render refs.bib via `/lit-sync` |
 | 7.4 | Self-review fix loop (`/self-review --json --fix`) | ENFORCED | score below threshold after 2 iterations | Route to Step 7.4a Audit Recovery |
 | 7.4a | Audit Recovery branch (route to `/meta-analysis` Phase 10 for MA manuscripts) | ENFORCED in `--e2e` | self-review surfaced structural data issue | HALT with `RECOVERY_HALT_HUMAN_DECISION` if recovery validation fails twice |
 | 7.5 | Humanize density (`/humanize`) | ADVISORY | AI patterns > 2.0 / 1000 words | Sweep + flag remaining; user reviews |
