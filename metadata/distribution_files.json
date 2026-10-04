@@ -3288,8 +3288,8 @@
     },
     {
       "path": "skills/mllm-eval/SKILL.md",
-      "size": 7703,
-      "sha256": "50ce106c449b10e507641fabaca720e4bff39c9ce2170d614b2bd7c804b943ae"
+      "size": 7865,
+      "sha256": "148f033be25b3d68a8936f9c485e07d522ed1499ee65a5d7d66709e96dd4172d"
     },
     {
       "path": "skills/mllm-eval/references/eval_manifest_schema.md",
