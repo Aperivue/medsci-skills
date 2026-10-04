@@ -203,7 +203,7 @@ it; if either fails, GLMM is the safer primary.
 ## Choosing the Model — and Reporting Why (PRISMA item 13d)
 
 Item 13d asks for the *rationale* behind the synthesis method, and it is among the most
-under-reported items in published radiology SR/MA (35% [VERIFY: the text implies 5/18 = 28%] in Park 2022, PMID:35213097).
+under-reported items in published radiology SR/MA (28%, 5 of 18 meta-analyses, in Park 2022, PMID:35213097).
 The failure is rarely that no model was chosen — it is that the stated reason is the
 wrong kind of reason.
 

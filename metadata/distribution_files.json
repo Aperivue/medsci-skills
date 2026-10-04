@@ -198,8 +198,8 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 27617,
-      "sha256": "7148b04afd6b39a8c5ec898d60da5d92a721dc85afdcf3cf58e748e6c6796e8f"
+      "size": 27928,
+      "sha256": "ee32227f9665202c8c90ef85dc8053ed02e1290ada00ab1efa6aca8657bea174"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/agreement_reliability.md",
@@ -478,8 +478,8 @@
     },
     {
       "path": "skills/analyze-stats/scripts/check_generated_code.py",
-      "size": 19628,
-      "sha256": "e628edf7a30993ae659670e6ee110e57518b878f975db60ee1b34975f471c51a"
+      "size": 26996,
+      "sha256": "85a843add5a5d967d79e60d6cd15a9a217e1a1b7236e500a236d480997bed981"
     },
     {
       "path": "skills/analyze-stats/scripts/check_separation.py",
@@ -1023,8 +1023,8 @@
     },
     {
       "path": "skills/cross-national/references/chns_coding.md",
-      "size": 3863,
-      "sha256": "6e59c22379171f4042ce155897115d2129c9909434c4fc1211542bef0d31e3b8"
+      "size": 4071,
+      "sha256": "09ac8d478693f32558b2abe648bac0f6d87a4bebadb1778fb3f485a9c09d4dd9"
     },
     {
       "path": "skills/cross-national/skill.yml",
@@ -3008,8 +3008,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 35113,
-      "sha256": "fb46dd69caca51cc0f92917347389e8a51f6f66c3c9728bbfeeb33010e3b8685"
+      "size": 35082,
+      "sha256": "ddf417f4a9d42a93525690e8f0cbc481eafb253034932360fabe99e55babadee"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -3103,8 +3103,8 @@
     },
     {
       "path": "skills/meta-analysis/references/phase6_statistical_synthesis.md",
-      "size": 17199,
-      "sha256": "a588f7cf21ee684c2df519d4858636cb2fe7931393a2b08e638504db09c7b71e"
+      "size": 17185,
+      "sha256": "ebc461a5c4d1d0bb97efbfb6df4f52e8a4f27b8bda84aeebf7c1d13d4de3c4a8"
     },
     {
       "path": "skills/meta-analysis/references/phase9_circulation.md",
@@ -3298,8 +3298,8 @@
     },
     {
       "path": "skills/mllm-eval/references/evaluation_axes.md",
-      "size": 12187,
-      "sha256": "56d32017853f838e5fdc51a45cd40407e01935ccf0e159a68ae96f03bdc42f0d"
+      "size": 12352,
+      "sha256": "d0c8d77204b85aa3830bb6b8d75e5c003192c7a8f1e10dea05fc93250e63f577"
     },
     {
       "path": "skills/mllm-eval/scripts/check_mllm_eval_completeness.py",
@@ -3418,8 +3418,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_metric_reporting.py",
-      "size": 35087,
-      "sha256": "a927c124dc5a2a4444e7cd763b562ea60ea365e1644fd669cdc9551e6fb76c3c"
+      "size": 35201,
+      "sha256": "672dacab930621d18114317da8b83095bbde076cb0a0ccbd253f72cae69a2fd3"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage.py",
@@ -3573,8 +3573,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/metric_reporting_challenge/problem.md",
-      "size": 2439,
-      "sha256": "d369907191fef32753f503841727d68855b7464fcc026f271cc352f38e31e856"
+      "size": 2496,
+      "sha256": "5fff790fb1240c7d6dabbc40a3d3f7058ae7951c4865ee377cd70c559d18a0d3"
     },
     {
       "path": "skills/model-assessment/scripts/metric_reporting_challenge/verify.sh",
@@ -3609,7 +3609,7 @@
     {
       "path": "skills/model-card/references/model_card_template.md",
       "size": 3239,
-      "sha256": "e40ed0b7fd1a7370d22bb74a596048d1e09b75c14f1b2064ba89d06c886cefbd"
+      "sha256": "d71fa8ee4aba9f7ee9590c2d5a34430b7b4342de07d31112a1a8ce4e9bea8b51"
     },
     {
       "path": "skills/model-card/scripts/check_model_card_complete.py",
@@ -3663,13 +3663,13 @@
     },
     {
       "path": "skills/model-scaffold/references/mlops_guide.md",
-      "size": 5168,
-      "sha256": "0b2725c7473f45969937abc751118a9b045a76adf64adf4fd8aa28fab48851fa"
+      "size": 5276,
+      "sha256": "7c8b00e4c7c682d3579f24572d3bb012c90b1dde5b95f56eaf3aa2c2137568c7"
     },
     {
       "path": "skills/model-scaffold/references/training_guide.md",
-      "size": 2840,
-      "sha256": "44d9dee81afc3f83858fe7e8d5ddc9204f11d3713b1b82873f5833d582c109a6"
+      "size": 2948,
+      "sha256": "6882bc842a6f6c46174bf1b61e93178720b6bbc62193db6d5ad7021ba5db9ee4"
     },
     {
       "path": "skills/model-scaffold/scripts/check_training_hygiene.py",
@@ -3678,8 +3678,8 @@
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold.py",
-      "size": 79023,
-      "sha256": "b23f250d39830e383238b8e278bef52c4dfc1b052d00f3223808dfcd2121d7cc"
+      "size": 79128,
+      "sha256": "9d77517933cfd157ebbfb8331db7a400ee9ad3428c45fe3fb457380959e209b7"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/expected/split_assignment.csv",
@@ -3713,8 +3713,8 @@
     },
     {
       "path": "skills/model-selection/references/classification.md",
-      "size": 7256,
-      "sha256": "b40cde279736ad23ebb1770fea93c9be7a73411491bce9b10a6a3b299627def0"
+      "size": 7417,
+      "sha256": "84c7af3d8986788f0038204967d5aea06f0b6315f9cc48036c1391dca57bb428"
     },
     {
       "path": "skills/model-selection/references/detection.md",
@@ -3733,8 +3733,8 @@
     },
     {
       "path": "skills/model-selection/references/index.md",
-      "size": 5310,
-      "sha256": "da649fcf937076d708594085cd3aeae38f9ebe1e4e3f0ae313e8cf083792783b"
+      "size": 5343,
+      "sha256": "f1fcb2967ab9dab76df7f80b04591765e84e94693d1fbcb24864d2d4d8d9c1a2"
     },
     {
       "path": "skills/model-selection/references/segmentation.md",
@@ -4948,8 +4948,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 46902,
-      "sha256": "9a2c9026547cbe3e77a8f6b099c76f886c475584dbdae12051a3a6900b847b30"
+      "size": 47276,
+      "sha256": "94d3908c2d0232b38146101f3d5f9197e29f93c5336254c7a8d8219cd86269da"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -5168,8 +5168,8 @@
     },
     {
       "path": "skills/self-review/references/phases/phase3c_json_output.md",
-      "size": 3222,
-      "sha256": "7efa7ce99f3f5b4c28f32840f6e66f3091e20c48629351202b74d383ef842a3a"
+      "size": 6658,
+      "sha256": "278a5c4fdb8bba4b160e1a940fc569f109b7ac1c3d5584140db7c6c9a9e78807"
     },
     {
       "path": "skills/self-review/references/phases/phase4_fix_support.md",
@@ -5647,6 +5647,61 @@
       "sha256": "1a1fddcdef6d23a3c6e2f83c924180c2703355953223d5d82cd89e01615e436d"
     },
     {
+      "path": "skills/self-review/scripts/check_review_coverage.py",
+      "size": 12695,
+      "sha256": "519be8a9faea689a896f3bc2602832411148672f1b6be949cc14f83cf4904279"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/expected/legacy_no_coverage.txt",
+      "size": 452,
+      "sha256": "828d3565fb0b1e23c1bd71130c671d5a1312f4a5ea2073466f8b786027c4a7b2"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/expected/pass_complete.txt",
+      "size": 184,
+      "sha256": "50d084f79f76c95c7e55794173d72c3e765412ab74408fc856db4c84300bc802"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/expected/pass_gap.txt",
+      "size": 440,
+      "sha256": "379e3557365ceb22d569175667a7356b2996b413cffa1b42494fa3d492d0c623"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/expected/revise_gap.txt",
+      "size": 471,
+      "sha256": "395773b96067f644f1a174d7718d60ba0609d0efb850d94269868094bb857d47"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/fixture/legacy_no_coverage.json",
+      "size": 591,
+      "sha256": "5b0e15f8fe8fde6e5b3aef2e6fef77510764f9b567085a954e99c15835595ee5"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/fixture/pass_complete.json",
+      "size": 2472,
+      "sha256": "d5917ce59051ca67e3dfba75979d3ee5dba0fd076833af5ed36c5f670b52b7d5"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/fixture/pass_gap.json",
+      "size": 2417,
+      "sha256": "daa2220ea0c0012aa07928e1d438c8021d5fa0ca1846f59b6cfb510d8fa1ba18"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/fixture/revise_gap.json",
+      "size": 2357,
+      "sha256": "57700932a2e074fcf07076180330b2682177215d80b30cf452fd48f2c281f53b"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/problem.md",
+      "size": 2248,
+      "sha256": "7711935077e10568c80e4adbacdd0d5118bbe1aaa241fa03ae0ea87b3c3a8f9c"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/verify.sh",
+      "size": 2071,
+      "sha256": "2f25ed893032c87f7f40c3471c0010022cc58249f009de94d91c3749c0b0a84d"
+    },
+    {
       "path": "skills/self-review/scripts/check_reviewer_team_consistency.py",
       "size": 15498,
       "sha256": "9af6a41312262a05b30abebf0ce41718ff5463fe5c613e11b27db1073f66e54e"
@@ -6058,8 +6113,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 4954,
-      "sha256": "11f62cf2dc9bcd8d23c39be14015b3eee49024074ef2a6f592faccba3918f7f1"
+      "size": 5314,
+      "sha256": "e84a75a0a539c958ed8415e99bfbb944d0ccbf0cb38db5c2e3a35119e017cc32"
     },
     {
       "path": "skills/self-review/templates/evalues.json",

@@ -82,8 +82,9 @@ score.
   distribution, not a fixed value.
 - **Disclose (MI-CLEAR-LLM transparency):** the **exact prompt(s)** including the system prompt,
   the **decoding settings** (temperature / top-p / seed), **≥ 3 runs** with reported variance
-  (e.g., mean ± SD), and a **prompt-robustness** check across **≥ 2 phrasings/formats** for the
-  headline result.
+  (e.g., mean ± SD; ≥ 3 is the floor this skill checks, but ≥ 5 runs give a usable SD: with three
+  runs its 95% CI is about 0.5-6 x the observed SD, with five about 0.6-2.9 x), and a
+  **prompt-robustness** check across **≥ 2 phrasings/formats** for the headline result.
 
 ## Answer-matching for VQA / classification (ME6 → `ANSWER_MATCHING_MISSING`)
 
@@ -97,8 +98,8 @@ score.
   finding (2% prevalence) a system that always answers "negative" scores 98%. Report
   **per-class sensitivity/specificity** (or precision/recall/F1) with CIs, and **PPV/NPV at the
   real clinical prevalence**, not on an artificially balanced QA set; give accuracy only
-  alongside them (Reinke et al., *Nat Methods* 2024, the accuracy pitfall under class
-  imbalance; STARD 2015). State **how refusals/abstentions are scored** (counted wrong,
+  alongside them (Reinke et al., *Nat Methods* 2024, class imbalance as a source of metric
+  pitfalls; STARD 2015). State **how refusals/abstentions are scored** (counted wrong,
   excluded, or credited) — the choice can move the headline.
 
 ## Reader study for generated reports (ME7 → `READER_STUDY_MISSING`)

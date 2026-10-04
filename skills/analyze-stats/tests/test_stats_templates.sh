@@ -4,6 +4,7 @@
 # Each check reproduces a defect that shipped: a template that crashed, reported a wrong
 # number, or printed a conclusion regardless of the result. Reference values were computed
 # with R (survey 4.5, MatchIt 4, sandwich, lme4, dcurves) on the fixtures generated below;
+# the AS-2 cases (likert_summary, forest_plot, sample_size) record their R call inline.
 # np.random.RandomState streams are frozen across numpy versions, so the fixtures are stable.
 #
 # Static assertions always run. The python runtime block needs exactly the packages the CI
@@ -25,7 +26,7 @@ present() { grep -qE -- "$2" "$T/$1" && ok "$3" || bad "$3"; }
 
 echo "--- static ---"
 for f in regression table1_demographics repeated_measures propensity_score agreement_analysis \
-         survey_weighted_analysis diagnostic_accuracy survival_analysis; do
+         survey_weighted_analysis diagnostic_accuracy survival_analysis forest_plot likert_summary; do
   python3 -m py_compile "$T/$f.py" 2>/dev/null && ok "$f.py compiles" || bad "$f.py syntax error"
 done
 for f in regression table1_demographics repeated_measures propensity_score agreement_analysis \
@@ -51,11 +52,13 @@ present dca_plot.R 'net_intervention_avoided' "ST-20 dca: interventions avoided 
 
 echo "--- runtime (python) ---"
 SKIPPED=0
-PY_RUNTIME_CHECKS=15
+PY_RUNTIME_CHECKS=23
 if python3 -c "import numpy, pandas, scipy, sklearn, matplotlib, statsmodels" 2>/dev/null; then
   WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT
   OUT="$(python3 - "$T" "$WORK" <<'PY' 2>&1
-import contextlib, importlib.util, io, subprocess, sys, warnings
+import contextlib, importlib.util, io, os, subprocess, sys, warnings
+import matplotlib
+matplotlib.use("Agg")
 import numpy as np, pandas as pd
 warnings.simplefilter("ignore")
 T, WORK = sys.argv[1], sys.argv[2]
@@ -204,6 +207,135 @@ check(tab is not None and close(res.fe_params["time"], 0.482955, 1e-4)
       and close(res.fe_params["time:group"], 0.335885, 1e-4),
       "ST-33 repeated measures: slope per unit time equals lme4; results table builds")
 
+# --- AS-2: known-answer cases for the templates no test exercised before ---
+# Every reference value below was computed on 2026-10-04 with R 4.3.3 and the package
+# named beside it; the call is recorded so the value can be recomputed.
+
+# likert_summary.py: Mann-Whitney / Wilcoxon / item-rest correlation equal R stats::
+lk = load("likert_summary")
+r = np.random.RandomState(21); n = 60
+grp = np.where(np.arange(n) < 32, "resident", "attending")
+lat = r.normal(0, 1, n) + 0.6 * (grp == "attending")
+def lk_item(noise): return np.clip(np.round(3 + lat + r.normal(0, noise, n)), 1, 5).astype(int)
+lkd = pd.DataFrame(dict(group=grp, Q1=lk_item(0.8), Q2=lk_item(0.9), Q3=lk_item(1.0)))
+lkd["Q4"] = 6 - lk_item(0.8)   # a reverse-worded item, not recoded
+lkd["pre"] = lk_item(1.0); lkd["post"] = np.clip(lkd["pre"] + r.choice([-1, 0, 1, 1, 2], n), 1, 5)
+g = quiet(lk.compare_groups, lkd, ["Q1"], "group").iloc[0]
+# R: w <- wilcox.test(Q1[resident], Q1[attending], exact = FALSE, correct = TRUE)
+#    -> W = 372.5, P = 0.2496238525; 1 - 2 * W / (32 * 28) = 0.1685268
+check(g["U statistic"] == 372.5 and g["P value"] == 0.25 and g["r (effect size)"] == 0.169,
+      "AS-2 likert: Mann-Whitney U, P and rank-biserial r equal R wilcox.test")
+rest = lk.item_rest_correlations(lkd, ["Q1", "Q2", "Q3", "Q4"])
+# R: cor(Q1, rowSums(d[, c("Q2","Q3","Q4")])) = 0.4432235359; same for Q4 = -0.5843952919
+check(rest["Q1"] == 0.443 and rest["Q4"] == -0.584,
+      "AS-2 likert: item-rest correlations equal R cor(item, rowSums(rest))")
+pp = quiet(lk.prepost_comparison, lkd, ["pre"], ["post"]).iloc[0]
+# R: wilcox.test(pre, post, paired = TRUE, exact = FALSE, correct = FALSE)
+#    -> V = 238, P = 0.00260074389631
+check(pp["W statistic"] == 238.0 and pp["P value"] == 0.003,
+      "AS-2 likert: Wilcoxon signed-rank V and P equal R wilcox.test(paired = TRUE)")
+same = pd.DataFrame(dict(group=["a"] * 20 + ["b"] * 20, Q1=list(range(1, 6)) * 8))
+g0 = quiet(lk.compare_groups, same, ["Q1"], "group").iloc[0]
+rc = quiet(lk.apply_reverse_coding, lkd, ["Q1", "Q2", "Q3", "Q4"], ["Q4"], 5)
+check(g0["P value"] == 1.0 and g0["r (effect size)"] == 0.0
+      and lk.item_rest_correlations(rc, ["Q1", "Q2", "Q3", "Q4"])["Q4"] > 0
+      and quiet(lk.apply_reverse_coding, rc, ["Q4"], ["Q4"], 5)["Q4"].equals(lkd["Q4"]),
+      "AS-2 likert: identical groups give P = 1, r = 0; reverse coding flips item-rest sign and is an involution")
+
+# forest_plot.py: geometry of a plot drawn from a metafor fit
+import matplotlib.pyplot as plt
+fp = load("forest_plot")
+# R: dat <- escalc("RR", ai = tpos, bi = tneg, ci = cpos, di = cneg, data = dat.bcg)
+#    res <- rma(yi, vi, data = dat, method = "REML"); summary(dat, transf = exp); weights(res)
+#    predict(res, transf = exp) -> 0.4894209368 (0.3440742934, 0.6961660838)   [metafor 4.4.0]
+bcg = pd.DataFrame(
+    [(0.4109386548, 0.1343015708, 1.2573983833, 5.059483079), (0.2048681542, 0.0862974496, 0.4863522707, 6.364679632),
+     (0.2597402597, 0.0734425907, 0.9186086969, 4.436027763), (0.2365605236, 0.1792808941, 0.3121407979, 9.698746736),
+     (0.8044895338, 0.5162931271, 1.2535580584, 8.868456287), (0.4556111448, 0.3871323353, 0.5362029889, 10.095738165),
+     (0.1977210216, 0.0783565767, 0.4989192234, 6.027181703), (1.0120240481, 0.8945719776, 1.1448968888, 10.189438635),
+     (0.6253663451, 0.3925762660, 0.9961964069, 8.743133132), (0.2537654653, 0.1494209435, 0.4309764740, 8.367607247),
+     (0.7122268361, 0.5725136830, 0.8860348339, 9.925026663), (1.5619161996, 0.3736891112, 6.5283738311, 3.821629423),
+     (0.9828350769, 0.5821374615, 1.6593413964, 8.402851535)],
+    columns=["effect_size", "ci_lower", "ci_upper", "weight"])
+bcg.insert(0, "study_label", [f"Trial {i + 1}" for i in range(len(bcg))])
+captured = []
+real_savefig = fp.plt.savefig
+fp.plt.savefig = lambda *a, **k: captured.append(plt.gcf()) or real_savefig(*a, **k)
+quiet(fp.make_forest_plot, bcg, 0.4894209368, 0.3440742934, 0.6961660838, 92.2, 0.3132, 0.0,
+      effect_label="RR", output_path=f"{WORK}/forest")
+fp.plt.savefig = real_savefig
+fig = captured[0]
+boxes = [a for a in fig.artists if type(a).__name__ == "FancyBboxPatch"]
+diamond = [a for a in fig.artists if type(a).__name__ == "Polygon"][0]
+cx = np.array([b.get_x() + b.get_width() / 2 for b in boxes]); bh = np.array([b.get_height() for b in boxes])
+slope, icpt = np.polyfit(np.log(bcg["effect_size"]), cx, 1)
+dx = sorted(diamond.get_xy()[:4, 0])
+expect = icpt + slope * np.log([0.3440742934, 0.4894209368, 0.4894209368, 0.6961660838])
+nulls = [a for a in fig.artists if type(a).__name__ == "Line2D" and a.get_linestyle() == "--"]
+check(len(boxes) == 13 and slope > 0
+      and np.allclose(cx, icpt + slope * np.log(bcg["effect_size"]), atol=1e-12)
+      and np.allclose(dx, expect, atol=1e-12)
+      and np.allclose(nulls[0].get_xdata()[0], icpt, atol=1e-12)
+      and np.allclose((bh / bh.max()) ** 2, bcg["weight"] / bcg["weight"].max(), atol=1e-12)
+      and os.path.getsize(f"{WORK}/forest.pdf") > 0 and os.path.getsize(f"{WORK}/forest.png") > 0,
+      "AS-2 forest: RR on a log axis, null at 1, diamond at the metafor pooled CI, box area = metafor weight")
+md = pd.DataFrame(dict(study_label=["a", "b"], effect_size=[-1.0, 0.5], ci_lower=[-2.0, -0.4], ci_upper=[0.0, 1.4]))
+try:
+    quiet(fp.make_forest_plot, md, -0.3, -1.1, 0.5, 0, 0, 1, effect_label="OR", output_path=f"{WORK}/bad")
+    raised = False
+except ValueError:
+    raised = True
+plt.close("all")
+quiet(fp.make_forest_plot, md, -0.3, -1.1, 0.5, 0, 0, 1, effect_label="MD", output_path=f"{WORK}/md")
+check(raised and os.path.getsize(f"{WORK}/md.png") > 0
+      and list(fp.compute_box_size(pd.Series([1.0, 4.0, 9.0]), 3)) == [0.35 / 3, 0.35 * 2 / 3, 0.35],
+      "AS-2 forest: non-positive limits refused on a ratio axis, drawn on a linear MD axis; box side ~ sqrt(weight)")
+
+# sample_size.R: the template's closed-form sections, evaluated from its own source.
+# CI has no R, so each `name <- expr` line is translated (^ -> **, qnorm -> norm.ppf, ...);
+# a statement that needs anything else (pwr, functions, data frames) is left out.
+import math, re
+from scipy.stats import norm
+def r_statements(path):
+    out, buf = [], ""
+    for line in open(path, encoding="utf-8"):
+        code = line.split("#", 1)[0].rstrip()
+        if not code.strip() and not buf:
+            continue
+        buf += " " + code.strip()
+        if buf.count("(") == buf.count(")") and buf.count("{") == buf.count("}") \
+                and not re.search(r"[-+*/^,]$", buf):
+            out.append(buf.strip()); buf = ""
+    return out
+def r_eval(path, keep, override=None):
+    env = {"qnorm": norm.ppf, "ceiling": math.ceil, "log": math.log, "exp": math.exp,
+           "sqrt": math.sqrt, "max": max}
+    env.update(override or {})
+    for st in r_statements(path):
+        m = re.match(r"^([A-Za-z_][\w.]*)\s*<-\s*(.+)$", st)
+        if not m or "function" in st or m.group(1) in (override or {}):
+            continue
+        try:
+            env[m.group(1)] = eval(m.group(2).replace("^", "**"), {"__builtins__": {}}, env)
+        except Exception:
+            continue
+    return [env.get(k) for k in keep]
+SS = f"{T}/sample_size.R"
+# R: epiR::epi.ssdxsesp(test = 0.85, type = "se", Py = 0.3, epsilon = 0.05, error = "absolute",
+#    nfractional = FALSE, conf.level = 0.95) -> 654; test = 0.90, type = "sp" -> 198;
+#    test = 0.80 / 0.95, Py = 0.2, epsilon = 0.07 -> 628 / 47   [epiR 2.0.67]
+alt = dict(sensitivity_expected=0.80, specificity_expected=0.95, prevalence=0.2, ci_half_width=0.07)
+check(r_eval(SS, ["n_for_se", "n_for_sp", "n_total_diag"]) == [654, 198, 654]
+      and r_eval(SS, ["n_for_se", "n_for_sp"], alt) == [628, 47],
+      "AS-2 sample_size: diagnostic-accuracy N equals epiR::epi.ssdxsesp (two parameter sets)")
+icc, mc, ev = r_eval(SS, ["n_icc", "n_mc", "n_events"])
+check(None not in (icc, mc, ev)
+      and r_eval(SS, ["n_icc"], dict(icc_expected=0.85))[0] < icc
+      and r_eval(SS, ["n_mc"], dict(p10=0.20))[0] > mc
+      and r_eval(SS, ["n_events"], dict(hr=0.80))[0] > ev
+      and r_eval(SS, ["n_for_se"], dict(ci_half_width=0.10))[0] < 654,
+      "AS-2 sample_size: N falls as the effect grows or the precision target loosens (ICC, McNemar, log-rank, Se)")
+
 PY
 )"
   RC=$?
@@ -249,6 +381,27 @@ if command -v Rscript >/dev/null 2>&1 && Rscript -e 'quit(status = !requireNames
 else
   echo "  SKIPPED 3 runtime checks: Rscript/dcurves missing (ST-20 dca)"
   SKIPPED=$((SKIPPED + 3))
+fi
+
+echo "--- runtime (R sample_size) ---"
+# The closed-form sections run in the python block above without R. This block runs the
+# template itself and checks the two sections that call pwr, so it needs R + pwr + epiR,
+# which CI does not have.
+if command -v Rscript >/dev/null 2>&1 && Rscript -e 'quit(status = !all(sapply(c("pwr", "epiR"), requireNamespace, quietly = TRUE)))' >/dev/null 2>&1; then
+  RW="$(mktemp -d)"
+  (cd "$RW" && Rscript "$T/sample_size.R" >/dev/null 2>&1)
+  # R 4.3.3, pwr 1.3.0: pwr.2p.test(h = ES.h(0.70, 0.55), sig.level = 0.05, power = 0.8)$n
+  #   = 161.9349146 -> 162 per group; pwr.t.test(d = 0.5, sig.level = 0.05, power = 0.8,
+  #   type = "two.sample")$n = 63.76561044 -> 64 per group; epiR 2.0.67 epi.ssdxsesp -> 654
+  Rscript -e 'r <- read.csv(commandArgs(TRUE)[1]); g <- function(a, col) as.numeric(r[r$Analysis == a, col])
+    quit(status = !(g("Two proportions (unpaired)", "N_per_group") == 162 && g("Independent t-test", "N_per_group") == 64
+      && g("Diagnostic accuracy", "N_total") == 654))' "$RW/sample_size_results.csv" >/dev/null 2>&1 \
+    && ok "AS-2 sample_size: template run gives pwr.2p.test 162, pwr.t.test 64, epiR 654" \
+    || bad "AS-2 sample_size: template run does not reproduce pwr / epiR"
+  rm -rf "$RW"
+else
+  echo "  SKIPPED 1 runtime check: Rscript/pwr/epiR missing (AS-2 sample_size pwr sections)"
+  SKIPPED=$((SKIPPED + 1))
 fi
 
 echo ""

@@ -1,0 +1,111 @@
+{
+  "self_review_version": "1.0",
+  "manuscript_title": "Synthetic fixture: retrospective cohort, no real manuscript",
+  "date": "2026-01-01",
+  "overall_score": 88,
+  "verdict": "PASS",
+  "fatal_count": 0,
+  "major_count": 0,
+  "minor_count": 1,
+  "issues": [
+    {
+      "id": "m1",
+      "severity": "minor",
+      "category": "F",
+      "category_name": "Reporting Completeness",
+      "location": "Abstract, line 3",
+      "description": "Abstract rounds a value differently from Table 2",
+      "fixable_by_ai": true,
+      "suggested_fix": "Match the abstract to Table 2"
+    }
+  ],
+  "coverage": {
+    "categories": {
+      "A": {
+        "status": "assessed",
+        "evidence": [
+          "Methods, Study population para 1-2",
+          "Figure 1"
+        ]
+      },
+      "B": {
+        "status": "assessed",
+        "evidence": [
+          "Methods, Outcome definition para 1"
+        ]
+      },
+      "C": {
+        "status": "assessed",
+        "evidence": [
+          "Methods, Statistical analysis para 1-4",
+          "Table 2",
+          "Table 3"
+        ]
+      },
+      "D": {
+        "status": "assessed",
+        "evidence": [
+          "Discussion para 1",
+          "Conclusion"
+        ]
+      },
+      "E": {
+        "status": "assessed",
+        "evidence": [
+          "Methods, Data availability"
+        ]
+      },
+      "F": {
+        "status": "assessed",
+        "evidence": [
+          "Abstract",
+          "Figure 1",
+          "Methods, Ethics"
+        ]
+      },
+      "G": {
+        "status": "assessed",
+        "evidence": [
+          "STROBE checklist, Supplement S1"
+        ]
+      },
+      "H": {
+        "status": "assessed",
+        "evidence": [
+          "Methods, Exposure definition para 2"
+        ]
+      },
+      "I": {
+        "status": "assessed",
+        "evidence": [
+          "Methods, Data sources para 1"
+        ]
+      },
+      "J": {
+        "status": "assessed",
+        "evidence": [
+          "Methods, Statistical analysis para 5"
+        ]
+      },
+      "K": {
+        "status": "not_applicable",
+        "reason": "Not a systematic review; no reviewer team"
+      },
+      "L": {
+        "status": "assessed",
+        "evidence": [
+          "Discussion, Limitations para 1-3"
+        ]
+      }
+    },
+    "probes": {
+      "observational_confounding": {
+        "status": "assessed",
+        "evidence": [
+          "Table 1",
+          "Methods, Covariates para 1"
+        ]
+      }
+    }
+  }
+}

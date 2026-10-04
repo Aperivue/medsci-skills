@@ -425,7 +425,7 @@ Re-read `references/empirical_lessons.md` before submission.
    | **22 / 15** | Certainty of evidence per outcome, and the method used to assess it | 9% |
    | **13f / 20d** | Sensitivity analysis: method and result | 28% (5/18) |
    | **18** | Risk of bias **per study**, shown study-by-study rather than as a pooled proportion | 32% |
-   | **13d** | Rationale for the synthesis model (see Phase 6 check 2) | 35% [VERIFY: the text implies 5/18 = 28%] |
+   | **13d** | Rationale for the synthesis model (see Phase 6 check 2) | 28% (5/18) |
    | **16b** | Studies that look eligible but were excluded, cited individually with the reason | 25% |
    | Abstract **#3, #12** | Eligibility criteria and registration inside the structured abstract | 0/24 each |
 

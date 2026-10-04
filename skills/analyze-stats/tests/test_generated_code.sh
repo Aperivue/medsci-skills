@@ -102,5 +102,35 @@ d=json.load(open('$OUT'))
 assert d['claims']==[], d['claims']
 "
 
+# (8) API defaults (AS-1), Minor only: never a --strict exit, never on a stated choice
+claims_are() { python3 -c "
+import json,sys
+d=json.load(open('$OUT'))
+got=[(c['verdict'], c['severity'], c['line']) for c in d['claims']]
+want=$1
+assert got==want, got
+"; }
+python3 "$SCRIPT" "$HERE/fixtures/gen_api_defaults.py" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 under --strict: API-default claims are Minor" test "$?" -eq 0
+check "ttest_ind without equal_var + default LogisticRegression next to exp(coef_)" \
+    claims_are "[('API_DEFAULT_STUDENT_T','Minor',14),('API_DEFAULT_PENALIZED_OR','Minor',16)]"
+for f in gen_api_defaults_ok.py gen_api_lr_no_or.py gen_api_ttest.R \
+         gen_api_statsmodels_ttest.py gen_api_or_other_model.py; do
+    python3 "$SCRIPT" "$HERE/fixtures/$f" --out "$OUT" --strict --quiet >/dev/null 2>&1
+    check "exit 0: stated equal_var / C / penalty / l1_ratio, no exp(coef_), R t.test, or statsmodels ttest_ind ($f)" \
+        test "$?" -eq 0
+    check "no claim on $f" claims_are "[]"
+done
+python3 "$SCRIPT" "$HERE/fixtures/gen_api_unparseable.py" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0: unparseable file naming ttest_ind is API_DEFAULTS_NOT_ASSESSED" test "$?" -eq 0
+check "API_DEFAULTS_NOT_ASSESSED is the only claim on the unparseable fixture" \
+    claims_are "[('API_DEFAULTS_NOT_ASSESSED','Minor',3)]"
+#     the reference lines the messages cite still say what the messages say they say
+REFS="$HERE/../references/analysis_guides"
+check "cited rule: test_selection.md:78 is the Welch default" \
+    bash -c "sed -n 78p '$REFS/test_selection.md' | grep -q \"Welch's t-test\*\* by default\""
+check "cited rule: propensity_score.md:142 is the sklearn L2 default" \
+    bash -c "sed -n 142p '$REFS/propensity_score.md' | grep -q 'LogisticRegression. is L2-penalised by default (C = 1.0)'"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
