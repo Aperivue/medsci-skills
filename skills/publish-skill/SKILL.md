@@ -161,7 +161,7 @@ Present all findings in a remediation table:
 - Remove: assumptions about specific OS (macOS, Linux)
 - Remove: assumptions about specific editors or IDEs
 - Remove: references to personal infrastructure (agents, other personal skills)
-- Keep: tool requirements in the frontmatter `allowed-tools` field, if the skill declares one
+- Keep: tool requirements, described in the skill body (a prerequisites section). The schema has no `tools:` field, and `allowed-tools` pre-approves tools rather than describing them, so do not move requirements there
 
 ### Interoperability
 

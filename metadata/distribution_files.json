@@ -1053,8 +1053,8 @@
     },
     {
       "path": "skills/deidentify/SKILL.md",
-      "size": 13374,
-      "sha256": "eaa860c6ccab8b0abe1ca48345ec01ed4042e88e63d05fb0e28233ff49ca844e"
+      "size": 13730,
+      "sha256": "689c838b85dbc5f6cd114e902b120671997881c4321fd99e866cc9280b3dd40a"
     },
     {
       "path": "skills/deidentify/deidentify.py",
@@ -2173,8 +2173,8 @@
     },
     {
       "path": "skills/ma-scout/SKILL.md",
-      "size": 21675,
-      "sha256": "bdad732595c0131b2309082ba6c6c26418c4d5af54d51d368dfd40d14209057d"
+      "size": 21677,
+      "sha256": "89ddf9a2705306e7c0f460a6006b749caba590ba3aa47d4d39c02ec9813b5ab1"
     },
     {
       "path": "skills/ma-scout/references/project_readme_template.md",
@@ -4553,8 +4553,8 @@
     },
     {
       "path": "skills/publish-skill/SKILL.md",
-      "size": 12790,
-      "sha256": "183793e47d33582bcb10b5957001d07b3e5b7f719ec8a6040f53856abb6815e5"
+      "size": 12914,
+      "sha256": "f05cd73ca9a1e94884ac5373142ebaadb1c7f7780effa0173ebc2c75b9c031b1"
     },
     {
       "path": "skills/publish-skill/references/classroom-distribution.md",

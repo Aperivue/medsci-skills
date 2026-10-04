@@ -370,7 +370,7 @@ Before finalizing a topic as viable:
 - [ ] (A) Professor's publication record demonstrates clear authority in this area
 - [ ] (B) Clinical question refined to PICO/PIRD (not just a keyword)
 - [ ] (A) Confirmed MA = 0 or last MA >5 years (via PubMed E-utilities, not assumption)
-- [ ] **Cross-validated** via PubMed plus every connected semantic or preprint source (Consensus, Scholar Gateway, bioRxiv/medRxiv; `/search-lit` covers bioRxiv/medRxiv when that MCP is absent), naming any source that was unavailable — no hidden MAs with different terminology, no preprint MA in progress
+- [ ] **Cross-validated** via PubMed plus every connected semantic or preprint source (Consensus, Scholar Gateway, bioRxiv/medRxiv); a source that was unavailable is named and recorded as not checked, never as "no competing work found" — no hidden MAs with different terminology, no preprint MA in progress
 - [ ] Confirmed k_realistic ≥ 8 (DTA) or ≥ 6 (prognostic), where k_realistic = raw count × 0.15–0.30
       (§2g: keep 15–30% of raw hits, i.e. a 70–85% discount — not a 15–30% discount)
 - [ ] **PROSPERO searched** — the search ran and returned results (query + date recorded, §2f), and no
