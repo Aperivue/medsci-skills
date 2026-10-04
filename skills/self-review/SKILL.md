@@ -254,8 +254,9 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_dta_denominators.py" \
 
 `check_test_statistic_p.py` reads the statistic and the P at their printed precision: a P no
 statistic in the rounding interval can give is `P_STAT_INCONSISTENT` (Minor), and Major
-`P_STAT_DECISION_ERROR` when the two also fall on opposite sides of alpha (`--alpha`). One-sided,
-adjusted or unstated-sidedness results are never Major. `--grim` takes declared means
+`P_STAT_DECISION_ERROR` when the two also fall on opposite sides of alpha (`--alpha`). Adjusted or
+non-standard P values (corrected, exact, Welch, …) and results that match only the unstated
+one-sided P are never Major. `--grim` takes declared means
 (`[{"label", "mean", "n", "items"?, "decimals"?}]`): `GRIM_INCONSISTENT` (Major) when no integer
 sum gives the mean; `GRIM_NOT_ASSESSED` when n·items >= 10^decimals.
 

@@ -8,11 +8,16 @@ produce is a transcription or analysis error a reviewer can find with a calculat
 lands on the other side of alpha changes the conclusion.
 
 Text mode (--manuscript). In each sentence the detector finds
-  t(df) = x,  F(df1, df2) = x,  χ2 / χ² / chi2 / X2 (df) = x  (also "χ2 (df, N = n) = x"),
-  z = x  (only when the P follows it directly, "z = 2.31, P = .021"),
+  t(df) = x,  F(df1, df2) = x,  χ2 / χ² / chi2 / X2 (df) = x  (also "χ2 (df, N = n) = x"
+  and "χ2 = x, df = d"),  z = x  (only when the P follows it directly, "z = 2.31, P = .021"
+  or "z = 2.31 (P = .021)"); markdown emphasis on the symbol (*t*, *P*) is ignored,
 and pairs each with the first P after it (``P =``, ``P <``, ``P >``, ``≤``, ``≥``; P or p;
 "·" as a decimal mark; ``2.1 × 10^-5`` / ``2.1e-5``) before the next statistic in the same
-sentence. The two-sided P is recomputed (t two-sided, F and χ2 upper tail, z two-sided) with
+sentence, never across a ")" that closes a parenthesis opened before the statistic. A
+statistic written with a thousands separator, a decimal comma or an exponent ("1,024.3",
+"2,10", "1e5"), a P with a decimal comma, a P labelled as from another method between the
+statistic and the P (Fisher, exact, permutation, bootstrap, Monte Carlo) and a df above 10^7
+are not recomputed (P_STAT_NOT_ASSESSED). The two-sided P is recomputed (t two-sided, F and χ2 upper tail, z two-sided) with
 a pure-Python regularized incomplete beta / gamma function.
 
 Rounding is honoured on both sides. A reported ``P = 0.041`` stands for [0.0405, 0.0415];
@@ -33,7 +38,10 @@ is compared against the one-sided P (half the two-sided P). A result that matche
 one-sided P without saying so, a sentence that names both, a one-sided F or χ2, or any
 manuscript that mentions one-sided tests elsewhere, is never Major: an inconsistency there is
 the Minor. A sentence that mentions an adjusted / corrected P (Bonferroni, Holm, FDR, Tukey,
-Šidák, "adjusted", "corrected") is likewise never Major: an adjusted P is not the raw P.
+Šidák, "adjusted", "corrected") or a method whose P differs from the textbook distribution of
+the printed statistic (Greenhouse-Geisser, Huynh-Feldt, ε, exact, permutation, bootstrap,
+Monte Carlo, Welch, robust, sandwich, Satterthwaite, Kenward) is likewise never Major, and so
+is a P separated from its statistic by a semicolon.
 
 Declared GRIM (--grim grim.json). A list of {"label", "mean", "n", "items"?, "decimals"?}:
 a mean of n responses to `items` integer-valued items (default 1), printed with `decimals`
@@ -191,24 +199,44 @@ def p_z(z: float) -> float:
 
 _NUM = r"[-−–]?\s?\d+(?:[.·]\d+)?"
 _DF = r"\d+(?:[.·]\d+)?"
+# Whatever continues a number past _NUM (a thousands separator "1,024.3", a decimal comma
+# "2,10", e-notation "1e5", "1.2 × 10^5"). Captured as the last group so that the statistic is
+# never read truncated; a non-empty tail sends the result to P_STAT_NOT_ASSESSED.
+_TAIL = r"(?P<tail>(?:[,.·]\d|[eE]\s*[-−–+]?\d|\s*[×x*]\s*10\b(?:\s*\^?\s*[-−–+]?\d+)?)(?:[,.·]?\d)*)?"
+_CHI = (r"(?:χ\s*(?:\^\s*)?(?:2|²)|(?<![A-Za-z])chi\s*(?:\^\s*)?(?:2|²)|"
+        r"(?<![A-Za-z0-9_])X\s*(?:\^\s*)?(?:2|²)|χ<sup>2</sup>)")
+# (kind, regex, order): `order` maps the regex groups (tail excluded) to [df..., statistic].
 STAT_RES = (
-    ("t", re.compile(r"(?<![A-Za-z0-9_])t\s*\(\s*(" + _DF + r")\s*\)\s*=\s*(" + _NUM + r")")),
+    ("t", re.compile(r"(?<![A-Za-z0-9_])t\s*\(\s*(" + _DF + r")\s*\)\s*=\s*(" + _NUM + r")" + _TAIL),
+     None),
     ("F", re.compile(r"(?<![A-Za-z0-9_])F\s*\(\s*(" + _DF + r")\s*,\s*(" + _DF + r")\s*\)\s*=\s*("
-                     + _NUM + r")")),
-    ("chi2", re.compile(r"(?:χ\s*(?:\^\s*)?(?:2|²)|(?<![A-Za-z])chi\s*(?:\^\s*)?(?:2|²)|"
-                        r"(?<![A-Za-z0-9_])X\s*(?:\^\s*)?(?:2|²)|χ<sup>2</sup>)"
-                        r"\s*\(\s*(" + _DF + r")\s*(?:,\s*[Nn]\s*=\s*[\d,]+\s*)?\)\s*=\s*("
-                        + _NUM + r")", re.I)),
-    ("z", re.compile(r"(?<![A-Za-z0-9_\-])[zZ]\s*=\s*(" + _NUM + r")")),
+                     + _NUM + r")" + _TAIL), None),
+    ("chi2", re.compile(_CHI + r"\s*\(\s*(" + _DF + r")\s*(?:,\s*[Nn]\s*=\s*[\d,]+\s*)?\)\s*=\s*("
+                        + _NUM + r")" + _TAIL, re.I), None),
+    # "χ2 = 5.2, df = 1": the df written after the statistic
+    ("chi2", re.compile(_CHI + r"\s*=\s*(" + _NUM + r")" + _TAIL
+                        + r"\s*[,;]\s*(?:df|d\.f\.)\s*=\s*(\d+)(?![\d]|[.,·]\d)", re.I), (1, 0)),
+    ("z", re.compile(r"(?<![A-Za-z0-9_\-])[zZ]\s*=\s*(" + _NUM + r")" + _TAIL), None),
 )
 _MANT = r"(\d*[.·]?\d+)"
 _EXP = (r"(?:\s*[×x*]\s*10\s*(?:\^|<sup>)?\s*\(?\s*([-−–]\s?\d+)\s*\)?(?:</sup>)?"
         r"|[eE]\s*([-−–+]?\d+))?")
-P_RE = re.compile(r"(?<![A-Za-z0-9_])[Pp](?:\s*-?\s*value)?\s*(<=|>=|≤|≥|=|<|>)\s*" + _MANT + _EXP)
+# group 5: a decimal comma ("P < 0,001"), which would otherwise be read as P < 0
+P_RE = re.compile(r"(?<![A-Za-z0-9_])[Pp](?:\s*[-‐‑]?\s*value)?\s*(<=|>=|≤|≥|=|<|>)\s*"
+                  + _MANT + _EXP + r"(,\d+)?")
+# Markdown emphasis around a one-letter symbol: *t*(48), _P_ = .04, **F**(2, 96)
+EMPH_RE = re.compile(r"(?<![\w*])(\*{1,2}|_{1,2})([tFzZpPχX])\1(?![\w*])")
 ONE_SIDED_RE = re.compile(r"\bone[\s-]*(?:sided|tailed)\b", re.I)
 TWO_SIDED_RE = re.compile(r"\btwo[\s-]*(?:sided|tailed)\b", re.I)
+# A P that is adjusted, corrected, or from a method whose P legitimately differs from the
+# textbook distribution of the printed statistic: never Major.
 ADJUSTED_RE = re.compile(r"\b(?:adjusted|corrected|bonferroni|holm|fdr|false discovery|tukey|"
-                         r"[sš]id[aá]k|benjamini)\b", re.I)
+                         r"[sš]id[aá]k|benjamini|greenhouse|geisser|huynh|feldt|ε|exact|"
+                         r"permutation|bootstrap\w*|monte[\s-]*carlo|welch|robust|sandwich|"
+                         r"satterthwaite|kenward)\b", re.I)
+# A P labelled as coming from another test, between the statistic and the P
+OTHER_TEST_P_RE = re.compile(r"\b(?:fisher|exact|permutation|bootstrap\w*|monte[\s-]*carlo)\b", re.I)
+MAX_DF = Decimal(10) ** 7
 SENT_SPLIT_RE = re.compile(r"(?<=[.!?])\s+(?=[A-Z\[(])|\n\s*\n|\n(?=\s*(?:[-*+]|\d+\.|#|\|)\s)")
 MAX_GAP = 120
 
@@ -261,6 +289,8 @@ def _p_range(kind: str, args: list[str]) -> tuple[float, float]:
     for lo, _hi, _k in dfs:
         if lo <= 0:
             raise CalcError("degrees of freedom must be positive")
+        if _hi > MAX_DF:
+            raise CalcError("degrees of freedom above 10^7 exceed floating-point precision")
     if kind in ("t", "z"):
         if stat_lo <= 0 <= stat_hi:
             a_lo = Decimal(0)
@@ -290,6 +320,33 @@ def _p_range(kind: str, args: list[str]) -> tuple[float, float]:
     return min(vals), max(vals)
 
 
+def _closes_paren(gap: str) -> bool:
+    """True when the gap closes a parenthesis opened before the statistic: the P is in
+    another clause."""
+    depth = 0
+    for ch in gap:
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth < 0:
+                return True
+    return False
+
+
+def _depth0(gap: str) -> str:
+    """The gap with nested parenthetical text removed."""
+    out, depth = [], 0
+    for ch in gap:
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(0, depth - 1)
+        elif depth == 0:
+            out.append(ch)
+    return "".join(out)
+
+
 def _fmt_stat(kind: str, args: list[str]) -> str:
     if kind == "t":
         return f"t({args[0]}) = {args[1]}"
@@ -314,6 +371,8 @@ def check_text(text: str, alpha: Decimal) -> tuple[list[dict], int, int]:
         text = "\n" * text[:len(text) - len(body)].count("\n") + body
     elif body != text:
         text = body
+    # *t*(48), *P* = .04: drop the emphasis (same line, so line numbers are unchanged)
+    text = EMPH_RE.sub(r"\2", text)
     doc_one_sided = bool(ONE_SIDED_RE.search(text))
     line_starts = [0] + [m.end() for m in re.finditer(r"\n", text)]
 
@@ -329,36 +388,58 @@ def check_text(text: str, alpha: Decimal) -> tuple[list[dict], int, int]:
 
     n_checked = n_found = 0
     unpaired: list[str] = []
+    unparsed: list[str] = []
     for start, sent in _sentences(text):
         stats = []
-        for kind, rx in STAT_RES:
+        for kind, rx, order in STAT_RES:
+            ti = rx.groupindex["tail"]
             for m in rx.finditer(sent):
-                stats.append((m.start(), m.end(), kind, [_num(g) for g in m.groups()]))
+                gs = [_num(g) for i, g in enumerate(m.groups(), 1) if i != ti]
+                if order is not None:
+                    gs = [gs[i] for i in order]
+                stats.append((m.start(), m.end(), kind, gs, m.group("tail")))
         if not stats:
             continue
         stats.sort()
         ps = list(P_RE.finditer(sent))
         one = bool(ONE_SIDED_RE.search(sent))
         two = bool(TWO_SIDED_RE.search(sent))
-        adjusted = bool(ADJUSTED_RE.search(sent))
-        for i, (s0, s1, kind, args) in enumerate(stats):
+        adjusted = ADJUSTED_RE.search(sent)
+        for i, (s0, s1, kind, args, tail) in enumerate(stats):
             nxt = stats[i + 1][0] if i + 1 < len(stats) else len(sent)
             pm = next((p for p in ps if s1 <= p.start() < nxt), None)
+            gap = ""
             if pm is not None:
                 gap = sent[s1:pm.start()]
-                if len(gap) > MAX_GAP or (kind == "z" and not re.fullmatch(r"\s*[,;]?\s*", gap)):
+                if (len(gap) > MAX_GAP or _closes_paren(gap)
+                        or (kind == "z" and not re.fullmatch(r"\s*[,;]?\s*\(?\s*", gap))):
                     pm = None
             if kind == "z" and pm is None:
                 continue                  # a bare "z = 1.2" is not taken as a test statistic
             n_found += 1
             ln = line_of(start + s0)
             label = _fmt_stat(kind, args)
+            if tail:
+                unparsed.append(f"L{ln} {label}{tail}")
+                continue
             if pm is None:
                 unpaired.append(f"L{ln} {label}")
                 continue
             rep = _p_reported(pm.group(1), pm.group(2), pm.group(3), pm.group(4))
             ptxt = pm.group(0).strip()
             where = f"L{ln}"
+            if pm.group(5):
+                claims.append(_claim("P_STAT_NOT_ASSESSED", "Minor", where,
+                                     f"{label}, {ptxt}: the P is written with a decimal comma; "
+                                     "check it by hand."))
+                continue
+            other = OTHER_TEST_P_RE.search(gap)
+            if other:
+                claims.append(_claim("P_STAT_NOT_ASSESSED", "Minor", where,
+                                     f"{label}, {ptxt}: the P is labelled as from another method "
+                                     f"('{other.group(0)}'), not from the printed statistic; "
+                                     "check it by hand."))
+                continue
             if rep is None:
                 claims.append(_claim("P_STAT_NOT_ASSESSED", "Minor", where,
                                      f"{label}, {ptxt}: the reported P is not a probability; "
@@ -411,7 +492,11 @@ def check_text(text: str, alpha: Decimal) -> tuple[list[dict], int, int]:
                 notes.append("the manuscript mentions one-sided tests elsewhere")
                 may_major = False
             if adjusted:
-                notes.append("the sentence mentions an adjusted/corrected P, which differs from the raw P")
+                notes.append("the sentence mentions an adjusted, corrected or non-standard P "
+                             f"('{adjusted.group(0)}'), which differs from the textbook P")
+                may_major = False
+            if re.search(r";", _depth0(gap)):
+                notes.append("a semicolon separates the statistic from the P")
                 may_major = False
             rec_sig, rec_ns = hi_u < alpha, lo_u > alpha
             rep_sig, rep_ns = r_hi <= alpha, r_lo >= alpha
@@ -432,7 +517,12 @@ def check_text(text: str, alpha: Decimal) -> tuple[list[dict], int, int]:
                              f"{len(unpaired)} test statistic(s) without a P in the same sentence "
                              f"were not checked: {', '.join(unpaired[:8])}"
                              + (", ..." if len(unpaired) > 8 else "") + "."))
-    if n_checked == 0 and not unpaired and not any(c["verdict"] == "P_STAT_NOT_ASSESSED" for c in claims):
+    if unparsed:
+        claims.append(_claim("P_STAT_NOT_ASSESSED", "Minor", "manuscript",
+                             f"{len(unparsed)} test statistic(s) written with a thousands separator, "
+                             f"decimal comma or exponent were not checked: {', '.join(unparsed[:8])}"
+                             + (", ..." if len(unparsed) > 8 else "") + "."))
+    if n_checked == 0 and not unpaired and not unparsed and not any(c["verdict"] == "P_STAT_NOT_ASSESSED" for c in claims):
         claims.append(_claim("P_STAT_NOT_ASSESSED", "Minor", "manuscript",
                              "no test statistic (t(df), F(df1, df2), χ2(df), z) with a P in the same "
                              "sentence was found; nothing was recomputed."))

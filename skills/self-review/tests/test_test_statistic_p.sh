@@ -18,6 +18,17 @@
 #                   at alpha .05, Minor at alpha .01)
 #                 2*scipy.stats.t.sf(1.195 / 1.205, 30) = 0.241449 / 0.237623 (t(30) = 1.20, P < .001: Major)
 #                 scipy.stats.t.sf(2.745 / 2.755, 30)  = 0.005061 / 0.004940  (one-sided t(30) = 2.75, P = .005)
+#                 2*scipy.stats.t.sf(1.195 / 1.205, 48) = 0.237958 / 0.234111 (t(48) = 1.20 vs a P in
+#                   another clause or after a semicolon: never Major)
+#                 scipy.stats.chi2.sf(2.45 / 2.55, 1)  = 0.117525 / 0.110294  (χ2(1) = 2.50; Fisher's exact P = .030)
+#                 scipy.stats.f.sf(3.195 / 3.205, 2, 96) = 0.045358 / 0.044935 (F(2, 96) = 3.20, P = .061,
+#                   Greenhouse–Geisser: Minor)
+#                 2*scipy.stats.norm.sf(2.095 / 2.105) = 0.036171 / 0.035291  (z = 2.10, P = .061, exact test: Minor)
+#                 2*scipy.stats.t.sf(0.495 / 0.505, 48) = 0.622858 / 0.615870 (*t*(48) = 0.50, *P* = .001: Major)
+#                 scipy.stats.chi2.sf(1.15 / 1.25, 1)  = 0.283549 / 0.263552  (χ2 = 1.2, df = 1, P = .02: Major)
+#                 scipy.stats.chi2.sf(5.15 / 5.25, 1)  = 0.023246 / 0.021947  (χ2 = 5.2, df = 1, P = .02 consistent)
+#                 2*scipy.stats.norm.sf(0.305 / 0.315) = 0.760366 / 0.752762  (z = 0.31 (P = .021): Major)
+#                 2*scipy.stats.norm.sf(2.305 / 2.315) = 0.021167 / 0.020613  (z = 2.31, p‐value = 0.021 consistent)
 #   R 4.3.3       x <- (0:200)/25; any(x >= 3.465 & x <= 3.475)  -> FALSE (mean 3.47, n 25: GRIM Major)
 #                 any(x >= 3.475 & x <= 3.485)                   -> TRUE  (mean 3.48, n 25: consistent)
 #                 y <- (0:400)/28; any(y >= 5.185 & y <= 5.195)  -> FALSE (mean 5.19, n 28: GRIM Major)
@@ -117,6 +128,27 @@ check "one-tailed mentioned elsewhere: t decision error demoted to Minor; χ2 st
     js 'sorted(codes) == ["P_STAT_DECISION_ERROR", "P_STAT_INCONSISTENT"] and any(c["verdict"] == "P_STAT_DECISION_ERROR" and "χ2" in c["detail"] for c in d["claims"])'
 run --manuscript "$FX/tsp_adjusted.md"
 check "Bonferroni-adjusted P: inconsistency is Minor, never Major" js 'codes == ["P_STAT_INCONSISTENT"]'
+run --manuscript "$FX/tsp_other_method.md"
+check "P in another clause, Fisher's exact P, Greenhouse–Geisser, exact test, semicolon: no Major" \
+    js 'd["summary"]["n_major"] == 0 and d["summary"]["verdict"] == "OK"'
+check "P after a closing ')' is not paired: t(48) = 1.20 listed as without P" \
+    js 'any(c["where"] == "manuscript" and "L3 t(48) = 1.20" in c["detail"] for c in d["claims"])'
+check "Fisher's exact P after χ2: P_STAT_NOT_ASSESSED" \
+    js 'any(c["verdict"] == "P_STAT_NOT_ASSESSED" and c["where"] == "L5" for c in d["claims"])'
+check "Greenhouse–Geisser, exact test and semicolon: P_STAT_INCONSISTENT (Minor)" \
+    js '[c["where"] for c in d["claims"] if c["verdict"] == "P_STAT_INCONSISTENT"] == ["L7", "L9", "L11"]'
+
+# --- number and markup forms ---------------------------------------------------------------
+run --manuscript "$FX/tsp_unparsed.md"
+check "thousands separator / e-notation / decimal comma / df > 10^7: never read truncated, no Major" \
+    js 'd["summary"]["n_major"] == 0 and set(codes) == {"P_STAT_NOT_ASSESSED"} and d["summary"]["verdict"] == "NOT_ASSESSED"'
+check "unparsed statistics are listed as written (1,024.3; 1,234.56; 1e5)" \
+    js 'any("χ2(1) = 1,024.3" in c["detail"] and "1,234.56" in c["detail"] and "= 1e5" in c["detail"] for c in d["claims"])'
+check "decimal-comma P and df > 10^7: P_STAT_NOT_ASSESSED at L9 and L11" \
+    js '{c["where"] for c in d["claims"]} == {"L9", "L11", "manuscript"}'
+run --manuscript "$FX/tsp_forms.md"
+check "markdown italics, 'χ2 = x, df = d', 'z = x (P = y)', p‐value: 5 recomputed, 3 Major" \
+    js 'd["summary"]["n_statistics_checked"] == 5 and codes == ["P_STAT_DECISION_ERROR"] * 3 and [c["where"] for c in d["claims"]] == ["L3", "L5", "L7"]'
 
 # --- nothing to check ---------------------------------------------------------------------
 run --manuscript "$FX/tsp_none.md"
