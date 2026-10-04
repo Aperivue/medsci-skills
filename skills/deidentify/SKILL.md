@@ -243,8 +243,3 @@ not by itself make a dataset HIPAA Safe Harbor de-identified, or anonymous under
 - Automated k-anonymity / l-diversity assessment
 - SPSS (.sav), SAS (.sas7bdat), or other statistical formats
 
-## Anti-Hallucination
-
-- **Never fabricate file paths, URLs, DOIs, or package names.** Verify existence before recommending.
-- **Never invent journal metadata, impact factors, or submission policies** without verification at the journal's website.
-- If a tool, package, or resource does not exist or you are unsure, say so explicitly rather than guessing.

@@ -60,9 +60,9 @@ PDF directly (the Read tool handles PDFs); batches may not.
 
 ## Step 2: Write the notes — subagents in parallel
 
-Five subagents × 5–6 papers is the working batch size: enough parallelism to clear 25 papers
-in one pass, small enough that per-agent quality holds. Group papers thematically per agent
-so each one can spot recurring concepts.
+Split a batch across parallel subagents, a handful of papers each (per-agent note quality drops
+when one agent carries too many), and group papers thematically per agent so each one can spot
+recurring concepts.
 
 Give each subagent: its assigned text-file paths with destination filenames, the template
 from `references/templates.md` verbatim, the list of concept notes that already exist, and

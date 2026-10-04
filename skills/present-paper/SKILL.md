@@ -18,8 +18,8 @@ you need** — a talk has one venue and one style, and reading the others teache
 
 **A. `references/ai_slide_tells.md`** — the marks a generated deck leaves. Read all of it, first.
 Building against it is why the deck does not need catching later; `scripts/check_slide_tells.py`
-catches what slips through (Step 3.6). It **overrules older guidance where they conflict** — in
-particular eyebrow labels and brand footers on every slide, the single most-cited visual tell.
+catches what slips through (Step 3.6). Where another reference conflicts with it, it wins. Eyebrow labels and brand footers on every
+slide are the single most-cited visual tell.
 
 **B. `references/presentation_archetypes.md`** — the **skeleton**, chosen by where the speaker is
 standing: conference oral, journal-club critique, case-anchored grand rounds, didactic lecture,

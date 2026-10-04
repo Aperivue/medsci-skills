@@ -142,7 +142,7 @@ Present all findings in a remediation table:
 
 - Replace: `"in Korean"` / `"한국어로"` / `"Korean language"` → `"in the user's preferred language"`
 - Replace: `"communicate in [specific language]"` → `"Communicate with the user in their preferred language"`
-- Keep: multilingual trigger keywords in the `triggers:` field (these aid discovery)
+- Keep: multilingual trigger keywords in the `metadata.triggers` field (or the target package's equivalent) (these aid discovery)
 
 ### Role
 
@@ -161,7 +161,7 @@ Present all findings in a remediation table:
 - Remove: assumptions about specific OS (macOS, Linux)
 - Remove: assumptions about specific editors or IDEs
 - Remove: references to personal infrastructure (agents, other personal skills)
-- Keep: tool requirements listed in frontmatter `tools:` field
+- Keep: tool requirements in the frontmatter `allowed-tools` field, if the skill declares one
 
 ### Interoperability
 
@@ -204,7 +204,7 @@ Present license audit table:
 
 ### Structural Validation
 
-1. **YAML frontmatter**: Parse and verify all required fields (name, description, tools)
+1. **YAML frontmatter**: Parse and verify the required fields (`name` and `description` per the Agent Skills spec, plus any field the target package's own validator requires)
 2. **File references**: Every `${CLAUDE_SKILL_DIR}/...` path resolves to an actual file
 3. **Script executability**: Scripts in `scripts/` have appropriate shebangs
 4. **Line count**: SKILL.md should be under 500 lines for optimal loading

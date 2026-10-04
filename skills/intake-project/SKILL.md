@@ -9,7 +9,7 @@ metadata:
 
 ## Canonical Manuscript Folder Structure
 
-For any manuscript project (cohort, MA, RCT, case series), enforce this structure when scaffolding or reorganizing. Map every new artifact into one of these slots — do not invent ad-hoc folders.
+`/manage-project init` scaffolds new projects; its script is the source of truth for that tree, including the `qc/` folder the QC skills write to. Use the layout below to reorganize an existing project that was never scaffolded, mapping each artifact into one of these slots or into a folder the init scaffold or another skill already writes to.
 
 ```
 {project_root}/
@@ -18,6 +18,7 @@ For any manuscript project (cohort, MA, RCT, case series), enforce this structur
 ├── data/                              # raw data (NEVER edit; read-only)
 ├── analysis/                          # reproducible scripts (00_* → 04_*)
 ├── output/                            # analysis outputs: CSVs, PNGs, intermediates
+├── qc/                                # QC reports the skills write (self-review, checklists, audits)
 ├── irb/                               # IRB/ethics docs
 ├── proposal/                          # original protocol / approved proposal
 ├── reviews/                           # external correspondence
@@ -25,7 +26,7 @@ For any manuscript project (cohort, MA, RCT, case series), enforce this structur
 │   ├── manuscript_v{N}.{md,docx,pdf}  # current canonical working version (top level)
 │   ├── build_unified_docx.py          # or pandoc wrapper
 │   ├── archive/                       # ALL prior versions v1 .. v{N-1}
-│   ├── reviews/                       # QC: self_review, peer_review, STROBE/PRISMA, critic
+│   ├── reviews/                       # review notes (QC reports go in qc/ at the root)
 │   ├── figures/                       # figure scripts + rendered PNG/PDF
 │   └── tables/                        # table scripts + rendered docx
 └── submission/                        # per-journal packages
@@ -45,14 +46,14 @@ For any manuscript project (cohort, MA, RCT, case series), enforce this structur
 - **`manuscript/` = source; `submission/{journal}/` = derived artifacts.** Regenerate submission files from `manuscript/manuscript_v{N}.md`; never edit anonymized/title-page directly.
 - **One canonical working version** at `manuscript/manuscript_v{N}.{md,docx,pdf}`. Older versions move to `manuscript/archive/` immediately on version bump.
 - **No loose files at project root.** Only `HANDOFF.md`, `README.md`, the project memory files (Phase 3), the contract files `/manage-project init` writes (`SSOT.yaml` or `project.yaml`, `project_state.json`, `artifact_manifest.json`), and folder entries.
-- **QC artifacts** (self_review, peer_review, STROBE, critic reports) live in `manuscript/reviews/`, not at manuscript top level.
+- **QC artifacts** (self-review, reporting checklists, cross-reference and reference audits) live in `qc/` at the project root, where the skills that produce them write them, not at manuscript top level.
 - **On rejection/retarget:** `cp -r submission/{old} submission/{new}`, then rewrite cover letter and reformat.
 - **Double-anonymized journals** (Chest, AJRCCM): title page and anonymized manuscript MUST be separate files under `submission/{journal}/`.
 - Keep existing project labels and file names in the language the workspace already uses.
 
 ### When to apply
 
-- At project intake: scaffold empty structure — unless the user only wants a quick assessment.
+- At project intake: scaffold through `/manage-project init` — unless the user only wants a quick assessment.
 - At first submission prep: create `submission/{journal}/` and populate.
 - Mid-project cleanup: when `manuscript/` has >3 versioned files or QC docs at top level, reorganize.
 - Before session handoff: reorganize if structure is drifting.
