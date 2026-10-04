@@ -82,7 +82,8 @@ score.
   distribution, not a fixed value.
 - **Disclose (MI-CLEAR-LLM transparency):** the **exact prompt(s)** including the system prompt,
   the **decoding settings** (temperature / top-p / seed), **≥ 3 runs** with reported variance
-  (e.g., mean ± SD), and a **prompt-robustness** check across **≥ 2 phrasings/formats** for the
+  (e.g., mean ± SD; ≥ 3 is the floor this skill checks, ≥ 5 runs give a usable SD: with three
+  runs its 95% CI is about 0.5-6 x the observed SD, with five about 0.6-2.9 x), and a **prompt-robustness** check across **≥ 2 phrasings/formats** for the
   headline result.
 
 ## Answer-matching for VQA / classification (ME6 → `ANSWER_MATCHING_MISSING`)

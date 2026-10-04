@@ -3273,8 +3273,8 @@
     },
     {
       "path": "skills/mllm-eval/references/evaluation_axes.md",
-      "size": 12187,
-      "sha256": "56d32017853f838e5fdc51a45cd40407e01935ccf0e159a68ae96f03bdc42f0d"
+      "size": 12344,
+      "sha256": "f7be766c1621790d8b1c8e5eb5ce7ee2ffbf074a25ec72ddc7114ad632b2ee84"
     },
     {
       "path": "skills/mllm-eval/scripts/check_mllm_eval_completeness.py",
@@ -3393,8 +3393,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_metric_reporting.py",
-      "size": 35087,
-      "sha256": "a927c124dc5a2a4444e7cd763b562ea60ea365e1644fd669cdc9551e6fb76c3c"
+      "size": 35201,
+      "sha256": "672dacab930621d18114317da8b83095bbde076cb0a0ccbd253f72cae69a2fd3"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage.py",
@@ -3548,8 +3548,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/metric_reporting_challenge/problem.md",
-      "size": 2439,
-      "sha256": "d369907191fef32753f503841727d68855b7464fcc026f271cc352f38e31e856"
+      "size": 2496,
+      "sha256": "5fff790fb1240c7d6dabbc40a3d3f7058ae7951c4865ee377cd70c559d18a0d3"
     },
     {
       "path": "skills/model-assessment/scripts/metric_reporting_challenge/verify.sh",
@@ -3584,7 +3584,7 @@
     {
       "path": "skills/model-card/references/model_card_template.md",
       "size": 3239,
-      "sha256": "e40ed0b7fd1a7370d22bb74a596048d1e09b75c14f1b2064ba89d06c886cefbd"
+      "sha256": "d71fa8ee4aba9f7ee9590c2d5a34430b7b4342de07d31112a1a8ce4e9bea8b51"
     },
     {
       "path": "skills/model-card/scripts/check_model_card_complete.py",
@@ -3638,13 +3638,13 @@
     },
     {
       "path": "skills/model-scaffold/references/mlops_guide.md",
-      "size": 5168,
-      "sha256": "0b2725c7473f45969937abc751118a9b045a76adf64adf4fd8aa28fab48851fa"
+      "size": 5276,
+      "sha256": "7c8b00e4c7c682d3579f24572d3bb012c90b1dde5b95f56eaf3aa2c2137568c7"
     },
     {
       "path": "skills/model-scaffold/references/training_guide.md",
-      "size": 2840,
-      "sha256": "44d9dee81afc3f83858fe7e8d5ddc9204f11d3713b1b82873f5833d582c109a6"
+      "size": 2948,
+      "sha256": "6882bc842a6f6c46174bf1b61e93178720b6bbc62193db6d5ad7021ba5db9ee4"
     },
     {
       "path": "skills/model-scaffold/scripts/check_training_hygiene.py",
@@ -3653,8 +3653,8 @@
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold.py",
-      "size": 79023,
-      "sha256": "b23f250d39830e383238b8e278bef52c4dfc1b052d00f3223808dfcd2121d7cc"
+      "size": 79128,
+      "sha256": "9d77517933cfd157ebbfb8331db7a400ee9ad3428c45fe3fb457380959e209b7"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/expected/split_assignment.csv",
