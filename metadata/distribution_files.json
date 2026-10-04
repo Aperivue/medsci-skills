@@ -3898,8 +3898,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 53854,
-      "sha256": "869702ba3d1ed1450008aa096e358730e10a0af9f7f71506bd536fd58935d806"
+      "size": 48951,
+      "sha256": "95894fc2426cdc1fde3c942a567330ade713d746deae951a4c9c44c47ca28413"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -4948,8 +4948,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 48142,
-      "sha256": "b06427864a90ec0d499d07120fffecf995f895aafd1d00405648160e0089c860"
+      "size": 48186,
+      "sha256": "52d153796a7266e411b5944a3ab671852dbc15cb46b991ff6b60e5b788f82b48"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -5158,8 +5158,8 @@
     },
     {
       "path": "skills/self-review/references/phases/phase2_6_panel.md",
-      "size": 10415,
-      "sha256": "3a24acafb6c75bd678c60bcfedf5e839b484d9e80fc8c78f7cbc9c67688cdb05"
+      "size": 10425,
+      "sha256": "4e470139a45dfcb5336da7a8f93fb859ea5af1fdb7c39950864fd2203366251f"
     },
     {
       "path": "skills/self-review/references/phases/phase2_systematic_check.md",

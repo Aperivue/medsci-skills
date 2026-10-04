@@ -179,7 +179,7 @@ whose row matches:
 | Self-report survey / questionnaire study (KAP, physician/patient survey, web/e-survey) | `references/domain-probes/survey_research.md` (SV1–SV8) |
 | Scoping review (maps breadth of evidence; PCC framing, charting — not a focused effectiveness/accuracy question) | `references/domain-probes/scoping_review.md` (SC1–SC8) |
 | Qualitative study (interviews, focus groups, ethnography, grounded theory, phenomenology, document analysis) | `references/domain-probes/qualitative_research.md` (QL1–QL8) |
-| **Self-improving / self-evaluating system** (an agent that critiques and rewrites its own output; training on model-generated data; an LLM judge scoring the training signal; "self-evolving" clinical agents) | `references/domain-probes/self_improving_system.md` (SI1–SI7) + `skills/peer-review/scripts/check_self_improvement_claims.py` |
+| **Self-improving / self-evaluating system** (an agent that critiques and rewrites its own output; training on model-generated data; an LLM judge scoring the training signal; "self-evolving" clinical agents) | `references/domain-probes/self_improving_system.md` (SI1–SI7) + `${CLAUDE_SKILL_DIR}/../peer-review/scripts/check_self_improvement_claims.py` |
 
 Apply each probe as an additional source of comments, complementing (not replacing) categories
 A–K: a conclusion-threatening or design-level finding becomes a **Fatal** Anticipated Major
@@ -694,12 +694,10 @@ In suggested fixes and in any text drafted in Phase 4:
 - **References** only from `/search-lit` with a confirmed DOI or PMID; mark any other reference `[UNVERIFIED - NEEDS MANUAL CHECK]` (Phase 2.5c blocks a `FABRICATED` one).
 - **Clinical definitions, diagnostic criteria and guideline recommendations** you cannot verify: flag with `[VERIFY]` and ask the user; never invent them.
 
-**Conciseness targets**:
-- Anticipated Major Comments: 3-7 items, each 3-5 lines
-- Anticipated Minor Comments: 3-6 items, each 1-2 sentences
-- Editorial-Impression Risks: 0-6 items, each 1 sentence (only what the Phase 2.5g gate flagged)
-- Strengths: 3-5 items, each 1 sentence
-- Total report: 400-800 words (excluding optional R0 section)
+**Conciseness**: each comment says what a reviewer would raise, where, and the fix: a Major in a
+few lines, a Minor in a sentence or two, an Editorial-Impression Risk in one sentence. List every
+Major the gates and the review produced (each P0 gate row is its own Major); never merge or drop
+one to fit a count. Strengths: the few worth repeating in the cover letter.
 
 ### Phase 3b: R0 Numbering (Optional)
 
