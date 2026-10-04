@@ -1,0 +1,6 @@
+Review verdict read: REVISE
+Coverage entries: 13 (assessed 10, not_applicable 1, not_assessed 2)
+  [Minor] COVERAGE_GAP: coverage.categories.I is not_assessed; the review did not work it, so its absence of findings is not a clean result
+  [Minor] COVERAGE_GAP: coverage.probes.observational_confounding is not_assessed (Table 1 not supplied); the review did not work it, so its absence of findings is not a clean result
+
+No Major issue (as declared): 2 Minor (see list).

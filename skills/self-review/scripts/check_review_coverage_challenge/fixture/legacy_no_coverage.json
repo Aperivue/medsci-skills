@@ -1,0 +1,22 @@
+{
+  "self_review_version": "1.0",
+  "manuscript_title": "Synthetic fixture: retrospective cohort, no real manuscript",
+  "date": "2026-01-01",
+  "overall_score": 88,
+  "verdict": "PASS",
+  "fatal_count": 0,
+  "major_count": 0,
+  "minor_count": 1,
+  "issues": [
+    {
+      "id": "m1",
+      "severity": "minor",
+      "category": "F",
+      "category_name": "Reporting Completeness",
+      "location": "Abstract, line 3",
+      "description": "Abstract rounds a value differently from Table 2",
+      "fixable_by_ai": true,
+      "suggested_fix": "Match the abstract to Table 2"
+    }
+  ]
+}

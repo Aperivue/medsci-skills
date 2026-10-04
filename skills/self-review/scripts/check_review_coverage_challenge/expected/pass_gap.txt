@@ -1,0 +1,5 @@
+Review verdict read: PASS
+Coverage entries: 13 (assessed 11, not_applicable 1, not_assessed 1)
+  [Major] COVERAGE_GAP_PASS: verdict is PASS but coverage.categories.C is not_assessed (Statistical analysis section skipped for time); a PASS needs every applicable category and loaded probe module assessed -- assess it, mark it not_applicable with a reason, or return REVISE
+
+MAJOR candidate: PASS returned with 1 not_assessed coverage entry.
