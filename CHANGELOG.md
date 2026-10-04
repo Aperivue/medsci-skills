@@ -1,6 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## [6.1.0] - 2026-10-04
+
+**Hotfix:** 6.0.1 could tell a user something wrong that they would have believed. Gates cleared work they had not checked: `/model-assessment` printed "OK: task-correct metrics with uncertainty reported." for a manifest that declared no metric, `/radiomics-ml` skipped its high-dimension check when a count was missing, `/mllm-eval` passed a classification plan with no metric, and a `/self-review` PASS could rest on categories that were never worked. Skill guidance carried statistics that recomputation showed to be wrong: `/analyze-stats` named statsmodels `fit_regularized` (an L1 penalty) as a Firth fit, `/calc-sample-size` listed odds-ratio and hazard-ratio rows as Cohen's conventions, `/meta-analysis` gave PROSPERO IDs the wrong length and a Park 2022 item rate of 35% (the paper's text gives 5 of 18), and `/batch-cohort` said minimal adjustment always overestimates. Re-run `/model-assessment`, `/mllm-eval` and `/radiomics-ml` on declared manifests checked with 6.0.1, and re-check any sample size, Firth fit or PRISMA-item rate taken from those skills' guidance. 22 corrected claims are listed under Documentation, each recomputed in R or Python and re-run independently.
 
 ### Fixed
 

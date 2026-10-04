@@ -154,7 +154,7 @@ when you update. To stay on a release instead, add the marketplace with its tag 
 plugins as above:
 
 ```text
-/plugin marketplace add Aperivue/medsci-skills@v6.0.1
+/plugin marketplace add Aperivue/medsci-skills@v6.1.0
 ```
 
 To move to a later release, remove the marketplace (`/plugin marketplace remove medsci-skills`, which
@@ -249,10 +249,10 @@ latest:
 
 | Channel | Command |
 |---|---|
-| npx | `npx medsci-skills@6.0.1 install` |
-| Claude Code plugin | `/plugin marketplace add Aperivue/medsci-skills@v6.0.1` (see [Staying on one release](#claude-code-plugin-marketplace)) |
-| GitHub CLI | `gh skill install Aperivue/medsci-skills --all --pin v6.0.1 --agent claude-code --scope user` |
-| git | `git clone --branch v6.0.1 https://github.com/Aperivue/medsci-skills.git`, then `python3 medsci-skills/installers/install.py` |
+| npx | `npx medsci-skills@6.1.0 install` |
+| Claude Code plugin | `/plugin marketplace add Aperivue/medsci-skills@v6.1.0` (see [Staying on one release](#claude-code-plugin-marketplace)) |
+| GitHub CLI | `gh skill install Aperivue/medsci-skills --all --pin v6.1.0 --agent claude-code --scope user` |
+| git | `git clone --branch v6.1.0 https://github.com/Aperivue/medsci-skills.git`, then `python3 medsci-skills/installers/install.py` |
 | Classroom ZIP | download the ZIP attached to that [release](https://github.com/Aperivue/medsci-skills/releases) instead of the latest one |
 
 The one-click updater and `npx medsci-skills@latest install` move you to the newest version, so skip
