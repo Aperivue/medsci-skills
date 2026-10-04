@@ -3008,8 +3008,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 34631,
-      "sha256": "3672f203bf5b48842073837f6990802bcbbd5f41c96eaaec6617d41c7d191e03"
+      "size": 34978,
+      "sha256": "263cf3da3771bafeaf1d43cb5a457b74c5ec0d0b4270fdeb8a38367a411cab65"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -3088,8 +3088,8 @@
     },
     {
       "path": "skills/meta-analysis/references/phase3_screening_detail.md",
-      "size": 12758,
-      "sha256": "f980414841b7a41a1e2a9e417b634208f57dbd72cde26cfab46d8029dc1fb20b"
+      "size": 13798,
+      "sha256": "3e99b2a9ad436e3395ded18db599f881e3792a0cd73917676a6b1a334df46efb"
     },
     {
       "path": "skills/meta-analysis/references/phase4_extraction_detail.md",
@@ -3177,6 +3177,31 @@
       "sha256": "c31b34730935f8c3de5d326358758ab4ec8a0c567ae99172c746cb147872e657"
     },
     {
+      "path": "skills/meta-analysis/scripts/check_ratio_ci_symmetry.py",
+      "size": 13866,
+      "sha256": "ea6dfe1bedcd52e2bb874b9acd977aa12b4945b87eb844c46b18499179761245"
+    },
+    {
+      "path": "skills/meta-analysis/scripts/check_ratio_ci_symmetry_challenge/fixture/extraction_negative.csv",
+      "size": 307,
+      "sha256": "281c42bd6e7110b814aa191532c174c94bb95bc584f0242059228a6ce0ff88fa"
+    },
+    {
+      "path": "skills/meta-analysis/scripts/check_ratio_ci_symmetry_challenge/fixture/extraction_positive.csv",
+      "size": 177,
+      "sha256": "8d25290caadccd9f1e4d62d2844af078d1e6789eef759bb72cd0a635113248ef"
+    },
+    {
+      "path": "skills/meta-analysis/scripts/check_ratio_ci_symmetry_challenge/problem.md",
+      "size": 2289,
+      "sha256": "a8923682c778e6fe3398fe5de1392cceb7dee8ede1625c77420af8711461a1c3"
+    },
+    {
+      "path": "skills/meta-analysis/scripts/check_ratio_ci_symmetry_challenge/verify.sh",
+      "size": 3060,
+      "sha256": "d24960974c70683eaaff646d6036295b46903a8ea63d941d4dbff60e1e7c81e4"
+    },
+    {
       "path": "skills/meta-analysis/scripts/cohort_overlap_check.py",
       "size": 9244,
       "sha256": "1104565a5610d77a3f533c46e51c1ed507ffb400934bd82ef64394a6d7344b35"
@@ -3228,8 +3253,8 @@
     },
     {
       "path": "skills/meta-analysis/scripts/prisma_5way_consistency.py",
-      "size": 18114,
-      "sha256": "93a0e2704728ce36ca654ddb50c60935f734b58e6c2521b0426c58c09ce6d4b6"
+      "size": 27475,
+      "sha256": "20b02d51e140ff1c4f7271acaeefc14afa2fe3fe46beeab8bbaae659ac0b606e"
     },
     {
       "path": "skills/meta-analysis/scripts/screening_reconcile.py",
@@ -3243,8 +3268,8 @@
     },
     {
       "path": "skills/meta-analysis/skill.yml",
-      "size": 2630,
-      "sha256": "ec1a054a4a4c04169757100e8c1f4bf1079fa44d7a6fad3878d90b73526d50c4"
+      "size": 2892,
+      "sha256": "7d8bd23ca5fd52d734b186237db73abb453ab48b8cd9009595e7ad95973ca0f0"
     },
     {
       "path": "skills/meta-analysis/templates/FINAL_POOL_LOCK.yaml.template",

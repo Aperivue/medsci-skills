@@ -139,6 +139,18 @@ an artifact the lost studies had already dropped out of.
   `NOT_ASSESSED`, below it a FAIL.
   The step `after_dedup -> full_text_assessed` is not checked: the SSOT has no key for records
   removed before screening (automation tools, other reasons) in a PRISMA 2020 flow.
+- **PRISMA 2020 report counts (optional `prisma2020:` section).** Declare `records_screened`,
+  `reports_sought`, `reports_not_retrieved`, `reports_assessed`, `reports_excluded`,
+  `reports_excluded_reasons`, `reports_included` and `studies_included` to have the gate check
+  `records_screened - title_abstract_excluded = reports_sought`,
+  `reports_sought - reports_not_retrieved = reports_assessed`,
+  `reports_assessed - reports_excluded = reports_included`, the reasons sum against
+  `reports_excluded`, and `studies_included <= reports_included`. A broken identity among declared
+  counts is a FAIL. An identity with an undeclared term is `NOT_ASSESSED`, naming the term;
+  without `records_screened`, `after_dedup` stands in and a mismatch is `NOT_ASSESSED`. A reasons
+  sum above `reports_excluded`, or more studies than reports, is `NOT_ASSESSED` (several reasons
+  per report; several studies per report). These keys are not surface numbers, an unknown key
+  exits 2, and an SSOT without the section is reported exactly as before.
 - **Screening labels** must be one decision word (`Yes - include` exits 2, label named); a blank
   decision cell exits 2 as `<blank>`.
 - **Record IDs** are compared verbatim across screening and consensus, so `#12` vs `12` reads as

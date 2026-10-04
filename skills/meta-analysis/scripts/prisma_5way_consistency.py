@@ -57,6 +57,32 @@ Optional SSOT keys used only by the flow-identity checks:
   surface (one without `require`) must contain; list `require` explicitly on
   surfaces that do not state it.
 
+Optional PRISMA 2020 report-level section (flow identities only; these keys
+are NOT surface numbers, and an SSOT without the section is reported exactly
+as before). Unknown keys in it are an input error (exit 2):
+    prisma2020:
+      records_screened: 700         # after_dedup minus records removed before
+                                    # screening (automation tools, other)
+      reports_sought: 80            # reports sought for retrieval
+      reports_not_retrieved: 5
+      reports_assessed: 75          # reports assessed for eligibility
+      reports_excluded: 60
+      reports_excluded_reasons: {wrong_population: 35, wrong_outcome: 25}
+      reports_included: 15          # reports of included studies
+      studies_included: 12          # studies included in review
+  Identities (each listed only when one of its prisma2020 keys is declared;
+  one with an undeclared term is NOT_ASSESSED, naming the term):
+       records_screened - screening.title_abstract_excluded = reports_sought
+         (with records_screened undeclared, after_dedup is used instead and a
+         mismatch is NOT_ASSESSED: records removed before screening)
+       reports_sought - reports_not_retrieved = reports_assessed
+       reports_assessed - reports_excluded = reports_included
+       sum(reports_excluded_reasons, else exclusion_reasons) = reports_excluded
+         (a sum above reports_excluded is NOT_ASSESSED, below it a FAIL)
+       studies_included <= reports_included
+         (more studies than reports is NOT_ASSESSED, as for included.reports)
+  A declared identity that does not hold is a FAIL (exit 1).
+
 What is checked
   1. Flow identities on the SSOT itself (each only when its keys are present):
        sum(databases) + other_sources_before_dedup >= after_dedup
@@ -251,6 +277,153 @@ def flow_identity_checks(ssot: dict[str, Any]) -> list[dict[str, Any]]:
             note = (f"reasons sum to {tot - ft_ex} more than full_text_excluded; "
                     "expected only if some reports list several reasons")
         add("sum(exclusion_reasons) = full_text_excluded", status, tot, ft_ex, note)
+    out.extend(prisma2020_checks(ssot, dedup))
+    return out
+
+
+# Optional PRISMA 2020 report-level keys (section `prisma2020:`). Read only by
+# the flow identities below; they are not surface numbers.
+PRISMA2020_COUNT_KEYS = (
+    "records_screened", "reports_sought", "reports_not_retrieved",
+    "reports_assessed", "reports_excluded", "reports_included", "studies_included",
+)
+PRISMA2020_KEYS = PRISMA2020_COUNT_KEYS + ("reports_excluded_reasons",)
+
+
+def prisma2020_checks(ssot: dict[str, Any], dedup: int | None) -> list[dict[str, Any]]:
+    """Report-level PRISMA 2020 identities. Returns [] when the SSOT has no
+    `prisma2020` section, so an SSOT without it is reported exactly as before.
+    An identity is listed only when at least one of its prisma2020 keys is
+    declared; one with an undeclared term is NOT_ASSESSED, naming that term."""
+    sec = ssot.get("prisma2020")
+    if sec is None:
+        return []
+    if not isinstance(sec, dict):
+        raise SSOTError(f"prisma2020: expected a mapping, got {type(sec).__name__}")
+    unknown = sorted(str(k) for k in sec if k not in PRISMA2020_KEYS)
+    if unknown:
+        raise SSOTError(f"prisma2020: unknown key(s) {', '.join(unknown)} "
+                        f"(allowed: {', '.join(PRISMA2020_KEYS)})")
+    p = {k: (None if sec.get(k) is None else as_count(sec[k], f"prisma2020.{k}"))
+         for k in PRISMA2020_COUNT_KEYS}
+    reasons_raw = sec.get("reports_excluded_reasons")
+    if reasons_raw is not None and not isinstance(reasons_raw, dict):
+        raise SSOTError("prisma2020.reports_excluded_reasons: expected a mapping of "
+                        "reason -> count")
+    scr = ssot.get("screening") or {}
+    ta_raw = scr.get("title_abstract_excluded")
+    ta_ex = None if ta_raw is None else as_count(ta_raw, "screening.title_abstract_excluded")
+    out: list[dict[str, Any]] = []
+
+    def row(name: str, status: str, lhs: int | None, rhs: int | None, note: str = "") -> None:
+        r = {"identity": name, "status": status, "ok": {"OK": True, "FAIL": False}.get(status),
+             "lhs": lhs, "rhs": rhs}
+        if note:
+            r["note"] = note
+        out.append(r)
+
+    def undeclared(name: str, missing: list[str]) -> None:
+        row(name, "NOT_ASSESSED", None, None,
+            f"undeclared: {', '.join(missing)}; declare it (0 if none) to assess this identity")
+
+    # 1. records screened - title/abstract excluded = reports sought.
+    if p["reports_sought"] is not None or p["records_screened"] is not None:
+        if p["records_screened"] is not None:
+            base, base_name, strict_base = p["records_screened"], "prisma2020.records_screened", True
+        else:
+            base, base_name, strict_base = dedup, "deduplication.after_dedup", False
+        name = (f"{base_name} - screening.title_abstract_excluded "
+                "= prisma2020.reports_sought")
+        missing = [n for n, v in ((base_name, base),
+                                  ("screening.title_abstract_excluded", ta_ex),
+                                  ("prisma2020.reports_sought", p["reports_sought"]))
+                   if v is None]
+        if missing:
+            undeclared(name, missing)
+        else:
+            lhs = base - ta_ex
+            if lhs == p["reports_sought"]:
+                row(name, "OK", lhs, p["reports_sought"])
+            elif strict_base:
+                row(name, "FAIL", lhs, p["reports_sought"])
+            else:
+                # Records removed before screening (automation tools, other
+                # reasons) sit between after_dedup and screening; the SSOT
+                # cannot tell them from an error unless records_screened is set.
+                row(name, "NOT_ASSESSED", lhs, p["reports_sought"],
+                    "after_dedup may include records removed before screening; declare "
+                    "prisma2020.records_screened to assess this identity")
+
+    def strict_identity(name: str, terms: list[tuple[str, int | None]], compute) -> None:
+        missing = [n for n, v in terms if v is None]
+        if missing:
+            undeclared(name, missing)
+            return
+        lhs, rhs = compute()
+        row(name, "OK" if lhs == rhs else "FAIL", lhs, rhs)
+
+    # 2. reports sought - not retrieved = reports assessed.
+    t2 = [("prisma2020.reports_sought", p["reports_sought"]),
+          ("prisma2020.reports_not_retrieved", p["reports_not_retrieved"]),
+          ("prisma2020.reports_assessed", p["reports_assessed"])]
+    if any(v is not None for _, v in t2):
+        strict_identity("prisma2020.reports_sought - prisma2020.reports_not_retrieved "
+                        "= prisma2020.reports_assessed", t2,
+                        lambda: (p["reports_sought"] - p["reports_not_retrieved"],
+                                 p["reports_assessed"]))
+
+    # 3. reports assessed - reports excluded = reports included.
+    t3 = [("prisma2020.reports_assessed", p["reports_assessed"]),
+          ("prisma2020.reports_excluded", p["reports_excluded"]),
+          ("prisma2020.reports_included", p["reports_included"])]
+    if any(v is not None for _, v in t3):
+        strict_identity("prisma2020.reports_assessed - prisma2020.reports_excluded "
+                        "= prisma2020.reports_included", t3,
+                        lambda: (p["reports_assessed"] - p["reports_excluded"],
+                                 p["reports_included"]))
+
+    # 4. sum(reasons) = reports excluded. Reasons come from
+    # prisma2020.reports_excluded_reasons, else from exclusion_reasons.
+    if p["reports_excluded"] is not None or reasons_raw is not None:
+        if reasons_raw is not None:
+            reasons, rname = reasons_raw, "prisma2020.reports_excluded_reasons"
+        else:
+            reasons, rname = ssot.get("exclusion_reasons") or None, "exclusion_reasons"
+        name = f"sum({rname}) = prisma2020.reports_excluded"
+        missing = ([] if reasons else [rname]) + (
+            [] if p["reports_excluded"] is not None else ["prisma2020.reports_excluded"])
+        if missing:
+            undeclared(name, missing)
+        else:
+            tot = sum(as_count(v, f"{rname}.{n}") for n, v in reasons.items())
+            ex = p["reports_excluded"]
+            if tot == ex:
+                row(name, "OK", tot, ex)
+            elif tot < ex:
+                row(name, "FAIL", tot, ex)
+            else:
+                # Several reasons may be recorded per excluded report.
+                row(name, "NOT_ASSESSED", tot, ex,
+                    f"reasons sum to {tot - ex} more than reports_excluded; "
+                    "expected only if some reports list several reasons")
+
+    # 5. studies included <= reports included.
+    t5 = [("prisma2020.studies_included", p["studies_included"]),
+          ("prisma2020.reports_included", p["reports_included"])]
+    if any(v is not None for _, v in t5):
+        name = "prisma2020.studies_included <= prisma2020.reports_included"
+        missing = [n for n, v in t5 if v is None]
+        if missing:
+            undeclared(name, missing)
+        elif p["studies_included"] <= p["reports_included"]:
+            row(name, "OK", p["studies_included"], p["reports_included"])
+        else:
+            # Same reasoning as included.reports >= included.k: one report can
+            # contribute several studies (DTA cohorts / 2x2 tables).
+            row(name, "NOT_ASSESSED", p["studies_included"], p["reports_included"],
+                f"{p['studies_included'] - p['reports_included']} more studies than "
+                "reports; correct if one report contributes several studies (e.g. DTA "
+                "cohorts), otherwise check both counts")
     return out
 
 
@@ -385,7 +558,9 @@ def main() -> int:
         print(f"  SSOT: {ssot_path}")
         for chk in report["flow_identities"]:
             extra = f" - {chk['note']}" if chk.get("note") else ""
-            print(f"  [{chk['status']}] flow: {chk['identity']} ({chk['lhs']} vs {chk['rhs']}){extra}")
+            vals = ("not computed" if chk["lhs"] is None
+                    else f"{chk['lhs']} vs {chk['rhs']}")
+            print(f"  [{chk['status']}] flow: {chk['identity']} ({vals}){extra}")
         for surface, info in report["surfaces"].items():
             status = info.get("status") or ("OK" if info.get("ok", True) else "FAIL")
             print(f"  [{status}] {surface}: {info}")

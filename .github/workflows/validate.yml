@@ -686,6 +686,14 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/meta-analysis/scripts/check_exclusion_code_validity_challenge/verify.sh
 
+      - name: "Run meta-analysis ratio-CI symmetry challenge (impossible CI -> Major; mistyped bound / undeclared exact CI -> Minor; Wald and declared CIs -> clean)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/meta-analysis/scripts/check_ratio_ci_symmetry_challenge/verify.sh
+
+      - name: Run meta-analysis ratio-CI symmetry test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/meta-analysis/tests/test_ratio_ci_symmetry.sh
+
       - name: Run generate-codebook test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/generate-codebook/tests/test_generate_codebook.sh
