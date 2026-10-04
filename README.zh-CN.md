@@ -58,7 +58,7 @@ v6 中改名的技能（旧名称在 v7 之前仍可使用）：`imaging-data` �
 
 ## 患者数据与安全
 
-不要把可识别身份的患者数据交给 agent。`/deidentify` 在本地运行，不联网，也不调用 AI：它用正则表达式和启发式规则（含十一个国家的 locale 包）检测受保护的健康信息（PHI），经你交互审核后进行假名化；`/analyze-stats` 在使用原始数据文件前会询问其中是否含有患者标识符。这些是科研效率工具，不是临床决策支持：它们未经临床验证，不能替代专家审查，任何输出在用于发表或临床场景之前都必须由合格的研究人员核对。90 个确定性检测器会重新计算或交叉核对特定内容（参考文献元数据、算术、清单条目、数据泄漏）；运行后没有发现问题，只说明这些检查没有找到问题，不代表稿件正确。[MEDSCI_AUDIT.md](https://github.com/Aperivue/medsci-skills/blob/v6.0.1/MEDSCI_AUDIT.md) 列出了每个检测器以及其中哪些经过正式评估；参考文献查询使用 [docs/connectors.md](https://github.com/Aperivue/medsci-skills/blob/v6.0.1/docs/connectors.md) 中列出的公开、无需密钥的 API。
+不要把可识别身份的患者数据交给 agent。`/deidentify` 在本地运行，不联网，也不调用 AI：它用正则表达式和启发式规则（含十一个国家的 locale 包）检测受保护的健康信息（PHI），经你交互审核后进行假名化；`/analyze-stats` 在使用原始数据文件前会询问其中是否含有患者标识符。这些是科研效率工具，不是临床决策支持：它们未经临床验证，不能替代专家审查，任何输出在用于发表或临床场景之前都必须由合格的研究人员核对。91 个确定性检测器会重新计算或交叉核对特定内容（参考文献元数据、算术、清单条目、数据泄漏）；运行后没有发现问题，只说明这些检查没有找到问题，不代表稿件正确。[MEDSCI_AUDIT.md](https://github.com/Aperivue/medsci-skills/blob/v6.0.1/MEDSCI_AUDIT.md) 列出了每个检测器以及其中哪些经过正式评估；参考文献查询使用 [docs/connectors.md](https://github.com/Aperivue/medsci-skills/blob/v6.0.1/docs/connectors.md) 中列出的公开、无需密钥的 API。
 
 ## 引用
 

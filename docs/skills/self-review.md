@@ -44,6 +44,8 @@
 - `bash scripts/check_reported_p_from_counts_challenge/verify.sh  # recompute row P from 2x2 counts`
 - `python3 scripts/check_reported_p_from_counts.py --manuscript manuscript.md --tests p_tests.json --strict  # declared tests: alpha-crossing check`
 - `bash tests/test_p_tests_declared.sh  # --tests: declared test per row, alpha crossing at printed precision`
+- `bash scripts/check_test_statistic_p_challenge/verify.sh  # recompute P from t / F / chi2 / z and df`
+- `bash tests/test_test_statistic_p.sh  # statistic and P rounding intervals, sidedness, declared GRIM`
 - `bash tests/test_evalues_declared.sh  # --evalues: declared E-values recomputed over printed precision`
 - `bash scripts/check_dta_denominators_challenge/verify.sh  # sens/spec denominators vs reference-standard counts`
 - `bash scripts/check_paired_difference_estimator_challenge/verify.sh  # median parity / degenerate CI / unnamed estimator`
@@ -116,6 +118,8 @@
 - `check_supplement_hygiene.py`
 - `check_table_percentages.py`
 - `check_table_percentages_challenge/` (14 files)
+- `check_test_statistic_p.py`
+- `check_test_statistic_p_challenge/` (6 files)
 - `cohort_arith_binding_challenge/` (4 files)
 - `confounding_findings_challenge/` (4 files)
 - `disclosure_placement_challenge/` (3 files)
