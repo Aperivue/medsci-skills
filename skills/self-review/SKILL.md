@@ -709,6 +709,10 @@ Emit machine-readable JSON **only when `--json` is passed** (or another skill co
 append the block to the report and also write it to `qc/self_review.json`. Read
 `${CLAUDE_SKILL_DIR}/references/phases/phase3c_json_output.md` for the schema, field semantics and
 worked example when --json was passed, or a downstream skill consumes this run.
+The JSON carries a `coverage` ledger (status per category A–L and per loaded probe module), and
+**PASS is not allowed while any applicable entry is `not_assessed`**. Finalise it with
+`scripts/check_review_coverage.py --review qc/self_review.json --out qc/review_coverage.json --strict`
+(exit 1 = PASS over an unworked category; fix the JSON before any consumer reads it).
 
 ### Phase 4: Fix Support (on request)
 

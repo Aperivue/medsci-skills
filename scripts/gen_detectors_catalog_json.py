@@ -79,6 +79,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_text_overflow": "style_review",
     "check_generated_code": "style_review",
     "check_panel_diversity": "style_review",
+    "check_review_coverage": "style_review",
     "check_reviewer_team_consistency": "style_review",
     "check_paren_spans": "style_review",
     "check_training_hygiene": "style_review",

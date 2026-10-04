@@ -4923,8 +4923,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 46902,
-      "sha256": "9a2c9026547cbe3e77a8f6b099c76f886c475584dbdae12051a3a6900b847b30"
+      "size": 47276,
+      "sha256": "94d3908c2d0232b38146101f3d5f9197e29f93c5336254c7a8d8219cd86269da"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -5143,8 +5143,8 @@
     },
     {
       "path": "skills/self-review/references/phases/phase3c_json_output.md",
-      "size": 3222,
-      "sha256": "7efa7ce99f3f5b4c28f32840f6e66f3091e20c48629351202b74d383ef842a3a"
+      "size": 6440,
+      "sha256": "caaf9db00d365fbc5f6faca22e1b007765b187e330e0a490111e428226151120"
     },
     {
       "path": "skills/self-review/references/phases/phase4_fix_support.md",
@@ -5622,6 +5622,61 @@
       "sha256": "1a1fddcdef6d23a3c6e2f83c924180c2703355953223d5d82cd89e01615e436d"
     },
     {
+      "path": "skills/self-review/scripts/check_review_coverage.py",
+      "size": 11666,
+      "sha256": "d5e7be5cd850ba546d2ad245e6c05c825c22f66a64424f5635065c8bd6de93ce"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/expected/legacy_no_coverage.txt",
+      "size": 373,
+      "sha256": "1e093ba57fb281c9fd39dfe0717165ac9eaef81b880f54c208c3226d37567ea4"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/expected/pass_complete.txt",
+      "size": 184,
+      "sha256": "50d084f79f76c95c7e55794173d72c3e765412ab74408fc856db4c84300bc802"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/expected/pass_gap.txt",
+      "size": 440,
+      "sha256": "379e3557365ceb22d569175667a7356b2996b413cffa1b42494fa3d492d0c623"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/expected/revise_gap.txt",
+      "size": 471,
+      "sha256": "395773b96067f644f1a174d7718d60ba0609d0efb850d94269868094bb857d47"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/fixture/legacy_no_coverage.json",
+      "size": 591,
+      "sha256": "5b0e15f8fe8fde6e5b3aef2e6fef77510764f9b567085a954e99c15835595ee5"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/fixture/pass_complete.json",
+      "size": 2472,
+      "sha256": "d5917ce59051ca67e3dfba75979d3ee5dba0fd076833af5ed36c5f670b52b7d5"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/fixture/pass_gap.json",
+      "size": 2417,
+      "sha256": "daa2220ea0c0012aa07928e1d438c8021d5fa0ca1846f59b6cfb510d8fa1ba18"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/fixture/revise_gap.json",
+      "size": 2357,
+      "sha256": "57700932a2e074fcf07076180330b2682177215d80b30cf452fd48f2c281f53b"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/problem.md",
+      "size": 2211,
+      "sha256": "fa06302e216cff3f0c395a264c6203c18ccec3adbf041a76231a4159d8351190"
+    },
+    {
+      "path": "skills/self-review/scripts/check_review_coverage_challenge/verify.sh",
+      "size": 2024,
+      "sha256": "e99613da948558da17b623c63609e29e279af651aae4777ad0ec0c9604c33488"
+    },
+    {
       "path": "skills/self-review/scripts/check_reviewer_team_consistency.py",
       "size": 15498,
       "sha256": "9af6a41312262a05b30abebf0ce41718ff5463fe5c613e11b27db1073f66e54e"
@@ -6033,8 +6088,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 4954,
-      "sha256": "11f62cf2dc9bcd8d23c39be14015b3eee49024074ef2a6f592faccba3918f7f1"
+      "size": 5314,
+      "sha256": "e84a75a0a539c958ed8415e99bfbb944d0ccbf0cb38db5c2e3a35119e017cc32"
     },
     {
       "path": "skills/self-review/templates/evalues.json",

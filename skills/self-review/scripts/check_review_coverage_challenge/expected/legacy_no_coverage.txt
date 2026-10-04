@@ -1,0 +1,5 @@
+Review verdict read: PASS
+Coverage entries: 0 (assessed 0, not_applicable 0, not_assessed 0)
+  [Minor] COVERAGE_NOT_RECORDED: no `coverage` ledger in the self-review JSON (legacy format): which of categories A-L and which domain-probe modules were worked is not recorded, so the verdict cannot be checked against coverage
+
+No Major issue (as declared): 1 Minor (see list).
