@@ -1,5 +1,47 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- **Skill instructions that pointed at things that no longer exist** (#678–#680). These are
+  corrections from an audit of SKILL.md text. No detector or script verdict changed.
+  - `/self-review` sent diagnostic-accuracy panels to the meta-analysis probe. It now routes them to
+    `diagnostic_accuracy.md` (D1–D12). The fixed 3–7 Major / 400–800-word report caps are gone:
+    they forced merging or dropping gate-generated Majors. The report may now be longer.
+  - `/peer-review` pointed at sections that never existed ("3C-1", "1C"), counted eight survival
+    probes where there are nine, and kept an inline copy of Phase 2F. Its Reject checklist now
+    follows Phase 2F as written.
+  - `/write-paper` and `/revise` halted on a verify-refs status the script never emits, so a
+    non-first-author MISMATCH or a duplicate reference passed. They now halt on
+    `submission_safe: false`, or any UNVERIFIED row under `--strict`. The 7.1 row now says that
+    more than 25 em-dashes is a Minor that does not halt, as the script does. The write-paper
+    critic no longer computes a 0–120 score. The revise 5,000-word response floor is removed.
+  - `/check-reporting`: CONSORT-AI and SPIRIT-AI are scored with their base guideline;
+    TRIPOD+AI, STARD-AI and TRIPOD-LLM replace theirs.
+  - `/batch-cohort` compares countries by the ratio of ORs (95% CI; P), as `/cross-national` does.
+  - Ten more skills (`/orchestrate`, `/make-figures`, `/ma-scout`, `/intake-project`,
+    `/publish-skill`, `/model-scaffold`, `/define-variables`, `/fill-protocol`, `/present-paper`,
+    `/obsidian-paper-vault`) had fixes to script paths that failed from a project directory, to
+    stale years and frontmatter field names, and to rules that contradicted a sibling skill.
+
+### Changed
+
+- **Unused code removed** (#681). A one-off `ruff check --select F` over the shipped Python found
+  39 unused imports, unused variables and placeholder-free f-strings, none of them a bug. They are
+  removed with no behaviour change. No lint step is added to CI.
+
+### CI
+
+- **`validate_skills.sh` check 5 removed** (#682). It matched only `${SKILL_DIR}/references`, a form
+  no skill uses any more, so it could not fail. Asset paths are checked by
+  `validate_routing_assets.py --strict`.
+
+### Documentation
+
+- `/mllm-eval` Known limits now say that manifest mode does not check that a declared metric suits
+  the task (#682).
+
 ## [6.1.0] - 2026-10-04
 
 **Hotfix:** 6.0.1 could tell a user something wrong that they would have believed. Gates cleared work they had not checked: `/model-assessment` printed "OK: task-correct metrics with uncertainty reported." for a manifest that declared no metric, `/radiomics-ml` skipped its high-dimension check when a count was missing, `/mllm-eval` passed a classification plan with no metric, and a `/self-review` PASS could rest on categories that were never worked. Skill guidance carried statistics that recomputation showed to be wrong: `/analyze-stats` named statsmodels `fit_regularized` (an L1 penalty) as a Firth fit, `/calc-sample-size` listed odds-ratio and hazard-ratio rows as Cohen's conventions, `/meta-analysis` gave PROSPERO IDs the wrong length and a Park 2022 item rate of 35% (the paper's text gives 5 of 18), and `/batch-cohort` said minimal adjustment always overestimates. Re-run `/model-assessment`, `/mllm-eval` and `/radiomics-ml` on declared manifests checked with 6.0.1, and re-check any sample size, Firth fit or PRISMA-item rate taken from those skills' guidance. 22 corrected claims are listed under Documentation, each recomputed in R or Python and re-run independently.
