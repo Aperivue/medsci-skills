@@ -99,8 +99,9 @@ network-free). Reproducible challenge:
 `bash ${CLAUDE_SKILL_DIR}/scripts/mllm_eval_completeness_challenge/verify.sh`.
 
 **Known limits.** Manifest mode checks what is declared, not that the work was done; keep the
-manifest in step with the Methods. Prose mode (`--plan`) checks that a term is present; it does
-not read negation or sense.
+manifest in step with the Methods. It also does not check that a declared metric suits the task:
+report-generation metrics (BLEU, RadGraph F1) declared for a VQA task are accepted without
+comment. Prose mode (`--plan`) checks that a term is present; it does not read negation or sense.
 "No human evaluation was performed" or "hallucination was not assessed" still counts as covering
 that axis, and a word used in another sense still clears it: "green" anywhere clears the clinical-metric check, "unsupported"
 clears faithfulness, "data leakage" from a patient split clears contamination, and "ground truth"

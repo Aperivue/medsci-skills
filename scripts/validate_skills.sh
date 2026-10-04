@@ -210,30 +210,11 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
   #  rewarded boilerplate and length, the opposite of what a skill should carry; the upper bound
   #  lives in check_phase_budget.py.)
 
-  # 5. Reference file integrity
-  ref_count=0
-  ref_missing=0
-  while IFS= read -r ref_line; do
-    ref_path=$(echo "$ref_line" | grep -oE '\$\{SKILL_DIR\}/references/[^ `*),]+' | head -1 | sed "s|\${SKILL_DIR}|${skill_dir%/}|" | sed 's/[`\*]//g' || true)
-    if [ -n "$ref_path" ]; then
-      ((ref_count++))
-      if [ ! -f "$ref_path" ] && [ ! -d "$ref_path" ]; then
-        # Try without trailing characters
-        clean_path=$(echo "$ref_path" | sed 's/[,;]$//')
-        if [ ! -f "$clean_path" ] && [ ! -d "$clean_path" ]; then
-          ((ref_missing++))
-        fi
-      fi
-    fi
-  done < <(grep 'SKILL_DIR.*references' "$skill_file" || true)
-
-  if [ "$ref_count" -eq 0 ]; then
-    pass "References: none declared"
-  elif [ "$ref_missing" -eq 0 ]; then
-    pass "References: $ref_count declared, all found"
-  else
-    fail "References: $ref_missing of $ref_count missing"
-  fi
+  # (Former check 5 removed 2026-10-04: it matched only `${SKILL_DIR}/references/...`, a form no
+  #  SKILL.md uses since orchestrate moved to `${CLAUDE_SKILL_DIR}`, so it reported "none declared"
+  #  for every skill. Asset paths are checked by scripts/validate_routing_assets.py --strict, which
+  #  CI runs: every `${CLAUDE_SKILL_DIR}/...` path with a file extension. `--only` does not call it;
+  #  scope it locally with `validate_routing_assets.py --strict --scan skills/<name>/SKILL.md`.)
 
   # ---------------- Content Integrity (v2 lints) ----------------
   # Scope: every tracked .md inside the skill directory (SKILL.md + references/
