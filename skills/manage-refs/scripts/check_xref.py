@@ -63,7 +63,7 @@ import argparse
 import json
 import re
 import sys
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Optional
 
@@ -778,23 +778,23 @@ def main() -> int:
             print(
                 f"[check_xref] WARN: {len(proven_absent)} MISSING_DOCX row(s) downgraded under "
                 f"--allow-separate-attachments: " + ", ".join(f.label for f in proven_absent) + "\n"
-                f"           The DOCX was read and does not contain them, which is what a "
-                f"separate attachment looks like."
+                "           The DOCX was read and does not contain them, which is what a "
+                "separate attachment looks like."
             )
         if unchecked:
             print(
                 f"[check_xref] WARN: {len(unchecked)} MISSING_BODY row(s) EXCUSED WITHOUT "
                 f"EVIDENCE under --allow-separate-attachments:\n"
                 f"           " + ", ".join(f.label for f in unchecked) + "\n"
-                f"           No --docx was supplied, so nothing here was actually checked. Each "
-                f"of these is either a float in a\n"
-                f"           separate supplement file — which is what you declared — or a caption "
-                f"nobody wrote. This run cannot\n"
-                f"           tell them apart, and passed them on your word.\n"
-                f"           Run again with --docx <rendered.docx> before submitting: a float "
-                f"genuinely absent from the rendered\n"
-                f"           output becomes MISSING_DOCX (still downgraded, but now proven), and "
-                f"a caption you forgot becomes visible."
+                "           No --docx was supplied, so nothing here was actually checked. Each "
+                "of these is either a float in a\n"
+                "           separate supplement file — which is what you declared — or a caption "
+                "nobody wrote. This run cannot\n"
+                "           tell them apart, and passed them on your word.\n"
+                "           Run again with --docx <rendered.docx> before submitting: a float "
+                "genuinely absent from the rendered\n"
+                "           output becomes MISSING_DOCX (still downgraded, but now proven), and "
+                "a caption you forgot becomes visible."
             )
         if not submission_safe:
             print(f"[check_xref] SUBMISSION BLOCKED: {len(blockers)} cross-reference defect(s).")

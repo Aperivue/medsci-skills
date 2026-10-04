@@ -28,7 +28,6 @@ Exit 0 always (having no local changes is not an error). Stdlib only.
 from __future__ import annotations
 
 import argparse
-import difflib
 import hashlib
 import json
 import os

@@ -138,7 +138,6 @@ def _frontmatter_field(text: str, key: str) -> str | None:
     if not closed:
         raise SkillError("frontmatter block is not closed by a second '---'")
 
-    n = len(body)
     for i, line in enumerate(body):
         m = re.match(rf"^{re.escape(key)}:(.*)$", line)
         if not m or line[:1].isspace():

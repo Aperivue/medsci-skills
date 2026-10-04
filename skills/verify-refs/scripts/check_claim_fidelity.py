@@ -92,7 +92,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _quote_match import match_quality, normalize, tokens  # noqa: E402  (vendored, same-dir)
+from _quote_match import match_quality, tokens  # noqa: E402  (vendored, same-dir)
 from _claim_evidence import audit_freshness, build_evidence, render_table, sha256  # noqa: E402
 
 DETECTOR = "check_claim_fidelity"

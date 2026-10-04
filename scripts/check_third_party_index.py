@@ -36,7 +36,6 @@ Stdlib only.
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 

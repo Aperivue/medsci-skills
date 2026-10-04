@@ -73,7 +73,6 @@ def read_nested_yaml(path: Path) -> dict:
     Supports SSOT.yaml structure: top-level keys + one level of nesting.
     """
     root: dict = {}
-    current: dict = root
     stack: list[tuple[int, dict]] = [(-1, root)]
 
     for raw in path.read_text(encoding="utf-8").splitlines():

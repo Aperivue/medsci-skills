@@ -28,7 +28,6 @@ Outputs a Markdown report listing:
 """
 import argparse
 import csv
-import json
 import sys
 import urllib.parse
 import urllib.request

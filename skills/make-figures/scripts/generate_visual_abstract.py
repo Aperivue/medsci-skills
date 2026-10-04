@@ -29,7 +29,6 @@ from __future__ import annotations
 
 import argparse
 import os
-import re
 import subprocess
 import sys
 from pathlib import Path
@@ -153,7 +152,6 @@ def replace_shape_text(shape, new_text: str, preserve_formatting: bool = True):
             new_p = deepcopy(para._p)
             new_p.clear()
             # Re-add run with text
-            from lxml import etree
             r_elem = deepcopy(para._p.findall(qn("a:r"))[0]) if para._p.findall(qn("a:r")) else None
             if r_elem is not None:
                 for t in r_elem.findall(qn("a:t")):
@@ -167,7 +165,6 @@ def replace_shape_text(shape, new_text: str, preserve_formatting: bool = True):
 
 def insert_image_into_shape(slide, shape, image_path: str):
     """Replace a shape with an image, maintaining the shape's position and size."""
-    from pptx.util import Emu
     from PIL import Image
 
     # Get shape bounds

@@ -34,7 +34,6 @@ Exit 0 when the registry is consistent. With --strict, exit 1 on any drift
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 from pathlib import Path
 

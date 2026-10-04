@@ -1209,7 +1209,6 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
     statuses: list[str] = []
     evidence_parts: list[str] = []
     actual_authors: list[str] = []
-    actual_givens: list[str] = []
     sources_consulted: list[str] = []
     # True when the actual_authors list came from OpenAlex, whose display names carry
     # no structured family field and mix "First Last" / "Last, First" forms. Such a
@@ -1222,13 +1221,12 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
 
     # Step 1 — PubMed efetch (authoritative) when PMID present.
     if record.pmid:
-        st, ev, fams, givens = verify_pubmed_efetch(record.pmid, timeout, titles=resolved_titles["PMID"])
+        st, ev, fams, _givens = verify_pubmed_efetch(record.pmid, timeout, titles=resolved_titles["PMID"])
         time.sleep(0.2)
         statuses.append(st)
         evidence_parts.append(ev)
         if st == "OK" and fams:
             actual_authors = fams
-            actual_givens = givens
             sources_consulted.append("pubmed_efetch")
         # also run esummary for FABRICATED detection (efetch returns valid XML even for
         # unknown PMIDs in some edge cases; esummary's "error" field is decisive).
