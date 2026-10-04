@@ -6,7 +6,7 @@ This page describes what is actually checked in this repository, what is reviewe
 
 | Gate | What it enforces |
 |---|---|
-| `scripts/validate_skills.sh` | Per-skill structure (required frontmatter, reference-file integrity) and a public-surface PII / precedent scan (personal paths, names, document EXIF). Also runs the contract validator. |
+| `scripts/validate_skills.sh` | Per-skill structure (required frontmatter) and a public-surface PII / precedent scan (personal paths, names, document EXIF). Also runs the contract validator. |
 | `scripts/validate_skill_contracts.py` | Every skill ships a `skill.yml` (v2); schema correctness; the optional v2.1 quality-card fields (non-empty lists, strict `evidence_surface` enum). Missing contract → **FAIL**. |
 | `scripts/validate_catalog_consistency.py` | Catalog counts (skills, reporting guidelines, journal profiles) recomputed from disk and asserted equal across `metadata/catalog_counts.json` and the public docs. |
 | `scripts/validate_routing_assets.py --strict` | Every `${CLAUDE_SKILL_DIR}` asset reference in a `SKILL.md` resolves to a file that exists. |
