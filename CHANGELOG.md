@@ -241,6 +241,27 @@
   and `REPRODUCIBILITY.md`; Minor claims are carried forward into `IMAGING_QC.md`, so a profiling
   warning now reaches a file the next step reads (demo 05's `INTENSITY_SCALE_INCONSISTENT`). Missing
   or unreadable reports are recorded NOT ASSESSED. Without the flags the output is unchanged.
+- **self-review recomputes P from reported test statistics** (#674). New
+  `check_test_statistic_p.py` recomputes P for `t(df)`, `F(df1, df2)`, `χ2(df)` and `z` with their
+  P in the same sentence, allowing for rounding on both sides. An inconsistent result is Minor
+  `P_STAT_INCONSISTENT`; Major `P_STAT_DECISION_ERROR` only when the whole recomputed and reported
+  ranges sit on opposite sides of alpha. One-sided, adjusted, exact or robust P values are never
+  Major, and a statistic written with a thousands separator or exponent is listed as not checked.
+  `--grim` checks declared means for GRIM feasibility (Major `GRIM_INCONSISTENT`).
+- **self-review records what it covered** (#672). The JSON carries a `coverage` ledger for
+  categories A–L and each loaded probe module; `check_review_coverage.py` flags a PASS over a
+  `not_assessed` entry (Major; Minor for advisory category L). A JSON without a ledger is
+  NOT_ASSESSED.
+- **meta-analysis checks report-level PRISMA arithmetic and ratio CI symmetry** (#673). Optional
+  `prisma2020:` counts add flow identities (sought − not retrieved = assessed, and so on); an
+  identity with an undeclared term is NOT_ASSESSED, and output without the section is unchanged.
+  New `check_ratio_ci_symmetry.py` flags an OR/RR/HR/IRR whose CI cannot hold the estimate
+  (Major) or is log-asymmetric beyond rounding (Minor; profile, exact and bootstrap CIs are
+  skipped).
+- **analyze-stats** (#671): known-answer tests for `likert_summary.py`, `forest_plot.py` and
+  `sample_size.R`, with values from R/metafor/epiR runs; `check_generated_code.py` adds Minor
+  `API_DEFAULT_STUDENT_T` (scipy `ttest_ind` without `equal_var`) and `API_DEFAULT_PENALIZED_OR`
+  (default-penalised `LogisticRegression` whose `coef_` is exponentiated).
 
 ### CI
 
@@ -267,6 +288,13 @@
 
 ### Documentation
 
+- **Claims checked against their PubMed sources** (#669): Park 2022 item 13d is 5 of 18 (28%);
+  Reinke 2024 is cited for class imbalance as a pitfall source; ResNet-50 is no longer called
+  well-calibrated; the CHNS biomarker N is flagged for a codebook check.
+- **Seed runs ≥ 5 where recommended; Dice message wording** (#670). model-card, model-scaffold and
+  the mllm-eval guidance now match model-assessment's ≥ 5 runs (mllm-eval's checked floor stays
+  3), and the metric-reporting messages say Dice penalises the same boundary error more on small
+  structures.
 - **Claims that failed recomputation are corrected** (#659, #660, #661). Each claim was recomputed
   in R or Python and re-run by a second agent; only claims both found wrong were changed, and every
   new number comes from that recomputation. calc-sample-size: the OR, HR, ICC and kappa rows leave
