@@ -6233,8 +6233,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/build_marked_manuscript.py",
-      "size": 10762,
-      "sha256": "50cf03958cccbacf54ae4341f4333ea14683439d10a613ee43a67acb5f822108"
+      "size": 11261,
+      "sha256": "1673abf0947d6794a2a93fb6c5f9c76ab05b8bb5cd7641a2cae7a481e6a96c3d"
     },
     {
       "path": "skills/sync-submission/scripts/check_asset_anonymization.py",

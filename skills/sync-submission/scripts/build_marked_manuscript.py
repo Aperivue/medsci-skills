@@ -87,6 +87,13 @@ def run_compare(original: Path, revised: Path, out: Path, author: str, timeout: 
             "then verify it anywhere with check_marked_manuscript.py."
         )
 
+    # --out is deleted before Word starts (below), so it must not BE an input: pointed at
+    # --original that deletion destroys the manuscript, and pointed at --revised an earlier version
+    # of this script overwrote it with the original. A symlink or hard link counts as the same file.
+    for src in (original, revised):
+        if out.resolve() == src.resolve() or (out.exists() and out.samefile(src)):
+            raise SystemExit(f"--out must be a new file, not one of the inputs: {out}")
+
     # Nothing may sit at --out unless this run produced it. A Compare that dies must not leave a
     # plausible .docx at exactly the path the user asked the marked manuscript to be written to:
     # observed on an AJNR major revision, where an earlier version of this script seeded --out

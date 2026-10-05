@@ -38,7 +38,7 @@ ck() {
 }
 
 out="$(python3 - "$B" <<'PY'
-import importlib.util, json, re, subprocess, sys, tempfile, types
+import importlib.util, json, os, re, subprocess, sys, tempfile, types
 from pathlib import Path
 
 spec = importlib.util.spec_from_file_location("bmm", sys.argv[1])
@@ -160,6 +160,28 @@ with tempfile.TemporaryDirectory() as td:
     results["fallback_kept_the_file"] = str(out6.exists()).lower()
     results["fallback_left_staging"] = str(any(p.name.startswith(".medsci-marked-") for p in side.iterdir())).lower()
 
+    # 7. --out that IS an input is refused before anything is deleted — by path, via a symlink,
+    #    and via a hard link. The input must survive byte for byte.
+    m.WORD_DOCUMENTS = container
+    m.subprocess = types.SimpleNamespace(run=_run_fake(0, ""), TimeoutExpired=subprocess.TimeoutExpired)
+    link_sym = td / "link_sym.docx"
+    link_sym.symlink_to(original)
+    link_hard = td / "link_hard.docx"
+    os.link(revised, link_hard)
+    for key, target in (("out_is_original", original), ("out_is_revised", revised),
+                        ("out_symlinks_original", link_sym), ("out_hardlinks_revised", link_hard)):
+        before_o, before_r = original.read_bytes(), revised.read_bytes()
+        try:
+            m.run_compare(original, revised, target, "A Author", 600)
+            refused = False
+        except SystemExit:
+            refused = True
+        except Exception:          # a crash is not a refusal (the old script raised SameFileError)
+            refused = False
+        intact = (original.exists() and original.read_bytes() == before_o
+                  and revised.exists() and revised.read_bytes() == before_r)
+        results[key] = str(refused and intact).lower()
+
 print(json.dumps(results))
 PY
 )"
@@ -202,6 +224,12 @@ ck "container empty after success"           "true"  "$(get container_empty_afte
 ck "container empty after failure"           "true"  "$(get container_empty_after_failure)"
 ck "earlier run's --out survived a failure"  "false" "$(get stale_out_survived_failure)"
 ck "300s timeout message names the dialog"   "true"  "$(get timeout_names_dialog)"
+
+echo "==== --out that is an input is refused, inputs intact ===="
+ck "--out == --original"                     "true"  "$(get out_is_original)"
+ck "--out == --revised"                      "true"  "$(get out_is_revised)"
+ck "--out symlinks --original"               "true"  "$(get out_symlinks_original)"
+ck "--out hard-links --revised"              "true"  "$(get out_hardlinks_revised)"
 
 echo "==== no container: fall back beside --out, still clean ===="
 ck "fallback produced --out"                 "true"  "$(get fallback_kept_the_file)"
