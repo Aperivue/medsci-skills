@@ -57,6 +57,12 @@ Say a statistician was consulted only if one was: a claim about who reviewed the
 
 Answer careless or off-topic comments too, with the same professionalism. For an irrelevant comment, add a clarifying sentence to Methods or Discussion and say where; that shows effort without conceding a scientific point. For a factually incorrect comment, give referenced evidence framed as "We believe there may be a misunderstanding."
 
+**Unify terms before editing sentences.** When several comments trace back to inconsistent
+terminology (rater / reader / operator; reference standard / reference set), first build a one-page
+term table — each term, its definition and where it may appear — apply it across the manuscript,
+then revise sentences; editing sentence by sentence leaves the same inconsistency elsewhere. Keep
+terms distinct when they name different things, and check that each statistical term is a standard one.
+
 Output a classified comment list before generating responses:
 
 ```
@@ -375,6 +381,7 @@ After all responses are drafted, check:
 - [ ] (R2+) No separate cover letter — the editor greeting and "in brief" summary are folded into the response-letter head
 - [ ] Cover letter is addressed to the correct editor
 - [ ] Response letter length within the Word Count Guidance below
+- [ ] If the letter was compressed or converted after drafting (a page limit, a co-author's LaTeX version), each response still carries the evidence it relied on and answers what was asked — diff the evidence item by item, not the word count (e.g. a statistical result line, citation markers, units and abbreviations, a rater's stated credentials); evidence the paper itself needs goes into the manuscript or Supplement with an exact pointer in the response, evidence that only answers the reviewer stays in the letter in condensed form, and redundant explanation can simply go
 - [ ] The marked manuscript passed the round-trip gate (below) — not merely "tracked changes are on"
 
 ### The marked manuscript is gated, not eyeballed
@@ -415,6 +422,9 @@ For R2+, acknowledge whether R1 concerns were fully resolved. If a reviewer rais
 - MINOR response: 50-150 words
 - MAJOR response: 150-400 words
 - REBUTTAL response: 200-500 words
+- **Headroom is not a target.** When the manuscript sits under a journal cap, do not propose filling
+  the remaining words, and do not write a word count or cap into the manuscript body unless the
+  journal or a reviewer asks for it there.
 - **R2+ rounds run leaner.** Most R1 concerns are already resolved, so the letter is shorter and a satisfied reviewer's response is 1-2 sentences. Do not pad an R2+ reply to reach the R1 range.
 
 ---
