@@ -36,7 +36,8 @@ Every title should contain:
   and put the disease or task in a validation clause — e.g. *"Self-Supervised Motion Correction
   Improves Meniscal Tear Detection on Knee MRI"* → *"Self-Supervised Motion Correction for
   Accelerated MRI: Validation with Meniscal Tear Detection"*. The abstract then opens with the
-  general problem the method addresses and states a develop-and-validate aim. The four components
+  general problem the method addresses and states the aim actually performed (develop and validate,
+  or validate an existing method). The four components
   still apply (the disease sits in the validation clause); claim no more generality than was
   validated, and keep a disease-first title when the disease, not the method, is the contribution.
 
