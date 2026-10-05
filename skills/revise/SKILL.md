@@ -381,7 +381,7 @@ After all responses are drafted, check:
 - [ ] (R2+) No separate cover letter — the editor greeting and "in brief" summary are folded into the response-letter head
 - [ ] Cover letter is addressed to the correct editor
 - [ ] Response letter length within the Word Count Guidance below
-- [ ] If the letter was compressed or converted after drafting (a page limit, a co-author's LaTeX version), each response still carries the evidence it relied on and answers what was asked — diff the evidence item by item, not the word count (e.g. a statistical result line, citation markers, units and abbreviations, a rater's stated credentials); evidence that no longer fits goes into the manuscript or Supplement with an exact pointer in the response, while redundant explanation can simply go
+- [ ] If the letter was compressed or converted after drafting (a page limit, a co-author's LaTeX version), each response still carries the evidence it relied on and answers what was asked — diff the evidence item by item, not the word count (e.g. a statistical result line, citation markers, units and abbreviations, a rater's stated credentials); evidence the paper itself needs goes into the manuscript or Supplement with an exact pointer in the response, evidence that only answers the reviewer stays in the letter in condensed form, and redundant explanation can simply go
 - [ ] The marked manuscript passed the round-trip gate (below) — not merely "tracked changes are on"
 
 ### The marked manuscript is gated, not eyeballed
