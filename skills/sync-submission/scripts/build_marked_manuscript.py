@@ -39,6 +39,7 @@ marked file produced by any means (including a Word GUI pass).
 from __future__ import annotations
 
 import argparse
+import os
 import platform
 import re
 import shutil
@@ -164,7 +165,14 @@ def run_compare(original: Path, revised: Path, out: Path, author: str, timeout: 
                     f"routinely does, so re-run with a larger --timeout."
                 )
             raise _abandon(f"Word Compare failed: {err}{hint}")
-        shutil.move(str(seed), str(out))
+        # The container and --out may be on different volumes, where a move is a copy that can
+        # die half-written. Copy beside --out, then rename: --out appears whole or not at all.
+        part = out.with_name(f".{out.name}.{token}.part")
+        try:
+            shutil.copyfile(seed, part)
+            os.replace(part, out)
+        finally:
+            part.unlink(missing_ok=True)
     finally:
         shutil.rmtree(staging, ignore_errors=True)
 

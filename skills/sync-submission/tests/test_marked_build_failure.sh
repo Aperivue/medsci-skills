@@ -38,7 +38,7 @@ ck() {
 }
 
 out="$(python3 - "$B" <<'PY'
-import importlib.util, json, os, re, subprocess, sys, tempfile, types
+import importlib.util, json, os, re, shutil, subprocess, sys, tempfile, types
 from pathlib import Path
 
 spec = importlib.util.spec_from_file_location("bmm", sys.argv[1])
@@ -182,6 +182,32 @@ with tempfile.TemporaryDirectory() as td:
                   and revised.exists() and revised.read_bytes() == before_r)
         results[key] = str(refused and intact).lower()
 
+    # 8. Writing the result to --out fails half-way (another volume, disk full): nothing partial
+    #    may be left at --out or beside it, and the staging still goes.
+    def _copy_dies_on_out(src, dst, *a, **k):
+        if Path(dst).parent == outdir:
+            Path(dst).write_bytes(b"PK\x03\x04half")
+            raise OSError(28, "No space left on device")
+        return shutil.copyfile(src, dst, *a, **k)
+
+    outdir = td / "other_volume"
+    outdir.mkdir()
+    out8 = outdir / "marked_partial.docx"
+    def _cross_volume_move(src, dst):     # what shutil.move does across volumes: copy, then delete
+        _copy_dies_on_out(src, dst)
+        os.unlink(src)
+
+    m.shutil = types.SimpleNamespace(
+        copyfile=_copy_dies_on_out, rmtree=shutil.rmtree, move=_cross_volume_move
+    )
+    try:
+        m.run_compare(original, revised, out8, "A Author", 600)
+    except OSError:
+        pass
+    m.shutil = shutil
+    results["partial_write_left_out"] = str(any(outdir.iterdir())).lower()
+    results["container_empty_after_partial"] = str(not any(container.iterdir())).lower()
+
 print(json.dumps(results))
 PY
 )"
@@ -230,6 +256,10 @@ ck "--out == --original"                     "true"  "$(get out_is_original)"
 ck "--out == --revised"                      "true"  "$(get out_is_revised)"
 ck "--out symlinks --original"               "true"  "$(get out_symlinks_original)"
 ck "--out hard-links --revised"              "true"  "$(get out_hardlinks_revised)"
+
+echo "==== a write to --out that dies half-way leaves nothing ===="
+ck "partial write left a file in --out's dir" "false" "$(get partial_write_left_out)"
+ck "container empty after a partial write"   "true"  "$(get container_empty_after_partial)"
 
 echo "==== no container: fall back beside --out, still clean ===="
 ck "fallback produced --out"                 "true"  "$(get fallback_kept_the_file)"
