@@ -18,6 +18,7 @@ A 7-probe checklist (AO1–AO7, with AO0 as a gate) for medical-AI/ML primary st
 **AO1 — Generalizability claimed from limited external validation**:
 - Does the Abstract/Conclusion assert the model "generalizes," is "transferable/robust across settings," or is suitable for broad populations, while external validation is a single site / single scanner-vendor / single source (or absent)?
 - Sub-check: is the external set demographically narrow (single ethnicity, single sex-dominant, narrow age) relative to the population the claim names?
+- Sub-check (the negative direction): a conclusion that AI falls short or that human review remains necessary is a generalization too — it reaches only the model, version and configuration that were evaluated. Check that Methods report them with the reason they were chosen and that the conclusion is limited to that configuration; do not ask the authors to prove it was the best system available. Severity as below.
 - If the generalizability claim outruns the external evidence → recommend softening to the evidence ("validated at one external site") and moving multi-setting generalizability to a stated limitation + next step. MAJOR candidate when it is a headline claim; MINOR when it is a single qualifier in the Discussion.
 
 **AO2 — Superiority language against overlapping or under-powered comparison**:

@@ -118,6 +118,11 @@ and 2 (fixed 2026-09-30).
 - **Items 29 and 30 are commonly dropped** — where the protocol can be accessed, and funding with the
   role of funders.
 - **Item 2** defers to STARD for Abstracts for the abstract's own requirements.
+- **Reference standard by follow-up.** When the reference standard is established by clinical or
+  imaging follow-up, its minimum follow-up duration is part of the reference-standard description
+  (item 10b), a different quantity from the item-22 interval between index test and reference
+  standard. A table footnote that blends when the index measurement was taken with the follow-up
+  that confirmed the diagnosis invites misreading; ask for the two to be stated separately.
 - For a systematic review of diagnostic accuracy studies use `PRISMA_DTA.md`; for risk of bias in the
   included studies, `QUADAS2.md`.
 

@@ -697,7 +697,8 @@ In suggested fixes and in any text drafted in Phase 4:
 **Conciseness**: each comment says what a reviewer would raise, where, and the fix: a Major in a
 few lines, a Minor in a sentence or two, an Editorial-Impression Risk in one sentence. List every
 Major the gates and the review produced (each P0 gate row is its own Major); never merge or drop
-one to fit a count. Strengths: the few worth repeating in the cover letter.
+one to fit a count. Strengths: the few worth repeating in the cover letter — never a sentence that
+pre-empts an objection (anticipated objections go to the response-letter bank; see §L).
 
 ### Phase 3b: R0 Numbering (Optional)
 
