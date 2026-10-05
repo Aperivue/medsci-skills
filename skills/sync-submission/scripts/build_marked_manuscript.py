@@ -15,11 +15,17 @@ attributed correctly at source — no post-hoc rewriting of `w:author`.
 
 Two traps that defeat naive automation, both handled here:
 
-  1. SANDBOX. `save as` to a *new* path makes Word raise a modal "Grant File
-     Access" sheet, and AppleScript then blocks until a human dismisses it — the
-     script appears to hang. Avoided by seeding the destination with a copy of
-     the original, letting Word OPEN that file (Word may always write a file it
-     opened itself), comparing in place, and calling a plain `save`.
+  1. SANDBOX. Word for Mac is sandboxed. Touching a file it was never granted
+     makes it raise a modal "Grant File Access" sheet, and AppleScript then
+     blocks until a human dismisses it — the script appears to hang, then fails
+     with an AppleEvent timeout. Writing a new path triggers it, and so does
+     READING one: `compare ... path` hands Word the revised manuscript as a bare
+     path it never opened. Seeding the destination with a copy of the original
+     (an earlier version of this script) cured only the write. Both files are
+     therefore copied into a private folder inside Word's own container, which
+     Word may always read and write, compared there, and the result moved to
+     --out. The folder holds manuscript copies, so it is removed whether the run
+     succeeds or fails.
 
   2. OTHER DOCUMENTS. The user may have unrelated documents open in Word. Only
      the document this script opened is closed, by name.
@@ -38,11 +44,16 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import zipfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from check_marked_manuscript import check  # noqa: E402
+
+# Word's sandbox container. Anything under it is Word's own and never prompts. It exists once Word
+# has been launched; when it does not, staging falls back to --out's folder (and may prompt).
+WORD_DOCUMENTS = Path.home() / "Library/Containers/com.microsoft.Word/Data/Documents"
 
 APPLESCRIPT = """
 with timeout of {timeout} seconds
@@ -76,46 +87,79 @@ def run_compare(original: Path, revised: Path, out: Path, author: str, timeout: 
             "then verify it anywhere with check_marked_manuscript.py."
         )
 
-    # Seed the destination with the original so Word opens — and may therefore write — it.
-    #
-    # That seeding is why every failure below must delete `out`. A Compare that dies leaves this
-    # copy behind: a plausible .docx of plausible size, carrying zero tracked changes, sitting at
-    # exactly the path the user asked the marked manuscript to be written to. Observed on an AJNR
-    # major revision, where a near-total rewrite blew past the old 180-second default and the
-    # AppleEvent failed -1712 — the run reported the failure, but the file it left was
-    # indistinguishable by inspection from a marked manuscript with nothing to mark.
-    shutil.copyfile(original, out)
+    # Nothing may sit at --out unless this run produced it. A Compare that dies must not leave a
+    # plausible .docx at exactly the path the user asked the marked manuscript to be written to:
+    # observed on an AJNR major revision, where an earlier version of this script seeded --out
+    # with the original, the AppleEvent failed -1712, and the copy it left carried zero tracked
+    # changes yet was indistinguishable by inspection from a marked manuscript with nothing to
+    # mark. A file left by an earlier run is no better, so it goes before Word starts.
+    out.unlink(missing_ok=True)
+
+    if WORD_DOCUMENTS.is_dir():
+        staging = Path(tempfile.mkdtemp(prefix="medsci-marked-", dir=WORD_DOCUMENTS))
+        sandboxed = True
+    else:
+        print(
+            f"WARN: Word's sandbox container was not found ({WORD_DOCUMENTS}); comparing next to "
+            f"--out instead. Word may ask for file access — if it does, the run will wait.",
+            file=sys.stderr,
+        )
+        staging = Path(tempfile.mkdtemp(prefix=".medsci-marked-", dir=out.parent))
+        sandboxed = False
+
+    # Unique names: Word may still hold a same-named document from an earlier, failed run.
+    token = staging.name.rsplit("-", 1)[-1]
+    seed = staging / f"marked_{token}.docx"
+    staged_revised = staging / f"revised_{token}.docx"
 
     def _abandon(message: str) -> "SystemExit":
         out.unlink(missing_ok=True)
-        return SystemExit(message)
+        return SystemExit(
+            f"{message}\nWord may still have {seed.name} open, possibly behind a dialog: cancel "
+            f"the dialog and close the document without saving. Nothing was written to {out.name}."
+        )
 
-    script = APPLESCRIPT.format(
-        timeout=timeout,
-        out=_as_literal(str(out)),
-        revised=_as_literal(str(revised)),
-        author=_as_literal(author),
-    )
     try:
-        p = subprocess.run(
-            ["osascript", "-e", script], capture_output=True, text=True, timeout=timeout + 30
+        # Word opens the seed and saves the comparison into it — it may always write a file it
+        # opened itself — and reads the revised copy beside it.
+        shutil.copyfile(original, seed)
+        shutil.copyfile(revised, staged_revised)
+        script = APPLESCRIPT.format(
+            timeout=timeout,
+            out=_as_literal(str(seed)),
+            revised=_as_literal(str(staged_revised)),
+            author=_as_literal(author),
         )
-    except subprocess.TimeoutExpired:
-        raise _abandon(
-            "Word did not respond. It is most likely showing a modal sheet — check for a "
-            '"Grant File Access" dialog and dismiss it, then re-run. '
-            f"({out.name} was removed; it held no comparison.)"
-        )
-    if p.returncode != 0:
-        err = p.stderr.strip()
-        hint = ""
-        if "-1712" in err or "timed out" in err.lower():
-            hint = (
-                f"\nThat is the AppleEvent timeout: Compare needed longer than --timeout "
-                f"({timeout}s). A whole-manuscript revision routinely does. Re-run with a "
-                f"larger --timeout."
+        try:
+            p = subprocess.run(
+                ["osascript", "-e", script], capture_output=True, text=True, timeout=timeout + 30
             )
-        raise _abandon(f"Word Compare failed: {err}{hint}\n({out.name} was removed.)")
+        except subprocess.TimeoutExpired:
+            raise _abandon("Word did not respond, and osascript itself had to be stopped.")
+        if p.returncode != 0:
+            err = p.stderr.strip()
+            hint = ""
+            if "-1712" in err or "timed out" in err.lower():
+                # From here a waiting dialog and a slow comparison are the same failure, so name
+                # both. Before staging, a 300-second run that was only ever waiting on a "Grant
+                # File Access" sheet was told to raise --timeout.
+                dialog = (
+                    'a "Grant File Access" sheet, since the files could not be staged inside '
+                    "Word's container"
+                    if not sandboxed
+                    else "a document-recovery, file-conversion or other prompt"
+                )
+                hint = (
+                    f"\nThat is the AppleEvent timeout: Word did not finish within --timeout "
+                    f"({timeout}s). Look at Word before re-running. If it is showing a dialog — "
+                    f"{dialog} — that is what it was waiting on, and a longer --timeout will not "
+                    f"help. If it is not, Compare needed longer: a whole-manuscript revision "
+                    f"routinely does, so re-run with a larger --timeout."
+                )
+            raise _abandon(f"Word Compare failed: {err}{hint}")
+        shutil.move(str(seed), str(out))
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
 
 
 def inject_line_numbers(path: Path) -> None:
