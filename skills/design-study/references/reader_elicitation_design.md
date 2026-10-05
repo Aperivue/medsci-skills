@@ -96,9 +96,9 @@ of the journal you actually want):
    for a conditional reader-and-case estimand, a mixed model with crossed reader and case random
    effects (a GLMM for a binary outcome) is the natural primary analysis. A GEE (or a marginalized
    mixed model) estimates a population-average quantity — the primary model when that is the
-   pre-specified estimand. With a non-linear link (e.g. logit) that quantity differs from the
-   conditional one, so a GEE used as a robustness check is reported as a different quantity; with an
-   identity link the two coincide. Either way the variance must handle reader AND case dependence —
+   pre-specified estimand. Whether it matches the conditional effect depends on the link and the
+   random-effects structure, so a GEE used as a robustness check states which quantity it estimates
+   rather than assuming agreement. Either way the variance must handle reader AND case dependence —
    clustering on reader alone ignores the cases every reader shares.
    Fix the estimand weights at design, and record the reason if the model changes.
 6. **Novelty positioning vs scoop, and venue-fit.** Scan for close prior work at design time; if a
