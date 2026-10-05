@@ -91,7 +91,13 @@ of the journal you actually want):
    where feasible.
 5. **Estimand and power (generalize, don't condition).** Power the reader-AND-case generalization as
    the **primary** estimand from the start, so the two-way interval — not a pool-conditional number —
-   supports the headline claim.
+   supports the headline claim. Fix the analysis model at the same time, once the outcome type, link,
+   reader/case sampling, estimand (conditional or population-average) and any weights are defined:
+   for a conditional reader-and-case estimand, a mixed model with crossed reader and case random
+   effects (a GLMM for a binary outcome) is the natural primary analysis. A GEE estimates a
+   population-average quantity: the primary model when that is the pre-specified estimand,
+   otherwise a robustness check reported as that different quantity.
+   Fix the estimand weights at design, and record the reason if the model changes.
 6. **Novelty positioning vs scoop, and venue-fit.** Scan for close prior work at design time; if a
    flagship precedent exists, make the differentiation categorical (new modality class, clinical
    spectrum, outcome linkage), not incremental; pick the venue whose audience values the likely
