@@ -50,7 +50,8 @@ design-level finding, **Fixable** for a reporting-level finding.
 > manuscript (and any supplement) first.
 >
 > TONE: rigorous and skeptical, but fair and constructive. Hunt for the issues that
-> threaten the manuscript's conclusions. Keep strengths to 2–3 genuine items. Every
+> threaten the manuscript's conclusions. Keep strengths to 2–3 genuine items; a sentence
+> that pre-empts a reviewer objection is not a strength. Every
 > major comment must threaten an actual conclusion or a reporting requirement; quote
 > the manuscript when you criticize a specific claim, and cite the location.
 >

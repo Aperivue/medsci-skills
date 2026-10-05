@@ -838,8 +838,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/STARD.md",
-      "size": 6039,
-      "sha256": "c3b6447b618e43454a2f5a67fe54f3b0dccf1b56fd6feb040a57cedb0136688e"
+      "size": 6517,
+      "sha256": "b4f14c03f20d1155a6b912a26bf851f6c371f3d1c125a95527e17456c721f20d"
     },
     {
       "path": "skills/check-reporting/references/checklists/STARD_AI.md",
@@ -3898,8 +3898,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 49033,
-      "sha256": "fd7e45823f57250db71bda59ec464c95cbc134fe48eaf18c440fdb54dea5e874"
+      "size": 49290,
+      "sha256": "cddc6a8b6a4b7e73c94de9bfd038526530e763e8034ffac0331efdb47849f8c1"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3908,8 +3908,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/ai_overclaiming.md",
-      "size": 15410,
-      "sha256": "72e247c1ab3037925685adb519fcdd77471cf40c594b1748d72fec9541d8d74e"
+      "size": 15829,
+      "sha256": "fc7ec96f3976af91eb99877f6beb417d497652fe6ea68dd7a37a5656b10b99fe"
     },
     {
       "path": "skills/peer-review/references/domain-probes/case_report.md",
@@ -4948,13 +4948,13 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 48186,
-      "sha256": "52d153796a7266e411b5944a3ab671852dbc15cb46b991ff6b60e5b788f82b48"
+      "size": 48300,
+      "sha256": "dca8eb084221f023c28c641434699f4877eae2ef76d4bde526a5f1ac796fc0f7"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
-      "size": 15410,
-      "sha256": "72e247c1ab3037925685adb519fcdd77471cf40c594b1748d72fec9541d8d74e"
+      "size": 15829,
+      "sha256": "fc7ec96f3976af91eb99877f6beb417d497652fe6ea68dd7a37a5656b10b99fe"
     },
     {
       "path": "skills/self-review/references/domain-probes/case_report.md",
@@ -5118,8 +5118,8 @@
     },
     {
       "path": "skills/self-review/references/panel_review_template.md",
-      "size": 16949,
-      "sha256": "8cb34e24a3e94c658ba59565fb413c137f005ab282a870edbb15e37bd43e9b9a"
+      "size": 17017,
+      "sha256": "9e497c30604cc738ef189e41b813ad1d36214e42b1ce542f3969a4ac06790974"
     },
     {
       "path": "skills/self-review/references/phases/confounding_completeness.md",
@@ -5163,8 +5163,8 @@
     },
     {
       "path": "skills/self-review/references/phases/phase2_systematic_check.md",
-      "size": 19226,
-      "sha256": "088d9c5fe63390eb1756392c8531f2b6e47f8afb5e2fed0ef288e813f761764f"
+      "size": 20027,
+      "sha256": "9f663dea4aacca35b095b96d94ed479e3c4fdc40fb9dee6b9a59a8481b4b12b8"
     },
     {
       "path": "skills/self-review/references/phases/phase3c_json_output.md",
