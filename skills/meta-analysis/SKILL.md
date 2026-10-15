@@ -61,6 +61,11 @@ target journals are English-language.
 7. **PROSPERO registration document**: read `${CLAUDE_SKILL_DIR}/references/PROSPERO_template.md`
    and follow its field guide, word limits, output format (Markdown + DOCX via pandoc), and Common
    Pitfalls Checklist. Save to the project's `7_Submission/` or equivalent directory.
+   - **Submit before the formal search, and record the date.** The user submits the registration;
+     record the initial submission date (not the later date the record is published) in the
+     project's status file (`STATUS.md`, `project_state.json` or `project.yaml`, whichever the
+     project keeps). The Phase 2 entry check looks for it. A pilot search is fine before
+     submission; the formal search, screening and extraction, AI first-pass drafts included, are not.
    - **Registration-ID format gate.** A PROSPERO ID is `CRD42` + 9 digits (14 characters total),
      e.g. `CRD42024500001`. Validate any ID that appears in the manuscript or registration doc with
      `grep -oE 'CRD42[0-9]+'` and assert a 14-character length / `^CRD42\d{9}$` — a 15-character ID
@@ -76,9 +81,17 @@ target journals are English-language.
 
 **Goal**: Develop and validate reproducible search strategies.
 
+**Entry check — registration before the formal search.** Look for the registration submission
+date recorded in Phase 1 step 7. If none is recorded, stop and ask the user to choose: submit the
+registration now and run the search after that date, or proceed without it, in which case Phase 8
+item 5 limits what the manuscript may claim. Record the choice. Screening or extraction done before
+submission, AI first-pass drafts included, cannot be made prospective afterwards. Under
+`/orchestrate --e2e` this stop is the `REGISTRATION_PENDING` halt; no autonomous default passes it.
+
 1. Build search blocks from the PIRD/PICO components and execute them per database with
    `/search-lit` (PubMed: MeSH + free text; Embase: Emtree + free text; further databases as the
-   protocol specifies).
+   protocol specifies). Searching only: selecting records and extracting results belong to
+   Phases 3–4, not to `/search-lit`'s own selection and deep-read steps.
 2. **Report per PRISMA-S** (Rethlefsen et al. 2021, PMID:33499930): one section per database with
    date of search, number of results, and any limits applied.
 3. **Merge and deduplicate** into a single spreadsheet: by DOI first, then PMID. Save raw counts
@@ -429,7 +442,12 @@ Re-read `references/empirical_lessons.md` before submission.
    | **16b** | Studies that look eligible but were excluded, cited individually with the reason | 25% |
    | Abstract **#3, #12** | Eligibility criteria and registration inside the structured abstract | 0/24 each |
 
-   If the PROSPERO ID is missing, flag it as a limitation but continue.
+   Word the registration from the initial submission date (not the record's later publication
+   date), never from a template: "prospectively registered" only when it predates the start of
+   screening; "registered retrospectively" when screening or extraction had already begun; "This
+   review was not registered" when there is no record (an explicit statement satisfies 24a). Name the registry actually used (PROSPERO, OSF Registries).
+   The same words go into every copy of the claim: abstract, Methods, cover letter, and the
+   portal's ethics and registration fields.
 
 6. **Data availability statement**: name what is being shared (extraction template, locked
    dataset, analysis code, RoB judgments) and where — repository, DOI, or supplementary file.
