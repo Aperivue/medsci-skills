@@ -44,14 +44,18 @@ Conclusion: [Main finding, certainty of evidence]
 2. **Knowledge gap:** What do existing studies show, and why is a synthesis needed? (Reference 2–4 key studies or previous meta-analyses)
 3. **Objective:** State the PICO question explicitly.
    - "The purpose of this systematic review and meta-analysis was to evaluate the diagnostic accuracy of [index test] for [condition] in [population]."
-4. **PROSPERO registration:** "This review was prospectively registered with PROSPERO (CRD[number])."
+4. **Registration:** pick the sentence the initial submission date supports, never by default. `[registry (ID)]` is the registry actually used, e.g. PROSPERO (CRD[number]) or OSF Registries ([DOI]).
+   - submitted before screening began: "This review was prospectively registered with [registry (ID)]."
+   - submitted after screening or extraction had begun: "This review was registered retrospectively with [registry (ID)]."
+   - no registration: "This review was not registered."
+   Check the submission date (not the later publication date of the record) against the earliest screening or extraction file, AI first-pass drafts included. The same sentence goes into the abstract, cover letter and portal registration fields.
 
 ---
 
 ## Methods (1200–1800 words)
 
 ### 2.1 Protocol and Registration
-State PROSPERO number. Confirm adherence to PRISMA 2020.
+State the registry and identifier, worded as in Introduction item 4. Confirm adherence to PRISMA 2020.
 
 ### 2.2 Search Strategy
 List all databases with dates. Provide full search string for at least one database (or supplementary). Include grey literature (ClinicalTrials.gov, conference abstracts if applicable).

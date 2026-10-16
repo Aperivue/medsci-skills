@@ -59,11 +59,15 @@ as a supplement or accompanying document:
 
 ### 5. Retrospective registration disclosure
 
-If any evidence suggests the registration was filed after data extraction began
-(registration date later than the reported extraction start, or the registry record's
-"current stage" indicates post-extraction filing), Methods must contain a disclosure
-paragraph. The absence of such disclosure in a retrospective-registered review is a
-`[REGISTRATION-TIMING]` finding.
+Compare the registry's initial submission date, not the later date the record was published.
+If any evidence suggests the registration was submitted after screening or data extraction
+began (submission date later than the reported screening or extraction start, or the
+registry record's "current stage" indicates post-extraction filing), Methods must say the
+review was "registered retrospectively" (details may go to the supplement). The absence of
+such disclosure in a retrospective-registered review is a `[REGISTRATION-TIMING]` finding.
+So is "prospectively registered" when the submission postdates the start of screening, in any
+copy of the claim: abstract, cover letter, and portal paste text for ethics or registration fields,
+which this audit does not otherwise see.
 
 ## Flagging Rules
 
