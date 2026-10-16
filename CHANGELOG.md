@@ -24,9 +24,47 @@
     `/publish-skill`, `/model-scaffold`, `/define-variables`, `/fill-protocol`, `/present-paper`,
     `/obsidian-paper-vault`) had fixes to script paths that failed from a project directory, to
     stale years and frontmatter field names, and to rules that contradicted a sibling skill.
+- **`/sync-submission` marked-manuscript build no longer stops at Word's file-access prompt** (#684).
+  Word for Mac is sandboxed and was handed the revised manuscript as a path it had never opened, so
+  Compare waited on a Grant File Access dialog until it timed out, and the error then advised a
+  longer `--timeout`. Both inputs are now copied into a private folder inside Word's container,
+  compared there and moved to `--out`. The folder is removed on success and on failure, and an
+  `--out` that is one of the inputs is refused before anything is deleted.
+- **PROSPERO eligibility rule** (#688). `meta-analysis/references/PROSPERO_template.md` stated an
+  outdated rule (registration allowed until extraction is completed) and called it defensible to
+  mark extraction "Not started" after a protocol change. It now quotes the current form: a review
+  that has started data extraction at initial submission is not eligible, and an incorrect status
+  is grounds for retracting the record.
+- **`/write-paper` 7.1 gate row** said that an AI disclosure in the body halts. The 7.1 call passes
+  neither `--profile` nor `--disclosure-placement`, so `check_classical_style.py` reports it as a
+  Minor and does not halt; the row now says so. A § section cross-reference still halts.
 
 ### Changed
 
+- **Register before the search, and word the claim from the dates** (#688). `/meta-analysis` records
+  the registration's initial submission date in Phase 1 and, when none is recorded, stops at the
+  start of Phase 2 and asks before the formal search. An AI first-pass screen or extraction draft
+  counts as screening or extraction. Under `/orchestrate --e2e` this is a `REGISTRATION_PENDING`
+  halt, a second interrupt besides PHI, released by a recorded submission date or by the user's
+  recorded choice to proceed without one. The meta-analysis chain now starts at `/meta-analysis`
+  instead of running `/search-lit`, which selects papers and extracts results, ahead of it. The
+  write-paper templates choose "prospectively registered" (submitted before screening began),
+  "registered retrospectively" or "not registered" from the dates instead of defaulting to
+  "prospectively". P16 and `/check-reporting` step 4c compare the initial submission date and check
+  every copy of the claim, including portal paste text. `REGISTRATION_CHRONOLOGY` in
+  `check_claim_artifact.py` is unchanged and still compares the search end date.
+- **Writing guidance drawn from co-author edits** (#685). `/revise`: unify terminology from a
+  one-page term table before editing sentences, and after compressing a response letter, check its
+  evidence item by item. `/revise` and `/write-paper`: words left under a journal cap are not a
+  target. `/write-paper`: a general-purpose method validated on one task leads with the method.
+  `/design-study`: fix the reader-study analysis model at design (a crossed mixed model for a
+  conditional estimand, GEE or a marginalized model for a population-average one). Guidance only.
+- **Reviewer guidance drawn from co-author edits** (#686). `/self-review`: a sentence that
+  pre-empts an objection is not a strength, and pre-emptive defence and revision history in the body
+  are raised. AO1 (`/peer-review`, synced to `/self-review`): "AI falls short" reaches only the
+  evaluated model, version and configuration. `/peer-review` Phase 6 reconciles a finding inventory
+  so a shortening pass cannot drop a verified finding. `/check-reporting` STARD notes separate the
+  item 10b follow-up duration from the item 22 interval. Guidance only.
 - **Unused code removed** (#681). A one-off `ruff check --select F` over the shipped Python found
   39 unused imports, unused variables and placeholder-free f-strings, none of them a bug. They are
   removed with no behaviour change. No lint step is added to CI.
@@ -41,6 +79,9 @@
 
 - `/mllm-eval` Known limits now say that manifest mode does not check that a declared metric suits
   the task (#682).
+- `CLAUDE.md`: a cloud session reviews the final diff blind before merging.
+- This file: an `## [Unreleased]` heading left inside the 5.25.0 section is removed. The entries
+  under it, from Demo 5 on, shipped in 5.25.0.
 
 ## [6.1.0] - 2026-10-04
 
@@ -1850,8 +1891,6 @@ This happened in two ways. First, lower-case letter-bearing IDs and postcodes we
 
   The lock is rebuilt and the loop now covers **all five demos**. Verified in both directions:
   every demo verifies clean, and perturbing one byte of a locked file makes the gate fail.
-
-## [Unreleased]
 
 ### Added
 
