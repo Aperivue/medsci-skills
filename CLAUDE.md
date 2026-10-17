@@ -59,7 +59,7 @@ When a pull request mixes the two, it is the second kind.
 ## Working from a cloud session
 
 A cloud session sees this repository and nothing else. The maintainer's own Claude rules, skills
-and memory are on their machine, and so are their manuscript and project folders. Four of those
+and memory are on their machine, and so are their manuscript and project folders. Five of those
 local rules matter here, so they are restated.
 
 **Talk to the maintainer in Korean.** What lands in the repository stays in English: code,
@@ -82,6 +82,14 @@ changing direction (positioning, target, distribution channel), or touching thre
 or skills in one batch, stop and brief the maintainer in plain Korean: what it costs, what it could
 hide, and which real failure it answers. Bug fixes, corrections of a typo or a stated fact, and
 mechanical steps of a plan the maintainer already approved go ahead without this.
+
+**Review the final diff blind.** Before a pull request is merged, hand its final diff to a reviewer
+that did not write it: a different model family if one is available, otherwise a fresh agent, and
+then say that the review is not independent. Give it the diff, one line of intent per change, and
+the paths it must not open (`_corpus/`). Do not give it your checklist, earlier findings or a note
+that something was fixed. A review steered by a checklist finds what the checklist names; on
+2026-10-05 a blind pass found two defects that a checklist-guided review had passed. Fix what it
+finds, and say in the pull request how many rounds ran.
 
 **Do not reconstruct missing local context.** If a task depends on a manuscript, a project folder,
 a reviewer's comment or anything else that is not in this repository, say that it is missing and
