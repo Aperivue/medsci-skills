@@ -24,7 +24,7 @@ check() { local label="$1"; shift
 }
 
 [[ -f "$SCRIPT" ]] || { echo "ENV-ERR: deidentify.py missing" >&2; exit 2; }
-for fx in test_phi_korean test_clean test_edge_cases test_phi_italian; do
+for fx in test_phi_korean test_clean test_edge_cases test_phi_italian test_phi_spanish; do
     [[ -f "$HERE/$fx.csv" ]] || { echo "ENV-ERR: fixture $fx.csv missing" >&2; exit 2; }
 done
 
@@ -90,6 +90,52 @@ with open('$HERE/test_phi_italian.csv', encoding='utf-8') as f:
 cl={x['column']: x['classification'] for x in d['classifications']}
 for i in (5, 6):
     assert cl.get(hdr[i])=='SAFE', (i, hdr[i], cl.get(hdr[i]))"
+
+# --- Fixture 5: Spanish PHI (15 columns) -> PHI=13, REVIEW_NEEDED=0, SAFE=2 ---
+# Covers the review follow-ups: split surnames (primer/segundo_apellido),
+# accented column names (teléfono), abbreviated address keywords
+# (C/, Avda., Pza., Ctra.), health-card IDs (cip, nhc, nuss), and IBAN ES.
+# Every DNI/NIE carries a wrong check letter and every IBAN a wrong check
+# number. The fixture's columns all have dictionary names, so it does not
+# exercise the value patterns; the es probes further down do.
+python3 "$SCRIPT" scan "$HERE/test_phi_spanish.csv" --locale es -o "$OUTDIR" >/dev/null 2>&1
+ES_REPORT="$OUTDIR/scan_report.json"
+check "spanish fixture: report written"      test -s "$ES_REPORT"
+check "spanish fixture: PHI == 13"            test "$(count "$ES_REPORT" PHI)"           -eq 13
+check "spanish fixture: REVIEW_NEEDED == 0"   test "$(count "$ES_REPORT" REVIEW_NEEDED)" -eq 0
+check "spanish fixture: SAFE == 2"            test "$(count "$ES_REPORT" SAFE)"          -eq 2
+
+# Per-column contract: every PHI column carries the expected phi_type.
+# The accented header (teléfono, position 9) is read positionally so this
+# shell file stays ASCII-only.
+check "spanish fixture: per-column phi types" python3 -c "
+import json,csv
+d=json.load(open('$ES_REPORT'))
+with open('$HERE/test_phi_spanish.csv', encoding='utf-8') as f:
+    hdr=next(csv.reader(f))
+cl={x['column']: (x['classification'], x.get('phi_type')) for x in d['classifications']}
+expected={
+ 'dni':('PHI','national_id'), 'primer_apellido':('PHI','name'),
+ 'segundo_apellido':('PHI','name'), 'cip':('PHI','national_id'),
+ 'nhc':('PHI','id'), 'nuss':('PHI','national_id'),
+ 'iban':('PHI','bank_account'), 'nombre':('PHI','name'),
+ 'telefono':('PHI','phone'), 'fecha_nacimiento':('PHI','date'),
+ 'direccion':('PHI','address'), 'direccion_abrev':('PHI','address'),
+}
+for col,(cls,pt) in expected.items():
+    assert cl.get(col)==(cls,pt), (col, cl.get(col))
+assert cl.get(hdr[9])==('PHI','phone'), (hdr[9], cl.get(hdr[9]))"
+
+# Header positions 13 (diagnostico) and 14 (valor) must be SAFE.
+check "spanish fixture: diagnostico + valor (cols 13,14) are SAFE" python3 -c "
+import json,csv
+d=json.load(open('$ES_REPORT'))
+with open('$HERE/test_phi_spanish.csv', encoding='utf-8') as f:
+    hdr=next(csv.reader(f))
+cl={x['column']: x['classification'] for x in d['classifications']}
+for i in (13, 14):
+    assert cl.get(hdr[i])=='SAFE', (i, hdr[i], cl.get(hdr[i]))"
+
 
 # --- Fixture 2: clean (no PHI) -> PHI == 0 (false-positive guard) ---
 python3 "$SCRIPT" scan "$HERE/test_clean.csv" --locale kr -o "$OUTDIR" >/dev/null 2>&1
@@ -613,6 +659,27 @@ check "dates: 3/15/24 under us is PHI/date"       probe us x  PHI/date 3/15/24 8
 check "dates: 03/15/2024 under kr is PHI/date"    probe kr x  PHI/date 03/15/2024 08/07/2019
 check "phone: kr 070 number is PHI/phone"         probe kr col7 PHI/phone 070-1234-5678 07098765432
 check "zip: us ZIP+4 is PHI/address"              probe us x  PHI/address 94110-1234 10001-0001
+# es value patterns, under a column name the dictionary does not know.
+# One spelling per check: a column is PHI once enough of its values match, so
+# mixing spellings in one check would let a broken pattern pass.
+check "es: DNI with a hyphen is PHI"                   probe es x PHI/national_id 12345678-A 87654321-B
+check "es: DNI with a space is PHI"                    probe es x PHI/national_id "12345678 A" "87654321 B"
+check "es: DNI with no separator is PHI"               probe es x PHI/national_id 12345678A 23456789f
+check "es: NIE with a space is PHI"                    probe es x PHI/national_id "X1234567 T" "Y7654321 B"
+check "es: NIE with no separator is PHI"               probe es x PHI/national_id X1234567T y7654321b
+check "es: IBAN grouped or compact is PHI"            probe es x PHI/bank_account "ES90 2100 0418 4502 0005 1332" ES9021000418450200051332
+check "es: lower-case IBAN is PHI"                     probe es x PHI/bank_account "es90 2100 0418 4502 0005 1332" es9021000418450200051332
+for ab in "C/" "Cl." "Avda." "Av." "Pza." "Ctra." "Pº" "P.º"; do
+  check "es: address abbreviated $ab is PHI"         probe es x PHI/address "$ab Mayor 1, Madrid" "$ab Serrano 45"
+done
+check "es: mobile numbers are PHI/phone"               probe es x PHI/phone "612 345 678" 655444333
+check "es: 0034-prefixed numbers are PHI/phone"        probe es x PHI/phone 0034612345678 "0034 655 444 333"
+check "es: accented record-number column is PHI/id"    probe es "historia_clínica" PHI/id HC0001 HC0002
+check "es: numero_historia column is PHI/id"           probe es numero_historia PHI/id HC0001 HC0002
+check "control: es lab values stay SAFE"               probe es valor SAFE/None 5.6 7.1 120
+# "tis" (tarjeta individual sanitaria) is not a column key: short keys match as a
+# substring of short column names, and "tis" sits inside every -itis diagnosis.
+check "control: es -itis diagnosis columns stay SAFE"  probe es hepatitis SAFE/None 0 1
 # Negative controls: these must stay SAFE.
 check "control: month names alone stay SAFE"      probe us month SAFE/None March May June
 check "control: words around a month stay SAFE"   probe us note SAFE/None "Seen in March" "may improve" "Summary 5 2020"

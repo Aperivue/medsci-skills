@@ -7,7 +7,7 @@ and column-name heuristics, walks the researcher through an interactive
 terminal review, then produces a de-identified copy with mapping and
 audit trail.
 
-Supports 11 country locales (kr, us, jp, cn, de, uk, fr, ca, au, in, it)
+Supports 12 country locales (kr, us, jp, cn, de, uk, fr, ca, au, in, it, es)
 with country-specific PHI patterns.  Custom locales via --locale-file.
 
 Usage:
@@ -220,6 +220,15 @@ def build_locale_patterns(locale: dict) -> tuple[
     nid_type = nid.get("phi_type", "national_id")
     for pat in nid.get("patterns", []):
         value_patterns.append((re.compile(pat, re.IGNORECASE), nid_type))
+
+    # IBAN (bank account numbers). Compiled case-insensitively: locale packs
+    # write letter classes in upper case, but IBANs are often exported in
+    # lower case, and a missed match classifies the column SAFE, so it is
+    # passed through un-stripped. A miss here is a leak, not a lost warning.
+    iban_cfg = locale.get("iban", {})
+    iban_type = iban_cfg.get("phi_type", "bank_account")
+    for pat in iban_cfg.get("patterns", []):
+        value_patterns.append((re.compile(pat, re.IGNORECASE), iban_type))
 
     # Phone
     for phone in locale.get("phone", []):
@@ -1455,7 +1464,7 @@ def main() -> None:
     def _add_locale_args(p: argparse.ArgumentParser) -> None:
         g = p.add_mutually_exclusive_group()
         g.add_argument("--locale", type=str, metavar="CODE",
-                       help="Country code (kr, us, jp, cn, de, uk, fr, ca, au, in, it). "
+                       help="Country code (kr, us, jp, cn, de, uk, fr, ca, au, in, it, es). "
                             "If omitted, interactive selection is shown.")
         g.add_argument("--locale-file", type=str, metavar="PATH",
                        help="Path to a custom locale JSON file")
