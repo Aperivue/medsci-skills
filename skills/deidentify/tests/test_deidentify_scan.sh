@@ -95,6 +95,8 @@ for i in (5, 6):
 # Covers the review follow-ups: split surnames (primer/segundo_apellido),
 # accented column names (teléfono), abbreviated address keywords
 # (C/, Avda., Pza., Ctra.), health-card IDs (cip, nhc, nuss), and IBAN ES.
+# Every DNI/NIE carries a wrong check letter and every IBAN a wrong check
+# number, so no row can be a real person's or a real account.
 python3 "$SCRIPT" scan "$HERE/test_phi_spanish.csv" --locale es -o "$OUTDIR" >/dev/null 2>&1
 ES_REPORT="$OUTDIR/scan_report.json"
 check "spanish fixture: report written"      test -s "$ES_REPORT"
