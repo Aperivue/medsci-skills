@@ -17,7 +17,10 @@
       "Avda.",
       "Pza.",
       "Ctra.",
-      "Pº"
+      "Pº",
+      "P.º",
+      "Av.",
+      "Cl."
     ],
     "min_ratio": 0.3,
     "type": "keywords"
@@ -65,8 +68,7 @@
     "tarjeta_sanitaria": "national_id",
     "telefono": "phone",
     "teléfono": "phone",
-    "teléfono_móvil": "phone",
-    "tis": "national_id"
+    "teléfono_móvil": "phone"
   },
   "date_formats": [
     {
@@ -110,6 +112,10 @@
     {
       "label": "Spanish phone +34",
       "pattern": "(?<!\\d)\\+34[\\s.\\-]?\\d(?:[\\s.\\-]?\\d){8}\\b"
+    },
+    {
+      "label": "Spanish phone 0034",
+      "pattern": "(?<!\\d)0034[\\s.\\-]?\\d(?:[\\s.\\-]?\\d){8}\\b"
     }
   ]
 }

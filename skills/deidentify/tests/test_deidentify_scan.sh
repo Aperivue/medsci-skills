@@ -669,11 +669,17 @@ check "es: NIE with a space is PHI"                    probe es x PHI/national_i
 check "es: NIE with no separator is PHI"               probe es x PHI/national_id X1234567T y7654321b
 check "es: IBAN grouped or compact is PHI"            probe es x PHI/bank_account "ES90 2100 0418 4502 0005 1332" ES9021000418450200051332
 check "es: lower-case IBAN is PHI"                     probe es x PHI/bank_account "es90 2100 0418 4502 0005 1332" es9021000418450200051332
-check "es: abbreviated street addresses are PHI"       probe es x PHI/address "C/ Serrano 45, Madrid" "Avda. del Mar 3" "Pza. Mayor 1" "Ctra. N-340 km 5"
+for ab in "C/" "Cl." "Avda." "Av." "Pza." "Ctra." "Pº" "P.º"; do
+  check "es: address abbreviated $ab is PHI"         probe es x PHI/address "$ab Mayor 1, Madrid" "$ab Serrano 45"
+done
 check "es: mobile numbers are PHI/phone"               probe es x PHI/phone "612 345 678" 655444333
+check "es: 0034-prefixed numbers are PHI/phone"        probe es x PHI/phone 0034612345678 "0034 655 444 333"
 check "es: accented record-number column is PHI/id"    probe es "historia_clínica" PHI/id HC0001 HC0002
 check "es: numero_historia column is PHI/id"           probe es numero_historia PHI/id HC0001 HC0002
 check "control: es lab values stay SAFE"               probe es valor SAFE/None 5.6 7.1 120
+# "tis" (tarjeta individual sanitaria) is not a column key: short keys match as a
+# substring of short column names, and "tis" sits inside every -itis diagnosis.
+check "control: es -itis diagnosis columns stay SAFE"  probe es hepatitis SAFE/None 0 1
 # Negative controls: these must stay SAFE.
 check "control: month names alone stay SAFE"      probe us month SAFE/None March May June
 check "control: words around a month stay SAFE"   probe us note SAFE/None "Seen in March" "may improve" "Summary 5 2020"
