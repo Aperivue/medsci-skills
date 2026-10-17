@@ -96,7 +96,8 @@ for i in (5, 6):
 # accented column names (teléfono), abbreviated address keywords
 # (C/, Avda., Pza., Ctra.), health-card IDs (cip, nhc, nuss), and IBAN ES.
 # Every DNI/NIE carries a wrong check letter and every IBAN a wrong check
-# number, so no row can be a real person's or a real account.
+# number. The fixture's columns all have dictionary names, so it does not
+# exercise the value patterns; the es probes further down do.
 python3 "$SCRIPT" scan "$HERE/test_phi_spanish.csv" --locale es -o "$OUTDIR" >/dev/null 2>&1
 ES_REPORT="$OUTDIR/scan_report.json"
 check "spanish fixture: report written"      test -s "$ES_REPORT"
@@ -658,6 +659,21 @@ check "dates: 3/15/24 under us is PHI/date"       probe us x  PHI/date 3/15/24 8
 check "dates: 03/15/2024 under kr is PHI/date"    probe kr x  PHI/date 03/15/2024 08/07/2019
 check "phone: kr 070 number is PHI/phone"         probe kr col7 PHI/phone 070-1234-5678 07098765432
 check "zip: us ZIP+4 is PHI/address"              probe us x  PHI/address 94110-1234 10001-0001
+# es value patterns, under a column name the dictionary does not know.
+# One spelling per check: a column is PHI once enough of its values match, so
+# mixing spellings in one check would let a broken pattern pass.
+check "es: DNI with a hyphen is PHI"                   probe es x PHI/national_id 12345678-A 87654321-B
+check "es: DNI with a space is PHI"                    probe es x PHI/national_id "12345678 A" "87654321 B"
+check "es: DNI with no separator is PHI"               probe es x PHI/national_id 12345678A 23456789f
+check "es: NIE with a space is PHI"                    probe es x PHI/national_id "X1234567 T" "Y7654321 B"
+check "es: NIE with no separator is PHI"               probe es x PHI/national_id X1234567T y7654321b
+check "es: IBAN grouped or compact is PHI"            probe es x PHI/bank_account "ES90 2100 0418 4502 0005 1332" ES9021000418450200051332
+check "es: lower-case IBAN is PHI"                     probe es x PHI/bank_account "es90 2100 0418 4502 0005 1332" es9021000418450200051332
+check "es: abbreviated street addresses are PHI"       probe es x PHI/address "C/ Serrano 45, Madrid" "Avda. del Mar 3" "Pza. Mayor 1" "Ctra. N-340 km 5"
+check "es: mobile numbers are PHI/phone"               probe es x PHI/phone "612 345 678" 655444333
+check "es: accented record-number column is PHI/id"    probe es "historia_clínica" PHI/id HC0001 HC0002
+check "es: numero_historia column is PHI/id"           probe es numero_historia PHI/id HC0001 HC0002
+check "control: es lab values stay SAFE"               probe es valor SAFE/None 5.6 7.1 120
 # Negative controls: these must stay SAFE.
 check "control: month names alone stay SAFE"      probe us month SAFE/None March May June
 check "control: words around a month stay SAFE"   probe us note SAFE/None "Seen in March" "may improve" "Summary 5 2020"

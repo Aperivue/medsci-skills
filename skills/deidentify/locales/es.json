@@ -43,6 +43,7 @@
     "fecha_nacimiento": "date",
     "fijo": "phone",
     "historia_clinica": "id",
+    "historia_clínica": "id",
     "iban": "bank_account",
     "movil": "phone",
     "móvil": "phone",
@@ -52,6 +53,8 @@
     "nombre": "name",
     "nombre_completo": "name",
     "num_historia": "id",
+    "numero_historia": "id",
+    "numero_historia_clinica": "id",
     "nuss": "national_id",
     "número_historia": "id",
     "número_historia_clínica": "id",
@@ -85,8 +88,8 @@
   "national_id": {
     "label": "DNI / NIE (Documento Nacional de Identidad) + NUSS/NAF (Seguridad Social)",
     "patterns": [
-      "\\b\\d{8}-?[TRWAGMYFPDXBNJZSQVHLCKET]\\b",
-      "\\b[XYZ]-?\\d{7}-?[TRWAGMYFPDXBNJZSQVHLCKET]\\b",
+      "\\b\\d{8}[\\s-]?[TRWAGMYFPDXBNJZSQVHLCKET]\\b",
+      "\\b[XYZ][\\s-]?\\d{7}[\\s-]?[TRWAGMYFPDXBNJZSQVHLCKET]\\b",
       "\\b\\d{2}[\\s/.-]?\\d{7,8}[\\s/.-]?\\d{2}\\b"
     ],
     "phi_type": "national_id"

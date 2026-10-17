@@ -1088,8 +1088,8 @@
     },
     {
       "path": "skills/deidentify/locales/es.json",
-      "size": 2730,
-      "sha256": "35648e509ce148d0adf5aca416f862995c1aa99d017c20887d959bf53e94c1d7"
+      "size": 2842,
+      "sha256": "4d2e025abd4e696b1f78eea8c01937250cbf802ac90b4c72886853768d318eed"
     },
     {
       "path": "skills/deidentify/locales/fr.json",
