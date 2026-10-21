@@ -898,8 +898,8 @@
     },
     {
       "path": "skills/check-reporting/references/step4c_registration_timing.md",
-      "size": 4197,
-      "sha256": "e0e76c5fb061ac2df0b61048461124abfa16217ea72cd9eed41f83d372343310"
+      "size": 4605,
+      "sha256": "e4c9e6425a06095485c01f3295a12f1ae1680284ff848a90efbbd2bd9b6563e3"
     },
     {
       "path": "skills/check-reporting/references/step4d_prisma_figure_audit.md",
@@ -1053,13 +1053,13 @@
     },
     {
       "path": "skills/deidentify/SKILL.md",
-      "size": 13730,
-      "sha256": "689c838b85dbc5f6cd114e902b120671997881c4321fd99e866cc9280b3dd40a"
+      "size": 13802,
+      "sha256": "6e242ae5ebb380b98b6efe669307c95945b4808ef40bc9b129c032e8783635fc"
     },
     {
       "path": "skills/deidentify/deidentify.py",
-      "size": 61358,
-      "sha256": "3404e1d3d5683d1b613b035d185e3766510fa4aa0df810983d8561894a3feda3"
+      "size": 61884,
+      "sha256": "e92ab944f49d03e7f11aae0dd56bb95fd069c142b1f42689ec5c317cd44f3e59"
     },
     {
       "path": "skills/deidentify/locales/_template.json",
@@ -1085,6 +1085,11 @@
       "path": "skills/deidentify/locales/de.json",
       "size": 1506,
       "sha256": "e42fc9c0570054fcd0b9f17160542fd2bfcb980e3dc3771e71b166f540fab84a"
+    },
+    {
+      "path": "skills/deidentify/locales/es.json",
+      "size": 2974,
+      "sha256": "51e13917fc88dcdc551c0a755bce8e67490a906c3370e2224f60d08cc9e0065a"
     },
     {
       "path": "skills/deidentify/locales/fr.json",
@@ -1138,8 +1143,8 @@
     },
     {
       "path": "skills/deidentify/skill.yml",
-      "size": 1868,
-      "sha256": "108acd49aad21e02fa0ba0972694c7f1c287926b730e96fd31148a3285fdbcd4"
+      "size": 1872,
+      "sha256": "2ea2f2a8db11d1d375a941ef522ddaf3fc1e14c953da9f93dc53c1ff6c0791da"
     },
     {
       "path": "skills/design-ai-benchmarking/SKILL.md",
@@ -3013,8 +3018,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 35082,
-      "sha256": "ddf417f4a9d42a93525690e8f0cbc481eafb253034932360fabe99e55babadee"
+      "size": 36784,
+      "sha256": "d93ba5e580101185f31aa0b114428b570ba0294217c242ba4bb1b8569cafa2b9"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -3023,8 +3028,8 @@
     },
     {
       "path": "skills/meta-analysis/references/PROSPERO_template.md",
-      "size": 8667,
-      "sha256": "4535ba64c50e83f35366cc17068096d7f89c09bd81be51dc1745833e0b87da20"
+      "size": 9630,
+      "sha256": "0fe50ef54fa424f5e955ff0b0598fc7ce243d58ab0d16ce156c761fc4b200a04"
     },
     {
       "path": "skills/meta-analysis/references/ai_pre_screening_template.py",
@@ -3873,8 +3878,8 @@
     },
     {
       "path": "skills/orchestrate/SKILL.md",
-      "size": 32934,
-      "sha256": "da592551724b83f55a0d36bb9f9d9b9480a47dedfdf6997be8a9601d3f3ca5cc"
+      "size": 33601,
+      "sha256": "0dbfa8b0365ccf02f61430022d0063020799ccc81d65575e148296f19c4a7484"
     },
     {
       "path": "skills/orchestrate/references/data_flow_contract.md",
@@ -4013,8 +4018,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/sr_ma.md",
-      "size": 20113,
-      "sha256": "7ca10c8199d56eaddd649f8febd604a64ef1aa1b8cd911c68a865f6b39ff4b7c"
+      "size": 20878,
+      "sha256": "193cf17d3a95665f2a555601b7b3e757d06c55830d52f406ee6fc79f5c178984"
     },
     {
       "path": "skills/peer-review/references/domain-probes/survey_research.md",
@@ -5058,8 +5063,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/sr_ma.md",
-      "size": 20113,
-      "sha256": "7ca10c8199d56eaddd649f8febd604a64ef1aa1b8cd911c68a865f6b39ff4b7c"
+      "size": 20878,
+      "sha256": "193cf17d3a95665f2a555601b7b3e757d06c55830d52f406ee6fc79f5c178984"
     },
     {
       "path": "skills/self-review/references/domain-probes/survey_research.md",
@@ -6563,8 +6568,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 36087,
-      "sha256": "1296c97d48b5cc6919b0ef3dc94006036fb5895394f388db0d4f278971b786cf"
+      "size": 36198,
+      "sha256": "07dee8fece78d2026884d06e8fb4dded48d6f89b5bed305514e37955be072b94"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",
@@ -6633,8 +6638,8 @@
     },
     {
       "path": "skills/write-paper/references/exemplar_methods/meta_analysis_prisma.md",
-      "size": 4160,
-      "sha256": "a0e696e2f581fa6ae8b1aeb86ff7b9a5aaa6bdb2184fee4352e74d2ee6559d90"
+      "size": 4346,
+      "sha256": "72e4376a49cd021594f3b2767ba93ecdf9e904abbc1d9dea018379fd3481974f"
     },
     {
       "path": "skills/write-paper/references/exemplar_methods/observational_cohort_strobe.md",
@@ -7033,8 +7038,8 @@
     },
     {
       "path": "skills/write-paper/references/paper_types/meta_analysis.md",
-      "size": 10536,
-      "sha256": "2c237409005214baab63627966d8f2b31498e3c28bea34c571a6d5591a068ed8"
+      "size": 11207,
+      "sha256": "71ac5443dd74d105d79e718e4af7e94251a043d14845625d8a5808dad1bbd85f"
     },
     {
       "path": "skills/write-paper/references/paper_types/nhis_cohort.md",

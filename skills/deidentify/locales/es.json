@@ -1,0 +1,121 @@
+{
+  "address": {
+    "keywords": [
+      "Calle",
+      "Avenida",
+      "Plaza",
+      "Paseo",
+      "Carretera",
+      "Ronda",
+      "Travesía",
+      "Camino",
+      "Urbanización",
+      "Polígono",
+      "Glorieta",
+      "Vía",
+      "C/",
+      "Avda.",
+      "Pza.",
+      "Ctra.",
+      "Pº",
+      "P.º",
+      "Av.",
+      "Cl."
+    ],
+    "min_ratio": 0.3,
+    "type": "keywords"
+  },
+  "code": "es",
+  "column_names": {
+    "apellido": "name",
+    "apellidos": "name",
+    "cip": "national_id",
+    "codigo_postal": "address",
+    "correo": "email",
+    "correo_electronico": "email",
+    "cp": "address",
+    "cuenta": "bank_account",
+    "cuenta_bancaria": "bank_account",
+    "código_postal": "address",
+    "direccion": "address",
+    "dirección": "address",
+    "dni": "national_id",
+    "documento": "national_id",
+    "email": "email",
+    "fecha_nac": "date",
+    "fecha_nacimiento": "date",
+    "fijo": "phone",
+    "historia_clinica": "id",
+    "historia_clínica": "id",
+    "iban": "bank_account",
+    "movil": "phone",
+    "móvil": "phone",
+    "naf": "national_id",
+    "nhc": "id",
+    "nie": "national_id",
+    "nombre": "name",
+    "nombre_completo": "name",
+    "num_historia": "id",
+    "numero_historia": "id",
+    "numero_historia_clinica": "id",
+    "nuss": "national_id",
+    "número_historia": "id",
+    "número_historia_clínica": "id",
+    "paciente": "name",
+    "primer_apellido": "name",
+    "segundo_apellido": "name",
+    "seguridad_social": "national_id",
+    "tarjeta_sanitaria": "national_id",
+    "telefono": "phone",
+    "teléfono": "phone",
+    "teléfono_móvil": "phone"
+  },
+  "date_formats": [
+    {
+      "label": "Spanish date (DD/MM/YYYY)",
+      "pattern": "\\b(0?[1-9]|[12]\\d|3[01])/(0?[1-9]|1[0-2])/(19|20)\\d{2}\\b"
+    },
+    {
+      "label": "Spanish date (DD-MM-YYYY)",
+      "pattern": "\\b(0?[1-9]|[12]\\d|3[01])-(0?[1-9]|1[0-2])-(19|20)\\d{2}\\b"
+    }
+  ],
+  "name": "Spain",
+  "name_heuristic": {
+    "min_ratio": 0.3,
+    "only_in_name_columns": true,
+    "pattern": "",
+    "type": "none"
+  },
+  "national_id": {
+    "label": "DNI / NIE (Documento Nacional de Identidad) + NUSS/NAF (Seguridad Social)",
+    "patterns": [
+      "\\b\\d{8}[\\s-]?[TRWAGMYFPDXBNJZSQVHLCKET]\\b",
+      "\\b[XYZ][\\s-]?\\d{7}[\\s-]?[TRWAGMYFPDXBNJZSQVHLCKET]\\b",
+      "\\b\\d{2}[\\s/.-]?\\d{7,8}[\\s/.-]?\\d{2}\\b"
+    ],
+    "phi_type": "national_id"
+  },
+  "iban": {
+    "label": "IBAN (ES)",
+    "phi_type": "bank_account",
+    "patterns": [
+      "\\bES\\d{2}(?:[\\s.-]?\\d{4}){5}\\b"
+    ]
+  },
+  "native_name": "España",
+  "phone": [
+    {
+      "label": "Spanish mobile/landline",
+      "pattern": "\\b[6789]\\d{2}[\\s.\\-]?\\d{3}[\\s.\\-]?\\d{3}\\b"
+    },
+    {
+      "label": "Spanish phone +34",
+      "pattern": "(?<!\\d)\\+34[\\s.\\-]?\\d(?:[\\s.\\-]?\\d){8}\\b"
+    },
+    {
+      "label": "Spanish phone 0034",
+      "pattern": "(?<!\\d)0034[\\s.\\-]?\\d(?:[\\s.\\-]?\\d){8}\\b"
+    }
+  ]
+}
