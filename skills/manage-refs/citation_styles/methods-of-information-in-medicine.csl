@@ -33,8 +33,8 @@
       <name sort-separator=" " initialize-with="" name-as-sort-order="all" delimiter=", " delimiter-precedes-last="always"/>
       <label form="short" prefix=", " suffix="."/>
       <substitute>
-        <names variable="editor"><name/></names>
-        <names variable="translator"><name/></names>
+        <names variable="editor"/>
+        <names variable="translator"/>
       </substitute>
     </names>
   </macro>

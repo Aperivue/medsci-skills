@@ -78,14 +78,17 @@ with a different style:
 
 **Local `<name/>` addition — reapply after any refresh.** In `vancouver.csl`,
 `vancouver-superscript.csl`, `nlm-citation-sequence.csl`, `american-medical-association.csl`,
-`journal-of-korean-medical-science-strict.csl`, `liver-international.csl` and
-`methods-of-information-in-medicine.csl`, every `<names>` element
+`journal-of-korean-medical-science-strict.csl` and `liver-international.csl`, every `<names>` element
 that had no `<name>` child now starts with an empty `<name/>`. These styles set their name options
 (`initialize-with`, `name-as-sort-order`, et-al) on `<style>` / `<bibliography>` only, and pandoc
 3.1.3 did not apply them to a `<names>` without a `<name>`: references printed `Jong Hyun Kim, Su Min
 Lee` instead of `Kim JH, Lee SM`, and long author lists were not truncated. An empty `<name/>`
 inherits the same options under the CSL specification, so the style itself is unchanged. A refresh
 from upstream drops the line; `tests/test_csl_author_names.sh` fails until it is put back.
+The one-line `<names variable="…"/>` entries inside `<substitute>` are left as they are. That
+shorthand inherits the `<name>` of the `<names>` it sits in; an explicit `<name/>` there replaces it
+with defaults, and an edited book with no author then prints its editors given-name-first. A style
+whose author `<names>` already has a `<name>` child, as most do, needs no local edit.
 
 Check which files are safe to refresh (filename must equal the `<id>` slug):
 ```bash
