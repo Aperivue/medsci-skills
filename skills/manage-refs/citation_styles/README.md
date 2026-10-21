@@ -34,6 +34,7 @@ Source: https://github.com/citation-style-language/styles (zotero/styles).
 | `clinical-breast-cancer.csl` | Clinical Breast Cancer (Elsevier, AMA style) | Dependent on `american-medical-association.csl` (already bundled) |
 | `the-breast.csl` | The Breast (Elsevier) | Dependent on `elsevier-vancouver.csl` (must be in same dir) |
 | `elsevier-vancouver.csl` | Elsevier NLM/Vancouver citation-sequence house style | Independent. Parent of `the-breast.csl`; also a fallback for Elsevier journals that cite "Vancouver" |
+| `methods-of-information-in-medicine.csl` | Methods of Information in Medicine (MIM, Thieme) — flagship medical-informatics journal | Independent. Superscript numerals, abbreviated journal names, et-al after 6 (first 3 + et al), no DOI |
 
 ## Missing — use fallback
 
@@ -58,7 +59,8 @@ for s in european-radiology radiology american-journal-of-roentgenology \
          journal-of-clinical-oncology annals-of-oncology journal-of-breast-cancer \
          american-association-for-cancer-research clinical-cancer-research \
          the-lancet the-lancet-oncology breast-cancer-research-and-treatment \
-         clinical-breast-cancer the-breast elsevier-vancouver; do
+         clinical-breast-cancer the-breast elsevier-vancouver \
+         methods-of-information-in-medicine; do
   curl -fsSL -o "${s}.csl" "https://www.zotero.org/styles/${s}"
 done
 ```
@@ -76,7 +78,8 @@ with a different style:
 
 **Local `<name/>` addition — reapply after any refresh.** In `vancouver.csl`,
 `vancouver-superscript.csl`, `nlm-citation-sequence.csl`, `american-medical-association.csl`,
-`journal-of-korean-medical-science-strict.csl` and `liver-international.csl`, every `<names>` element
+`journal-of-korean-medical-science-strict.csl`, `liver-international.csl` and
+`methods-of-information-in-medicine.csl`, every `<names>` element
 that had no `<name>` child now starts with an empty `<name/>`. These styles set their name options
 (`initialize-with`, `name-as-sort-order`, et-al) on `<style>` / `<bibliography>` only, and pandoc
 3.1.3 did not apply them to a `<names>` without a `<name>`: references printed `Jong Hyun Kim, Su Min

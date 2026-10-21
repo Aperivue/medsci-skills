@@ -2773,8 +2773,8 @@
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
-      "size": 8053,
-      "sha256": "0abb577c2609907eec4db4f2f241ca47e46ac4fdfd5c75363fad7765af85ca57"
+      "size": 8382,
+      "sha256": "25bb72cfbc35037a989f9323cff3cc1d3416cc7f646d569739d8e950b3f30174"
     },
     {
       "path": "skills/manage-refs/citation_styles/american-association-for-cancer-research.csl",
@@ -2860,6 +2860,11 @@
       "path": "skills/manage-refs/citation_styles/liver-international.csl",
       "size": 18312,
       "sha256": "9f917b818e4500a476c32bcde874bc4a285f5214cfc9b8685a94a120e01d5768"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/methods-of-information-in-medicine.csl",
+      "size": 6807,
+      "sha256": "5f8810c64bc6d4932c5385b2253516b17fe8221ca9d23b9c5237f17151909961"
     },
     {
       "path": "skills/manage-refs/citation_styles/nature.csl",
