@@ -13,8 +13,8 @@
     },
     {
       "path": "THIRD-PARTY-NOTICES.md",
-      "size": 4231,
-      "sha256": "3c94545dc8cda634cca21aa2bf61c778f4d074fe227fb1d1585683fe1c209951"
+      "size": 4272,
+      "sha256": "daa9dae2d6a046ea10049b1b3515b43cf7b9fc94338dea8c21412a85e62e0c04"
     },
     {
       "path": "installers/check-setup-macos.command",

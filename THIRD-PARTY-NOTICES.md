@@ -56,7 +56,8 @@ long time after the 2025 versions had replaced them.
   name options. The first two are copies of `nlm-citation-sequence` and
   `nlm-citation-sequence-superscript` under another filename.
 - `liver-international.csl` is `nlm-citation-sequence-superscript` with the same `<name/>`
-  addition, retitled, with et al. after the first three authors and without the PMID/PMCID notes.
+  addition, retitled, listing three authors before et al. instead of six when there are seven or
+  more, and without the PMID/PMCID notes.
 - `journal-of-korean-medical-science-strict.csl` is a local style derived from
   `nlm-citation-sequence-superscript`.
 
