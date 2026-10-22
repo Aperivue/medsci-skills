@@ -2388,8 +2388,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 11082,
-      "sha256": "c48e1fe21ad493c3a0f65129b55fdf17eecf349b580901bb8212cb885f656923"
+      "size": 11637,
+      "sha256": "1c77f92a0673797a8285bdd9b4c23d677cc116e68222fc0172ec60cfecb34089"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/ai_assistance_effect.md",
@@ -2435,6 +2435,11 @@
       "path": "skills/make-figures/references/exemplar_plots/forest_plot.md",
       "size": 3210,
       "sha256": "7a5a255ff3cb6e5dbe7f970ecdd8774148378a8bc063c1eb079ee05c6c52dca8"
+    },
+    {
+      "path": "skills/make-figures/references/exemplar_plots/funnel_plot.md",
+      "size": 5282,
+      "sha256": "cc7d27d3099633a68e40786464e1e3f2ae4a60d79556714df28fe350e842d3ab"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/imaging_panel.md",
