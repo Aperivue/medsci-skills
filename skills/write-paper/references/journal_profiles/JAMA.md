@@ -49,7 +49,7 @@ Trial Registration: [Clinical trials only — registry name, registration
     number and URL]
 ```
 
-**Critical**: Design, Setting and Participants are separate headings at submission; JAMA combines them as "Design, Setting, and Participants" only during editing ("for manuscript submission these sections should be kept separate"). A clinical trial adds Trial Registration ("the name of the trial registry, registration number, and URL of the registry must be included"). This template is for reports of original data; a meta-analysis uses its own headings (Data Sources, Study Selection, Data Extraction and Synthesis in place of Design, Setting and Participants). The "Importance" heading is a JAMA Network heading and is the first thing editors read.
+**Critical**: Design, Setting and Participants are separate headings at submission; JAMA combines them as "Design, Setting, and Participants" only during editing ("for manuscript submission these sections should be kept separate"). A clinical trial adds Trial Registration ("the name of the trial registry, registration number, and URL of the registry must be included"). This template is for reports of original data; a meta-analysis uses its own list: Importance, Objective, Data Sources, Study Selection, Data Extraction and Synthesis, Main Outcome(s) and Measure(s), Results, Conclusions and Relevance (no Design, Setting, Participants or Intervention/Exposure headings). The "Importance" heading is a JAMA Network heading and is the first thing editors read.
 
 ---
 

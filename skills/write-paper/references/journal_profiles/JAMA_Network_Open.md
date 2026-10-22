@@ -48,7 +48,7 @@ Trial Registration: [Clinical trials only — registry name, registration
     number and URL]
 ```
 
-**Critical**: Follows the JAMA Network format. Design, Setting and Participants are separate headings at submission and are combined only during editing ("for manuscript submission these sections should be kept separate"). A clinical trial adds Trial Registration. This template is for reports of original data; a meta-analysis uses its own headings (Data Sources, Study Selection, Data Extraction and Synthesis in place of Design, Setting and Participants). "Importance" is the first heading and the first thing editors evaluate. Include "Analysis dates" in Design heading (unique JAMA Network requirement since 2023).
+**Critical**: Follows the JAMA Network format. Design, Setting and Participants are separate headings at submission and are combined only during editing ("for manuscript submission these sections should be kept separate"). A clinical trial adds Trial Registration. This template is for reports of original data; a meta-analysis uses its own list: Importance, Objective, Data Sources, Study Selection, Data Extraction and Synthesis, Main Outcome(s) and Measure(s), Results, Conclusions and Relevance (no Design, Setting, Participants or Intervention/Exposure headings). "Importance" is the first heading and the first thing editors evaluate. Include "Analysis dates" in Design heading (unique JAMA Network requirement since 2023).
 
 ---
 
