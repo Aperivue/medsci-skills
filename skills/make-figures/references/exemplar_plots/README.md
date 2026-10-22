@@ -39,6 +39,12 @@ the figure types that do not yet have a generator.
 - `forest_plot.md` — meta-analysis forest plot: per-study square-by-weight + CI, pooled diamond
   with the model named, prediction interval, I²/τ²/Q, no-pool discipline under extreme
   heterogeneity, subgroup-difference test, funnel/Egger only at k ≥ 10.
+- `funnel_plot.md` — meta-analysis funnel plot for small-study effects: effect on the analysis scale
+  against inverted SE, pooled-estimate line with the model named, pseudo 95% limits, **contour
+  shading for significance**, an asymmetry test matched to the measure (Harbord/Peters/Pustejovsky/
+  Egger) only at k ≥ 10 and, for OR/RR, only with 2×2 counts, trim-and-fill as sensitivity only;
+  asymmetry is small-study effects, not proof of publication bias. Deeks' funnel for DTA;
+  descriptive only for pooled proportions. Pairs `forest_plot.md`.
 - `external_validation_comparison.md` — performance across cohorts (internal vs external / by
   site·scanner·vendor·sequence) with the **honest drop**: forest/dumbbell, internal as reference,
   per-cohort N + bootstrap-BCa CI, Δ-from-internal annotation, subgroup/structure faceting, failed

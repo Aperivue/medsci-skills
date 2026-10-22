@@ -13,8 +13,8 @@
     },
     {
       "path": "THIRD-PARTY-NOTICES.md",
-      "size": 3488,
-      "sha256": "24e611f369bf419678014fb192a4300a0276c491df8b06d31fb7825594a54254"
+      "size": 4272,
+      "sha256": "daa9dae2d6a046ea10049b1b3515b43cf7b9fc94338dea8c21412a85e62e0c04"
     },
     {
       "path": "installers/check-setup-macos.command",
@@ -2388,8 +2388,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 11082,
-      "sha256": "c48e1fe21ad493c3a0f65129b55fdf17eecf349b580901bb8212cb885f656923"
+      "size": 11637,
+      "sha256": "1c77f92a0673797a8285bdd9b4c23d677cc116e68222fc0172ec60cfecb34089"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/ai_assistance_effect.md",
@@ -2435,6 +2435,11 @@
       "path": "skills/make-figures/references/exemplar_plots/forest_plot.md",
       "size": 3210,
       "sha256": "7a5a255ff3cb6e5dbe7f970ecdd8774148378a8bc063c1eb079ee05c6c52dca8"
+    },
+    {
+      "path": "skills/make-figures/references/exemplar_plots/funnel_plot.md",
+      "size": 5282,
+      "sha256": "cc7d27d3099633a68e40786464e1e3f2ae4a60d79556714df28fe350e842d3ab"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/imaging_panel.md",
@@ -2778,8 +2783,8 @@
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
-      "size": 8053,
-      "sha256": "0abb577c2609907eec4db4f2f241ca47e46ac4fdfd5c75363fad7765af85ca57"
+      "size": 8910,
+      "sha256": "4a7d6b272ee1dbc9cd1cbe06171236c7cf0ea7912fb21bbc6f79566dc61c8cfc"
     },
     {
       "path": "skills/manage-refs/citation_styles/american-association-for-cancer-research.csl",
@@ -2865,6 +2870,11 @@
       "path": "skills/manage-refs/citation_styles/liver-international.csl",
       "size": 18312,
       "sha256": "9f917b818e4500a476c32bcde874bc4a285f5214cfc9b8685a94a120e01d5768"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/methods-of-information-in-medicine.csl",
+      "size": 6779,
+      "sha256": "88725188161ab7e97b0acb2504ef620440c88ab1844510ec8abe8abdb32fd335"
     },
     {
       "path": "skills/manage-refs/citation_styles/nature.csl",

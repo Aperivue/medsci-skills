@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`/deidentify`: a Spanish locale pack (`--locale es`).** Detects DNI and NIE numbers (also with a
+  space or hyphen before the letter), Social Security affiliation numbers (NUSS/NAF), Spanish IBANs,
+  mobile and landline numbers (including +34 and 0034), and street addresses with their common
+  abbreviations (C/, Avda., Av., Cl., P.º), and maps Spanish column names with and without accents.
+  The synthetic fixture's DNI, NIE and IBAN values carry invalid check characters. Contributed by
+  @rtmalikian (#687).
+- **`/manage-refs`: a Methods of Information in Medicine CSL** (`methods-of-information-in-medicine.csl`,
+  Thieme), identical to the upstream style. Contributed by @rtmalikian (#692).
+
 ### Fixed
 
 - **Skill instructions that pointed at things that no longer exist** (#678–#680). These are
@@ -74,12 +85,21 @@
 - **`validate_skills.sh` check 5 removed** (#682). It matched only `${SKILL_DIR}/references`, a form
   no skill uses any more, so it could not fail. Asset paths are checked by
   `validate_routing_assets.py --strict`.
+- **`test_csl_author_names.sh` checks editors too.** A book with editors and no author must print
+  the editors family-first in every bundled style that prints them. In #692, an empty `<name/>`
+  added to a `<substitute>` shorthand printed them given-name-first while the author checks passed.
+  The renders now use `--wrap=none`, so a name split across a line break cannot slip past the
+  checks.
 
 ### Documentation
 
 - `/mllm-eval` Known limits now say that manifest mode does not check that a declared metric suits
   the task (#682).
 - `CLAUDE.md`: a cloud session reviews the final diff blind before merging.
+- `THIRD-PARTY-NOTICES.md` said the bundled CSL files were unmodified. Six of the 28 are adapted (an
+  added `<name/>`, a renamed or retitled copy, one local style), and it now names them.
+  `citation_styles/README.md` says which slug-refreshable styles need the local `<name/>` put back,
+  and that the `<substitute>` shorthands are left alone (#692).
 - This file: an `## [Unreleased]` heading left inside the 5.25.0 section is removed. The entries
   under it, from Demo 5 on, shipped in 5.25.0.
 
