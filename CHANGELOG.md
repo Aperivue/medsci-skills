@@ -60,9 +60,9 @@
   Minor and does not halt; the row now says so. A § section cross-reference still halts.
 - **`/write-paper` JAMA and JAMA Network Open abstracts** gave Design, Setting and Participants as one
   heading. Both journals ask for three at submission ("for manuscript submission these sections should
-  be kept separate") and combine them only during editing. The templates now list three headings, and
-  the heading counts say 7 as published and 9 as submitted for a nontrial study. Trial Registration, which
-  clinical trials need and the templates lacked, is added.
+  be kept separate") and combine them only during editing. The templates now list three headings and
+  add Trial Registration, which clinical trials need. The fixed heading counts are gone: they did not
+  hold for trials or meta-analyses.
 
 ### Changed
 
