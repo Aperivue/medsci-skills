@@ -12,6 +12,15 @@
   @rtmalikian (#687).
 - **`/manage-refs`: a Methods of Information in Medicine CSL** (`methods-of-information-in-medicine.csl`,
   Thieme), identical to the upstream style. Contributed by @rtmalikian (#692).
+- **`/find-journal`, `/write-paper`: a JAMA Surgery profile.** Built from the journal's Instructions for
+  Authors, For Authors and About pages: article types and limits, the Original Investigation and
+  meta-analysis abstracts, when Key Points and a reporting checklist are required, the open-access
+  charge, transfer to other JAMA Network journals, and the AI policy quoted as written. Contributed by
+  @Steve0012345 (#690).
+- **`/make-figures`: a funnel plot exemplar** (`exemplar_plots/funnel_plot.md`) for small-study
+  effects. It matches the asymmetry test to the measure and says when not to test (k < 10, studies
+  of similar size, no 2×2 counts for an OR or RR). It also covers contour shading, multi-arm studies,
+  and trim-and-fill as a sensitivity analysis only. Contributed by @Steve0012345 (#691).
 
 ### Fixed
 
@@ -49,6 +58,10 @@
 - **`/write-paper` 7.1 gate row** said that an AI disclosure in the body halts. The 7.1 call passes
   neither `--profile` nor `--disclosure-placement`, so `check_classical_style.py` reports it as a
   Minor and does not halt; the row now says so. A § section cross-reference still halts.
+- **`/write-paper` JAMA and JAMA Network Open abstracts** gave Design, Setting and Participants as one
+  heading. Both journals ask for three at submission ("for manuscript submission these sections should
+  be kept separate") and combine them only during editing. The templates now list three headings, and
+  the heading counts say 7 as published and 9 as submitted.
 
 ### Changed
 

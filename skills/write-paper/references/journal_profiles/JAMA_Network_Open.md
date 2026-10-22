@@ -33,8 +33,11 @@ Word counts exclude abstract, references, tables, and figure legends.
 ```
 Importance: [Clinical significance, public health impact, knowledge gap]
 Objective: [Specific study aim — 1 sentence]
-Design, Setting, and Participants: [Study design, setting, eligibility criteria,
-    dates of data collection, analysis dates, follow-up duration]
+Design: [Basic design and specific study type, dates of data collection,
+    analysis dates, follow-up duration]
+Setting: [Study setting, so readers can judge applicability]
+Participants: [Clinical disorders, eligibility criteria, key sociodemographic
+    features; number eligible and how they were selected]
 Exposure(s) [or Intervention(s)]: [Description of exposures/interventions]
 Main Outcomes and Measures: [Primary and secondary outcomes prespecified]
 Results: [Number enrolled/analyzed, demographic summary (age, sex),
@@ -43,7 +46,7 @@ Conclusions and Relevance: [Main conclusion — 1-2 sentences;
     clinical/public health relevance]
 ```
 
-**Critical**: Follows JAMA Network 7-heading format. "Importance" is the first heading and the first thing editors evaluate. Include "Analysis dates" in Design heading (unique JAMA Network requirement since 2023).
+**Critical**: Follows the JAMA Network format. Design, Setting and Participants are separate headings at submission and are combined only during editing ("for manuscript submission these sections should be kept separate"), so the published abstract shows 7 headings and the submitted one 9. "Importance" is the first heading and the first thing editors evaluate. Include "Analysis dates" in Design heading (unique JAMA Network requirement since 2023).
 
 ---
 
