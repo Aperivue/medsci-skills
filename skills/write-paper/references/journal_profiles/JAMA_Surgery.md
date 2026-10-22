@@ -8,7 +8,7 @@
 - **ISSN**: 2168-6254 (print), 2168-6262 (online)
 - **Frequency**: "published online weekly, every Wednesday, and in print/online issues 12 times a year"
 - **Impact Factor**: 15.6 (stated on the journal's For Authors page: "The Journal Impact Factor is 15.6"; JCR year not stated there)
-- **Open Access**: Hybrid — "Without any author fees, all research articles are made free access online 12 months after publication"; authors may pay for immediate open access (fee not stated on the journal's public pages)
+- **Open Access**: Hybrid — "Without any author fees, all research articles are made free access online 12 months after publication"; immediate open access for "Payment of $6000" (CC-BY-NC-ND, or CC-BY where a not-for-profit funder requires it)
 - **Acceptance rate**: 9% ("The journal's acceptance rate is 9%.")
 - **Peer review**: Single-anonymized ("peer reviewer identities are kept confidential" and "author identities are made known to reviewers"); median time to first decision 11 days, 41 days with review
 
@@ -25,7 +25,7 @@
 | Letter to the Editor | 400 words | None | 5 | Not stated on the journal's public pages |
 | Letter in Reply | 500 words | None | 6 | Not stated on the journal's public pages |
 
-Original Investigation word count is text only ("Maximum length: 3000 words of text"), excluding abstract, tables, figures, acknowledgments, references and online-only material. Systematic and Narrative Reviews require a presubmission inquiry. Viewpoints are limited to 4 authors; letters to 3 authors. Letters to the Editor must be submitted within 4 weeks of the article's online publication. Special Communication is listed as an article category; its limits were not located on the journal's public pages.
+Original Investigation word count is text only ("Maximum length: 3000 words of text"), excluding abstract, tables, figures, acknowledgments, references and online-only material. Systematic Reviews without meta-analysis and Narrative Reviews require a presubmission inquiry; a meta-analysis is published as an Original Investigation. Viewpoints are limited to 4 authors; letters to 3 authors. Letters to the Editor must be submitted within 4 weeks of the article's online publication. The shared JAMA Network instructions exclude Special Communication for this journal.
 
 ---
 
@@ -44,6 +44,19 @@ Conclusions and Relevance:
 Trial Registration: (clinical trials only)
 ```
 
+Meta-analysis: "an abstract of no more than 350 words", structured:
+
+```
+Importance:
+Objective:
+Data Sources:
+Study Selection:
+Data Extraction and Synthesis:
+Main Outcome(s) and Measure(s):
+Results:
+Conclusions and Relevance:
+```
+
 Systematic Review: "a structured abstract of no more than 350 words" — Importance, Objective, Evidence Review, Findings, Conclusions and Relevance.
 
 Narrative Review: "a 3-part structured abstract of no more than 300 words" — Importance, Observations, Conclusions and Relevance.
@@ -52,13 +65,13 @@ Narrative Review: "a 3-part structured abstract of no more than 300 words" — I
 
 ## Required Sections (Original Article)
 
-1. **Key Points** — before the Abstract; Question (1 sentence), Findings (1-2 sentences, basic numbers and whether significant, no test statistics), Meaning (1 sentence); 75-100 words total; required for research and review manuscripts (not Narrative Reviews)
+1. **Key Points** — before the Abstract; Question (1 sentence), Findings (1-2 sentences, basic numbers and whether significant, no test statistics), Meaning (1 sentence); 75-100 words total; required for research and review manuscripts (not Research Letters or Narrative Reviews)
 2. **Abstract** (structured, above)
 3. **Introduction**
 4. **Methods**
    - Study type stated (required for Original Investigation)
    - EQUATOR reporting guideline for the study type
-   - For randomized trials: protocol with complete statistical analysis plan cited in Methods and submitted as a supplement; power or sample size statement
+   - For randomized and nonrandomized clinical trials: protocol with complete statistical analysis plan cited in Methods and submitted as a supplement; for randomized trials, a power or sample size statement
 5. **Results**
 6. **Discussion**
 7. **Data Sharing Statement** (required for Original Investigation)
@@ -97,9 +110,9 @@ Study types and reporting guidelines listed by the journal: randomized clinical 
 
 Drawn from the journal's stated requirements and 9% acceptance rate, not from confidential review:
 
-1. **Missing required components** — Key Points, study type, data sharing statement or EQUATOR checklist absent from a research manuscript
+1. **Missing required components** — Key Points (except in a Research Letter), study type, data sharing statement or EQUATOR checklist absent from a research manuscript
 2. **Over length** — more than 3000 words of text or more than 5 tables/figures combined in an Original Investigation
-3. **Review submitted without a presubmission inquiry** — required for Systematic and Narrative Reviews
+3. **Review submitted without a presubmission inquiry** — required for Systematic Reviews without meta-analysis and for Narrative Reviews
 4. **P values reported alone** — without the compared data and confidence intervals
 5. **Survey with a low response rate** — the journal generally expects at least 60%
 6. **AI misuse** — AI-generated references, AI-drafted opinion pieces or letters, or AI-created clinical images
@@ -145,4 +158,5 @@ Do not prioritize JAMA Surgery for work whose main audience is not surgeons (sen
 | Emphasis | Surgical care, outcomes, quality, innovation | Broad medical importance | Broad range of designs and sizes |
 
 <!-- Society list, AI disclosure items, graph formats and file sizes re-verified 2026-10-22 (About: "official publication of the Association of VA Surgeons, the Pacific Coast Surgical Association" and the Surgical Outcomes Club; Instructions: "a description of the content that was created or edited", "date(s) of use", separate graph format lists "for Initial Submission" and "for Revision and Publication", and "Recommended File Sizes"). -->
+<!-- Maintainer corrections 2026-10-22 against the Instructions for Authors: "those with meta-analysis are published as Original Investigations" (the presubmission inquiry applies to systematic reviews without one); meta-analysis abstract headings Importance, Objective, Data Sources, Study Selection, Data Extraction and Synthesis, Main Outcome(s) and Measure(s), Results, Conclusions and Relevance; Key Points not for Research Letters ("should not include an abstract or key points") or Narrative Reviews ("No Key Points"); "Study Protocols with Statistical Analysis Plans are required for all randomized and nonrandomized clinical trials"; "Payment of $6000" for either open-access licence; Special Communication excluded for this journal. -->
 <!-- Profile verified 2026-10-20 against: https://jamanetwork.com/journals/jamasurgery/pages/instructions-for-authors (Original Investigation: "Maximum length: 3000 words of text", "no more than a total of 5 tables and/or figures", "an abstract of no more than 350 words"; study-type tables list "50-75 references"), https://jamanetwork.com/journals/jamasurgery/pages/for-authors ("The journal's acceptance rate is 9%.", "The Journal Impact Factor is 15.6", "The median time to first decision is 11 days, and 41 days with review."), https://jamanetwork.com/journals/jamasurgery/pages/about (frequency, 1920, society affiliations, ISSNs); print ISSN checked at api.crossref.org/journals/2168-6254. -->

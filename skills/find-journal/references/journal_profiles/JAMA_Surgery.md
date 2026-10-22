@@ -16,28 +16,27 @@ general surgery, surgical oncology, surgical outcomes, perioperative care, posto
 ## Article Types Accepted
 - Original Investigation
 - Research Letter
-- Systematic Review (with or without meta-analysis; presubmission inquiry required)
+- Systematic Review without meta-analysis (presubmission inquiry required); a meta-analysis is published as an Original Investigation
 - Narrative Review (presubmission inquiry required)
-- Special Communication
 - Viewpoint
 - Letter to the Editor
 - Letter in Reply
 
 ## Classification
 - **Tier:** Q1 (the journal describes itself as "the highest ranking surgery journal in the world" by Journal Impact Factor)
-- **Open Access:** Hybrid (research articles free 12 months after publication with no author fee; optional paid immediate open access)
+- **Open Access:** Hybrid (research articles free 12 months after publication with no author fee; immediate open access for "Payment of $6000", under CC-BY-NC-ND, or CC-BY where a not-for-profit funder requires it)
 - **Field:** Surgery (general and all surgical subspecialties)
 
 ## Acceptance Signals
 - **Selectivity band:** highly selective (the journal states "The journal's acceptance rate is 9%.")
-- **Desk-reject triggers:** missing Key Points or data sharing statement on a research manuscript; no EQUATOR reporting checklist for the study type; systematic or narrative review submitted without the required presubmission inquiry; clinical images created or manipulated by AI outside a disclosed research design
+- **Desk-reject triggers:** missing Key Points (not required for Research Letters or Narrative Reviews) or data sharing statement on a research manuscript; no EQUATOR reporting checklist for the study type; a systematic review without meta-analysis or a narrative review submitted without the required presubmission inquiry; clinical images created or manipulated by AI outside a disclosed research design
 - **Design expectations:** EQUATOR guideline per study type (CONSORT, STROBE, PRISMA/MOOSE, STARD/TRIPOD, CHEERS, SQUIRE, SRQR/COREQ); power or sample size statement for randomized trials; survey response rates generally expected to be at least 60%
 - **Study-type tolerance:** randomized and nonrandomized trials, cohort, case-control, cross-sectional, case series, economic evaluations, decision models, quality improvement, survey and qualitative studies are all listed study types
 - **Review process:** single-anonymized; the journal states "The median time to first decision is 11 days, and 41 days with review."
-- **Cascade / transfer:** JAMA Network journal; Not stated on the journal's public pages whether a formal transfer is offered
+- **Cascade / transfer:** JAMA Network journal; authors of papers not accepted "may have the option" to have the paper and reviewers' comments "automatically referred to one of the JAMA Network specialty journals and/or JAMA Network Open"
 
 ## Special Notes
-Original Investigations are limited to "3000 words of text" with "no more than a total of 5 tables and/or figures" and a structured abstract "of no more than 350 words" in JAMA Network headings; 3-part Key Points (Question, Findings, Meaning, 75-100 words) are required for research and review manuscripts. Study-type tables list 50-75 references for most designs; Research Letters are 800 words, at most 10 references and 2 small tables/figures, with no abstract. The journal states "The Journal Impact Factor is 15.6"; the JCR year is not given on that page. AI policy: AI use in manuscript preparation must be reported in the Acknowledgment section (description of the content created or edited, tool name, version and extension numbers, manufacturer, date(s) of use, and confirmation that the authors take responsibility for it); AI may not generate or format references, draft Opinion pieces or letters, or create clinical images.
+Original Investigations are limited to "3000 words of text" with "no more than a total of 5 tables and/or figures" and a structured abstract "of no more than 350 words" in JAMA Network headings; 3-part Key Points (Question, Findings, Meaning, 75-100 words) are required for research manuscripts, meta-analyses and Systematic Reviews, not for Research Letters or Narrative Reviews. Study-type tables list 50-75 references for most designs; Research Letters are 800 words, at most 10 references and 2 small tables/figures, with no abstract. The journal states "The Journal Impact Factor is 15.6"; the JCR year is not given on that page. AI policy: AI use in manuscript preparation must be reported in the Acknowledgment section (description of the content created or edited, tool name, version and extension numbers, manufacturer, date(s) of use, and confirmation that the authors take responsibility for it); AI may not generate or format references, draft Opinion pieces or letters, or create clinical images.
 
 ## AI Writing Disclosure Policy
 - **Requirement level:** Required
@@ -47,4 +46,5 @@ Original Investigations are limited to "3000 words of text" with "no more than a
 - **Policy URL:** https://jamanetwork.com/journals/jamasurgery/pages/instructions-for-authors
 
 <!-- Society list and AI disclosure items re-verified 2026-10-22 (About: "official publication of the Association of VA Surgeons, the Pacific Coast Surgical Association" and the Surgical Outcomes Club; Instructions: "a description of the content that was created or edited", "date(s) of use"). -->
+<!-- Maintainer corrections 2026-10-22 against the Instructions for Authors and For Authors pages: "those with meta-analysis are published as Original Investigations" and the presubmission inquiry applies to systematic reviews without one; Special Communication excluded for this journal; Key Points not for Research Letters ("should not include an abstract or key points") or Narrative Reviews ("No Key Points"); "Payment of $6000" for either open-access licence; transfer "may have the option" (For Authors). -->
 <!-- Profile verified 2026-10-20 against: https://jamanetwork.com/journals/jamasurgery/pages/instructions-for-authors, https://jamanetwork.com/journals/jamasurgery/pages/for-authors, https://jamanetwork.com/journals/jamasurgery/pages/about; print ISSN checked at api.crossref.org/journals/2168-6254, online ISSN 2168-6262 from the journal's about and for-authors pages. -->
