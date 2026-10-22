@@ -31,12 +31,16 @@ Original Investigation word count is text only ("Maximum length: 3000 words of t
 
 ## Abstract Requirements
 
-Original Investigation: "an abstract of no more than 350 words", structured:
+Original Investigation: "an abstract of no more than 350 words", structured as below. Design, Setting
+and Participants are "usually combined for accepted papers during the editing process", but "for
+manuscript submission these sections should be kept separate."
 
 ```
 Importance:
 Objective:
-Design, Setting, and Participants:
+Design:
+Setting:
+Participants:
 Intervention(s) (clinical trials) or Exposure(s) (observational studies):
 Main Outcome(s) and Measure(s):
 Results:
