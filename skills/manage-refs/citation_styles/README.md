@@ -34,6 +34,7 @@ Source: https://github.com/citation-style-language/styles (zotero/styles).
 | `clinical-breast-cancer.csl` | Clinical Breast Cancer (Elsevier, AMA style) | Dependent on `american-medical-association.csl` (already bundled) |
 | `the-breast.csl` | The Breast (Elsevier) | Dependent on `elsevier-vancouver.csl` (must be in same dir) |
 | `elsevier-vancouver.csl` | Elsevier NLM/Vancouver citation-sequence house style | Independent. Parent of `the-breast.csl`; also a fallback for Elsevier journals that cite "Vancouver" |
+| `methods-of-information-in-medicine.csl` | Methods of Information in Medicine (MIM, Thieme) — flagship medical-informatics journal | Independent. Superscript numerals, abbreviated journal names, et-al after 6 (first 3 + et al), no DOI |
 
 ## Missing — use fallback
 
@@ -46,7 +47,9 @@ Source: https://github.com/citation-style-language/styles (zotero/styles).
 
 ## Updating
 
-Only the files below are verbatim upstream styles, so only these may be refreshed by slug:
+Only the files below are upstream styles kept under their own slug, so only these may be refreshed by
+slug. Two of them, `american-medical-association.csl` and `nlm-citation-sequence.csl`, carry the local
+`<name/>` addition described below and need it reapplied after a refresh:
 
 ```bash
 cd "$(dirname "$0")"
@@ -58,7 +61,8 @@ for s in european-radiology radiology american-journal-of-roentgenology \
          journal-of-clinical-oncology annals-of-oncology journal-of-breast-cancer \
          american-association-for-cancer-research clinical-cancer-research \
          the-lancet the-lancet-oncology breast-cancer-research-and-treatment \
-         clinical-breast-cancer the-breast elsevier-vancouver; do
+         clinical-breast-cancer the-breast elsevier-vancouver \
+         methods-of-information-in-medicine; do
   curl -fsSL -o "${s}.csl" "https://www.zotero.org/styles/${s}"
 done
 ```
@@ -83,6 +87,10 @@ that had no `<name>` child now starts with an empty `<name/>`. These styles set 
 Lee` instead of `Kim JH, Lee SM`, and long author lists were not truncated. An empty `<name/>`
 inherits the same options under the CSL specification, so the style itself is unchanged. A refresh
 from upstream drops the line; `tests/test_csl_author_names.sh` fails until it is put back.
+The one-line `<names variable="…"/>` entries inside `<substitute>` are left as they are. That
+shorthand inherits the `<name>` of the `<names>` it sits in; an explicit `<name/>` there replaces it
+with defaults, and an edited book with no author then prints its editors given-name-first. A style
+whose author `<names>` already has a `<name>` child, as most do, needs no local edit.
 
 Check which files are safe to refresh (filename must equal the `<id>` slug):
 ```bash
