@@ -1562,6 +1562,11 @@
       "sha256": "0bd38b7ae4139a856c6aba5917d3444e2e86e16bb0a5f7f41869600174e00648"
     },
     {
+      "path": "skills/find-journal/references/journal_profiles/JAMA_Surgery.md",
+      "size": 5511,
+      "sha256": "37d496fb5a09d519d5b2f4e70513f6bc225838781960ff50bac23705b4bef970"
+    },
+    {
       "path": "skills/find-journal/references/journal_profiles/JASN.md",
       "size": 2099,
       "sha256": "2b4afcac75abd0e344c3cbf491c7f48a34055ecbecce54759a956d90c42d1731"
@@ -6840,6 +6845,11 @@
       "path": "skills/write-paper/references/journal_profiles/JAMA_Network_Open.md",
       "size": 8114,
       "sha256": "0b7c00a4cf1616e134cfe3fff0d389268d275c0795f233733d685f56fc3018f9"
+    },
+    {
+      "path": "skills/write-paper/references/journal_profiles/JAMA_Surgery.md",
+      "size": 11038,
+      "sha256": "9bcb9cd592fdc32f1c41d41fbc2f7497e9c27f4dbbf1e51c25d164ae221a511c"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JASN.md",
