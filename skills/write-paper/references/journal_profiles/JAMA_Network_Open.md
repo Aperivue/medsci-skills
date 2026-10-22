@@ -44,9 +44,11 @@ Results: [Number enrolled/analyzed, demographic summary (age, sex),
     primary results with effect sizes, 95% CIs, and exact P values]
 Conclusions and Relevance: [Main conclusion — 1-2 sentences;
     clinical/public health relevance]
+Trial Registration: [Clinical trials only — registry name, registration
+    number and URL]
 ```
 
-**Critical**: Follows the JAMA Network format. Design, Setting and Participants are separate headings at submission and are combined only during editing ("for manuscript submission these sections should be kept separate"), so the published abstract shows 7 headings and the submitted one 9. "Importance" is the first heading and the first thing editors evaluate. Include "Analysis dates" in Design heading (unique JAMA Network requirement since 2023).
+**Critical**: Follows the JAMA Network format. Design, Setting and Participants are separate headings at submission and are combined only during editing ("for manuscript submission these sections should be kept separate"), so a nontrial abstract shows 7 headings as published and 9 as submitted; a clinical trial adds Trial Registration. "Importance" is the first heading and the first thing editors evaluate. Include "Analysis dates" in Design heading (unique JAMA Network requirement since 2023).
 
 ---
 
