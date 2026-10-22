@@ -47,7 +47,9 @@ Source: https://github.com/citation-style-language/styles (zotero/styles).
 
 ## Updating
 
-Only the files below are verbatim upstream styles, so only these may be refreshed by slug:
+Only the files below are upstream styles kept under their own slug, so only these may be refreshed by
+slug. Two of them, `american-medical-association.csl` and `nlm-citation-sequence.csl`, carry the local
+`<name/>` addition described below and need it reapplied after a refresh:
 
 ```bash
 cd "$(dirname "$0")"
