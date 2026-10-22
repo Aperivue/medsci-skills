@@ -14,8 +14,11 @@ Synthetic — describes what each element must show, not an image to copy. Pairs
 - **Y-axis = the standard error, inverted** so the most precise studies sit at the top. Label it
   "Standard error". If another precision measure is used (1/SE, sample size), say so in the caption —
   the shape of the expected funnel depends on it.
-- **One point per study**, the same k as the forest; the caption states k. A multi-arm study
-  contributes the comparisons the forest uses, not an extra point per arm.
+- **One point per study**, the same k as the forest; the caption states k. A multi-arm study gives
+  one point when its relevant arms are combined, the approach Cochrane recommends (Handbook 23.3.4).
+  If the forest instead split a shared control group, that study gives one point per comparison,
+  and those points are correlated: the caption gives the number of studies as well as the number of
+  comparisons, and an asymmetry test that treats them as independent is not run.
 - **Vertical line at the pooled estimate**, with the model named (common-effect or random-effects),
   visually distinct from a **null line** where one is drawn.
 - **Pseudo 95% confidence limits** — the triangle of ±1.96·SE around the pooled estimate, labelled as
@@ -26,9 +29,10 @@ Synthetic — describes what each element must show, not an image to copy. Pairs
   (pointing to other causes).
 - **Asymmetry test in the caption, matched to the measure** — OR: Harbord or Peters; RR: Peters;
   SMD: Pustejovsky; MD: Egger — with its p-value and k, or a plain statement of why no test was
-  run: k < 10, or, for OR or RR, no 2×2 counts (only adjusted estimates and their SEs). Harbord and
-  Peters need the counts; without them the funnel is descriptive, and the original Egger test is not
-  run in their place (`meta-analysis` `references/phase6_statistical_synthesis.md`).
+  run: k < 10; studies of similar size, with similar standard errors (Sterne et al. 2011,
+  doi:10.1136/bmj.d4002); or, for OR or RR, no 2×2 counts (only adjusted estimates and their SEs).
+  Harbord and Peters need the counts; without them the funnel is descriptive, and the original
+  Egger test is not run in their place (`meta-analysis` `references/phase6_statistical_synthesis.md`).
 - **Trim-and-fill, if shown at all**: imputed studies as open markers, labelled as imputed, with the
   adjusted estimate reported as a sensitivity analysis next to the observed one.
 
