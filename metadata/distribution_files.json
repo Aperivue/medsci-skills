@@ -2388,8 +2388,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 11599,
-      "sha256": "f3174f7d218e767ad193b5fcf83d1e11043562f24c77dee9b45a8787ea3c2636"
+      "size": 11637,
+      "sha256": "1c77f92a0673797a8285bdd9b4c23d677cc116e68222fc0172ec60cfecb34089"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/ai_assistance_effect.md",
@@ -2438,8 +2438,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/funnel_plot.md",
-      "size": 4526,
-      "sha256": "fae0820a3aed30f341cd0b33f87eb5353ff89768e07b017367d33b7912e76815"
+      "size": 4871,
+      "sha256": "af1aff30f3a406d69c340034b03d10bbbd793dad5690ebe08612bdc8a9acd3bc"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/imaging_panel.md",

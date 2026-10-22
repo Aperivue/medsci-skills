@@ -9,7 +9,8 @@ Synthetic — describes what each element must show, not an image to copy. Pairs
 
 ## Elements
 - **X-axis = the effect estimate on the analysis scale**, the same measure and direction as the
-  forest plot: log OR / RR / HR on a log axis labelled in ratio units, MD or SMD on a linear axis.
+  forest plot: OR / RR / HR on a log scale (the ratios on a log axis, or the log ratios on a linear
+  axis with ticks labelled as ratios, not both), MD or SMD on a linear axis.
 - **Y-axis = the standard error, inverted** so the most precise studies sit at the top. Label it
   "Standard error". If another precision measure is used (1/SE, sample size), say so in the caption —
   the shape of the expected funnel depends on it.
@@ -24,8 +25,10 @@ Synthetic — describes what each element must show, not an image to copy. Pairs
   have fallen in the non-significant region (consistent with selective publication) or elsewhere
   (pointing to other causes).
 - **Asymmetry test in the caption, matched to the measure** — OR: Harbord or Peters; RR: Peters;
-  SMD: Pustejovsky; MD: Egger — with its p-value and k, or a plain statement that no test was run
-  because k < 10.
+  SMD: Pustejovsky; MD: Egger — with its p-value and k, or a plain statement of why no test was
+  run: k < 10, or, for OR or RR, no 2×2 counts (only adjusted estimates and their SEs). Harbord and
+  Peters need the counts; without them the funnel is descriptive, and the original Egger test is not
+  run in their place (`meta-analysis` `references/phase6_statistical_synthesis.md`).
 - **Trim-and-fill, if shown at all**: imputed studies as open markers, labelled as imputed, with the
   adjusted estimate reported as a sensitivity analysis next to the observed one.
 
