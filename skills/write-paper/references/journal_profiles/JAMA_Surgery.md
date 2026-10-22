@@ -25,7 +25,7 @@
 | Letter to the Editor | 400 words | None | 5 | Not stated on the journal's public pages |
 | Letter in Reply | 500 words | None | 6 | Not stated on the journal's public pages |
 
-Original Investigation word count is text only ("Maximum length: 3000 words of text"), excluding abstract, tables, figures, acknowledgments, references and online-only material. Systematic Reviews without meta-analysis and Narrative Reviews require a presubmission inquiry; a meta-analysis is published as an Original Investigation. Viewpoints are limited to 4 authors; letters to 3 authors. Letters to the Editor must be submitted within 4 weeks of the article's online publication. The shared JAMA Network instructions exclude Special Communication for this journal.
+Original Investigation word count is text only ("Maximum length: 3000 words of text"), excluding abstract, tables, figures, acknowledgments, references and online-only material. Systematic Reviews without meta-analysis and Narrative Reviews require a presubmission inquiry; a meta-analysis is published as an Original Investigation. Viewpoints are limited to 4 authors; Letters to the Editor and Letters in Reply to 3 authors (no author limit is stated for Research Letters). Letters to the Editor must be submitted within 4 weeks of the article's online publication. The shared JAMA Network instructions exclude Special Communication for this journal.
 
 ---
 
@@ -110,12 +110,12 @@ Study types and reporting guidelines listed by the journal: randomized clinical 
 
 Drawn from the journal's stated requirements and 9% acceptance rate, not from confidential review:
 
-1. **Missing required components** — Key Points (except in a Research Letter), study type, data sharing statement absent from a research manuscript, or a required reporting checklist missing (CONSORT for trials, TREND for nonrandomized trials, PRISMA for systematic reviews and meta-analyses, MOOSE for meta-analyses of observational studies)
+1. **Missing required components** — Key Points (except in a Research Letter or Narrative Review), study type, data sharing statement absent from a research manuscript, or a required reporting checklist missing (CONSORT for trials, TREND for nonrandomized trials, PRISMA for systematic reviews and meta-analyses, MOOSE for meta-analyses of observational studies)
 2. **Over length** — more than 3000 words of text or more than 5 tables/figures combined in an Original Investigation
 3. **Review submitted without a presubmission inquiry** — required for Systematic Reviews without meta-analysis and for Narrative Reviews
 4. **P values reported alone** — without the compared data and confidence intervals
 5. **Survey with a low response rate** — the journal generally expects at least 60%
-6. **AI misuse** — AI-generated references, AI-drafted Opinion manuscripts, Letters to the Editor or Online Comments, or AI-created clinical images
+6. **AI misuse** — AI-generated references, AI-drafted Opinion manuscripts, Letters to the Editor or Online Comments, or AI-created clinical images outside a formal, disclosed research design
 
 ---
 
@@ -147,7 +147,7 @@ https://jamanetwork.com/journals/jamasurgery/pages/instructions-for-authors
 
 Submit here for surgical research with a clear clinical message for practicing surgeons: trials, large outcomes and quality-improvement studies, comparative effectiveness and cost-effectiveness analyses, and studies of surgical workforce, education or emerging technology. The journal states its mission is "to promote the art and science of surgery" and that it is the official publication of the Association of VA Surgeons, the Pacific Coast Surgical Association, and the Surgical Outcomes Club.
 
-Do not prioritize JAMA Surgery for work whose main audience is not surgeons (send to JAMA or JAMA Network Open), for a single-subspecialty technical question better read by that subspecialty, or when the manuscript cannot fit 3000 words and 5 tables/figures without losing its core results.
+Do not prioritize JAMA Surgery for work whose main audience is not surgeons (send to JAMA or JAMA Network Open), for a single-subspecialty technical question better read by that subspecialty, or when the manuscript cannot fit its article type's limits (3000 words and 5 tables/figures for an Original Investigation) without losing its core results.
 
 | Dimension | JAMA Surgery | JAMA | JAMA Network Open |
 |-----------|--------------|------|-------------------|
