@@ -13,8 +13,8 @@
     },
     {
       "path": "THIRD-PARTY-NOTICES.md",
-      "size": 3488,
-      "sha256": "0e01f1e90d9ca60578a434efeca9aa5cd9bbd30192eaeb1ccc3d148b13007b65"
+      "size": 4231,
+      "sha256": "3c94545dc8cda634cca21aa2bf61c778f4d074fe227fb1d1585683fe1c209951"
     },
     {
       "path": "installers/check-setup-macos.command",
@@ -2778,8 +2778,8 @@
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
-      "size": 8722,
-      "sha256": "cd3a5449e2e7fff81c695abbf09c49b3fb0443aefe38a23e940cd4322fa9c9ed"
+      "size": 8910,
+      "sha256": "4a7d6b272ee1dbc9cd1cbe06171236c7cf0ea7912fb21bbc6f79566dc61c8cfc"
     },
     {
       "path": "skills/manage-refs/citation_styles/american-association-for-cancer-research.csl",
