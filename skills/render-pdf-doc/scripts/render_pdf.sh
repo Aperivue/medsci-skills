@@ -27,7 +27,7 @@
 #
 # CJKmainfont loads xeCJK, whose defaults suit Chinese: it deletes the space after
 # curly quotes and en/em dashes ("assessed.”The") and inserts one wherever Latin
-# letters or digits meet CJK characters ("AI를" -> "AI 를"). scripts/xecjk_korean.tex
+# letters or digits meet CJK characters (an acronym and its Hangul particle split apart). scripts/xecjk_korean.tex
 # keeps the spaces the author typed; it is appended to the document's
 # header-includes, or added as one more -H when the caller passes -H (which
 # already replaces header-includes). --xecjk-defaults leaves xeCJK's defaults on.

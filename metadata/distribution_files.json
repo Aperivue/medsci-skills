@@ -4678,8 +4678,8 @@
     },
     {
       "path": "skills/render-pdf-doc/scripts/render_pdf.sh",
-      "size": 12216,
-      "sha256": "4b76a3a67ece0b72752bed73707ab81f6de68e7dda0197e25c17823db0bc30b3"
+      "size": 12243,
+      "sha256": "4ff5a571de175a5323f7aca077ecc578dcb4815f187f4ef579a11f5ca83adb44"
     },
     {
       "path": "skills/render-pdf-doc/scripts/scan_glyph_coverage.py",
@@ -4693,8 +4693,8 @@
     },
     {
       "path": "skills/render-pdf-doc/scripts/xecjk_korean.tex",
-      "size": 636,
-      "sha256": "b5f391d70e5c0433e7aa5512c502ee2776ffe94c7edce88a6fd61a2362827662"
+      "size": 655,
+      "sha256": "49c56074e87544162c9136149f4d8d6d93135f63a6ca2f600b5c61539a7a8194"
     },
     {
       "path": "skills/render-pdf-doc/skill.yml",

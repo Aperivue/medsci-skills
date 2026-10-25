@@ -146,12 +146,12 @@ class RenderPrecedence(unittest.TestCase):
         self.assertNotIn("[render_pdf] ok", result.stderr)
 
     # xeCJK's Chinese-style defaults delete the space after curly quotes and dashes
-    # and add one between Latin letters or digits and Hangul ("AI를" -> "AI 를").
+    # and add one between Latin letters or digits and Hangul (an acronym split from its particle).
     KOREAN_SPACING = (r'\xeCJKDeclareCharClass{Default}{"2013,"2014,"2018,"2019,"201C,"201D}',
                       r"\xeCJKsetup{CJKecglue={}}")
 
     def test_korean_spacing_is_on_by_default(self):
-        result, tex = self.render("AI를 썼다. The study said “no difference” and stopped.\n")
+        result, tex = self.render("The study said “no difference” and stopped.\n")
         self.assertEqual(result.returncode, 0, result.stderr)
         for value in self.KOREAN_SPACING:
             self.assertIn(value, tex)
