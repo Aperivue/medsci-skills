@@ -970,12 +970,32 @@ def review_problems(report: dict, data: list[dict], headers: list[str]) -> list[
 # Section 5: Anonymizers
 # ================================================================
 
-class PseudonymGenerator:
-    """Maps original values to consistent pseudonyms (P001, P002, ...)."""
+def _max_suffix(values: list[str], prefix: str) -> int:
+    """Highest numeric suffix among values like PREFIX + digits.
 
-    def __init__(self, prefix: str = "P"):
-        self._map: dict[str, str] = {}
-        self._counter = 0
+    Lets a generator resumed from a previous run's mapping continue
+    numbering after the last value already handed out, instead of
+    restarting at 0001 and colliding with it.
+    """
+    best = 0
+    for v in values:
+        if v.startswith(prefix) and v[len(prefix):].isdigit():
+            best = max(best, int(v[len(prefix):]))
+    return best
+
+
+class PseudonymGenerator:
+    """Maps original values to consistent pseudonyms (P001, P002, ...).
+
+    With `initial` (a previous run's mapping), values already seen keep
+    their pseudonym and new values continue numbering after the highest
+    one already used, so separately de-identified batches can be merged
+    without two patients sharing a pseudonym.
+    """
+
+    def __init__(self, prefix: str = "P", initial: dict[str, str] | None = None):
+        self._map: dict[str, str] = dict(initial) if initial else {}
+        self._counter = _max_suffix(list(self._map.values()), prefix)
         self._prefix = prefix
 
     def get(self, original: str) -> str:
@@ -996,7 +1016,8 @@ class DateShifter:
     preserving relative time intervals between events for the same entity.
     """
 
-    def __init__(self, seed: int | None = None, max_days: int = 365):
+    def __init__(self, seed: int | None = None, max_days: int = 365,
+                 initial_offsets: dict[str, int] | None = None):
         # Each offset is drawn from the operating system's CSPRNG. Offsets
         # used to come from random.Random(seed) with a seed drawn from
         # 1..999999, in row order: anyone who knew two or three patients'
@@ -1006,7 +1027,9 @@ class DateShifter:
         self._rng = (random.Random(seed) if seed is not None
                      else secrets.SystemRandom())
         self._max_days = max_days
-        self._offsets: dict[str, int] = {}
+        # With initial_offsets (a previous run's mapping), entities already
+        # seen keep their offset, so intervals stay comparable across batches.
+        self._offsets: dict[str, int] = dict(initial_offsets) if initial_offsets else {}
         self.seed = seed
 
     def _get_offset(self, entity_id: str) -> int:
@@ -1058,11 +1081,16 @@ class DateShifter:
 
 
 class IDReplacer:
-    """Replaces identifiers with sequential IDs (ID001, ID002, ...)."""
+    """Replaces identifiers with sequential IDs (ID001, ID002, ...).
 
-    def __init__(self, prefix: str = "ID"):
-        self._map: dict[str, str] = {}
-        self._counter = 0
+    With `initial` (a previous run's mapping), values already seen keep
+    their ID and new values continue numbering after the highest one
+    already used (see PseudonymGenerator).
+    """
+
+    def __init__(self, prefix: str = "ID", initial: dict[str, str] | None = None):
+        self._map: dict[str, str] = dict(initial) if initial else {}
+        self._counter = _max_suffix(list(self._map.values()), prefix)
         self._prefix = prefix
 
     def get(self, original: str) -> str:
@@ -1095,11 +1123,46 @@ def _keyed_hash(key: bytes, val: str) -> str:
     return hmac.new(key, val.encode("utf-8"), hashlib.sha256).hexdigest()
 
 
+def load_mapping(path: str | Path) -> dict[str, dict]:
+    """Load a previous run's mapping.json for cross-run reuse (--mapping-in).
+
+    Returns the names, ids, and date_offsets sections. A mapping written
+    with --hash-mapping stores SHA-256 hashes instead of original values,
+    so it cannot map a new run's values back to the old ones; reusing one
+    would silently re-number everything, so it is refused outright.
+    """
+    p = Path(path)
+    if not p.exists():
+        sys.exit(f"--mapping-in: file not found: {p}")
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        sys.exit(f"--mapping-in: cannot read {p}: {e}")
+    if not isinstance(data, dict):
+        sys.exit(f"--mapping-in: {p} is not a mapping object")
+    sections = {k: dict(data.get(k, {})) for k in ("names", "ids", "date_offsets")}
+    for section in ("names", "ids", "date_offsets"):
+        keys = list(sections[section])
+        if keys and all(re.fullmatch(r"[0-9a-f]{64}", k) for k in keys):
+            sys.exit(f"--mapping-in: {p} looks like a --hash-mapping file "
+                     f"(the {section} keys are hashes, not original values); "
+                     "re-run the first batch without --hash-mapping to get a reusable mapping")
+    for entity, offset in sections["date_offsets"].items():
+        if not isinstance(offset, int) or isinstance(offset, bool):
+            sys.exit(f"--mapping-in: date_offsets[{entity!r}] is not an integer: {offset!r}")
+    return sections
+
+
 def apply_anonymization(data: list[dict], report: dict,
-                        date_shift_seed: int | None = None) -> tuple[list[dict], dict, list[dict]]:
+                        date_shift_seed: int | None = None,
+                        prior_mapping: dict[str, dict] | None = None) -> tuple[list[dict], dict, list[dict]]:
     """Apply approved anonymization actions.
 
-    Returns (de-identified data, mapping dict, audit entries).
+    With `prior_mapping` (a previous run's mapping.json, loaded by
+    load_mapping), values already seen keep their pseudonym, ID, and date
+    offset, and new values continue numbering after the previous run's.
+    Without it, every run numbers from 0001, so merging outputs from
+    separate runs silently collides patients. Returns (de-identified data, mapping dict, audit entries).
     """
     classifications = report["classifications"]
     to_anonymize = {c["column"]: c for c in classifications
@@ -1114,11 +1177,14 @@ def apply_anonymization(data: list[dict], report: dict,
     key = report.get("patient_key") or {}
     key_col = key.get("column") if key.get("type") == "column" else None
 
-    # Initialize anonymizers
-    name_gen = PseudonymGenerator(prefix="P")
-    id_gen = IDReplacer(prefix="ID")
+    # Initialize anonymizers (resumed from a previous run's mapping when
+    # --mapping-in was given, so batches of one cohort stay consistent).
+    prior = prior_mapping or {}
+    name_gen = PseudonymGenerator(prefix="P", initial=prior.get("names"))
+    id_gen = IDReplacer(prefix="ID", initial=prior.get("ids"))
     # No seed by default: offsets come from the OS CSPRNG (see DateShifter).
-    date_shifter = DateShifter(seed=date_shift_seed)
+    date_shifter = DateShifter(seed=date_shift_seed,
+                               initial_offsets=prior.get("date_offsets"))
     audit_key = secrets.token_bytes(32)
 
     meta: dict = {
@@ -1353,7 +1419,9 @@ def cmd_apply(args: argparse.Namespace) -> None:
     _exit_on_review_problems(report, data, meta["headers"])
 
     log.info("Applying anonymization ...")
-    clean_data, mapping, audit = apply_anonymization(data, report)
+    prior = (load_mapping(args.mapping_in)
+             if getattr(args, "mapping_in", None) else None)
+    clean_data, mapping, audit = apply_anonymization(data, report, prior_mapping=prior)
 
     # Write outputs
     deid_path = write_deidentified_file(clean_data, input_path, output_dir)
@@ -1421,7 +1489,9 @@ def cmd_full(args: argparse.Namespace) -> None:
 
     # Apply
     log.info("Applying anonymization ...")
-    clean_data, mapping, audit = apply_anonymization(data, reviewed)
+    prior = (load_mapping(args.mapping_in)
+             if getattr(args, "mapping_in", None) else None)
+    clean_data, mapping, audit = apply_anonymization(data, reviewed, prior_mapping=prior)
 
     # Write outputs
     deid_path = write_deidentified_file(clean_data, input_path, output_dir)
@@ -1477,6 +1547,8 @@ def main() -> None:
     p_apply.add_argument("report_file", help="Path to reviewed_report.json")
     p_apply.add_argument("--hash-mapping", action="store_true",
                          help="Hash original values in mapping file (unkeyed: dates and IDs stay recoverable)")
+    p_apply.add_argument("--mapping-in", type=str, metavar="PATH",
+                         help="Reuse a previous run's mapping.json so values already de-identified keep the same pseudonym, ID, and date offset (prevents silent collisions when outputs from separate runs are merged)")
 
     # full
     p_full = sub.add_parser("full", help="Full pipeline: scan + review + apply")
@@ -1487,6 +1559,8 @@ def main() -> None:
                         help="Keep SAFE columns without showing them (SAFE means no pattern matched)")
     p_full.add_argument("--hash-mapping", action="store_true",
                         help="Hash original values in mapping file (unkeyed: dates and IDs stay recoverable)")
+    p_full.add_argument("--mapping-in", type=str, metavar="PATH",
+                        help="Reuse a previous run's mapping.json so values already de-identified keep the same pseudonym, ID, and date offset (prevents silent collisions when outputs from separate runs are merged)")
 
     args = parser.parse_args()
 

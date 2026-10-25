@@ -95,6 +95,11 @@ python3 ${CLAUDE_SKILL_DIR}/deidentify.py apply ./deidentified/reviewed_report.j
 - `--hash-mapping`: Store unkeyed SHA-256 hashes instead of original names/IDs in the mapping
   file. Dates and numeric IDs can be recovered from such hashes by trying every candidate, so
   mapping.json stays restricted either way
+- `--mapping-in PATH` (`apply`/`full`): Reuse a previous run's mapping.json, so values already
+  de-identified keep the same pseudonym, ID, and date offset. Without it, every run numbers
+  from 0001: merging outputs from separate runs silently gives two patients the same pseudonym
+  (and one patient different ones). A `--hash-mapping` file cannot be reused this way, since
+  its keys are hashes, not original values
 - `--output-dir`: Where to save de-identified file, mapping, and audit log
 - `-v/--verbose`: Enable debug logging
 

@@ -1053,13 +1053,13 @@
     },
     {
       "path": "skills/deidentify/SKILL.md",
-      "size": 13730,
-      "sha256": "689c838b85dbc5f6cd114e902b120671997881c4321fd99e866cc9280b3dd40a"
+      "size": 14148,
+      "sha256": "d24f011bfc01b267c95b0c5356eda74e5a6708f4b80f9cb48967da56749027fe"
     },
     {
       "path": "skills/deidentify/deidentify.py",
-      "size": 61358,
-      "sha256": "3404e1d3d5683d1b613b035d185e3766510fa4aa0df810983d8561894a3feda3"
+      "size": 65803,
+      "sha256": "cbc5da298922862b895f6a84cd63e263d1d6c3dfe242f15df092ae39d18fd7cd"
     },
     {
       "path": "skills/deidentify/locales/_template.json",
