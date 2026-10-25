@@ -24,6 +24,13 @@
 
 ### Fixed
 
+- **`/render-pdf-doc`: Korean and English spacing in the PDF.** `render_pdf.sh` always sets
+  `CJKmainfont`, which loads xeCJK with Chinese defaults: the space after curly quotes and en/em
+  dashes was deleted (`“no difference”and`, 47 places in one 20-page English letter), and a space
+  was inserted wherever Latin letters or digits met Hangul (`AI를` printed as `AI 를`). The wrapper now
+  classes quotes and dashes as Western text and turns the automatic Latin–CJK space off
+  (`scripts/xecjk_korean.tex`), appended to the document's `header-includes` (a Lua filter) or added
+  as one more `-H` when the caller passes `-H`. `--xecjk-defaults` restores xeCJK's behaviour.
 - **Skill instructions that pointed at things that no longer exist** (#678–#680). These are
   corrections from an audit of SKILL.md text. No detector or script verdict changed.
   - `/self-review` sent diagnostic-accuracy panels to the meta-analysis probe. It now routes them to

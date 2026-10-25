@@ -109,6 +109,20 @@ documented route), adds `classoption: fontsize=<size>` when you set no
 `classoption` (KOMA reads a fractional size such as `8.5pt` only that way), and
 logs the switch. Set `documentclass` yourself to override it.
 
+xeCJK's defaults are set for Chinese: they delete the space after curly quotes
+and en/em dashes, and insert one wherever Latin letters or digits meet Hangul:
+
+```text
+typed:    “no difference” and      AI를 썼다    3개
+printed:  “no difference”and       AI 를 썼다   3 개
+```
+
+The wrapper turns both off (`scripts/xecjk_korean.tex`) so the PDF keeps the spaces you typed. It is
+appended to your `header-includes`; if you pass `-H` after `--` (which replaces
+`header-includes`), the file is added as one more `-H`. `--xecjk-defaults` keeps
+xeCJK's own spacing, e.g. for Chinese or Japanese text. Check with
+`pdftotext -layout out.pdf - | grep -cE '[”’][A-Za-z]'` (0 apart from possessives).
+
 ### Step 3.5 — Scientific-symbol + CJK glyph scan (before render)
 
 xelatex can finish successfully with missing glyphs. `render_pdf.sh` counts the

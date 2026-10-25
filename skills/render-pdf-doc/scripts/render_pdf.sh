@@ -4,7 +4,7 @@
 # Usage:
 #   render_pdf.sh -i input.md [-o output.pdf] [--infer-colwidths]
 #                 [--font "Apple SD Gothic Neo"] [--cjk-font "Apple SD Gothic Neo"]
-#                 [--allow-missing-glyphs] [-- <extra pandoc args>]
+#                 [--allow-missing-glyphs] [--xecjk-defaults] [-- <extra pandoc args>]
 #
 # Defaults:
 #   - macOS: mainfont/CJKmainfont = "Apple SD Gothic Neo"
@@ -25,6 +25,13 @@
 # --quiet); any at all is exit 4 with the glyphs listed
 # (the PDF is written but incomplete) unless --allow-missing-glyphs is given.
 #
+# CJKmainfont loads xeCJK, whose defaults suit Chinese: it deletes the space after
+# curly quotes and en/em dashes ("assessed.”The") and inserts one wherever Latin
+# letters or digits meet CJK characters ("AI를" -> "AI 를"). scripts/xecjk_korean.tex
+# keeps the spaces the author typed; it is appended to the document's
+# header-includes, or added as one more -H when the caller passes -H (which
+# already replaces header-includes). --xecjk-defaults leaves xeCJK's defaults on.
+#
 # Exit: 0 ok, 1 usage, 2 input missing, 3 dependency missing, 4 missing glyphs,
 #       otherwise pandoc's own exit code.
 
@@ -38,6 +45,7 @@ INFER_COLWIDTHS=0
 MAINFONT=""
 CJKFONT=""
 ALLOW_MISSING_GLYPHS=0
+XECJK_DEFAULTS=0
 EXTRA=()
 
 usage() {
@@ -52,6 +60,7 @@ Options:
   --cjk-font NAME       CJKmainfont fallback when absent from frontmatter (default: OS-detected)
   --allow-missing-glyphs
                         Report characters the font lacks but still exit 0 (default: exit 4)
+  --xecjk-defaults      Keep xeCJK's Chinese-style spacing (default: Korean/English spacing)
   -h | --help           Help
 
 Pass-through: any args after '--' go directly to pandoc.
@@ -67,6 +76,7 @@ while [[ $# -gt 0 ]]; do
     --font) MAINFONT="$2"; shift 2 ;;
     --cjk-font) CJKFONT="$2"; shift 2 ;;
     --allow-missing-glyphs) ALLOW_MISSING_GLYPHS=1; shift ;;
+    --xecjk-defaults) XECJK_DEFAULTS=1; shift ;;
     -h|--help) usage ;;
     --) shift; EXTRA=("$@"); break ;;
     *) EXTRA+=("$1"); shift ;;
@@ -192,6 +202,17 @@ ARGS=(
   --metadata-file "$RENDER_TMP/metadata.json"
   -o "$OUTPUT"
 )
+if [[ "$XECJK_DEFAULTS" == "0" ]]; then
+  CALLER_H=0
+  for _a in ${EXTRA[@]+"${EXTRA[@]}"}; do
+    case "$_a" in -H|-H?*|--include-in-header|--include-in-header=*) CALLER_H=1 ;; esac
+  done
+  if [[ "$CALLER_H" == "1" ]]; then
+    ARGS+=(--include-in-header "$SCRIPT_DIR/xecjk_korean.tex")
+  else
+    ARGS+=(--lua-filter "$SCRIPT_DIR/xecjk_korean.lua")
+  fi
+fi
 
 echo "[render_pdf] in=$INPUT out=$OUTPUT infer=$INFER_COLWIDTHS" >&2
 echo "[render_pdf] font fallbacks: mainfont='$MAINFONT' CJK='$CJKFONT'; frontmatter overrides fallbacks, explicit pandoc -V/-M overrides frontmatter" >&2

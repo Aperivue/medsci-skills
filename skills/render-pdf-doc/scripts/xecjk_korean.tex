@@ -1,0 +1,12 @@
+% CJKmainfont loads xeCJK, whose defaults suit Chinese text: it treats curly
+% quotes and en/em dashes as CJK punctuation and deletes the space after them
+% ("assessed.”The"), and it inserts a space wherever Latin letters or digits meet
+% CJK characters ("AI를" printed as "AI 를"). Korean and English text keeps the
+% spaces the author typed: class the quotes and dashes as Western text and turn the
+% automatic Latin-CJK space off. Does nothing when xeCJK is not loaded.
+\makeatletter
+\@ifpackageloaded{xeCJK}{%
+  \xeCJKDeclareCharClass{Default}{"2013,"2014,"2018,"2019,"201C,"201D}%
+  \xeCJKsetup{CJKecglue={}}%
+}{}
+\makeatother
