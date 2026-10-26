@@ -4658,8 +4658,8 @@
     },
     {
       "path": "skills/render-pdf-doc/SKILL.md",
-      "size": 8379,
-      "sha256": "770bcc52e57c8b84881328f83ee81e3b244adf2189c844cdd3f047b15f4e806e"
+      "size": 9295,
+      "sha256": "43a78b1455bc0fdfa11ab28a1c6e39850608f5d3d1967751976f806a380fa864"
     },
     {
       "path": "skills/render-pdf-doc/references/known_pitfalls.md",
@@ -4683,13 +4683,23 @@
     },
     {
       "path": "skills/render-pdf-doc/scripts/render_pdf.sh",
-      "size": 11194,
-      "sha256": "8b76be5a1a8e297d235616860e221ee6e96dc2770adc6fa6e62dace5bb900e83"
+      "size": 12243,
+      "sha256": "4ff5a571de175a5323f7aca077ecc578dcb4815f187f4ef579a11f5ca83adb44"
     },
     {
       "path": "skills/render-pdf-doc/scripts/scan_glyph_coverage.py",
       "size": 10494,
       "sha256": "911f5cf0f5b511bcecfefe0b00ca04548a09edc3b4e39a70fa379373a589b8b8"
+    },
+    {
+      "path": "skills/render-pdf-doc/scripts/xecjk_korean.lua",
+      "size": 691,
+      "sha256": "c33cd72343930bf50c5e240971073e4975b17bfe1e505550ea924f737d721ee3"
+    },
+    {
+      "path": "skills/render-pdf-doc/scripts/xecjk_korean.tex",
+      "size": 655,
+      "sha256": "49c56074e87544162c9136149f4d8d6d93135f63a6ca2f600b5c61539a7a8194"
     },
     {
       "path": "skills/render-pdf-doc/skill.yml",
