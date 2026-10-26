@@ -433,6 +433,31 @@ PY
   else
     bad "--abbrev-warning with a @string journal (rc=$rc): $out"
   fi
+  # An output option among the render's extra pandoc options must not reach the check: it would write
+  # the check's JSON over the finished document.
+  bash "$HERE/../scripts/render_pandoc.sh" -S -j vancouver -i "$rwork/abbr.md" -b "$rwork/abbr.bib" \
+    -o "$rwork/abbr.docx" -- --output="$rwork/final.docx" >/dev/null 2>&1
+  if python3 -c 'import sys, zipfile; sys.exit(0 if zipfile.is_zipfile(sys.argv[1]) else 1)' "$rwork/final.docx"; then
+    pass "render_pandoc: an --output among the extra options keeps the rendered document intact"
+  else
+    bad "render_pandoc: the document given by --output was overwritten (not a .docx any more)"
+  fi
+  # Macros and entry types as pandoc reads them: an empty @string shortjournal is no abbreviation,
+  # a @string naming arXiv is a preprint, and a newspaper article takes the full title by design.
+  cat > "$rwork/kinds.bib" <<'BIB'
+@string{empty = {}}
+@string{pre = {arXiv}}
+@article{emptyShort2020, author={Alpha, Ada}, title={T1}, journal={Journal of Synthetic Methods}, shortjournal=empty, year={2020}}
+@article{macroPre2021, author={Beta, Boris}, title={T2}, journal=pre, year={2021}}
+@article{news2022, author={Gamma, Grace}, title={T3}, entrysubtype={newspaper}, journal={Example Daily News}, year={2022}}
+BIB
+  printf 'A [@emptyShort2020; @macroPre2021; @news2022].\n' > "$rwork/kinds.md"
+  out="$(python3 "$SCRIPT" --csl "$STYLES/vancouver.csl" --bib "$rwork/kinds.bib" --md "$rwork/kinds.md" --abbrev-warning 2>&1)"; rc=$?
+  if [[ $rc -eq 0 && "$out" == *"emptyShort2020"* && "$out" != *"macroPre2021"* && "$out" != *"news2022"* ]]; then
+    pass "--abbrev-warning: macros and entry types are judged as pandoc reads them"
+  else
+    bad "--abbrev-warning with macros and a newspaper article (rc=$rc): $out"
+  fi
   # A dependent style whose parent is not alongside cannot be judged: said, never a silent pass.
   sed 's#styles/springer-basic-brackets"#styles/no-such-parent"#' "$STYLES/european-radiology.csl" > "$rwork/orphan.csl"
   out="$(python3 "$SCRIPT" --csl "$rwork/orphan.csl" --bib "$rwork/abbr.bib" --md "$rwork/abbr.md" --abbrev-warning 2>&1)"; rc=$?

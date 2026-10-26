@@ -190,10 +190,11 @@ def cited_keys(md: str, pandoc_args=()):
     if not Path(md).is_file():
         raise RenderError(f"manuscript not found: {md}")
     try:
-        # The render's own options come last, so a reader option there (`--from=markdown-citations`)
-        # decides what is cited here exactly as it did in the render.
-        proc = subprocess.run(["pandoc", "-f", "markdown", *pandoc_args, "-t", "json", md],
-                              capture_output=True, text=True)
+        # The render's reader options come last, so one there (`--from=markdown-citations`) decides
+        # what is cited here exactly as it did in the render. Only reader options are passed: an
+        # `--output` among the render's options would otherwise overwrite the render with JSON.
+        proc = subprocess.run(["pandoc", "-f", "markdown", *reader_options(pandoc_args), "-t", "json",
+                               "-o", "-", md], capture_output=True, text=True)
     except FileNotFoundError as exc:
         raise RenderError("--md needs pandoc to read the manuscript's citations; pandoc not found on PATH") from exc
     if proc.returncode != 0:
@@ -211,15 +212,67 @@ def cited_keys(md: str, pandoc_args=()):
     return None if "*" in keys else keys
 
 
-def _journal_entries(bib_text: str, only=None):
-    """(key, has_shortjournal) for each entry in scope that names a journal, preprint servers excluded.
+_READER_OPTS = {"-f", "--from", "-r", "--read", "-M", "--metadata", "--metadata-file"}
 
-    Read from the parsed fields, so a journal given as a @string macro (`journal = jname`) counts:
-    pandoc expands it and prints the full name. A macro shortjournal counts as present.
+
+def reader_options(args) -> list[str]:
+    """The options among a render's extra pandoc arguments that change what pandoc reads as cited.
+
+    Output, writer and filter options are dropped: the citation parse writes JSON to stdout only.
+    """
+    args, out, i = list(args), [], 0
+    while i < len(args):
+        a = args[i]
+        if a.split("=", 1)[0] in _READER_OPTS and "=" in a:
+            out.append(a)
+        elif a in _READER_OPTS and i + 1 < len(args):
+            out += [a, args[i + 1]]
+            i += 1
+        elif a[:2] in ("-f", "-r", "-M") and len(a) > 2:  # -fmarkdown, -Mkey=value
+            out.append(a)
+        i += 1
+    return out
+
+
+def _pandoc_items(bib_text: str):
+    """The bibliography as pandoc reads it (CSL-JSON items), or None when pandoc is not installed.
+
+    pandoc has already expanded @string macros, chosen journaltitle over journal, and typed each
+    entry (an @article with entrysubtype newspaper is an article-newspaper), so nothing is guessed.
+    """
+    try:
+        proc = subprocess.run(["pandoc", "-f", "biblatex", "-t", "csljson"], input=bib_text,
+                              capture_output=True, text=True)
+    except FileNotFoundError:
+        return None
+    if proc.returncode != 0:
+        raise RenderError(f"pandoc cannot read the bib: {' '.join(proc.stderr.split())[:300]}")
+    return json.loads(proc.stdout or "[]")
+
+
+def _journal_entries(bib_text: str, only=None):
+    """(key, has_shortjournal) for each journal article in scope, preprint servers excluded.
+
+    Journal articles are the entries a style prints with the short journal title; a newspaper or
+    magazine article usually takes the full title in its own branch. Read from pandoc's own reading
+    of the bib when pandoc is installed; otherwise from the parsed fields, where a @string macro
+    journal counts and a macro shortjournal counts as present.
     """
     bib_entries(bib_text)  # raises RenderError on unbalanced braces
+    items = _pandoc_items(bib_text)
+    if items is not None:
+        out = []
+        for it in items:
+            title = str(it.get("container-title") or "").strip()
+            if ((only is not None and it.get("id") not in only) or it.get("type") != "article-journal"
+                    or not title or PREPRINT_RE.match(title)):
+                continue
+            out.append((it.get("id"), bool(str(it.get("container-title-short") or "").strip())))
+        return out
     out = []
     for e in parse_bib(bib_text):
+        if e["type"].lower() != "article" or (_value(e, "entrysubtype") or "").lower() in ("newspaper", "magazine"):
+            continue
         if not e["key"] or (only is not None and e["key"] not in only):
             continue
         jf = e["fields"].get("journaltitle") or e["fields"].get("journal")
