@@ -359,6 +359,54 @@ BIB
   else
     bad "render_pandoc control (rc=$rc): $err"
   fi
+
+  # 7b. After the render, a cited journal entry without shortjournal is named (the style prints the
+  #     short journal title, which falls back to the full one), as a warning: the render still exits 0.
+  #     An uncited entry and a book are not named. A dependent style is judged by its parent.
+  printf 'A [@citedA2020] and [@book2019].\n' > "$rwork/abbr.md"
+  cat > "$rwork/abbr.bib" <<'BIB'
+@article{citedA2020, author={Alpha, Ada}, title={A cited study}, journal={Journal of Synthetic Methods}, year={2020}}
+@article{uncitedB2021, author={Beta, Boris}, title={An uncited study}, journal={Synthetic Reports}, year={2021}}
+@book{book2019, author={Delta, Dan}, title={A synthetic handbook}, publisher={Example Press}, year={2019}}
+BIB
+  for style in vancouver european-radiology; do
+    err="$(bash "$HERE/../scripts/render_pandoc.sh" -S -j "$style" -i "$rwork/abbr.md" \
+             -b "$rwork/abbr.bib" -o "$rwork/abbr.docx" 2>&1 >/dev/null)"; rc=$?
+    warn="$(printf '%s\n' "$err" | grep 'WARNING: journal abbreviations')"
+    if [[ $rc -eq 0 && "$warn" == *"citedA2020"* && "$warn" != *"uncitedB2021"* && "$warn" != *"book2019"* \
+          && "$err" == *"[render] ok"* ]]; then
+      pass "render_pandoc ($style): a cited journal entry without shortjournal is named; render still ok"
+    else
+      bad "render_pandoc abbreviation warning ($style) (rc=$rc): $err"
+    fi
+  done
+  # Control: with the abbreviation present there is nothing to say.
+  sed 's/journal={Journal of Synthetic Methods},/journal={Journal of Synthetic Methods}, shortjournal={J Synth Methods},/' \
+    "$rwork/abbr.bib" > "$rwork/abbr_filled.bib"
+  err="$(bash "$HERE/../scripts/render_pandoc.sh" -S -j vancouver -i "$rwork/abbr.md" \
+           -b "$rwork/abbr_filled.bib" -o "$rwork/abbr.docx" 2>&1 >/dev/null)"; rc=$?
+  if [[ $rc -eq 0 && "$err" != *"journal abbreviations"* && "$err" != *"did not run"* ]]; then
+    pass "render_pandoc control: every cited journal entry abbreviated -> no warning"
+  else
+    bad "render_pandoc abbreviation control (rc=$rc): $err"
+  fi
+  # A style that prints the full journal title has nothing to abbreviate: no warning.
+  sed 's/<text form="short" strip-periods="true" variable="container-title"\/>/<text variable="container-title"\/>/' \
+    "$STYLES/vancouver.csl" > "$rwork/full_title.csl"
+  out="$(python3 "$SCRIPT" --csl "$rwork/full_title.csl" --bib "$rwork/abbr.bib" --md "$rwork/abbr.md" --abbrev-warning 2>&1)"; rc=$?
+  if [[ $rc -eq 0 && -z "$out" ]]; then
+    pass "--abbrev-warning: a full-title style needs no abbreviation, so no warning"
+  else
+    bad "--abbrev-warning with a full-title style (rc=$rc): $out"
+  fi
+  # A dependent style whose parent is not alongside cannot be judged: said, never a silent pass.
+  sed 's#styles/springer-basic-brackets"#styles/no-such-parent"#' "$STYLES/european-radiology.csl" > "$rwork/orphan.csl"
+  out="$(python3 "$SCRIPT" --csl "$rwork/orphan.csl" --bib "$rwork/abbr.bib" --md "$rwork/abbr.md" --abbrev-warning 2>&1)"; rc=$?
+  if [[ $rc -eq 2 && "$out" == *"cannot tell"* ]]; then
+    pass "--abbrev-warning: a dependent style without its parent -> cannot tell, exit 2"
+  else
+    bad "--abbrev-warning with a missing parent (rc=$rc): $out"
+  fi
   rm -rf "$rwork"
 else
   echo "  SKIP  sample-citation and unresolved-citation render checks (pandoc unavailable)"

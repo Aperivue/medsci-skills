@@ -38,6 +38,10 @@ never read as a full title in the render; such entries are listed in ``abbrev_pr
 never print. ``nocite: '@*'`` lists every entry, so the whole .bib is judged; so it is without
 ``--md``.
 
+``--abbrev-warning --md manuscript.md`` is the light mode ``render_pandoc.sh`` runs after every
+render: no sample render and no verdict, only the cited journal entries this style will print with
+the full title (it reads the style, or its parent for a dependent style, for a short journal title).
+
 With nothing to compare (no ``--journal``, no ``--expect-*``, or only ``--expect-abbrev no``,
 which asks for no check) the render is still printed as JSON, but the run ends NOT_ASSESSED with
 exit 2, never PASS.
@@ -349,6 +353,49 @@ def analyze(csl: str, bib: str, only=None) -> dict:
             "abbrev_not_assessed": not_assessed, "abbrev_preprint": preprint,
             "sampled": keys, "superscript_runs": sup}
 
+_CSL_TEXT_TAG = re.compile(r"<text\b[^>]*>")
+_CSL_PARENT = re.compile(r'<link\b[^>]*href="[^"]*/([\w-]+)"[^>]*rel="independent-parent"|'
+                         r'<link\b[^>]*rel="independent-parent"[^>]*href="[^"]*/([\w-]+)"')
+
+
+def prints_short_titles(csl: str):
+    """True if the style prints the short journal title, False if not, None if it cannot be told.
+
+    A dependent style takes its layout from its parent, which is read from the same folder.
+    """
+    try:
+        xml = Path(csl).read_text(encoding="utf-8")
+    except OSError:
+        return None
+    parent = _CSL_PARENT.search(xml)
+    if parent:
+        parent_csl = Path(csl).with_name((parent.group(1) or parent.group(2)) + ".csl")
+        return prints_short_titles(str(parent_csl)) if parent_csl.is_file() else None
+    return any('variable="container-title"' in tag and 'form="short"' in tag
+               for tag in _CSL_TEXT_TAG.findall(xml))
+
+
+def abbrev_warning(csl: str, bib: str, md: str) -> list[str]:
+    """Warning lines for the cited journal entries this style will print with the FULL title.
+
+    Empty when there are none, or when the style prints full titles anyway (nothing to abbreviate).
+    Raises RenderError when the check cannot be made (unreadable bib, pandoc missing, ...).
+    """
+    short = prints_short_titles(csl)
+    name = os.path.basename(csl)
+    if short is None:
+        raise RenderError(f"cannot tell whether {name} prints abbreviated journal titles")
+    if not short:
+        return []
+    missing = keys_missing_shortjournal(_read_bib(bib), cited_keys(md))
+    if not missing:
+        return []
+    shown = ", ".join(missing[:20]) + (f" (+{len(missing) - 20} more)" if len(missing) > 20 else "")
+    return [f"journal abbreviations: {len(missing)} cited journal entr{'y has' if len(missing) == 1 else 'ies have'} "
+            f"no shortjournal, so {name} prints the FULL journal name: {shown}",
+            "  fill_journal_abbrev.py adds them (check any value it marks as CrossRef)"]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csl", required=True)
@@ -358,7 +405,22 @@ def main():
     ap.add_argument("--expect-doi", type=int, choices=[0, 1])
     ap.add_argument("--expect-abbrev", choices=["yes", "no"])
     ap.add_argument("--md", help="manuscript (.md); judge only the keys it cites")
+    ap.add_argument("--abbrev-warning", action="store_true",
+                    help="with --md: only list cited journal entries the style prints in full (no render, "
+                         "no verdict); exit 0, or 2 if the check could not run")
     a = ap.parse_args()
+    if a.abbrev_warning:
+        if not a.md:
+            print("ERROR: --abbrev-warning needs --md", file=sys.stderr)
+            sys.exit(2)
+        try:
+            lines = abbrev_warning(a.csl, a.bib, a.md)
+        except RenderError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            sys.exit(2)
+        if lines:
+            print("\n".join(lines))
+        sys.exit(0)
     only = None
     if a.md:
         try:

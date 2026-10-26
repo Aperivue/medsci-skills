@@ -34,6 +34,9 @@ Options:
 
 Pass-through: any args after '--' go directly to pandoc.
 
+After the render it warns (never blocks) about cited journal entries without a
+shortjournal field, which a style printing abbreviated journal names prints in full.
+
 Exit codes: 0 ok; 1 usage; 2 missing CSL/input/bib; 3 reference audit found
 FABRICATED/MISMATCH; 5 citation(s) not found in the .bib (rendered as '(key?)');
 other non-zero codes come from pandoc itself.
@@ -146,5 +149,21 @@ if [[ -n "$missing_cites" ]]; then
   printf '%s\n' "$missing_cites" | sed 's/^/  [@/; s/$/]/' >&2
   echo "       Add the entries to the .bib (or fix the keys), then render again. Do not submit $OUTPUT." >&2
   exit 5
+fi
+
+# Journal abbreviations. A style that prints the short journal title falls back to the full title
+# for any entry without `shortjournal`, silently, so a reference list can mix the two. Name the cited
+# entries affected. A warning only: it never blocks the render, and says so when it could not run.
+if command -v python3 >/dev/null 2>&1; then
+  set +e
+  abbrev_out="$(python3 "${SCRIPT_DIR}/check_csl_render.py" --csl "$CSL_FILE" --bib "$BIB" \
+                  --md "$INPUT" --abbrev-warning 2>&1)"
+  abbrev_rc=$?
+  set -e
+  if [[ $abbrev_rc -ne 0 ]]; then
+    echo "[render] journal-abbreviation check did not run: ${abbrev_out#ERROR: }" >&2
+  elif [[ -n "$abbrev_out" ]]; then
+    printf '%s\n' "$abbrev_out" | sed '1s/^/[render] WARNING: /; 2,$s/^/[render] /' >&2
+  fi
 fi
 echo "[render] ok → $OUTPUT" >&2
