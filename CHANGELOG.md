@@ -21,9 +21,26 @@
   effects. It matches the asymmetry test to the measure and says when not to test (k < 10, studies
   of similar size, no 2×2 counts for an OR or RR). It also covers contour shading, multi-arm studies,
   and trim-and-fill as a sensitivity analysis only. Contributed by @Steve0012345 (#691).
+- **`/manage-refs`: the official JMIR CSL** (`journal-of-medical-internet-research.csl`), identical to
+  the upstream style the JMIR reference guide links. It lists every author: 2025 JMIR papers use both
+  that and AMA's first three + et al., and the guide accepts minor variation. The author-name test now
+  requires the et-al rule a style declares, so a style that declares none must print every author.
+- **`/manage-refs`: `render_pandoc.sh` warns about cited journal entries the style prints in full**
+  (#699). Every bundled independent style prints the short journal title, which falls back to the full
+  one for an entry without `shortjournal`. After the render the cited entries affected are named; the
+  render never fails because of it, and says so when the check could not run.
 
 ### Fixed
 
+- **`/manage-refs`: `fill_journal_abbrev.py` no longer breaks the bib it fills** (#698). Its insertion
+  pattern knew only tab indentation, so on a two-space bib it appended `shortjournal` after a last
+  field with no comma and pandoc could not read the file. It now inserts after the journal value in
+  the entry's own indentation, falls back to CrossRef (naming each CrossRef value, often ISO 4 rather
+  than NLM), reports a failed lookup instead of passing it as "no record", and refuses to write when
+  the input or its own output does not parse.
+- **`/manage-refs`: `check_csl_render.py` verdicts** (#698). A run with nothing to compare ends
+  NOT_ASSESSED (exit 2) instead of PASS; `--md` judges only the keys pandoc reads as cited; a preprint
+  server named as the journal is not a missing abbreviation; a `jmir` spec is added.
 - **Skill instructions that pointed at things that no longer exist** (#678–#680). These are
   corrections from an audit of SKILL.md text. No detector or script verdict changed.
   - `/self-review` sent diagnostic-accuracy panels to the meta-analysis probe. It now routes them to

@@ -14,7 +14,7 @@
     {
       "path": "THIRD-PARTY-NOTICES.md",
       "size": 4272,
-      "sha256": "daa9dae2d6a046ea10049b1b3515b43cf7b9fc94338dea8c21412a85e62e0c04"
+      "sha256": "b63e3114160a561bae565ede5073e85e59f92f656fafc2f574fcb761985fcc11"
     },
     {
       "path": "installers/check-setup-macos.command",
@@ -2788,8 +2788,8 @@
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
-      "size": 8910,
-      "sha256": "4a7d6b272ee1dbc9cd1cbe06171236c7cf0ea7912fb21bbc6f79566dc61c8cfc"
+      "size": 9271,
+      "sha256": "79ccb96989c1d42fe16a5b18cad4d84ba331855bc11345b93ab5d6eb9c0ae592"
     },
     {
       "path": "skills/manage-refs/citation_styles/american-association-for-cancer-research.csl",
@@ -2867,6 +2867,11 @@
       "sha256": "fd78028299fcdc7b1e257c69c34b223c024cc2dfd03703597116e3fc1e955d69"
     },
     {
+      "path": "skills/manage-refs/citation_styles/journal-of-medical-internet-research.csl",
+      "size": 8391,
+      "sha256": "fd12cf2ba27f18a9414af4db730463b582a078f713ff4eb2a281a5ead7e11dac"
+    },
+    {
       "path": "skills/manage-refs/citation_styles/korean-journal-of-radiology.csl",
       "size": 5849,
       "sha256": "edde670da20212820d54649dcb96594db835eb55498e88c7de41891dfb370114"
@@ -2933,8 +2938,8 @@
     },
     {
       "path": "skills/manage-refs/references/REFERENCE_STYLE_SPECS.md",
-      "size": 5578,
-      "sha256": "522ee706623f4b0c9272425b594b1d050c88c4189b30507fc9d2e0dd158eb303"
+      "size": 5642,
+      "sha256": "ddac7d75da635cd43e00d98e19da6063200d5d2eff6e4d898253746c07ba0361"
     },
     {
       "path": "skills/manage-refs/references/check_xref_symptoms.md",
