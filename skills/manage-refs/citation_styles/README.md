@@ -35,6 +35,7 @@ Source: https://github.com/citation-style-language/styles (zotero/styles).
 | `the-breast.csl` | The Breast (Elsevier) | Dependent on `elsevier-vancouver.csl` (must be in same dir) |
 | `elsevier-vancouver.csl` | Elsevier NLM/Vancouver citation-sequence house style | Independent. Parent of `the-breast.csl`; also a fallback for Elsevier journals that cite "Vancouver" |
 | `methods-of-information-in-medicine.csl` | Methods of Information in Medicine (MIM, Thieme) — flagship medical-informatics journal | Independent. Superscript numerals, abbreviated journal names, et-al after 6 (first 3 + et al), no DOI |
+| `journal-of-medical-internet-research.csl` | JMIR (Journal of Medical Internet Research) | Independent. Bracketed numerals, abbreviated journal names, every author listed (no et al), DOI or PMID. The style the JMIR reference guide links. Citation ranges come out with an en dash, while JMIR asks for a hyphen (`[2-13]`) |
 
 ## Missing — use fallback
 
@@ -62,7 +63,7 @@ for s in european-radiology radiology american-journal-of-roentgenology \
          american-association-for-cancer-research clinical-cancer-research \
          the-lancet the-lancet-oncology breast-cancer-research-and-treatment \
          clinical-breast-cancer the-breast elsevier-vancouver \
-         methods-of-information-in-medicine; do
+         methods-of-information-in-medicine journal-of-medical-internet-research; do
   curl -fsSL -o "${s}.csl" "https://www.zotero.org/styles/${s}"
 done
 ```

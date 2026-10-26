@@ -29,7 +29,7 @@ for the pandoc render while keeping the original for Zotero CWYW.
 | kjr | Korean J Radiol | superscript | none | abbrev | — | — | — | full; ⚠ VERIFY |
 | eur-radiol | European Radiology | bracket `[1]` | yes | full ok | — | — | — | stub→springer-basic; ⚠ VERIFY |
 | cvir | Cardiovasc Intervent Radiol | bracket `[1]` | yes | full ok | — | — | — | stub→springer-vancouver; ⚠ VERIFY |
-| **jmir** | J Med Internet Res | **bracket `[1]`**, ranges with a **hyphen** `[2-13]` | **PMID or DOI** (either; not asserted) | **abbrev** | — (AMA 11th recommended) | preprints: **full posting date** | — | official JMIR CSL, not bundled; ✅ verified 2026-10-25 |
+| **jmir** | J Med Internet Res | **bracket `[1]`**, ranges with a **hyphen** `[2-13]` | **PMID or DOI** (either; not asserted) | **abbrev** | all listed by the official style; AMA first 3 + et al also accepted | preprints: **full posting date** | — | `journal-of-medical-internet-research.csl` (official); ✅ verified 2026-10-25 |
 
 **Legend:** ✅ verified against author guide · ⚠ inherited from Zotero, not yet
 confirmed against the journal's Instructions for Authors. Confirm and update the

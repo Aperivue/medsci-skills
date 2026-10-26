@@ -16,8 +16,9 @@
 # POSITIVE: the {Family, Full Given} entry SKILL.md prescribes must not come out given-name-first.
 # NEGATIVE control: every CSL still prints both family names (the entry rendered at all).
 # The same missing inheritance also switched off et-al truncation (bibliography et-al-min /
-# et-al-use-first): an eight-author entry printed all eight names. Every bundled CSL truncates an
-# eight-author list, so the eighth author must not appear.
+# et-al-use-first): an eight-author entry printed all eight names. A style that declares et-al-min
+# must therefore drop the eighth author; one that declares no et-al rule (the JMIR style, matching
+# journals that list every author) must print all eight.
 # EDITORS: a book with editors and no author falls back to the one-line <names variable="editor"/>
 # inside the author <substitute>, which inherits the author <name>. An explicit <name/> there drops
 # that inheritance, and the editors print given-name-first; this happened once in a contributed
@@ -69,6 +70,9 @@ for csl in "$STYLES"/*.csl; do
     continue
   fi
   checked=$((checked + 1))
+  # A style that declares an et-al rule must apply it (the pandoc inheritance bug above dropped it);
+  # a style that declares none lists every author, as the JMIR style does on purpose.
+  if grep -q 'et-al-min=' "$csl"; then truncates=yes; else truncates=no; fi
   out="$(pandoc "$WORK/ms.md" --citeproc --bibliography "$WORK/refs.bib" --csl "$csl" -t plain --wrap=none 2>&1)"
   if [[ "$out" == *"Jong Hyun Kim"* || "$out" == *"Su Min Lee"* ]]; then
     printf '  FAIL  %-46s given-name-first: %s\n' "$name" "$(printf '%s' "$out" | grep -m1 -E 'Kim|Jong')"
@@ -76,8 +80,11 @@ for csl in "$STYLES"/*.csl; do
   elif [[ "$out" == *"Ji Won Park"* || "$out" == *"Min Seo Choi"* ]]; then
     printf '  FAIL  %-46s editors given-name-first: %s\n' "$name" "$(printf '%s' "$out" | grep -m1 -E 'Park')"
     fail=$((fail + 1))
-  elif [[ "$out" == *"Holm"* ]]; then
-    printf '  FAIL  %-46s eight-author list not truncated: %s\n' "$name" "$(printf '%s' "$out" | grep -m1 -E 'Aalto')"
+  elif [[ "$truncates" == yes && "$out" == *"Holm"* ]]; then
+    printf '  FAIL  %-46s declares et-al but did not truncate: %s\n' "$name" "$(printf '%s' "$out" | grep -m1 -E 'Aalto')"
+    fail=$((fail + 1))
+  elif [[ "$truncates" == no && "$out" != *"Holm"* ]]; then
+    printf '  FAIL  %-46s declares no et-al but dropped an author: %s\n' "$name" "$(printf '%s' "$out" | grep -m1 -E 'Aalto')"
     fail=$((fail + 1))
   elif [[ "$out" == *"Kim"* && "$out" == *"Lee"* && "$out" == *"Aalto"* ]]; then
     printf '  PASS  %-46s %s\n' "$name" "$(printf '%s' "$out" | grep -m1 -oE 'Kim[^.]*Lee [A-Z.]*')"
@@ -92,4 +99,4 @@ echo
 echo "  checked=$checked passed=$pass failed=$fail"
 if [[ $checked -eq 0 ]]; then echo "ERROR: no self-contained CSL found under $STYLES" >&2; exit 2; fi
 [[ $fail -eq 0 ]] || exit 1
-echo "OK: every self-contained bundled CSL prints authors and editors family-first and truncates a long list."
+echo "OK: every self-contained bundled CSL prints authors and editors family-first and applies the et-al rule it declares."
