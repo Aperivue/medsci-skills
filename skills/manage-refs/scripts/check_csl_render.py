@@ -41,6 +41,10 @@ never print. ``nocite: '@*'`` lists every entry, so the whole .bib is judged; so
 ``--abbrev-warning --md manuscript.md`` is the light mode ``render_pandoc.sh`` runs after every
 render: no sample render and no verdict, only the cited journal entries this style will print with
 the full title (it reads the style, or its parent for a dependent style, for a short journal title).
+It is a warning, and an approximation with known limits: it reads only the --bib file (not a second
+--bibliography among the render's options, nor references written into the manuscript), counts
+journal articles only (pandoc type article-journal, so not a biblatex @review), and asks whether the
+style prints a short container title anywhere, not in which entry-type branch.
 
 With nothing to compare (no ``--journal``, no ``--expect-*``, or only ``--expect-abbrev no``,
 which asks for no check) the render is still printed as JSON, but the run ends NOT_ASSESSED with

@@ -2978,8 +2978,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_csl_render.py",
-      "size": 28992,
-      "sha256": "4038b3b998854c2b85828b808a1da1b1905f6bd472b65573c2c0ecc4e6690e40"
+      "size": 29367,
+      "sha256": "4e247451a520b7be8b190d5cee88b0d1b17799e791d370fc7b82abf9f4d89b2f"
     },
     {
       "path": "skills/manage-refs/scripts/check_reference_duplication.py",
