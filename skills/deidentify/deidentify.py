@@ -378,6 +378,18 @@ def load_tabular(path: Path) -> tuple[list[dict], dict]:
                              "(for example an unquoted comma) and run again.")
                 data.append(row)
 
+    seen_headers = set()
+    duplicate_headers = set()
+    for header in headers:
+        if header in seen_headers:
+            duplicate_headers.add(header)
+        seen_headers.add(header)
+    duplicates = sorted(duplicate_headers)
+    if duplicates:
+        sys.exit(f"{path.name}: duplicate column names are ambiguous: "
+                 + ", ".join(repr(header) for header in duplicates)
+                 + ". Rename them and scan again.")
+
     meta["rows"] = len(data)
     meta["columns"] = len(headers) if data else 0
     meta["headers"] = headers
