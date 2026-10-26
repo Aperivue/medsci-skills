@@ -48,8 +48,8 @@ long time after the 2025 versions had replaced them.
 
 ### Citation styles (`skills/manage-refs/citation_styles/*.csl`)
 
-28 CSL files from the Citation Style Language project: **CC BY-SA 3.0**, each retaining its own
-`<rights>` element. 22 are unmodified. Six are adapted and stay under CC BY-SA 3.0:
+29 CSL files from the Citation Style Language project: **CC BY-SA 3.0**, each retaining its own
+`<rights>` element. 23 are unmodified. Six are adapted and stay under CC BY-SA 3.0:
 
 - `vancouver.csl`, `vancouver-superscript.csl`, `nlm-citation-sequence.csl` and
   `american-medical-association.csl` add an empty `<name/>` so that pandoc applies the style's
