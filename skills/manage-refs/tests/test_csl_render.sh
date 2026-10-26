@@ -33,14 +33,17 @@ else
   bad "missing bib (rc=$rc): $err"
 fi
 
-# 2. Valid bib: pandoc present -> happy path renders, exit 0 + JSON.
+# 2. Valid bib: pandoc present -> renders and emits JSON. With no expectation given nothing is
+#    compared, so the run ends NOT_ASSESSED with exit 2; it used to print PASS and exit 0, which
+#    reads exactly like a passed check.
 #    pandoc absent (e.g. CI) -> clean 'pandoc not found' error, exit 2.
 out="$(python3 "$SCRIPT" --csl "$CSL" --bib "$BIB" 2>&1)"; rc=$?
 if command -v pandoc >/dev/null 2>&1; then
-  if [[ $rc -eq 0 && "$out" == *'"got"'* && "$out" != *"Traceback"* ]]; then
-    pass "valid bib + pandoc -> renders, exit 0, JSON emitted"
+  if [[ $rc -eq 2 && "$out" == *'"got"'* && "$out" == *"NOT_ASSESSED"* && "$out" != *"PASS"* \
+        && "$out" != *"Traceback"* ]]; then
+    pass "valid bib + pandoc, no expectation -> JSON emitted, NOT_ASSESSED, exit 2"
   else
-    bad "valid bib + pandoc (rc=$rc): $out"
+    bad "valid bib + pandoc, no expectation (rc=$rc): $out"
   fi
 else
   if [[ $rc -eq 2 && "$out" == *"pandoc not found"* && "$out" != *"Traceback"* ]]; then
@@ -360,5 +363,194 @@ BIB
 else
   echo "  SKIP  sample-citation and unresolved-citation render checks (pandoc unavailable)"
 fi
+
+# 8. Scope and preprints. A real .bib holds entries the manuscript no longer cites, and preprints whose
+#    "journal" is a server with no abbreviation. Counting either as a missing shortjournal kept the
+#    check red on a bib whose cited journal entries were all abbreviated, and a red that cannot go
+#    green is a check nobody runs. --md reads the citations through pandoc, so those checks need it;
+#    without pandoc, --md must refuse (exit 2) rather than guess the scope.
+scope_dir="$(mktemp -d)"
+cat > "$scope_dir/refs.bib" <<'BIB'
+@article{citedA2020,
+  title   = {A cited synthetic study},
+  author  = {Alpha, Ada},
+  journal = {Journal of Synthetic Methods},
+  year    = {2020},
+  doi     = {10.1234/jsm.2020.001}
+}
+@article{uncitedB2021,
+  title   = {An uncited synthetic study},
+  author  = {Beta, Boris},
+  journal = {Synthetic Reports},
+  year    = {2021}
+}
+@article{preprintC2026,
+  title   = {A synthetic preprint},
+  author  = {Gamma, Grace},
+  journal = {arXiv},
+  date    = {2025-01-15},
+  doi     = {10.48550/arXiv.0000.00000}
+}
+BIB
+printf 'Cited [@citedA2020; @preprintC2026].\n' > "$scope_dir/ms.md"
+# The verdict is read from the FAIL line alone: the JSON above it lists the sampled keys.
+out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \
+         --md "$scope_dir/ms.md" --expect-abbrev yes 2>&1)"; rc=$?
+failline="$(printf '%s\n' "$out" | grep '^FAIL:')"
+if ! command -v pandoc >/dev/null 2>&1; then
+  if [[ $rc -eq 2 && "$out" == *"--md needs pandoc"* ]]; then
+    pass "--md without pandoc -> refuses, exit 2"
+  else
+    bad "--md without pandoc (rc=$rc): $out"
+  fi
+elif [[ $rc -eq 1 && "$failline" == *"1 journal entry without shortjournal"*"citedA2020"* \
+      && "$failline" != *"uncitedB2021"* && "$failline" != *"preprintC2026"* ]]; then
+  pass "--md: a cited journal entry is named; uncited and arXiv entries are not"
+else
+  bad "--md scope / preprint exemption (rc=$rc): $out"
+fi
+# Without --md the whole bib is judged, so the uncited entry is named too (the old behaviour, kept).
+out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \
+         --expect-abbrev yes 2>&1)"; rc=$?
+failline="$(printf '%s\n' "$out" | grep '^FAIL:')"
+if [[ $rc -eq 1 && "$failline" == *"uncitedB2021"* && "$failline" == *"citedA2020"* \
+      && "$failline" != *"preprintC2026"* ]]; then
+  pass "no --md: the whole bib is judged; the arXiv entry is still exempt"
+else
+  bad "whole-bib scope (rc=$rc): $out"
+fi
+# What counts as cited is what pandoc cites: a key inside an HTML comment is not cited, and a key
+# with internal punctuation (`smith?2020`) is cited whole. A regex over the raw text got both wrong.
+cat >> "$scope_dir/refs.bib" <<'BIB'
+@article{smith?2020,
+  title   = {A synthetic study with an unusual key},
+  author  = {Smith, Sam},
+  journal = {Synthetic Letters},
+  year    = {2020}
+}
+@article{commented2019,
+  title   = {A study mentioned only in a comment},
+  author  = {Delta, Dan},
+  journal = {Synthetic Notes},
+  year    = {2019}
+}
+BIB
+printf 'Cited [@smith?2020]. Literal: `[@commented2019]`.\n\n<!-- [@commented2019] -->\n' > "$scope_dir/ms_keys.md"
+if command -v pandoc >/dev/null 2>&1; then
+  out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \
+           --md "$scope_dir/ms_keys.md" --expect-abbrev yes 2>&1)"; rc=$?
+  failline="$(printf '%s\n' "$out" | grep '^FAIL:')"
+  if [[ $rc -eq 1 && "$failline" == *"smith?2020"* && "$failline" != *"commented2019"* ]]; then
+    pass "--md: a key with internal punctuation is cited; one in a comment or inline code is not"
+  else
+    bad "--md citation parsing (rc=$rc): $out"
+  fi
+  # Two entries on one line are two entries: a cited book must not take on the uncited article's
+  # journal (an entry used to run to the next line that starts with '@').
+  printf '%s\n' '@book{bookA2019, title = {A synthetic handbook}, author = {Alpha, Ada}, publisher = {Example Press}, year = {2019}} @article{unusedB2020, title = {An uncited study}, author = {Beta, Boris}, journal = {Journal Alpha}, year = {2020}}' \
+    > "$scope_dir/oneline.bib"
+  printf 'Cited [@bookA2019].\n' > "$scope_dir/ms_book.md"
+  out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/oneline.bib" \
+           --md "$scope_dir/ms_book.md" --expect-abbrev yes 2>&1)"; rc=$?
+  # Only a book is cited, so no journal is in scope: the abbreviation check has nothing to judge
+  # and ends NOT_ASSESSED (a PASS there would claim a comparison that never happened).
+  if [[ $rc -eq 2 && "$out" == *'"missing_shortjournal": []'* && "$out" != *"FAIL"* && "$out" != *"PASS"* \
+        && "$out" == *"NOT_ASSESSED"* ]]; then
+    pass "two entries on one line: the cited book is not judged by the uncited article's journal"
+  else
+    bad "two entries on one line (rc=$rc): $out"
+  fi
+  # nocite '@*' puts every entry into the reference list, so the whole bib is judged.
+  printf -- '---\nnocite: |\n  @*\n---\nCited [@smith?2020].\n' > "$scope_dir/ms_nocite.md"
+  out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \
+           --md "$scope_dir/ms_nocite.md" --expect-abbrev yes 2>&1)"; rc=$?
+  failline="$(printf '%s\n' "$out" | grep '^FAIL:')"
+  if [[ $rc -eq 1 && "$failline" == *"uncitedB2021"* && "$failline" == *"commented2019"* \
+        && "$out" == *"nocite"* ]]; then
+    pass "--md with nocite '@*' judges the whole bib"
+  else
+    bad "--md with nocite '@*' (rc=$rc): $out"
+  fi
+fi
+# Given both, pandoc prints journaltitle: `journal = {arXiv}` beside a real journaltitle is no preprint.
+cat > "$scope_dir/both.bib" <<'BIB'
+@article{bothD2022,
+  title        = {A synthetic study with two journal fields},
+  author       = {Delta, Dan},
+  journal      = {arXiv},
+  journaltitle = {Synthetic Reports},
+  year         = {2022}
+}
+BIB
+out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/both.bib" --expect-abbrev yes 2>&1)"; rc=$?
+failline="$(printf '%s\n' "$out" | grep '^FAIL:')"
+if [[ $rc -eq 1 && "$failline" == *"bothD2022"* ]]; then
+  pass "journaltitle wins over journal = {arXiv}: still judged as a journal"
+else
+  bad "journal = {arXiv} beside journaltitle (rc=$rc): $out"
+fi
+# `--expect-abbrev no` ("full names acceptable") asks for no check: alone, it compares nothing.
+out="$(python3 "$SCRIPT" --csl "$CSL" --bib "$BIB" --expect-abbrev no 2>&1)"; rc=$?
+if [[ $rc -eq 2 && "$out" != *"PASS"* ]] && { ! command -v pandoc >/dev/null 2>&1 || [[ "$out" == *"NOT_ASSESSED"* ]]; }; then
+  pass "--expect-abbrev no alone -> nothing compared, not PASS"
+else
+  bad "--expect-abbrev no alone (rc=$rc): $out"
+fi
+if command -v pandoc >/dev/null 2>&1; then
+  # With the cited entry abbreviated, the render sample holds it and the arXiv entry: "arXiv" printed
+  # in full is correct and must not read as an unabbreviated journal.
+  python3 - "$scope_dir" <<'PY'
+import pathlib, sys
+d = pathlib.Path(sys.argv[1])
+old = "  journal = {Journal of Synthetic Methods},\n"
+text = (d / "refs.bib").read_text()
+assert text.count(old) == 1
+(d / "refs.bib").write_text(text.replace(old, old + "  shortjournal = {J Synth Methods},\n"))
+PY
+  out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \
+           --md "$scope_dir/ms.md" --expect-abbrev yes 2>&1)"; rc=$?
+  if [[ $rc -eq 0 && "$out" == *'"abbrev_full_detected": false'* && "$out" == *'"preprintC2026"'* \
+        && "$out" == *'"scope": "cited keys"'* ]]; then
+    pass "an arXiv entry in the render sample is not an unabbreviated journal"
+  else
+    bad "arXiv entry in the render sample (rc=$rc): $out"
+  fi
+
+  # 9. The JMIR spec: bracketed numbers and abbreviated journal names. JMIR accepts a PMID *or* a DOI,
+  #    so a PMID-only entry must not fail on DOI (a spec asserting DOI did exactly that).
+  cat > "$scope_dir/pmid.bib" <<'BIB'
+@article{pmidOnly2019,
+  title        = {A synthetic PubMed-indexed study},
+  author       = {Delta, Dan},
+  journal      = {Journal of Synthetic Methods},
+  shortjournal = {J Synth Methods},
+  year         = {2019},
+  pmid         = {10000000}
+}
+BIB
+  out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/pmid.bib" --journal jmir 2>&1)"; rc=$?
+  if [[ $rc -eq 0 && "$out" == *"PASS"* && "$out" != *"DOI 0 != expected"* ]]; then
+    pass "--journal jmir: a PMID-only entry passes (DOI not asserted)"
+  else
+    bad "--journal jmir, PMID-only entry (rc=$rc): $out"
+  fi
+  # ...and the same spec still fails a full journal name, and a parenthesised in-text style.
+  sed 's/  shortjournal = {J Synth Methods},//' "$scope_dir/pmid.bib" > "$scope_dir/pmid_full.bib"
+  out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/pmid_full.bib" --journal jmir 2>&1)"; rc=$?
+  if [[ $rc -eq 1 && "$out" == *"pmidOnly2019"* ]]; then
+    pass "--journal jmir fails an entry without shortjournal"
+  else
+    bad "--journal jmir, missing shortjournal (rc=$rc): $out"
+  fi
+  out="$(python3 "$SCRIPT" --csl "$STYLES/vancouver.csl" --bib "$scope_dir/pmid.bib" --journal jmir 2>&1)"; rc=$?
+  if [[ $rc -eq 1 && "$out" == *"in-text paren != expected bracket"* ]]; then
+    pass "--journal jmir fails a parenthesised in-text style"
+  else
+    bad "--journal jmir, parenthesised style (rc=$rc): $out"
+  fi
+else
+  echo "  SKIP  render-sample preprint and JMIR spec checks (pandoc unavailable)"
+fi
+rm -rf "$scope_dir"
 
 if [[ $fail -eq 0 ]]; then echo "  OK"; exit 0; else echo "  $fail check(s) failed"; exit 1; fi

@@ -29,6 +29,19 @@ In the render itself, an entry whose full journal title is contained in its own
 never FAIL: a correct abbreviation always contains the full title. It is listed in
 ``abbrev_not_assessed`` and named in a minor note.
 
+A preprint server named as the journal (``journal = {arXiv}``, bioRxiv, medRxiv, SSRN, Research
+Square, ...) has no journal abbreviation, so it is never counted as a missing ``shortjournal`` and
+never read as a full title in the render; such entries are listed in ``abbrev_preprint``.
+
+``--md manuscript.md`` limits every check to the keys the manuscript cites, as pandoc reads them
+(so it needs pandoc): a real .bib usually holds entries the manuscript no longer cites, and those
+never print. ``nocite: '@*'`` lists every entry, so the whole .bib is judged; so it is without
+``--md``.
+
+With nothing to compare (no ``--journal``, no ``--expect-*``, or only ``--expect-abbrev no``,
+which asks for no check) the render is still printed as JSON, but the run ends NOT_ASSESSED with
+exit 2, never PASS.
+
 --bib must be a BibTeX (.bib) file; a CSL-JSON or YAML bibliography has no BibTeX
 entries to sample and exits 2.
 
@@ -36,17 +49,24 @@ Exit codes:
   0  output matches journal spec
   1  spec mismatch (in-text / DOI / abbreviation)
   2  environment / input error (pandoc or python-docx missing, bib not found,
-     pandoc render failed) — reported with a clear message, never a raw traceback.
+     pandoc render failed), or no expectation to compare against — reported with a
+     clear message, never a raw traceback.
      An abbreviation failure already proven from the .bib still exits 1.
 
 Usage:
   python check_csl_render.py --csl path/to.csl --bib refs.bib \\
       --expect-intext superscript --expect-doi 0 --expect-abbrev yes
-  # or pull expected spec by journal key:
-  python check_csl_render.py --csl ... --bib ... --journal jkms
+  # or pull expected spec by journal key, judging only what the manuscript cites:
+  python check_csl_render.py --csl ... --bib ... --journal jkms --md manuscript.md
 """
 import argparse, subprocess, tempfile, re, os, sys, json
 from pathlib import Path
+
+# One BibTeX reader for the skill: the brace-aware parser in fill_journal_abbrev.py. A regex that
+# ended an entry at the next line starting with '@' merged two entries written on one line, so a
+# cited book took on an uncited article's journal field.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from fill_journal_abbrev import parse_bib  # noqa: E402
 
 # python-docx is required for the superscript check. Import is guarded at the top
 # so a missing dependency is a clear, actionable message (exit 2) rather than an
@@ -65,6 +85,9 @@ SPECS = {
     "kjr":       {"intext": "superscript", "doi": 0, "abbrev": "yes", "note": "VERIFY"},
     "eur-radiol":{"intext": "bracket",     "doi": 1, "abbrev": "no",  "note": "Springer; VERIFY"},
     "cvir":      {"intext": "bracket",     "doi": 1, "abbrev": "no",  "note": "Springer; VERIFY"},
+    # JMIR asks for a PMID *or* a DOI after each journal reference, so DOI presence is not asserted.
+    "jmir":      {"intext": "bracket",                "abbrev": "yes",
+                  "note": "verified 2026-10-25 against the JMIR reference guide (support article 115001333067)"},
 }
 
 def sample_markdown(keys: list[str]) -> str:
@@ -77,13 +100,32 @@ def sample_markdown(keys: list[str]) -> str:
     """
     return "Risk is elevated [" + "; ".join("@" + k for k in keys) + "].\n\n# References\n"
 
-BIB_ENTRY_RE = re.compile(r"@(\w+)\s*\{\s*([^,\s]+)\s*,(.*?)(?=\n\s*@|\Z)", re.S)
 JOURNAL_FIELD_RE = re.compile(r"\b(?:journal|journaltitle)\s*=\s*[{\"]\s*[^}\"\s]", re.I)
 SHORTJOURNAL_RE = re.compile(r"\bshortjournal\s*=\s*[{\"]\s*[^}\"\s]", re.I)
+# A preprint server given as the journal has no abbreviation to print.
+PREPRINT_RE = re.compile(
+    r"^(?:arxiv|biorxiv|medrxiv|chemrxiv|psyarxiv|socarxiv|techrxiv|ssrn|research square"
+    r"|preprints(?:\.org)?|osf preprints)\b", re.I)
 
 
 class RenderError(RuntimeError):
     """Environment/input failure that should exit 2 with a clear message."""
+
+
+def bib_entries(bib_text: str):
+    """(entry_type, key, body) for each entry, @comment/@string/@preamble excluded.
+
+    An entry whose braces do not balance swallows everything after it, so that is an input error
+    (exit 2) rather than a shorter list.
+    """
+    out = []
+    for e in parse_bib(bib_text):
+        if e["unsupported"] == "unbalanced braces":
+            raise RenderError(f"entry {e['key'] or '(no key)'} at line {e['line']} has unbalanced braces; "
+                              "nothing after it can be read")
+        if e["key"]:
+            out.append((e["type"], e["key"], bib_text[e["body_start"]:e["body_end"]]))
+    return out
 
 
 def _read_bib(bib: str) -> str:
@@ -125,17 +167,63 @@ def bib_field(body: str, name: str) -> str:
     return " ".join(val.replace("{", "").replace("}", "").split())
 
 
-def keys_missing_shortjournal(bib_text: str) -> list[str]:
+def journal_of(body: str) -> str:
+    # journaltitle first: given both, pandoc prints journaltitle, so that is the one to judge.
+    return bib_field(body, "journaltitle") or bib_field(body, "journal")
+
+
+def is_preprint(body: str) -> bool:
+    return bool(PREPRINT_RE.match(journal_of(body)))
+
+
+def cited_keys(md: str):
+    """Citation keys a markdown manuscript cites, as pandoc reads them, or None for "every entry".
+
+    pandoc's own parse is the only authority used: a key inside an HTML comment or any kind of code
+    is not a citation, a key such as `smith?2020` or `@{a.b}` is one, and `nocite: '@*'` puts every
+    entry of the bibliography into the reference list (returned as None). No regex stands in when
+    pandoc is missing: a guessed scope is worse than none, so that is a RenderError (exit 2).
+    """
+    if not Path(md).is_file():
+        raise RenderError(f"manuscript not found: {md}")
+    try:
+        proc = subprocess.run(["pandoc", "-f", "markdown", "-t", "json", md], capture_output=True, text=True)
+    except FileNotFoundError as exc:
+        raise RenderError("--md needs pandoc to read the manuscript's citations; pandoc not found on PATH") from exc
+    if proc.returncode != 0:
+        raise RenderError(f"pandoc could not read manuscript {md}: {proc.stderr.strip()[:300]}")
+    keys: set[str] = set()
+    stack = [json.loads(proc.stdout)]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, dict):
+            if node.get("t") == "Cite":
+                keys.update(c["citationId"] for c in node["c"][0])
+            stack.extend(node.values())
+        elif isinstance(node, list):
+            stack.extend(node)
+    return None if "*" in keys else keys
+
+
+def journal_keys(bib_text: str, only=None) -> list[str]:
+    """Keys of the entries in scope whose journal field names a journal (not a preprint server)."""
+    return [key for _entry_type, key, body in bib_entries(bib_text)
+            if (only is None or key in only) and JOURNAL_FIELD_RE.search(body) and not is_preprint(body)]
+
+
+def keys_missing_shortjournal(bib_text: str, only=None) -> list[str]:
     """Keys of every entry that names a journal but carries no non-empty shortjournal.
 
     Those are exactly the entries a short-form CSL renders with the FULL journal title,
-    whether or not they happen to be among the two keys the render sample uses.
+    whether or not they happen to be among the two keys the render sample uses. A preprint
+    server named as the journal is not one of them, and with ``only`` given, an entry the
+    manuscript does not cite never prints at all.
     """
     missing = []
-    for entry_type, key, body in BIB_ENTRY_RE.findall(bib_text):
-        if entry_type.lower() in ("comment", "string", "preamble"):
+    for _entry_type, key, body in bib_entries(bib_text):
+        if only is not None and key not in only:
             continue
-        if JOURNAL_FIELD_RE.search(body) and not SHORTJOURNAL_RE.search(body):
+        if JOURNAL_FIELD_RE.search(body) and not SHORTJOURNAL_RE.search(body) and not is_preprint(body):
             missing.append(key)
     return missing
 
@@ -186,17 +274,24 @@ def render(csl: str, bib: str, fmt: str, keys: list[str], outdir: str) -> str:
     return out_path
 
 
-def analyze(csl: str, bib: str) -> dict:
+def analyze(csl: str, bib: str, only=None) -> dict:
     # Validate inputs first (bib path), so a missing bib is reported clearly and
     # independently of whether the optional python-docx parser is installed.
     entries: dict[str, str] = {}
-    for entry_type, key, body in BIB_ENTRY_RE.findall(_read_bib(bib)):
-        if entry_type.lower() not in ("comment", "string", "preamble") and key not in entries:
+    for _entry_type, key, body in bib_entries(_read_bib(bib)):
+        if key not in entries:
             entries[key] = body
     if not entries:
         raise RenderError(f"no bibliography entries found in {bib}; there is nothing to render")
-    # Sample two entries, preferring ones that carry a DOI so the DOI verdict has something to see.
-    keys = sorted(entries, key=lambda k: 0 if bib_field(entries[k], "doi") else 1)[:2]
+    if only is not None:
+        # Only cited entries are sampled: an uncited one never prints, so its verdict is noise.
+        entries = {k: v for k, v in entries.items() if k in only}
+        if not entries:
+            raise RenderError(f"the manuscript cites none of the entries in {bib}; there is nothing to render")
+    # Sample two entries, preferring ones that carry a DOI so the DOI verdict has something to see,
+    # then ones that name a real journal so the abbreviation verdict does.
+    keys = sorted(entries, key=lambda k: (0 if bib_field(entries[k], "doi") else 1,
+                                          0 if journal_of(entries[k]) and not is_preprint(entries[k]) else 1))[:2]
     if Document is None:
         raise RenderError(
             "python-docx is required for the in-text superscript check "
@@ -233,10 +328,14 @@ def analyze(csl: str, bib: str) -> dict:
             unmatched_titles.append(title)
     full = False
     not_assessed: list[str] = []
+    preprint: list[str] = []
     for k in keys:
-        jfull = (bib_field(entries[k], "journal") or bib_field(entries[k], "journaltitle")).lower()
+        jfull = journal_of(entries[k]).lower()
         jshort = bib_field(entries[k], "shortjournal").lower()
         if not jfull or jfull == jshort:
+            continue
+        if is_preprint(entries[k]):  # "arXiv" printed in full is correct: there is no abbreviation
+            preprint.append(k)
             continue
         # "Cancers" inside "Cancers (Basel)": a correct abbreviation always contains the full title,
         # so the render cannot tell the two apart. Likewise a journal name inside an article title
@@ -247,17 +346,29 @@ def analyze(csl: str, bib: str) -> dict:
         if jfull in searched:
             full = True
     return {"intext": intext, "doi": doi, "abbrev_full_detected": full,
-            "abbrev_not_assessed": not_assessed, "superscript_runs": sup}
+            "abbrev_not_assessed": not_assessed, "abbrev_preprint": preprint,
+            "sampled": keys, "superscript_runs": sup}
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csl", required=True)
     ap.add_argument("--bib", required=True, help="BibTeX (.bib) file; CSL-JSON/YAML is not parsed")
-    ap.add_argument("--journal", help="spec key (jkms, radiology, ...)")
+    ap.add_argument("--journal", help="spec key (jkms, jmir, radiology, ...)")
     ap.add_argument("--expect-intext", choices=["superscript", "bracket", "paren"])
     ap.add_argument("--expect-doi", type=int, choices=[0, 1])
     ap.add_argument("--expect-abbrev", choices=["yes", "no"])
+    ap.add_argument("--md", help="manuscript (.md); judge only the keys it cites")
     a = ap.parse_args()
+    only = None
+    if a.md:
+        try:
+            only = cited_keys(a.md)
+        except RenderError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            sys.exit(2)
+        if only is None:
+            print("NOTE: the manuscript has nocite '@*', which lists every entry: judging the whole bib",
+                  file=sys.stderr)
     exp = {}
     if a.journal:
         # An unknown key used to yield an empty spec, so nothing was compared and the run printed
@@ -273,9 +384,12 @@ def main():
     if a.expect_abbrev: exp["abbrev"] = a.expect_abbrev
     fails = []
     missing_short: list[str] = []
+    judged = 0
     if exp.get("abbrev") == "yes":
         try:
-            missing_short = keys_missing_shortjournal(_read_bib(a.bib))
+            bib_text = _read_bib(a.bib)
+            missing_short = keys_missing_shortjournal(bib_text, only)
+            judged = len(journal_keys(bib_text, only))
         except RenderError as exc:
             print(f"ERROR: {exc}", file=sys.stderr)
             sys.exit(2)
@@ -286,7 +400,7 @@ def main():
                          f"without shortjournal will render the FULL title: {shown}{more} "
                          "(fill_journal_abbrev.py adds shortjournal)")
     try:
-        got = analyze(a.csl, a.bib)
+        got = analyze(a.csl, a.bib, only)
     except RenderError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         if fails:
@@ -295,7 +409,20 @@ def main():
             sys.exit(1)
         sys.exit(2)
     got["missing_shortjournal"] = missing_short
+    got["scope"] = "cited keys" if only is not None else "whole bib"
+    got["abbrev_judged"] = judged
     print(json.dumps({"detector": "check_csl_render", "csl": os.path.basename(a.csl), "expected": exp, "got": got}, indent=2))
+    # Counted by the comparisons actually made below: `abbrev: no` ("full names acceptable") asks for
+    # no check, and `abbrev: yes` over a bib with no journal entry in scope has nothing to judge, so
+    # either alone compared nothing and printed PASS, as did no expectation at all.
+    abbrev_compared = exp.get("abbrev") == "yes" and judged > 0
+    if exp.get("abbrev") == "yes" and not judged:
+        print("NOTE: no journal entry in scope, so journal abbreviation was NOT_ASSESSED", file=sys.stderr)
+    compared = bool(exp.get("intext")) + ("doi" in exp) + abbrev_compared
+    if not compared:
+        print("NOT_ASSESSED — no expectation to compare (pass --journal, --expect-intext, --expect-doi or "
+              "--expect-abbrev yes); the render above was not compared with anything", file=sys.stderr)
+        sys.exit(2)
     if exp.get("intext") and got["intext"] != exp["intext"]:
         fails.append(f"in-text {got['intext']} != expected {exp['intext']}")
     if "doi" in exp and got["doi"] != exp["doi"]:
