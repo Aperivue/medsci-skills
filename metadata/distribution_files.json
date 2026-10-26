@@ -2978,8 +2978,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_csl_render.py",
-      "size": 25545,
-      "sha256": "a605de86293b3485a07620c647ca2305b0a1957bacd90e8e86d76c11ceff1c78"
+      "size": 26593,
+      "sha256": "6cfbe27df3b4bc12191a7dcadc0023a2c365c7c660f663d4ee42ff0ef261b7de"
     },
     {
       "path": "skills/manage-refs/scripts/check_reference_duplication.py",
@@ -3013,8 +3013,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/render_pandoc.sh",
-      "size": 7593,
-      "sha256": "7ff65db25484716b378d39dd95749257b3cab0b276967ed99bbe48a344732114"
+      "size": 7686,
+      "sha256": "1743def044ae81c741a7d9c2f640294d997f5ce2bc3935588aeba11698bbe3dc"
     },
     {
       "path": "skills/manage-refs/scripts/strip_source_metadata.lua",

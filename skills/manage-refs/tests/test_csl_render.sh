@@ -399,6 +399,40 @@ BIB
   else
     bad "--abbrev-warning with a full-title style (rc=$rc): $out"
   fi
+  # The render's own pandoc options decide what is cited: with citations switched off nothing is
+  # cited, so there is nothing to warn about.
+  err="$(bash "$HERE/../scripts/render_pandoc.sh" -S -j vancouver -i "$rwork/abbr.md" \
+           -b "$rwork/abbr.bib" -o "$rwork/abbr.docx" -- --from=markdown-citations 2>&1 >/dev/null)"; rc=$?
+  if [[ $rc -eq 0 && "$err" != *"journal abbreviations"* && "$err" != *"did not run"* ]]; then
+    pass "render_pandoc: the render's pandoc options reach the check (citations off -> no warning)"
+  else
+    bad "render_pandoc pass-through options (rc=$rc): $err"
+  fi
+  # A style is read as XML: single quotes or spaces around '=' are the same attribute.
+  python3 - "$STYLES/vancouver.csl" "$rwork/quoted.csl" <<'PY'
+import sys
+src = open(sys.argv[1], encoding="utf-8").read()
+old = '<text form="short" strip-periods="true" variable="container-title"/>'
+assert src.count(old) >= 1
+open(sys.argv[2], "w", encoding="utf-8").write(
+    src.replace(old, "<text form = 'short' strip-periods='true' variable = 'container-title'/>"))
+PY
+  out="$(python3 "$SCRIPT" --csl "$rwork/quoted.csl" --bib "$rwork/abbr.bib" --md "$rwork/abbr.md" --abbrev-warning 2>&1)"; rc=$?
+  if [[ $rc -eq 0 && "$out" == *"citedA2020"* ]]; then
+    pass "--abbrev-warning: attribute quoting and spacing in the style do not hide the warning"
+  else
+    bad "--abbrev-warning with requoted style attributes (rc=$rc): $out"
+  fi
+  # A journal given as a @string macro is printed in full by pandoc: it is named too.
+  printf '@string{jsm = {Journal of Synthetic Methods}}\n@article{macroC2022, author={Gamma, Grace}, title={A macro study}, journal=jsm, year={2022}}\n' \
+    > "$rwork/macro.bib"
+  printf 'A [@macroC2022].\n' > "$rwork/macro.md"
+  out="$(python3 "$SCRIPT" --csl "$STYLES/vancouver.csl" --bib "$rwork/macro.bib" --md "$rwork/macro.md" --abbrev-warning 2>&1)"; rc=$?
+  if [[ $rc -eq 0 && "$out" == *"macroC2022"* ]]; then
+    pass "--abbrev-warning: a @string journal without shortjournal is named"
+  else
+    bad "--abbrev-warning with a @string journal (rc=$rc): $out"
+  fi
   # A dependent style whose parent is not alongside cannot be judged: said, never a silent pass.
   sed 's#styles/springer-basic-brackets"#styles/no-such-parent"#' "$STYLES/european-radiology.csl" > "$rwork/orphan.csl"
   out="$(python3 "$SCRIPT" --csl "$rwork/orphan.csl" --bib "$rwork/abbr.bib" --md "$rwork/abbr.md" --abbrev-warning 2>&1)"; rc=$?

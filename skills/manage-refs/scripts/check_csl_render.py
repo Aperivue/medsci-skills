@@ -64,13 +64,14 @@ Usage:
   python check_csl_render.py --csl ... --bib ... --journal jkms --md manuscript.md
 """
 import argparse, subprocess, tempfile, re, os, sys, json
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 # One BibTeX reader for the skill: the brace-aware parser in fill_journal_abbrev.py. A regex that
 # ended an entry at the next line starting with '@' merged two entries written on one line, so a
 # cited book took on an uncited article's journal field.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from fill_journal_abbrev import parse_bib  # noqa: E402
+from fill_journal_abbrev import parse_bib, _value  # noqa: E402
 
 # python-docx is required for the superscript check. Import is guarded at the top
 # so a missing dependency is a clear, actionable message (exit 2) rather than an
@@ -104,8 +105,6 @@ def sample_markdown(keys: list[str]) -> str:
     """
     return "Risk is elevated [" + "; ".join("@" + k for k in keys) + "].\n\n# References\n"
 
-JOURNAL_FIELD_RE = re.compile(r"\b(?:journal|journaltitle)\s*=\s*[{\"]\s*[^}\"\s]", re.I)
-SHORTJOURNAL_RE = re.compile(r"\bshortjournal\s*=\s*[{\"]\s*[^}\"\s]", re.I)
 # A preprint server given as the journal has no abbreviation to print.
 PREPRINT_RE = re.compile(
     r"^(?:arxiv|biorxiv|medrxiv|chemrxiv|psyarxiv|socarxiv|techrxiv|ssrn|research square"
@@ -180,7 +179,7 @@ def is_preprint(body: str) -> bool:
     return bool(PREPRINT_RE.match(journal_of(body)))
 
 
-def cited_keys(md: str):
+def cited_keys(md: str, pandoc_args=()):
     """Citation keys a markdown manuscript cites, as pandoc reads them, or None for "every entry".
 
     pandoc's own parse is the only authority used: a key inside an HTML comment or any kind of code
@@ -191,7 +190,10 @@ def cited_keys(md: str):
     if not Path(md).is_file():
         raise RenderError(f"manuscript not found: {md}")
     try:
-        proc = subprocess.run(["pandoc", "-f", "markdown", "-t", "json", md], capture_output=True, text=True)
+        # The render's own options come last, so a reader option there (`--from=markdown-citations`)
+        # decides what is cited here exactly as it did in the render.
+        proc = subprocess.run(["pandoc", "-f", "markdown", *pandoc_args, "-t", "json", md],
+                              capture_output=True, text=True)
     except FileNotFoundError as exc:
         raise RenderError("--md needs pandoc to read the manuscript's citations; pandoc not found on PATH") from exc
     if proc.returncode != 0:
@@ -209,10 +211,31 @@ def cited_keys(md: str):
     return None if "*" in keys else keys
 
 
+def _journal_entries(bib_text: str, only=None):
+    """(key, has_shortjournal) for each entry in scope that names a journal, preprint servers excluded.
+
+    Read from the parsed fields, so a journal given as a @string macro (`journal = jname`) counts:
+    pandoc expands it and prints the full name. A macro shortjournal counts as present.
+    """
+    bib_entries(bib_text)  # raises RenderError on unbalanced braces
+    out = []
+    for e in parse_bib(bib_text):
+        if not e["key"] or (only is not None and e["key"] not in only):
+            continue
+        jf = e["fields"].get("journaltitle") or e["fields"].get("journal")
+        if not jf:
+            continue
+        literal = _value(e, "journaltitle" if "journaltitle" in e["fields"] else "journal")
+        if jf[3] in ("braced", "quoted") and (not literal or PREPRINT_RE.match(literal)):
+            continue
+        sj = e["fields"].get("shortjournal")
+        out.append((e["key"], bool(sj and (sj[3] not in ("braced", "quoted") or _value(e, "shortjournal")))))
+    return out
+
+
 def journal_keys(bib_text: str, only=None) -> list[str]:
     """Keys of the entries in scope whose journal field names a journal (not a preprint server)."""
-    return [key for _entry_type, key, body in bib_entries(bib_text)
-            if (only is None or key in only) and JOURNAL_FIELD_RE.search(body) and not is_preprint(body)]
+    return [key for key, _has_short in _journal_entries(bib_text, only)]
 
 
 def keys_missing_shortjournal(bib_text: str, only=None) -> list[str]:
@@ -223,13 +246,7 @@ def keys_missing_shortjournal(bib_text: str, only=None) -> list[str]:
     server named as the journal is not one of them, and with ``only`` given, an entry the
     manuscript does not cite never prints at all.
     """
-    missing = []
-    for _entry_type, key, body in bib_entries(bib_text):
-        if only is not None and key not in only:
-            continue
-        if JOURNAL_FIELD_RE.search(body) and not SHORTJOURNAL_RE.search(body) and not is_preprint(body):
-            missing.append(key)
-    return missing
+    return [key for key, has_short in _journal_entries(bib_text, only) if not has_short]
 
 
 def render(csl: str, bib: str, fmt: str, keys: list[str], outdir: str) -> str:
@@ -353,29 +370,26 @@ def analyze(csl: str, bib: str, only=None) -> dict:
             "abbrev_not_assessed": not_assessed, "abbrev_preprint": preprint,
             "sampled": keys, "superscript_runs": sup}
 
-_CSL_TEXT_TAG = re.compile(r"<text\b[^>]*>")
-_CSL_PARENT = re.compile(r'<link\b[^>]*href="[^"]*/([\w-]+)"[^>]*rel="independent-parent"|'
-                         r'<link\b[^>]*rel="independent-parent"[^>]*href="[^"]*/([\w-]+)"')
-
-
 def prints_short_titles(csl: str):
     """True if the style prints the short journal title, False if not, None if it cannot be told.
 
-    A dependent style takes its layout from its parent, which is read from the same folder.
+    Read with an XML parser (attribute quoting and spacing vary between valid styles). A dependent
+    style takes its layout from its parent, which is read from the same folder.
     """
     try:
-        xml = Path(csl).read_text(encoding="utf-8")
-    except OSError:
+        root = ET.parse(csl).getroot()
+    except (OSError, ET.ParseError):
         return None
-    parent = _CSL_PARENT.search(xml)
-    if parent:
-        parent_csl = Path(csl).with_name((parent.group(1) or parent.group(2)) + ".csl")
-        return prints_short_titles(str(parent_csl)) if parent_csl.is_file() else None
-    return any('variable="container-title"' in tag and 'form="short"' in tag
-               for tag in _CSL_TEXT_TAG.findall(xml))
+    local = lambda el: el.tag.rsplit("}", 1)[-1]
+    for el in root.iter():
+        if local(el) == "link" and el.get("rel") == "independent-parent":
+            parent_csl = Path(csl).with_name(el.get("href", "").rstrip("/").rsplit("/", 1)[-1] + ".csl")
+            return prints_short_titles(str(parent_csl)) if parent_csl.is_file() else None
+    return any(local(el) == "text" and el.get("variable") == "container-title" and el.get("form") == "short"
+               for el in root.iter())
 
 
-def abbrev_warning(csl: str, bib: str, md: str) -> list[str]:
+def abbrev_warning(csl: str, bib: str, md: str, pandoc_args=()) -> list[str]:
     """Warning lines for the cited journal entries this style will print with the FULL title.
 
     Empty when there are none, or when the style prints full titles anyway (nothing to abbreviate).
@@ -387,7 +401,7 @@ def abbrev_warning(csl: str, bib: str, md: str) -> list[str]:
         raise RenderError(f"cannot tell whether {name} prints abbreviated journal titles")
     if not short:
         return []
-    missing = keys_missing_shortjournal(_read_bib(bib), cited_keys(md))
+    missing = keys_missing_shortjournal(_read_bib(bib), cited_keys(md, pandoc_args))
     if not missing:
         return []
     shown = ", ".join(missing[:20]) + (f" (+{len(missing) - 20} more)" if len(missing) > 20 else "")
@@ -405,6 +419,8 @@ def main():
     ap.add_argument("--expect-doi", type=int, choices=[0, 1])
     ap.add_argument("--expect-abbrev", choices=["yes", "no"])
     ap.add_argument("--md", help="manuscript (.md); judge only the keys it cites")
+    ap.add_argument("pandoc_args", nargs="*", metavar="-- PANDOC_ARGS",
+                    help="with --abbrev-warning: the render's extra pandoc options, after --")
     ap.add_argument("--abbrev-warning", action="store_true",
                     help="with --md: only list cited journal entries the style prints in full (no render, "
                          "no verdict); exit 0, or 2 if the check could not run")
@@ -414,7 +430,7 @@ def main():
             print("ERROR: --abbrev-warning needs --md", file=sys.stderr)
             sys.exit(2)
         try:
-            lines = abbrev_warning(a.csl, a.bib, a.md)
+            lines = abbrev_warning(a.csl, a.bib, a.md, a.pandoc_args)
         except RenderError as exc:
             print(f"ERROR: {exc}", file=sys.stderr)
             sys.exit(2)

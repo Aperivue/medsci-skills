@@ -157,7 +157,7 @@ fi
 if command -v python3 >/dev/null 2>&1; then
   set +e
   abbrev_out="$(python3 "${SCRIPT_DIR}/check_csl_render.py" --csl "$CSL_FILE" --bib "$BIB" \
-                  --md "$INPUT" --abbrev-warning 2>&1)"
+                  --md "$INPUT" --abbrev-warning -- "$@" 2>&1)"
   abbrev_rc=$?
   set -e
   if [[ $abbrev_rc -ne 0 ]]; then
@@ -165,5 +165,7 @@ if command -v python3 >/dev/null 2>&1; then
   elif [[ -n "$abbrev_out" ]]; then
     printf '%s\n' "$abbrev_out" | sed '1s/^/[render] WARNING: /; 2,$s/^/[render] /' >&2
   fi
+else
+  echo "[render] journal-abbreviation check did not run: python3 not found" >&2
 fi
 echo "[render] ok → $OUTPUT" >&2
