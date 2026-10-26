@@ -33,9 +33,10 @@ A preprint server named as the journal (``journal = {arXiv}``, bioRxiv, medRxiv,
 Square, ...) has no journal abbreviation, so it is never counted as a missing ``shortjournal`` and
 never read as a full title in the render; such entries are listed in ``abbrev_preprint``.
 
-``--md manuscript.md`` limits every check to the keys the manuscript cites: a real .bib usually
-holds entries the manuscript no longer cites, and those never print. Without it the whole .bib is
-judged.
+``--md manuscript.md`` limits every check to the keys the manuscript cites, as pandoc reads them
+(so it needs pandoc): a real .bib usually holds entries the manuscript no longer cites, and those
+never print. ``nocite: '@*'`` lists every entry, so the whole .bib is judged; so it is without
+``--md``.
 
 With nothing to compare (no ``--journal``, no ``--expect-*``, or only ``--expect-abbrev no``,
 which asks for no check) the render is still printed as JSON, but the run ends NOT_ASSESSED with
@@ -100,8 +101,6 @@ SHORTJOURNAL_RE = re.compile(r"\bshortjournal\s*=\s*[{\"]\s*[^}\"\s]", re.I)
 PREPRINT_RE = re.compile(
     r"^(?:arxiv|biorxiv|medrxiv|chemrxiv|psyarxiv|socarxiv|techrxiv|ssrn|research square"
     r"|preprints(?:\.org)?|osf preprints)\b", re.I)
-# The pandoc citation key syntax (internal punctuation :.#$%&-+?<>~/), used only when pandoc is absent.
-CITE_RE = re.compile(r"(?<![A-Za-z0-9_])-?@\{?([A-Za-z0-9_][\w]*(?:[:.#$%&\-+?<>~/][\w]+)*)")
 
 
 class RenderError(RuntimeError):
@@ -155,23 +154,20 @@ def is_preprint(body: str) -> bool:
     return bool(PREPRINT_RE.match(journal_of(body)))
 
 
-def cited_keys(md: str) -> set[str]:
-    """Citation keys a markdown manuscript cites, as pandoc reads them; raises RenderError on failure.
+def cited_keys(md: str):
+    """Citation keys a markdown manuscript cites, as pandoc reads them, or None for "every entry".
 
-    pandoc's own parse is the authority: a key inside an HTML comment or a code block is not a
-    citation, and a key such as `smith?2020` or `@{a.b}` is one. Only when pandoc is missing does a
-    regex stand in, after comments and fenced code are removed.
+    pandoc's own parse is the only authority used: a key inside an HTML comment or any kind of code
+    is not a citation, a key such as `smith?2020` or `@{a.b}` is one, and `nocite: '@*'` puts every
+    entry of the bibliography into the reference list (returned as None). No regex stands in when
+    pandoc is missing: a guessed scope is worse than none, so that is a RenderError (exit 2).
     """
-    try:
-        text = Path(md).read_text(encoding="utf-8")
-    except OSError as exc:
-        raise RenderError(f"could not read manuscript {md}: {exc}") from exc
+    if not Path(md).is_file():
+        raise RenderError(f"manuscript not found: {md}")
     try:
         proc = subprocess.run(["pandoc", "-f", "markdown", "-t", "json", md], capture_output=True, text=True)
-    except FileNotFoundError:
-        text = re.sub(r"<!--.*?-->", " ", text, flags=re.S)
-        text = re.sub(r"^(```|~~~).*?^\1", " ", text, flags=re.S | re.M)
-        return set(CITE_RE.findall(text))
+    except FileNotFoundError as exc:
+        raise RenderError("--md needs pandoc to read the manuscript's citations; pandoc not found on PATH") from exc
     if proc.returncode != 0:
         raise RenderError(f"pandoc could not read manuscript {md}: {proc.stderr.strip()[:300]}")
     keys: set[str] = set()
@@ -184,7 +180,7 @@ def cited_keys(md: str) -> set[str]:
             stack.extend(node.values())
         elif isinstance(node, list):
             stack.extend(node)
-    return keys
+    return None if "*" in keys else keys
 
 
 def keys_missing_shortjournal(bib_text: str, only=None) -> list[str]:
@@ -344,6 +340,9 @@ def main():
         except RenderError as exc:
             print(f"ERROR: {exc}", file=sys.stderr)
             sys.exit(2)
+        if only is None:
+            print("NOTE: the manuscript has nocite '@*', which lists every entry: judging the whole bib",
+                  file=sys.stderr)
     exp = {}
     if a.journal:
         # An unknown key used to yield an empty spec, so nothing was compared and the run printed

@@ -367,7 +367,8 @@ fi
 # 8. Scope and preprints. A real .bib holds entries the manuscript no longer cites, and preprints whose
 #    "journal" is a server with no abbreviation. Counting either as a missing shortjournal kept the
 #    check red on a bib whose cited journal entries were all abbreviated, and a red that cannot go
-#    green is a check nobody runs. The bib scan needs no pandoc.
+#    green is a check nobody runs. --md reads the citations through pandoc, so those checks need it;
+#    without pandoc, --md must refuse (exit 2) rather than guess the scope.
 scope_dir="$(mktemp -d)"
 cat > "$scope_dir/refs.bib" <<'BIB'
 @article{citedA2020,
@@ -396,7 +397,13 @@ printf 'Cited [@citedA2020; @preprintC2026].\n' > "$scope_dir/ms.md"
 out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \
          --md "$scope_dir/ms.md" --expect-abbrev yes 2>&1)"; rc=$?
 failline="$(printf '%s\n' "$out" | grep '^FAIL:')"
-if [[ $rc -eq 1 && "$failline" == *"1 journal entry without shortjournal"*"citedA2020"* \
+if ! command -v pandoc >/dev/null 2>&1; then
+  if [[ $rc -eq 2 && "$out" == *"--md needs pandoc"* ]]; then
+    pass "--md without pandoc -> refuses, exit 2"
+  else
+    bad "--md without pandoc (rc=$rc): $out"
+  fi
+elif [[ $rc -eq 1 && "$failline" == *"1 journal entry without shortjournal"*"citedA2020"* \
       && "$failline" != *"uncitedB2021"* && "$failline" != *"preprintC2026"* ]]; then
   pass "--md: a cited journal entry is named; uncited and arXiv entries are not"
 else
@@ -428,14 +435,27 @@ cat >> "$scope_dir/refs.bib" <<'BIB'
   year    = {2019}
 }
 BIB
-printf 'Cited [@smith?2020].\n\n<!-- [@commented2019] -->\n' > "$scope_dir/ms_keys.md"
-out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \
-         --md "$scope_dir/ms_keys.md" --expect-abbrev yes 2>&1)"; rc=$?
-failline="$(printf '%s\n' "$out" | grep '^FAIL:')"
-if [[ $rc -eq 1 && "$failline" == *"smith?2020"* && "$failline" != *"commented2019"* ]]; then
-  pass "--md: a key with internal punctuation is cited; a key in an HTML comment is not"
-else
-  bad "--md citation parsing (rc=$rc): $out"
+printf 'Cited [@smith?2020]. Literal: `[@commented2019]`.\n\n<!-- [@commented2019] -->\n' > "$scope_dir/ms_keys.md"
+if command -v pandoc >/dev/null 2>&1; then
+  out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \
+           --md "$scope_dir/ms_keys.md" --expect-abbrev yes 2>&1)"; rc=$?
+  failline="$(printf '%s\n' "$out" | grep '^FAIL:')"
+  if [[ $rc -eq 1 && "$failline" == *"smith?2020"* && "$failline" != *"commented2019"* ]]; then
+    pass "--md: a key with internal punctuation is cited; one in a comment or inline code is not"
+  else
+    bad "--md citation parsing (rc=$rc): $out"
+  fi
+  # nocite '@*' puts every entry into the reference list, so the whole bib is judged.
+  printf -- '---\nnocite: |\n  @*\n---\nCited [@smith?2020].\n' > "$scope_dir/ms_nocite.md"
+  out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \
+           --md "$scope_dir/ms_nocite.md" --expect-abbrev yes 2>&1)"; rc=$?
+  failline="$(printf '%s\n' "$out" | grep '^FAIL:')"
+  if [[ $rc -eq 1 && "$failline" == *"uncitedB2021"* && "$failline" == *"commented2019"* \
+        && "$out" == *"nocite"* ]]; then
+    pass "--md with nocite '@*' judges the whole bib"
+  else
+    bad "--md with nocite '@*' (rc=$rc): $out"
+  fi
 fi
 # `--expect-abbrev no` ("full names acceptable") asks for no check: alone, it compares nothing.
 out="$(python3 "$SCRIPT" --csl "$CSL" --bib "$BIB" --expect-abbrev no 2>&1)"; rc=$?

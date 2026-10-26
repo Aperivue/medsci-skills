@@ -227,6 +227,22 @@ K = "@article{kappa2029,\n  journal = {Synthetic Reports},\n  pmid = 111\n}\n"
 case("bare numeric pmid is read", K, K.replace("{Synthetic Reports},\n", "{Synthetic Reports},\n  shortjournal = {Synth Rep},\n"),
      {"kappa2029": "Synth Rep"})
 
+# A `%` line outside any entry is a comment, as pandoc reads it: `% @article{old,` starts no entry.
+L = "% @article{old,\n" + A
+case("a commented-out entry start is a comment", L,
+     L.replace("  journal = {Synthetic Reports},\n", "  journal = {Synthetic Reports},\n  shortjournal = {Synth Rep},\n"),
+     {"alpha2020": "Synth Rep"})
+
+# Fields with no comma between them: never write a file pandoc cannot read.
+try:
+    nocomma = "@article{mu2031, journal = {Synthetic Reports} pmid = {111}}\n"
+    out, code, log = run(nocomma)
+    ok = (code == 2 and out is None) or (out == nocomma and "mu2031" in log and "not parsed" in log)
+    results.append(("PASS  " if ok else "FAIL  ") + "fields without a comma -> refused or left unchanged, never broken further"
+                   + ("" if ok else "  -- exit %s, out %r" % (code, out)))
+except Exception as e:
+    results.append("FAIL  fields without a comma  -- %s: %s" % (type(e).__name__, e))
+
 # An entry with unbalanced braces swallows every entry after it: stop, name it, write nothing.
 try:
     broken = A + "@article{lambda2030, journal = {Synthetic Reports}, pmid = {111}\n" + B
