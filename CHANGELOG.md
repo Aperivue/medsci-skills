@@ -2,8 +2,45 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`/deidentify`: a Spanish locale pack (`--locale es`).** Detects DNI and NIE numbers (also with a
+  space or hyphen before the letter), Social Security affiliation numbers (NUSS/NAF), Spanish IBANs,
+  mobile and landline numbers (including +34 and 0034), and street addresses with their common
+  abbreviations (C/, Avda., Av., Cl., P.º), and maps Spanish column names with and without accents.
+  The synthetic fixture's DNI, NIE and IBAN values carry invalid check characters. Contributed by
+  @rtmalikian (#687).
+- **`/manage-refs`: a Methods of Information in Medicine CSL** (`methods-of-information-in-medicine.csl`,
+  Thieme), identical to the upstream style. Contributed by @rtmalikian (#692).
+- **`/find-journal`, `/write-paper`: a JAMA Surgery profile.** Built from the journal's Instructions for
+  Authors, For Authors and About pages: article types and limits, the Original Investigation and
+  meta-analysis abstracts, when Key Points and a reporting checklist are required, the open-access
+  charge, transfer to other JAMA Network journals, and the AI policy quoted as written. Contributed by
+  @Steve0012345 (#690).
+- **`/make-figures`: a funnel plot exemplar** (`exemplar_plots/funnel_plot.md`) for small-study
+  effects. It matches the asymmetry test to the measure and says when not to test (k < 10, studies
+  of similar size, no 2×2 counts for an OR or RR). It also covers contour shading, multi-arm studies,
+  and trim-and-fill as a sensitivity analysis only. Contributed by @Steve0012345 (#691).
+- **`/manage-refs`: the official JMIR CSL** (`journal-of-medical-internet-research.csl`), identical to
+  the upstream style the JMIR reference guide links. It lists every author: 2025 JMIR papers use both
+  that and AMA's first three + et al., and the guide accepts minor variation. The author-name test now
+  requires the et-al rule a style declares, so a style that declares none must print every author.
+- **`/manage-refs`: `render_pandoc.sh` warns about cited journal entries the style prints in full**
+  (#699). Every bundled independent style prints the short journal title, which falls back to the full
+  one for an entry without `shortjournal`. After the render the cited entries affected are named; the
+  render never fails because of it, and says so when the check could not run.
+
 ### Fixed
 
+- **`/manage-refs`: `fill_journal_abbrev.py` no longer breaks the bib it fills** (#698). Its insertion
+  pattern knew only tab indentation, so on a two-space bib it appended `shortjournal` after a last
+  field with no comma and pandoc could not read the file. It now inserts after the journal value in
+  the entry's own indentation, falls back to CrossRef (naming each CrossRef value, often ISO 4 rather
+  than NLM), reports a failed lookup instead of passing it as "no record", and refuses to write when
+  the input or its own output does not parse.
+- **`/manage-refs`: `check_csl_render.py` verdicts** (#698). A run with nothing to compare ends
+  NOT_ASSESSED (exit 2) instead of PASS; `--md` judges only the keys pandoc reads as cited; a preprint
+  server named as the journal is not a missing abbreviation; a `jmir` spec is added.
 - **Skill instructions that pointed at things that no longer exist** (#678–#680). These are
   corrections from an audit of SKILL.md text. No detector or script verdict changed.
   - `/self-review` sent diagnostic-accuracy panels to the meta-analysis probe. It now routes them to
@@ -24,9 +61,52 @@
     `/publish-skill`, `/model-scaffold`, `/define-variables`, `/fill-protocol`, `/present-paper`,
     `/obsidian-paper-vault`) had fixes to script paths that failed from a project directory, to
     stale years and frontmatter field names, and to rules that contradicted a sibling skill.
+- **`/sync-submission` marked-manuscript build no longer stops at Word's file-access prompt** (#684).
+  Word for Mac is sandboxed and was handed the revised manuscript as a path it had never opened, so
+  Compare waited on a Grant File Access dialog until it timed out, and the error then advised a
+  longer `--timeout`. Both inputs are now copied into a private folder inside Word's container,
+  compared there and moved to `--out`. The folder is removed on success and on failure, and an
+  `--out` that is one of the inputs is refused before anything is deleted.
+- **PROSPERO eligibility rule** (#688). `meta-analysis/references/PROSPERO_template.md` stated an
+  outdated rule (registration allowed until extraction is completed) and called it defensible to
+  mark extraction "Not started" after a protocol change. It now quotes the current form: a review
+  that has started data extraction at initial submission is not eligible, and an incorrect status
+  is grounds for retracting the record.
+- **`/write-paper` 7.1 gate row** said that an AI disclosure in the body halts. The 7.1 call passes
+  neither `--profile` nor `--disclosure-placement`, so `check_classical_style.py` reports it as a
+  Minor and does not halt; the row now says so. A § section cross-reference still halts.
+- **`/write-paper` JAMA and JAMA Network Open abstracts** gave Design, Setting and Participants as one
+  heading. Both journals ask for three at submission ("for manuscript submission these sections should
+  be kept separate") and combine them only during editing. The templates now list three headings and
+  add Trial Registration, which clinical trials need. The fixed heading counts are gone: they did not
+  hold for trials or meta-analyses.
 
 ### Changed
 
+- **Register before the search, and word the claim from the dates** (#688). `/meta-analysis` records
+  the registration's initial submission date in Phase 1 and, when none is recorded, stops at the
+  start of Phase 2 and asks before the formal search. An AI first-pass screen or extraction draft
+  counts as screening or extraction. Under `/orchestrate --e2e` this is a `REGISTRATION_PENDING`
+  halt, a second interrupt besides PHI, released by a recorded submission date or by the user's
+  recorded choice to proceed without one. The meta-analysis chain now starts at `/meta-analysis`
+  instead of running `/search-lit`, which selects papers and extracts results, ahead of it. The
+  write-paper templates choose "prospectively registered" (submitted before screening began),
+  "registered retrospectively" or "not registered" from the dates instead of defaulting to
+  "prospectively". P16 and `/check-reporting` step 4c compare the initial submission date and check
+  every copy of the claim, including portal paste text. `REGISTRATION_CHRONOLOGY` in
+  `check_claim_artifact.py` is unchanged and still compares the search end date.
+- **Writing guidance drawn from co-author edits** (#685). `/revise`: unify terminology from a
+  one-page term table before editing sentences, and after compressing a response letter, check its
+  evidence item by item. `/revise` and `/write-paper`: words left under a journal cap are not a
+  target. `/write-paper`: a general-purpose method validated on one task leads with the method.
+  `/design-study`: fix the reader-study analysis model at design (a crossed mixed model for a
+  conditional estimand, GEE or a marginalized model for a population-average one). Guidance only.
+- **Reviewer guidance drawn from co-author edits** (#686). `/self-review`: a sentence that
+  pre-empts an objection is not a strength, and pre-emptive defence and revision history in the body
+  are raised. AO1 (`/peer-review`, synced to `/self-review`): "AI falls short" reaches only the
+  evaluated model, version and configuration. `/peer-review` Phase 6 reconciles a finding inventory
+  so a shortening pass cannot drop a verified finding. `/check-reporting` STARD notes separate the
+  item 10b follow-up duration from the item 22 interval. Guidance only.
 - **Unused code removed** (#681). A one-off `ruff check --select F` over the shipped Python found
   39 unused imports, unused variables and placeholder-free f-strings, none of them a bug. They are
   removed with no behaviour change. No lint step is added to CI.
@@ -36,11 +116,23 @@
 - **`validate_skills.sh` check 5 removed** (#682). It matched only `${SKILL_DIR}/references`, a form
   no skill uses any more, so it could not fail. Asset paths are checked by
   `validate_routing_assets.py --strict`.
+- **`test_csl_author_names.sh` checks editors too.** A book with editors and no author must print
+  the editors family-first in every bundled style that prints them. In #692, an empty `<name/>`
+  added to a `<substitute>` shorthand printed them given-name-first while the author checks passed.
+  The renders now use `--wrap=none`, so a name split across a line break cannot slip past the
+  checks.
 
 ### Documentation
 
 - `/mllm-eval` Known limits now say that manifest mode does not check that a declared metric suits
   the task (#682).
+- `CLAUDE.md`: a cloud session reviews the final diff blind before merging.
+- `THIRD-PARTY-NOTICES.md` said the bundled CSL files were unmodified. Six of the 28 are adapted (an
+  added `<name/>`, a renamed or retitled copy, one local style), and it now names them.
+  `citation_styles/README.md` says which slug-refreshable styles need the local `<name/>` put back,
+  and that the `<substitute>` shorthands are left alone (#692).
+- This file: an `## [Unreleased]` heading left inside the 5.25.0 section is removed. The entries
+  under it, from Demo 5 on, shipped in 5.25.0.
 
 ## [6.1.0] - 2026-10-04
 
@@ -1850,8 +1942,6 @@ This happened in two ways. First, lower-case letter-bearing IDs and postcodes we
 
   The lock is rebuilt and the loop now covers **all five demos**. Verified in both directions:
   every demo verifies clean, and perturbing one byte of a locked file makes the gate fail.
-
-## [Unreleased]
 
 ### Added
 

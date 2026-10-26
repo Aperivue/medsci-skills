@@ -13,8 +13,8 @@
     },
     {
       "path": "THIRD-PARTY-NOTICES.md",
-      "size": 3488,
-      "sha256": "24e611f369bf419678014fb192a4300a0276c491df8b06d31fb7825594a54254"
+      "size": 4272,
+      "sha256": "b63e3114160a561bae565ede5073e85e59f92f656fafc2f574fcb761985fcc11"
     },
     {
       "path": "installers/check-setup-macos.command",
@@ -898,8 +898,8 @@
     },
     {
       "path": "skills/check-reporting/references/step4c_registration_timing.md",
-      "size": 4197,
-      "sha256": "e0e76c5fb061ac2df0b61048461124abfa16217ea72cd9eed41f83d372343310"
+      "size": 4605,
+      "sha256": "e4c9e6425a06095485c01f3295a12f1ae1680284ff848a90efbbd2bd9b6563e3"
     },
     {
       "path": "skills/check-reporting/references/step4d_prisma_figure_audit.md",
@@ -1053,13 +1053,13 @@
     },
     {
       "path": "skills/deidentify/SKILL.md",
-      "size": 14148,
-      "sha256": "d24f011bfc01b267c95b0c5356eda74e5a6708f4b80f9cb48967da56749027fe"
+      "size": 14220,
+      "sha256": "a3a0f6917fbec7dcdbaa6e7e126fd987af491170564266bfbb41d96032c85533"
     },
     {
       "path": "skills/deidentify/deidentify.py",
-      "size": 65803,
-      "sha256": "cbc5da298922862b895f6a84cd63e263d1d6c3dfe242f15df092ae39d18fd7cd"
+      "size": 66329,
+      "sha256": "56ed57fa02bbcac3e333ca4f302bb548c7614e122a598698bba1e2692a80dbcb"
     },
     {
       "path": "skills/deidentify/locales/_template.json",
@@ -1085,6 +1085,11 @@
       "path": "skills/deidentify/locales/de.json",
       "size": 1506,
       "sha256": "e42fc9c0570054fcd0b9f17160542fd2bfcb980e3dc3771e71b166f540fab84a"
+    },
+    {
+      "path": "skills/deidentify/locales/es.json",
+      "size": 2974,
+      "sha256": "51e13917fc88dcdc551c0a755bce8e67490a906c3370e2224f60d08cc9e0065a"
     },
     {
       "path": "skills/deidentify/locales/fr.json",
@@ -1138,8 +1143,8 @@
     },
     {
       "path": "skills/deidentify/skill.yml",
-      "size": 1868,
-      "sha256": "108acd49aad21e02fa0ba0972694c7f1c287926b730e96fd31148a3285fdbcd4"
+      "size": 1872,
+      "sha256": "2ea2f2a8db11d1d375a941ef522ddaf3fc1e14c953da9f93dc53c1ff6c0791da"
     },
     {
       "path": "skills/design-ai-benchmarking/SKILL.md",
@@ -1555,6 +1560,11 @@
       "path": "skills/find-journal/references/journal_profiles/JAMA_Network_Open.md",
       "size": 1796,
       "sha256": "0bd38b7ae4139a856c6aba5917d3444e2e86e16bb0a5f7f41869600174e00648"
+    },
+    {
+      "path": "skills/find-journal/references/journal_profiles/JAMA_Surgery.md",
+      "size": 7030,
+      "sha256": "2fed5250c48eeeae27bc5ae330f3c8d66cd017c3bac35813b93b012f73be0be4"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/JASN.md",
@@ -2383,8 +2393,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 11082,
-      "sha256": "c48e1fe21ad493c3a0f65129b55fdf17eecf349b580901bb8212cb885f656923"
+      "size": 11637,
+      "sha256": "1c77f92a0673797a8285bdd9b4c23d677cc116e68222fc0172ec60cfecb34089"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/ai_assistance_effect.md",
@@ -2430,6 +2440,11 @@
       "path": "skills/make-figures/references/exemplar_plots/forest_plot.md",
       "size": 3210,
       "sha256": "7a5a255ff3cb6e5dbe7f970ecdd8774148378a8bc063c1eb079ee05c6c52dca8"
+    },
+    {
+      "path": "skills/make-figures/references/exemplar_plots/funnel_plot.md",
+      "size": 5282,
+      "sha256": "cc7d27d3099633a68e40786464e1e3f2ae4a60d79556714df28fe350e842d3ab"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/imaging_panel.md",
@@ -2768,13 +2783,13 @@
     },
     {
       "path": "skills/manage-refs/SKILL.md",
-      "size": 16559,
-      "sha256": "0ed36281bee86f5d104942b81484ad2234d1b0854352071f2ca026beb031d743"
+      "size": 17277,
+      "sha256": "9facce47514f6a8c5425479055084f0392d24ff268999ce34c99c741c190c3f6"
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
-      "size": 8053,
-      "sha256": "0abb577c2609907eec4db4f2f241ca47e46ac4fdfd5c75363fad7765af85ca57"
+      "size": 9271,
+      "sha256": "79ccb96989c1d42fe16a5b18cad4d84ba331855bc11345b93ab5d6eb9c0ae592"
     },
     {
       "path": "skills/manage-refs/citation_styles/american-association-for-cancer-research.csl",
@@ -2852,6 +2867,11 @@
       "sha256": "fd78028299fcdc7b1e257c69c34b223c024cc2dfd03703597116e3fc1e955d69"
     },
     {
+      "path": "skills/manage-refs/citation_styles/journal-of-medical-internet-research.csl",
+      "size": 8391,
+      "sha256": "fd12cf2ba27f18a9414af4db730463b582a078f713ff4eb2a281a5ead7e11dac"
+    },
+    {
       "path": "skills/manage-refs/citation_styles/korean-journal-of-radiology.csl",
       "size": 5849,
       "sha256": "edde670da20212820d54649dcb96594db835eb55498e88c7de41891dfb370114"
@@ -2860,6 +2880,11 @@
       "path": "skills/manage-refs/citation_styles/liver-international.csl",
       "size": 18312,
       "sha256": "9f917b818e4500a476c32bcde874bc4a285f5214cfc9b8685a94a120e01d5768"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/methods-of-information-in-medicine.csl",
+      "size": 6779,
+      "sha256": "88725188161ab7e97b0acb2504ef620440c88ab1844510ec8abe8abdb32fd335"
     },
     {
       "path": "skills/manage-refs/citation_styles/nature.csl",
@@ -2913,8 +2938,8 @@
     },
     {
       "path": "skills/manage-refs/references/REFERENCE_STYLE_SPECS.md",
-      "size": 3503,
-      "sha256": "d3bed7ceabe6f081521b0ebb630762264370357c284301c9a1780b80d694909d"
+      "size": 5642,
+      "sha256": "ddac7d75da635cd43e00d98e19da6063200d5d2eff6e4d898253746c07ba0361"
     },
     {
       "path": "skills/manage-refs/references/check_xref_symptoms.md",
@@ -2958,8 +2983,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_csl_render.py",
-      "size": 15895,
-      "sha256": "fd2a688c739e60e267b6faec255e3baca75191ad26a37a3e81e394c03dbb17f1"
+      "size": 29367,
+      "sha256": "4e247451a520b7be8b190d5cee88b0d1b17799e791d370fc7b82abf9f4d89b2f"
     },
     {
       "path": "skills/manage-refs/scripts/check_reference_duplication.py",
@@ -2973,8 +2998,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",
-      "size": 5365,
-      "sha256": "4d9d63c58eccef692c8a6b2cca01dc8046c6221c087ec865bdbf1d363b6052a6"
+      "size": 24542,
+      "sha256": "df4f55ac9821b6c36babae601924d1519e8d6bfc7619e85e3b738571cdc065a3"
     },
     {
       "path": "skills/manage-refs/scripts/inject_zotero_cwyw.py",
@@ -2993,8 +3018,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/render_pandoc.sh",
-      "size": 6650,
-      "sha256": "31c1bdec77ad4d56e016d66827a8d0226948dbf1abbb308ece6561a71c47d6dd"
+      "size": 7686,
+      "sha256": "1743def044ae81c741a7d9c2f640294d997f5ce2bc3935588aeba11698bbe3dc"
     },
     {
       "path": "skills/manage-refs/scripts/strip_source_metadata.lua",
@@ -3008,8 +3033,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 35082,
-      "sha256": "ddf417f4a9d42a93525690e8f0cbc481eafb253034932360fabe99e55babadee"
+      "size": 36784,
+      "sha256": "d93ba5e580101185f31aa0b114428b570ba0294217c242ba4bb1b8569cafa2b9"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -3018,8 +3043,8 @@
     },
     {
       "path": "skills/meta-analysis/references/PROSPERO_template.md",
-      "size": 8667,
-      "sha256": "4535ba64c50e83f35366cc17068096d7f89c09bd81be51dc1745833e0b87da20"
+      "size": 9630,
+      "sha256": "0fe50ef54fa424f5e955ff0b0598fc7ce243d58ab0d16ce156c761fc4b200a04"
     },
     {
       "path": "skills/meta-analysis/references/ai_pre_screening_template.py",
@@ -3868,8 +3893,8 @@
     },
     {
       "path": "skills/orchestrate/SKILL.md",
-      "size": 32934,
-      "sha256": "da592551724b83f55a0d36bb9f9d9b9480a47dedfdf6997be8a9601d3f3ca5cc"
+      "size": 33601,
+      "sha256": "0dbfa8b0365ccf02f61430022d0063020799ccc81d65575e148296f19c4a7484"
     },
     {
       "path": "skills/orchestrate/references/data_flow_contract.md",
@@ -4008,8 +4033,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/sr_ma.md",
-      "size": 20113,
-      "sha256": "7ca10c8199d56eaddd649f8febd604a64ef1aa1b8cd911c68a865f6b39ff4b7c"
+      "size": 20878,
+      "sha256": "193cf17d3a95665f2a555601b7b3e757d06c55830d52f406ee6fc79f5c178984"
     },
     {
       "path": "skills/peer-review/references/domain-probes/survey_research.md",
@@ -5053,8 +5078,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/sr_ma.md",
-      "size": 20113,
-      "sha256": "7ca10c8199d56eaddd649f8febd604a64ef1aa1b8cd911c68a865f6b39ff4b7c"
+      "size": 20878,
+      "sha256": "193cf17d3a95665f2a555601b7b3e757d06c55830d52f406ee6fc79f5c178984"
     },
     {
       "path": "skills/self-review/references/domain-probes/survey_research.md",
@@ -6558,8 +6583,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 36087,
-      "sha256": "1296c97d48b5cc6919b0ef3dc94006036fb5895394f388db0d4f278971b786cf"
+      "size": 36198,
+      "sha256": "07dee8fece78d2026884d06e8fb4dded48d6f89b5bed305514e37955be072b94"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",
@@ -6628,8 +6653,8 @@
     },
     {
       "path": "skills/write-paper/references/exemplar_methods/meta_analysis_prisma.md",
-      "size": 4160,
-      "sha256": "a0e696e2f581fa6ae8b1aeb86ff7b9a5aaa6bdb2184fee4352e74d2ee6559d90"
+      "size": 4346,
+      "sha256": "72e4376a49cd021594f3b2767ba93ecdf9e904abbc1d9dea018379fd3481974f"
     },
     {
       "path": "skills/write-paper/references/exemplar_methods/observational_cohort_strobe.md",
@@ -6818,13 +6843,18 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JAMA.md",
-      "size": 8716,
-      "sha256": "af2495b9e0330c153b4ebafe00ea86932dd93bd04e16412bda218992f7f4a7bd"
+      "size": 9586,
+      "sha256": "55a27204fd31cd22838751bc97445e11dd3576e4155312a40c857ebda5b45c15"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JAMA_Network_Open.md",
-      "size": 8114,
-      "sha256": "0b7c00a4cf1616e134cfe3fff0d389268d275c0795f233733d685f56fc3018f9"
+      "size": 8887,
+      "sha256": "7efd367db5b0d824c269c3feb815453c4502afb2ec6458da22900eb65f319440"
+    },
+    {
+      "path": "skills/write-paper/references/journal_profiles/JAMA_Surgery.md",
+      "size": 13347,
+      "sha256": "6fe3493668326df935f0f43669722dd64286ddeceb9a24409b2ae5d332f635f5"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JASN.md",
@@ -7028,8 +7058,8 @@
     },
     {
       "path": "skills/write-paper/references/paper_types/meta_analysis.md",
-      "size": 10536,
-      "sha256": "2c237409005214baab63627966d8f2b31498e3c28bea34c571a6d5591a068ed8"
+      "size": 11207,
+      "sha256": "71ac5443dd74d105d79e718e4af7e94251a043d14845625d8a5808dad1bbd85f"
     },
     {
       "path": "skills/write-paper/references/paper_types/nhis_cohort.md",
