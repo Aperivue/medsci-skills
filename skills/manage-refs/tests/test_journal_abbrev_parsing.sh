@@ -122,6 +122,7 @@ spec.loader.exec_module(m)
 PMID = {"10.1234/a": "111", "10.1234/b": "222"}
 NLM = {"111": "Synth Rep", "222": "J Synth Methods"}
 CROSSREF = {"10.1234/c": "J. Synth. Softw."}
+REAL_PMIDS_SUMMARY = m.pmids_summary
 m.doi_to_pmid = lambda doi: PMID.get(doi)
 m.pmids_summary = lambda pmids: {p: {"source": NLM.get(p)} for p in pmids}
 m.crossref_short_title = lambda doi: CROSSREF.get(doi)
@@ -220,6 +221,36 @@ except Exception as e:
 
 I = "@article{iota2028,\n  journal = {Synthetic Reports},\n  year = {2028}\n}\n"
 case("NEGATIVE: no PMID or DOI -> unchanged", I, I)
+
+# A bare number is a BibTeX literal: `pmid = 111` is a PMID, not a missing one.
+K = "@article{kappa2029,\n  journal = {Synthetic Reports},\n  pmid = 111\n}\n"
+case("bare numeric pmid is read", K, K.replace("{Synthetic Reports},\n", "{Synthetic Reports},\n  shortjournal = {Synth Rep},\n"),
+     {"kappa2029": "Synth Rep"})
+
+# An entry with unbalanced braces swallows every entry after it: stop, name it, write nothing.
+try:
+    broken = A + "@article{lambda2030, journal = {Synthetic Reports}, pmid = {111}\n" + B
+    out, code, log = run(broken)
+    ok = code == 2 and out is None and "lambda2030" in log and "unbalanced" in log
+    results.append(("PASS  " if ok else "FAIL  ") + "unbalanced braces -> exit 2, entry named, nothing written"
+                   + ("" if ok else "  -- exit %s, wrote %s" % (code, out is not None)))
+except Exception as e:
+    results.append("FAIL  unbalanced braces -> exit 2  -- %s: %s" % (type(e).__name__, e))
+
+# NCBI can report a failure inside a 200 reply ({"error": ...}); that is no answer, not "no record".
+real_get = m._get
+try:
+    m.pmids_summary = REAL_PMIDS_SUMMARY
+    m._get = lambda url: '{"error": "API rate limit exceeded"}'
+    out, code, log = run(K)
+    ok = code == 1 and out == K and "LOOKUP FAILED" in log
+    results.append(("PASS  " if ok else "FAIL  ") + "an error reply from PubMed is a failed lookup"
+                   + ("" if ok else "  -- exit %s, log %r" % (code, log[-160:])))
+except Exception as e:
+    results.append("FAIL  an error reply from PubMed is a failed lookup  -- %s: %s" % (type(e).__name__, e))
+finally:
+    m._get = real_get
+    m.pmids_summary = lambda pmids: {p: {"source": NLM.get(p)} for p in pmids}
 
 # A lookup that could not be made is not "no record": exit 1, entry unchanged, named.
 try:

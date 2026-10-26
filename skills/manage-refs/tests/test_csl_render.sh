@@ -412,6 +412,38 @@ if [[ $rc -eq 1 && "$failline" == *"uncitedB2021"* && "$failline" == *"citedA202
 else
   bad "whole-bib scope (rc=$rc): $out"
 fi
+# What counts as cited is what pandoc cites: a key inside an HTML comment is not cited, and a key
+# with internal punctuation (`smith?2020`) is cited whole. A regex over the raw text got both wrong.
+cat >> "$scope_dir/refs.bib" <<'BIB'
+@article{smith?2020,
+  title   = {A synthetic study with an unusual key},
+  author  = {Smith, Sam},
+  journal = {Synthetic Letters},
+  year    = {2020}
+}
+@article{commented2019,
+  title   = {A study mentioned only in a comment},
+  author  = {Delta, Dan},
+  journal = {Synthetic Notes},
+  year    = {2019}
+}
+BIB
+printf 'Cited [@smith?2020].\n\n<!-- [@commented2019] -->\n' > "$scope_dir/ms_keys.md"
+out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \
+         --md "$scope_dir/ms_keys.md" --expect-abbrev yes 2>&1)"; rc=$?
+failline="$(printf '%s\n' "$out" | grep '^FAIL:')"
+if [[ $rc -eq 1 && "$failline" == *"smith?2020"* && "$failline" != *"commented2019"* ]]; then
+  pass "--md: a key with internal punctuation is cited; a key in an HTML comment is not"
+else
+  bad "--md citation parsing (rc=$rc): $out"
+fi
+# `--expect-abbrev no` ("full names acceptable") asks for no check: alone, it compares nothing.
+out="$(python3 "$SCRIPT" --csl "$CSL" --bib "$BIB" --expect-abbrev no 2>&1)"; rc=$?
+if [[ $rc -eq 2 && "$out" != *"PASS"* ]] && { ! command -v pandoc >/dev/null 2>&1 || [[ "$out" == *"NOT_ASSESSED"* ]]; }; then
+  pass "--expect-abbrev no alone -> nothing compared, not PASS"
+else
+  bad "--expect-abbrev no alone (rc=$rc): $out"
+fi
 if command -v pandoc >/dev/null 2>&1; then
   # With the cited entry abbreviated, the render sample holds it and the arXiv entry: "arXiv" printed
   # in full is correct and must not read as an unabbreviated journal.

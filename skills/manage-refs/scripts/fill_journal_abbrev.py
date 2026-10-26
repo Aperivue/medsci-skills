@@ -18,7 +18,9 @@ What it changes and what it does not:
     indentation; fills an existing EMPTY `shortjournal = {}` in place;
   - never overwrites a non-empty `shortjournal`, never touches any other field;
   - skips (and names) entries it cannot edit safely: no journal field, a journal given as a
-    @string macro or a `#` concatenation, or an entry whose braces do not balance.
+    @string macro or a `#` concatenation, a field it cannot read;
+  - stops before writing anything when an entry's braces do not balance, since every entry after
+    it would be swallowed unread.
 The output is re-parsed before it is written; if any entry, key or field changed other than the
 added abbreviations, nothing is written.
 
@@ -30,7 +32,8 @@ Exit codes:
   0  finished; every entry that could be looked up was (some may have no abbreviation)
   1  output written, but some lookups failed (network or service error): those entries are
      unchanged and named; re-run later
-  2  input error, or the output failed its own re-parse (nothing written)
+  2  input error (unreadable file, an entry with unbalanced braces), or the output failed its own
+     re-parse; nothing written
 
 Usage:
   python fill_journal_abbrev.py --bib refs.bib --out refs_abbrev.bib
@@ -73,7 +76,11 @@ def doi_to_pmid(doi):
         j = json.loads(_get(f"{EUTILS}/esearch.fcgi?db=pubmed&term={term}&retmode=json"))
     except (OSError, ValueError) as exc:  # URLError and HTTPError are OSErrors
         raise LookupFailed(f"PubMed esearch: {exc}") from exc
-    ids = j.get("esearchresult", {}).get("idlist", [])
+    res = j.get("esearchresult") if isinstance(j, dict) else None
+    # NCBI reports some failures (rate limit, bad query) inside a 200 reply: that is no answer.
+    if not isinstance(res, dict) or "error" in j or "ERROR" in res:
+        raise LookupFailed(f"PubMed esearch: {str(j)[:200]}")
+    ids = res.get("idlist", [])
     return ids[0] if ids else None
 
 
@@ -86,7 +93,9 @@ def pmids_summary(pmids):
             j = json.loads(_get(f"{EUTILS}/esummary.fcgi?db=pubmed&id={','.join(chunk)}&retmode=json"))
         except (OSError, ValueError) as exc:
             raise LookupFailed(f"PubMed esummary: {exc}") from exc
-        res = j.get("result", {})
+        if not isinstance(j, dict) or "error" in j or not isinstance(j.get("result"), dict):
+            raise LookupFailed(f"PubMed esummary: {str(j)[:200]}")
+        res = j["result"]
         out.update({p: {"source": res.get(p, {}).get("source")} for p in chunk})
     return out
 
@@ -101,6 +110,8 @@ def crossref_short_title(doi):
         raise LookupFailed(f"CrossRef: {exc}") from exc
     except (OSError, ValueError) as exc:
         raise LookupFailed(f"CrossRef: {exc}") from exc
+    if not isinstance(j, dict) or j.get("status") != "ok":
+        raise LookupFailed(f"CrossRef: {str(j)[:200]}")
     short = j.get("message", {}).get("short-container-title") or []
     return short[0].strip() if short and short[0].strip() else None
 
@@ -198,8 +209,11 @@ def parse_bib(text):
         try:
             end = _match_brace(text, brace)
         except Unsupported:
-            entries.append({"type": etype, "key": None, "start": m.start(), "end": len(text),
-                            "fields": {}, "unsupported": "unbalanced braces"})
+            # Everything after this point is swallowed by the open entry, so parsing stops here.
+            head = re.match(r"\s*([^,\s}]+)", text[brace + 1:])
+            entries.append({"type": etype, "key": head.group(1) if head else None, "start": m.start(),
+                            "end": len(text), "fields": {}, "unsupported": "unbalanced braces",
+                            "line": text.count("\n", 0, m.start()) + 1})
             break
         pos = end
         if etype.lower() in SKIP_TYPES:
@@ -234,6 +248,8 @@ def parse_bib(text):
 
 def _value(entry, name):
     f = entry["fields"].get(name)
+    if f and f[3] == "bare" and f[4].isdigit():  # a bare number is a literal; a bare word is a @string macro
+        return f[4]
     if not f or f[3] not in ("braced", "quoted"):
         return None
     return f[4].strip()
@@ -405,6 +421,13 @@ def main():
             bib = fh.read()
     except OSError as exc:
         print(f"ERROR: cannot read {a.bib}: {exc}", file=sys.stderr)
+        sys.exit(2)
+
+    broken = [e for e in parse_bib(bib) if e["unsupported"] == "unbalanced braces"]
+    if broken:
+        e = broken[0]
+        print(f"ERROR: {a.bib} line {e['line']}: entry {e['key'] or '(no key)'} has unbalanced braces, so "
+              "nothing after it can be read. Fix the bib first; nothing written.", file=sys.stderr)
         sys.exit(2)
 
     bbt = looks_bbt_managed(bib)

@@ -37,8 +37,9 @@ never read as a full title in the render; such entries are listed in ``abbrev_pr
 holds entries the manuscript no longer cites, and those never print. Without it the whole .bib is
 judged.
 
-With no expectation at all (no ``--journal``, no ``--expect-*``) nothing is compared: the render
-is still printed as JSON, but the run ends NOT_ASSESSED with exit 2, never PASS.
+With nothing to compare (no ``--journal``, no ``--expect-*``, or only ``--expect-abbrev no``,
+which asks for no check) the render is still printed as JSON, but the run ends NOT_ASSESSED with
+exit 2, never PASS.
 
 --bib must be a BibTeX (.bib) file; a CSL-JSON or YAML bibliography has no BibTeX
 entries to sample and exits 2.
@@ -99,8 +100,8 @@ SHORTJOURNAL_RE = re.compile(r"\bshortjournal\s*=\s*[{\"]\s*[^}\"\s]", re.I)
 PREPRINT_RE = re.compile(
     r"^(?:arxiv|biorxiv|medrxiv|chemrxiv|psyarxiv|socarxiv|techrxiv|ssrn|research square"
     r"|preprints(?:\.org)?|osf preprints)\b", re.I)
-# The pandoc citation key syntax, as check_citation_keys.py reads it.
-CITE_RE = re.compile(r"(?<![A-Za-z0-9_])-?@([A-Za-z0-9_][\w]*(?:[:.\-/+][\w]+)*)")
+# The pandoc citation key syntax (internal punctuation :.#$%&-+?<>~/), used only when pandoc is absent.
+CITE_RE = re.compile(r"(?<![A-Za-z0-9_])-?@\{?([A-Za-z0-9_][\w]*(?:[:.#$%&\-+?<>~/][\w]+)*)")
 
 
 class RenderError(RuntimeError):
@@ -155,11 +156,35 @@ def is_preprint(body: str) -> bool:
 
 
 def cited_keys(md: str) -> set[str]:
-    """Citation keys a markdown manuscript cites; raises RenderError if it cannot be read."""
+    """Citation keys a markdown manuscript cites, as pandoc reads them; raises RenderError on failure.
+
+    pandoc's own parse is the authority: a key inside an HTML comment or a code block is not a
+    citation, and a key such as `smith?2020` or `@{a.b}` is one. Only when pandoc is missing does a
+    regex stand in, after comments and fenced code are removed.
+    """
     try:
-        return set(CITE_RE.findall(Path(md).read_text(encoding="utf-8")))
+        text = Path(md).read_text(encoding="utf-8")
     except OSError as exc:
         raise RenderError(f"could not read manuscript {md}: {exc}") from exc
+    try:
+        proc = subprocess.run(["pandoc", "-f", "markdown", "-t", "json", md], capture_output=True, text=True)
+    except FileNotFoundError:
+        text = re.sub(r"<!--.*?-->", " ", text, flags=re.S)
+        text = re.sub(r"^(```|~~~).*?^\1", " ", text, flags=re.S | re.M)
+        return set(CITE_RE.findall(text))
+    if proc.returncode != 0:
+        raise RenderError(f"pandoc could not read manuscript {md}: {proc.stderr.strip()[:300]}")
+    keys: set[str] = set()
+    stack = [json.loads(proc.stdout)]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, dict):
+            if node.get("t") == "Cite":
+                keys.update(c["citationId"] for c in node["c"][0])
+            stack.extend(node.values())
+        elif isinstance(node, list):
+            stack.extend(node)
+    return keys
 
 
 def keys_missing_shortjournal(bib_text: str, only=None) -> list[str]:
@@ -358,10 +383,12 @@ def main():
     got["missing_shortjournal"] = missing_short
     got["scope"] = "cited keys" if only is not None else "whole bib"
     print(json.dumps({"detector": "check_csl_render", "csl": os.path.basename(a.csl), "expected": exp, "got": got}, indent=2))
-    if not {"intext", "doi", "abbrev"} & exp.keys():
-        # Nothing to compare against used to print PASS, which reads exactly like a passed check.
-        print("NOT_ASSESSED — no expectation given (pass --journal or --expect-intext / --expect-doi / "
-              "--expect-abbrev); the render above was not compared with anything", file=sys.stderr)
+    # Counted by the comparisons actually made below: `abbrev: no` ("full names acceptable") asks for
+    # no check, so on its own it compared nothing and printed PASS, as did no expectation at all.
+    compared = bool(exp.get("intext")) + ("doi" in exp) + (exp.get("abbrev") == "yes")
+    if not compared:
+        print("NOT_ASSESSED — no expectation to compare (pass --journal, --expect-intext, --expect-doi or "
+              "--expect-abbrev yes); the render above was not compared with anything", file=sys.stderr)
         sys.exit(2)
     if exp.get("intext") and got["intext"] != exp["intext"]:
         fails.append(f"in-text {got['intext']} != expected {exp['intext']}")
