@@ -445,6 +445,18 @@ if command -v pandoc >/dev/null 2>&1; then
   else
     bad "--md citation parsing (rc=$rc): $out"
   fi
+  # Two entries on one line are two entries: a cited book must not take on the uncited article's
+  # journal (an entry used to run to the next line that starts with '@').
+  printf '%s\n' '@book{bookA2019, title = {A synthetic handbook}, author = {Alpha, Ada}, publisher = {Example Press}, year = {2019}} @article{unusedB2020, title = {An uncited study}, author = {Beta, Boris}, journal = {Journal Alpha}, year = {2020}}' \
+    > "$scope_dir/oneline.bib"
+  printf 'Cited [@bookA2019].\n' > "$scope_dir/ms_book.md"
+  out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/oneline.bib" \
+           --md "$scope_dir/ms_book.md" --expect-abbrev yes 2>&1)"; rc=$?
+  if [[ $rc -eq 0 && "$out" == *'"missing_shortjournal": []'* && "$out" != *"FAIL"* ]]; then
+    pass "two entries on one line: the cited book is not judged by the uncited article's journal"
+  else
+    bad "two entries on one line (rc=$rc): $out"
+  fi
   # nocite '@*' puts every entry into the reference list, so the whole bib is judged.
   printf -- '---\nnocite: |\n  @*\n---\nCited [@smith?2020].\n' > "$scope_dir/ms_nocite.md"
   out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \

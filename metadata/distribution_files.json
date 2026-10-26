@@ -2978,8 +2978,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_csl_render.py",
-      "size": 20967,
-      "sha256": "39485c8c939e5731cd8b01a7f61cd2a89daf97e56f9681e7d752efa9017b42a7"
+      "size": 21739,
+      "sha256": "69a831f42e21e8b48108b3748d5ff67a4df72b74aef355d024f939b34d9ece9f"
     },
     {
       "path": "skills/manage-refs/scripts/check_reference_duplication.py",
@@ -2993,8 +2993,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",
-      "size": 22361,
-      "sha256": "ddc29306063069b3a851a7cdf91ba8309f1d82fc29f75b17b5d90bab04f1eed6"
+      "size": 23898,
+      "sha256": "5cae0c3ca32cc5432887e1ed172318f860d979e71cda92c25cdacaf8ab3e56f5"
     },
     {
       "path": "skills/manage-refs/scripts/inject_zotero_cwyw.py",

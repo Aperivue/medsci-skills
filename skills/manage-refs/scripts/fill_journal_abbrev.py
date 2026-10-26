@@ -34,8 +34,8 @@ Exit codes:
   0  finished; every entry that could be looked up was (some may have no abbreviation)
   1  output written, but some lookups failed (network or service error): those entries are
      unchanged and named; re-run later
-  2  input error (unreadable file, an entry with unbalanced braces, a bib pandoc cannot read), or
-     the output failed its own re-parse; nothing written
+  2  input error (unreadable file, an entry with unbalanced braces, duplicate keys, a bib pandoc
+     cannot read), or the output failed its own re-parse; nothing written
 
 Usage:
   python fill_journal_abbrev.py --bib refs.bib --out refs_abbrev.bib
@@ -133,14 +133,44 @@ class Unsupported(ValueError):
     pass
 
 
-def _match_brace(text, i):
-    """Index just past the brace that closes the one at text[i] (a backslash escapes one character)."""
-    depth, j = 0, i
+def _skip(text, i, end, extra=""):
+    """Index of the next character that is not whitespace, one of `extra`, or a `%` comment.
+
+    Used only where whitespace may stand (between fields, around `=` and `#`): a `%` there runs to
+    the end of the line, as pandoc reads it. Inside a value a `%` is text (`url = {.../%7Euser}`).
+    """
+    while i < end:
+        if text[i] in " \t\r\n" or text[i] in extra:
+            i += 1
+        elif text[i] == "%":
+            nl = text.find("\n", i, end)
+            i = end if nl == -1 else nl + 1
+        else:
+            break
+    return i
+
+
+def _match_brace(text, i, entry=False):
+    """Index just past the brace that closes the one at text[i] (a backslash escapes one character).
+
+    With entry=True, text[i] opens a whole entry: at its top level, outside a quoted value, a `%`
+    starts a comment, so a brace in `% {old note` is not counted.
+    """
+    depth, j, quoted = 0, i, False
     while j < len(text):
         c = text[j]
         if c == "\\":
             j += 2
             continue
+        if entry and depth == 1:
+            if c == '"':
+                quoted = not quoted
+            elif c == "%" and not quoted:
+                nl = text.find("\n", j)
+                if nl == -1:
+                    break
+                j = nl + 1
+                continue
         if c == "{":
             depth += 1
         elif c == "}":
@@ -155,8 +185,7 @@ def _read_value(text, i, end):
     """(value_start, value_end, kind, inner) for the field value at or after text[i]."""
     parts, start = [], None
     while True:
-        while i < end and text[i] in " \t\r\n":
-            i += 1
+        i = _skip(text, i, end)
         if i >= end:
             raise Unsupported("field without a value")
         start = i if start is None else start
@@ -187,9 +216,7 @@ def _read_value(text, i, end):
                 raise Unsupported("unreadable value")
             j = m.end()
             parts.append(("bare", m.group(0)))
-        k = j
-        while k < end and text[k] in " \t\r\n":
-            k += 1
+        k = _skip(text, j, end)
         if k < end and text[k] == "#":
             i = k + 1
             continue
@@ -208,11 +235,13 @@ def parse_bib(text):
     for m in re.finditer(r"@(\w+)\s*\{", text):
         if m.start() < pos:
             continue
-        if "%" in text[text.rfind("\n", 0, m.start()) + 1:m.start()]:
-            continue  # `% @article{old,` is a comment line outside any entry, as pandoc reads it
+        # `% @article{old,` is a comment outside any entry, as pandoc reads it. Only the text after the
+        # previous entry counts: a `50\%` inside an entry earlier on the same line is not a comment.
+        if "%" in text[max(pos, text.rfind("\n", 0, m.start()) + 1):m.start()]:
+            continue
         etype, brace = m.group(1), m.end() - 1
         try:
-            end = _match_brace(text, brace)
+            end = _match_brace(text, brace, entry=True)
         except Unsupported:
             # Everything after this point is swallowed by the open entry, so parsing stops here.
             head = re.match(r"\s*([^,\s}]+)", text[brace + 1:])
@@ -226,27 +255,24 @@ def parse_bib(text):
         body_start, body_end = brace + 1, end - 1
         comma = text.find(",", body_start, body_end)
         key = text[body_start:comma if comma != -1 else body_end].strip()
-        entry = {"type": etype, "key": key, "start": m.start(), "end": end, "fields": {}, "unsupported": None}
+        entry = {"type": etype, "key": key, "start": m.start(), "end": end, "fields": {}, "unsupported": None,
+                 "body_start": comma + 1 if comma != -1 else body_end, "body_end": body_end,
+                 "line": text.count("\n", 0, m.start()) + 1}
         i = comma + 1 if comma != -1 else body_end
         try:
             while True:
-                while i < body_end and text[i] in " \t\r\n,":
-                    i += 1
+                i = _skip(text, i, body_end, ",")
                 if i >= body_end:
                     break
                 nm = _NAME.match(text, i)
                 if not nm:
                     raise Unsupported("unreadable field name")
-                j = nm.end()
-                while j < body_end and text[j] in " \t\r\n":
-                    j += 1
+                j = _skip(text, nm.end(), body_end)
                 if j >= body_end or text[j] != "=":
                     raise Unsupported(f"field {nm.group(0)!r} without '='")
                 vstart, vend, kind, inner = _read_value(text, j + 1, body_end)
                 entry["fields"].setdefault(nm.group(0).lower(), (nm.start(), vstart, vend, kind, inner))
-                k = vend
-                while k < body_end and text[k] in " \t\r\n":
-                    k += 1
+                k = _skip(text, vend, body_end)
                 if k < body_end and text[k] != ",":
                     raise Unsupported(f"no comma after field {nm.group(0)!r}")
                 i = vend
@@ -448,6 +474,16 @@ def main():
         e = broken[0]
         print(f"ERROR: {a.bib} line {e['line']}: entry {e['key'] or '(no key)'} has unbalanced braces, so "
               "nothing after it can be read. Fix the bib first; nothing written.", file=sys.stderr)
+        sys.exit(2)
+
+    seen, dups = set(), []
+    for e in parse_bib(bib):
+        if e["key"] in seen and e["key"] not in dups:
+            dups.append(e["key"])
+        seen.add(e["key"])
+    if dups:
+        print(f"ERROR: duplicate entry keys in {a.bib}: {', '.join(dups)}. Each key must be unique "
+              "(which entry a citation means is ambiguous); nothing written.", file=sys.stderr)
         sys.exit(2)
 
     read = pandoc_reads(bib)

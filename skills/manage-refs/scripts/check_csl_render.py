@@ -62,6 +62,12 @@ Usage:
 import argparse, subprocess, tempfile, re, os, sys, json
 from pathlib import Path
 
+# One BibTeX reader for the skill: the brace-aware parser in fill_journal_abbrev.py. A regex that
+# ended an entry at the next line starting with '@' merged two entries written on one line, so a
+# cited book took on an uncited article's journal field.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from fill_journal_abbrev import parse_bib  # noqa: E402
+
 # python-docx is required for the superscript check. Import is guarded at the top
 # so a missing dependency is a clear, actionable message (exit 2) rather than an
 # ImportError traceback raised deep inside analyze().
@@ -94,7 +100,6 @@ def sample_markdown(keys: list[str]) -> str:
     """
     return "Risk is elevated [" + "; ".join("@" + k for k in keys) + "].\n\n# References\n"
 
-BIB_ENTRY_RE = re.compile(r"@(\w+)\s*\{\s*([^,\s]+)\s*,(.*?)(?=\n\s*@|\Z)", re.S)
 JOURNAL_FIELD_RE = re.compile(r"\b(?:journal|journaltitle)\s*=\s*[{\"]\s*[^}\"\s]", re.I)
 SHORTJOURNAL_RE = re.compile(r"\bshortjournal\s*=\s*[{\"]\s*[^}\"\s]", re.I)
 # A preprint server given as the journal has no abbreviation to print.
@@ -105,6 +110,22 @@ PREPRINT_RE = re.compile(
 
 class RenderError(RuntimeError):
     """Environment/input failure that should exit 2 with a clear message."""
+
+
+def bib_entries(bib_text: str):
+    """(entry_type, key, body) for each entry, @comment/@string/@preamble excluded.
+
+    An entry whose braces do not balance swallows everything after it, so that is an input error
+    (exit 2) rather than a shorter list.
+    """
+    out = []
+    for e in parse_bib(bib_text):
+        if e["unsupported"] == "unbalanced braces":
+            raise RenderError(f"entry {e['key'] or '(no key)'} at line {e['line']} has unbalanced braces; "
+                              "nothing after it can be read")
+        if e["key"]:
+            out.append((e["type"], e["key"], bib_text[e["body_start"]:e["body_end"]]))
+    return out
 
 
 def _read_bib(bib: str) -> str:
@@ -192,9 +213,7 @@ def keys_missing_shortjournal(bib_text: str, only=None) -> list[str]:
     manuscript does not cite never prints at all.
     """
     missing = []
-    for entry_type, key, body in BIB_ENTRY_RE.findall(bib_text):
-        if entry_type.lower() in ("comment", "string", "preamble"):
-            continue
+    for _entry_type, key, body in bib_entries(bib_text):
         if only is not None and key not in only:
             continue
         if JOURNAL_FIELD_RE.search(body) and not SHORTJOURNAL_RE.search(body) and not is_preprint(body):
@@ -252,8 +271,8 @@ def analyze(csl: str, bib: str, only=None) -> dict:
     # Validate inputs first (bib path), so a missing bib is reported clearly and
     # independently of whether the optional python-docx parser is installed.
     entries: dict[str, str] = {}
-    for entry_type, key, body in BIB_ENTRY_RE.findall(_read_bib(bib)):
-        if entry_type.lower() not in ("comment", "string", "preamble") and key not in entries:
+    for _entry_type, key, body in bib_entries(_read_bib(bib)):
+        if key not in entries:
             entries[key] = body
     if not entries:
         raise RenderError(f"no bibliography entries found in {bib}; there is nothing to render")

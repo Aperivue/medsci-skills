@@ -233,6 +233,32 @@ case("a commented-out entry start is a comment", L,
      L.replace("  journal = {Synthetic Reports},\n", "  journal = {Synthetic Reports},\n  shortjournal = {Synth Rep},\n"),
      {"alpha2020": "Synth Rep"})
 
+# Two entries on one line, the first with an escaped `50\%` in a field: that `%` is text, so the
+# second entry is still read (it used to be skipped as if the line were a comment).
+N = ("@article{xi2033, journal = {Synthetic Reports}, title = {50\\% of widgets}, doi = {10.1234/a}} "
+     "@article{omicron2034, journal = {Journal of Synthetic Methods}, doi = {10.1234/b}}\n")
+case("an escaped % in a field does not hide the next entry on the line", N,
+     N.replace("{Synthetic Reports},", "{Synthetic Reports}, shortjournal = {Synth Rep},")
+      .replace("{Journal of Synthetic Methods},", "{Journal of Synthetic Methods}, shortjournal = {J Synth Methods},"),
+     {"xi2033": "Synth Rep", "omicron2034": "J Synth Methods"})
+
+# A `%` comment line inside an entry is skipped, braces and all; a `%` inside a value is text.
+P = ("@article{pi2035,\n  % {old note, never closed\n  journal = {Synthetic Reports},\n"
+     "  url = {https://example.org/%7Ewidget},\n  doi = {10.1234/a}\n}\n")
+case("a % comment inside an entry is a comment; a % inside a value is text", P,
+     P.replace("{Synthetic Reports},\n", "{Synthetic Reports},\n  shortjournal = {Synth Rep},\n"),
+     {"pi2035": "Synth Rep"})
+
+# Duplicate keys: which entry a citation means is ambiguous, so refuse before any lookup.
+try:
+    dup = A + A.replace("10.1234/a", "10.1234/b")
+    out, code, log = run(dup)
+    ok = code == 2 and out is None and "duplicate" in log and "alpha2020" in log
+    results.append(("PASS  " if ok else "FAIL  ") + "duplicate keys -> exit 2, key named, nothing written"
+                   + ("" if ok else "  -- exit %s, wrote %s" % (code, out is not None)))
+except Exception as e:
+    results.append("FAIL  duplicate keys -> exit 2  -- %s: %s" % (type(e).__name__, e))
+
 # Fields with no comma between them: never write a file pandoc cannot read.
 try:
     nocomma = "@article{mu2031, journal = {Synthetic Reports} pmid = {111}}\n"
