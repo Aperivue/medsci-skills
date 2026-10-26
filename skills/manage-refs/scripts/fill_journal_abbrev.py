@@ -99,7 +99,8 @@ def pmids_summary(pmids):
         if not isinstance(j, dict) or "error" in j or not isinstance(j.get("result"), dict):
             raise LookupFailed(f"PubMed esummary: {str(j)[:200]}")
         res = j["result"]
-        out.update({p: {"source": res.get(p, {}).get("source")} for p in chunk})
+        out.update({p: {"source": (res.get(p) or {}).get("source"), "error": (res.get(p) or {}).get("error")}
+                    for p in chunk})
     return out
 
 
@@ -241,7 +242,7 @@ def parse_bib(text):
             continue
         etype, brace = m.group(1), m.end() - 1
         try:
-            end = _match_brace(text, brace, entry=True)
+            end = _match_brace(text, brace, entry=etype.lower() not in SKIP_TYPES)
         except Unsupported:
             # Everything after this point is swallowed by the open entry, so parsing stops here.
             head = re.match(r"\s*([^,\s}]+)", text[brace + 1:])
@@ -400,12 +401,20 @@ def fill(text):
                     failed.setdefault(k, str(exc))
 
     edits = []
-    for e, _pmid, doi in todo:
+    for e, bib_pmid, doi in todo:
         key = e["key"]
         if key in failed:
             results.append((key, "lookup_failed", failed[key], None))
             continue
         p = pmid_of.get(key)
+        record_error = (summary.get(p) or {}).get("error") if p else None
+        note = None
+        if record_error and not bib_pmid:
+            # PubMed returned this PMID for the DOI a moment ago, so an error now is the service's.
+            results.append((key, "lookup_failed", f"PubMed esummary for PMID {p}: {record_error}", None))
+            continue
+        if record_error:  # retrying will not help: the pmid field names no PubMed record
+            note = f"PubMed has no record for pmid {p} ({record_error}); check the pmid field"
         abbrev = ((summary.get(p) or {}).get("source") or "").strip() if p else ""
         source = "PubMed" if abbrev else None
         if not abbrev and doi:
@@ -417,7 +426,7 @@ def fill(text):
             source = "CrossRef" if abbrev else None
         abbrev = abbrev.replace("{", "").replace("}", "")  # a brace would end the field early
         if not abbrev:
-            results.append((key, "not_found", None, None))
+            results.append((key, "not_found", note, None))
             continue
         edits.append(plan_edit(text, e, abbrev, nl))
         results.append((key, "filled_empty" if e["fields"].get("shortjournal") else "added", abbrev, source))

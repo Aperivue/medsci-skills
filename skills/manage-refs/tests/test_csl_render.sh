@@ -452,7 +452,10 @@ if command -v pandoc >/dev/null 2>&1; then
   printf 'Cited [@bookA2019].\n' > "$scope_dir/ms_book.md"
   out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/oneline.bib" \
            --md "$scope_dir/ms_book.md" --expect-abbrev yes 2>&1)"; rc=$?
-  if [[ $rc -eq 0 && "$out" == *'"missing_shortjournal": []'* && "$out" != *"FAIL"* ]]; then
+  # Only a book is cited, so no journal is in scope: the abbreviation check has nothing to judge
+  # and ends NOT_ASSESSED (a PASS there would claim a comparison that never happened).
+  if [[ $rc -eq 2 && "$out" == *'"missing_shortjournal": []'* && "$out" != *"FAIL"* && "$out" != *"PASS"* \
+        && "$out" == *"NOT_ASSESSED"* ]]; then
     pass "two entries on one line: the cited book is not judged by the uncited article's journal"
   else
     bad "two entries on one line (rc=$rc): $out"
@@ -468,6 +471,23 @@ if command -v pandoc >/dev/null 2>&1; then
   else
     bad "--md with nocite '@*' (rc=$rc): $out"
   fi
+fi
+# Given both, pandoc prints journaltitle: `journal = {arXiv}` beside a real journaltitle is no preprint.
+cat > "$scope_dir/both.bib" <<'BIB'
+@article{bothD2022,
+  title        = {A synthetic study with two journal fields},
+  author       = {Delta, Dan},
+  journal      = {arXiv},
+  journaltitle = {Synthetic Reports},
+  year         = {2022}
+}
+BIB
+out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/both.bib" --expect-abbrev yes 2>&1)"; rc=$?
+failline="$(printf '%s\n' "$out" | grep '^FAIL:')"
+if [[ $rc -eq 1 && "$failline" == *"bothD2022"* ]]; then
+  pass "journaltitle wins over journal = {arXiv}: still judged as a journal"
+else
+  bad "journal = {arXiv} beside journaltitle (rc=$rc): $out"
 fi
 # `--expect-abbrev no` ("full names acceptable") asks for no check: alone, it compares nothing.
 out="$(python3 "$SCRIPT" --csl "$CSL" --bib "$BIB" --expect-abbrev no 2>&1)"; rc=$?

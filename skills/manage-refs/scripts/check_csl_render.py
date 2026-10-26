@@ -168,7 +168,8 @@ def bib_field(body: str, name: str) -> str:
 
 
 def journal_of(body: str) -> str:
-    return bib_field(body, "journal") or bib_field(body, "journaltitle")
+    # journaltitle first: given both, pandoc prints journaltitle, so that is the one to judge.
+    return bib_field(body, "journaltitle") or bib_field(body, "journal")
 
 
 def is_preprint(body: str) -> bool:
@@ -202,6 +203,12 @@ def cited_keys(md: str):
         elif isinstance(node, list):
             stack.extend(node)
     return None if "*" in keys else keys
+
+
+def journal_keys(bib_text: str, only=None) -> list[str]:
+    """Keys of the entries in scope whose journal field names a journal (not a preprint server)."""
+    return [key for _entry_type, key, body in bib_entries(bib_text)
+            if (only is None or key in only) and JOURNAL_FIELD_RE.search(body) and not is_preprint(body)]
 
 
 def keys_missing_shortjournal(bib_text: str, only=None) -> list[str]:
@@ -377,9 +384,12 @@ def main():
     if a.expect_abbrev: exp["abbrev"] = a.expect_abbrev
     fails = []
     missing_short: list[str] = []
+    judged = 0
     if exp.get("abbrev") == "yes":
         try:
-            missing_short = keys_missing_shortjournal(_read_bib(a.bib), only)
+            bib_text = _read_bib(a.bib)
+            missing_short = keys_missing_shortjournal(bib_text, only)
+            judged = len(journal_keys(bib_text, only))
         except RenderError as exc:
             print(f"ERROR: {exc}", file=sys.stderr)
             sys.exit(2)
@@ -400,10 +410,15 @@ def main():
         sys.exit(2)
     got["missing_shortjournal"] = missing_short
     got["scope"] = "cited keys" if only is not None else "whole bib"
+    got["abbrev_judged"] = judged
     print(json.dumps({"detector": "check_csl_render", "csl": os.path.basename(a.csl), "expected": exp, "got": got}, indent=2))
     # Counted by the comparisons actually made below: `abbrev: no` ("full names acceptable") asks for
-    # no check, so on its own it compared nothing and printed PASS, as did no expectation at all.
-    compared = bool(exp.get("intext")) + ("doi" in exp) + (exp.get("abbrev") == "yes")
+    # no check, and `abbrev: yes` over a bib with no journal entry in scope has nothing to judge, so
+    # either alone compared nothing and printed PASS, as did no expectation at all.
+    abbrev_compared = exp.get("abbrev") == "yes" and judged > 0
+    if exp.get("abbrev") == "yes" and not judged:
+        print("NOTE: no journal entry in scope, so journal abbreviation was NOT_ASSESSED", file=sys.stderr)
+    compared = bool(exp.get("intext")) + ("doi" in exp) + abbrev_compared
     if not compared:
         print("NOT_ASSESSED — no expectation to compare (pass --journal, --expect-intext, --expect-doi or "
               "--expect-abbrev yes); the render above was not compared with anything", file=sys.stderr)

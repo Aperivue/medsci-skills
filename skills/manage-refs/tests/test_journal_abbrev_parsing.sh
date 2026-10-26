@@ -249,6 +249,27 @@ case("a % comment inside an entry is a comment; a % inside a value is text", P,
      P.replace("{Synthetic Reports},\n", "{Synthetic Reports},\n  shortjournal = {Synth Rep},\n"),
      {"pi2035": "Synth Rep"})
 
+# @comment holds free text: its `50%` is not a comment marker that hides the closing brace.
+Q = "@comment{progress 50% complete}\n" + A
+case("a % inside @comment does not unbalance the file", Q,
+     Q.replace("  journal = {Synthetic Reports},\n", "  journal = {Synthetic Reports},\n  shortjournal = {Synth Rep},\n"),
+     {"alpha2020": "Synth Rep"})
+
+# The PubMed answer for one PMID can be an error record. For a pmid written in the bib that is a wrong
+# PMID (named; retrying will not help); for a PMID PubMed itself returned for the DOI it is a failed lookup.
+try:
+    m.pmids_summary = lambda pmids: {p: {"source": None, "error": "cannot get document summary"} for p in pmids}
+    out, code, log = run(K)
+    ok1 = code == 0 and out == K and "kappa2029" in log and "check the pmid field" in log
+    out, code, log = run(A)
+    ok2 = code == 1 and out == A and "LOOKUP FAILED" in log
+    results.append(("PASS  " if ok1 else "FAIL  ") + "an error record for a bib pmid is named as a wrong PMID")
+    results.append(("PASS  " if ok2 else "FAIL  ") + "an error record for a PMID found from the DOI is a failed lookup")
+except Exception as e:
+    results.append("FAIL  per-PMID error records  -- %s: %s" % (type(e).__name__, e))
+finally:
+    m.pmids_summary = lambda pmids: {p: {"source": NLM.get(p)} for p in pmids}
+
 # Duplicate keys: which entry a citation means is ambiguous, so refuse before any lookup.
 try:
     dup = A + A.replace("10.1234/a", "10.1234/b")
