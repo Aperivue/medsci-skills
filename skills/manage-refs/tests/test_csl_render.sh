@@ -388,7 +388,7 @@ cat > "$scope_dir/refs.bib" <<'BIB'
   title   = {A synthetic preprint},
   author  = {Gamma, Grace},
   journal = {arXiv},
-  date    = {2026-04-22},
+  date    = {2025-01-15},
   doi     = {10.48550/arXiv.0000.00000}
 }
 BIB

@@ -67,11 +67,11 @@ rendered reference list against them.
 
 5. **Preprint posting date.** A `@misc` arXiv entry renders its year only under the JMIR CSL,
    even with a full `date`. What printed the date (pandoc 3.9, JMIR CSL updated 2024-08-31):
-   `@article` with `journal = {arXiv}`, `date = {2026-06-10}` and the arXiv DOI
-   (`10.48550/arXiv.<id>`), rendering `arXiv 2026 June 10; doi: ...`.
-6. **Citation ranges with a hyphen.** The CSL collapses `[18, 19, 20]` to `[18–20]` with an
+   `@article` with `journal = {arXiv}`, `date = {2025-01-15}` and the arXiv DOI
+   (`10.48550/arXiv.<id>`), rendering `arXiv 2025 Jan 15; doi: ...`.
+6. **Citation ranges with a hyphen.** The CSL collapses `[2, 3, 4]` to `[2–4]` with an
    en dash. Adding the CSL term `citation-range-delimiter` changed nothing under pandoc 3.9, so a
-   journal that wants `[18-20]` needs the rendered output post-processed. Change only the
+   journal that wants `[2-4]` needs the rendered output post-processed. Change only the
    citation numbers: a range typed inside the citation (`[see 10–20 @key]`) is the author's text.
 7. **URL printed twice.** `howpublished = {\url{...}}` together with `url = {...}` prints the
    address twice; keep `url` alone.
