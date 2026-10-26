@@ -4658,8 +4658,8 @@
     },
     {
       "path": "skills/render-pdf-doc/SKILL.md",
-      "size": 9090,
-      "sha256": "1ab8afb5fad701c0f4ddb0503258b9a3dd1626dc3e81fd4efed75365e8682009"
+      "size": 9295,
+      "sha256": "43a78b1455bc0fdfa11ab28a1c6e39850608f5d3d1967751976f806a380fa864"
     },
     {
       "path": "skills/render-pdf-doc/references/known_pitfalls.md",

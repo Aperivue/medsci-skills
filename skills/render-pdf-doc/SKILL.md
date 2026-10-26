@@ -119,7 +119,9 @@ printed:  “no difference”and       AI 를 썼다   3 개
 
 The wrapper turns both off (`scripts/xecjk_korean.tex`) so the PDF keeps the spaces you typed. It is
 appended to your `header-includes`; if you pass `-H` after `--` (which replaces
-`header-includes`), the file is added as one more `-H`. `--xecjk-defaults` keeps
+`header-includes`), the file is added as one more `-H`. Headers given another way (a `--defaults`
+file with `include-in-header`, or `-V header-includes=...`) override the appended one, so pass
+`-H "${CLAUDE_SKILL_DIR}/scripts/xecjk_korean.tex"` alongside them. `--xecjk-defaults` keeps
 xeCJK's own spacing, e.g. for Chinese or Japanese text. Check with
 `pdftotext -layout out.pdf - | grep -cE '[”’][A-Za-z]'` (0 apart from possessives).
 
