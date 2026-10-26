@@ -38,6 +38,14 @@ never read as a full title in the render; such entries are listed in ``abbrev_pr
 never print. ``nocite: '@*'`` lists every entry, so the whole .bib is judged; so it is without
 ``--md``.
 
+``--abbrev-warning --md manuscript.md`` is the light mode ``render_pandoc.sh`` runs after every
+render: no sample render and no verdict, only the cited journal entries this style will print with
+the full title (it reads the style, or its parent for a dependent style, for a short journal title).
+It is a warning, and an approximation with known limits: it reads only the --bib file (not a second
+--bibliography among the render's options, nor references written into the manuscript), counts
+journal articles only (pandoc type article-journal, so not a biblatex @review), and asks whether the
+style prints a short container title anywhere, not in which entry-type branch.
+
 With nothing to compare (no ``--journal``, no ``--expect-*``, or only ``--expect-abbrev no``,
 which asks for no check) the render is still printed as JSON, but the run ends NOT_ASSESSED with
 exit 2, never PASS.
@@ -60,13 +68,14 @@ Usage:
   python check_csl_render.py --csl ... --bib ... --journal jkms --md manuscript.md
 """
 import argparse, subprocess, tempfile, re, os, sys, json
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 # One BibTeX reader for the skill: the brace-aware parser in fill_journal_abbrev.py. A regex that
 # ended an entry at the next line starting with '@' merged two entries written on one line, so a
 # cited book took on an uncited article's journal field.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from fill_journal_abbrev import parse_bib  # noqa: E402
+from fill_journal_abbrev import parse_bib, _value  # noqa: E402
 
 # python-docx is required for the superscript check. Import is guarded at the top
 # so a missing dependency is a clear, actionable message (exit 2) rather than an
@@ -100,8 +109,6 @@ def sample_markdown(keys: list[str]) -> str:
     """
     return "Risk is elevated [" + "; ".join("@" + k for k in keys) + "].\n\n# References\n"
 
-JOURNAL_FIELD_RE = re.compile(r"\b(?:journal|journaltitle)\s*=\s*[{\"]\s*[^}\"\s]", re.I)
-SHORTJOURNAL_RE = re.compile(r"\bshortjournal\s*=\s*[{\"]\s*[^}\"\s]", re.I)
 # A preprint server given as the journal has no abbreviation to print.
 PREPRINT_RE = re.compile(
     r"^(?:arxiv|biorxiv|medrxiv|chemrxiv|psyarxiv|socarxiv|techrxiv|ssrn|research square"
@@ -176,7 +183,7 @@ def is_preprint(body: str) -> bool:
     return bool(PREPRINT_RE.match(journal_of(body)))
 
 
-def cited_keys(md: str):
+def cited_keys(md: str, pandoc_args=()):
     """Citation keys a markdown manuscript cites, as pandoc reads them, or None for "every entry".
 
     pandoc's own parse is the only authority used: a key inside an HTML comment or any kind of code
@@ -187,7 +194,11 @@ def cited_keys(md: str):
     if not Path(md).is_file():
         raise RenderError(f"manuscript not found: {md}")
     try:
-        proc = subprocess.run(["pandoc", "-f", "markdown", "-t", "json", md], capture_output=True, text=True)
+        # The render's reader options come last, so one there (`--from=markdown-citations`) decides
+        # what is cited here exactly as it did in the render. Only reader options are passed: an
+        # `--output` among the render's options would otherwise overwrite the render with JSON.
+        proc = subprocess.run(["pandoc", "-f", "markdown", *reader_options(pandoc_args), "-t", "json",
+                               "-o", "-", md], capture_output=True, text=True)
     except FileNotFoundError as exc:
         raise RenderError("--md needs pandoc to read the manuscript's citations; pandoc not found on PATH") from exc
     if proc.returncode != 0:
@@ -205,10 +216,83 @@ def cited_keys(md: str):
     return None if "*" in keys else keys
 
 
+_READER_OPTS = {"-f", "--from", "-r", "--read", "-M", "--metadata", "--metadata-file"}
+
+
+def reader_options(args) -> list[str]:
+    """The options among a render's extra pandoc arguments that change what pandoc reads as cited.
+
+    Output, writer and filter options are dropped: the citation parse writes JSON to stdout only.
+    """
+    args, out, i = list(args), [], 0
+    while i < len(args):
+        a = args[i]
+        if a.split("=", 1)[0] in _READER_OPTS and "=" in a:
+            out.append(a)
+        elif a in _READER_OPTS and i + 1 < len(args):
+            out += [a, args[i + 1]]
+            i += 1
+        elif a[:2] in ("-f", "-r", "-M") and len(a) > 2:  # -fmarkdown, -Mkey=value
+            out.append(a)
+        i += 1
+    return out
+
+
+def _pandoc_items(bib_text: str):
+    """The bibliography as pandoc reads it (CSL-JSON items), or None when pandoc is not installed.
+
+    pandoc has already expanded @string macros, chosen journaltitle over journal, and typed each
+    entry (an @article with entrysubtype newspaper is an article-newspaper), so nothing is guessed.
+    """
+    try:
+        proc = subprocess.run(["pandoc", "-f", "biblatex", "-t", "csljson"], input=bib_text,
+                              capture_output=True, text=True)
+    except FileNotFoundError:
+        return None
+    if proc.returncode != 0:
+        raise RenderError(f"pandoc cannot read the bib: {' '.join(proc.stderr.split())[:300]}")
+    return json.loads(proc.stdout or "[]")
+
+
+def _journal_entries(bib_text: str, only=None):
+    """(key, has_shortjournal) for each journal article in scope, preprint servers excluded.
+
+    Journal articles are the entries a style prints with the short journal title; a newspaper or
+    magazine article usually takes the full title in its own branch. Read from pandoc's own reading
+    of the bib when pandoc is installed; otherwise from the parsed fields, where a @string macro
+    journal counts and a macro shortjournal counts as present.
+    """
+    bib_entries(bib_text)  # raises RenderError on unbalanced braces
+    items = _pandoc_items(bib_text)
+    if items is not None:
+        out = []
+        for it in items:
+            title = str(it.get("container-title") or "").strip()
+            if ((only is not None and it.get("id") not in only) or it.get("type") != "article-journal"
+                    or not title or PREPRINT_RE.match(title)):
+                continue
+            out.append((it.get("id"), bool(str(it.get("container-title-short") or "").strip())))
+        return out
+    out = []
+    for e in parse_bib(bib_text):
+        if e["type"].lower() != "article" or (_value(e, "entrysubtype") or "").lower() in ("newspaper", "magazine"):
+            continue
+        if not e["key"] or (only is not None and e["key"] not in only):
+            continue
+        jf = e["fields"].get("journaltitle") or e["fields"].get("journal")
+        if not jf:
+            continue
+        literal = _value(e, "journaltitle" if "journaltitle" in e["fields"] else "journal")
+        if jf[3] in ("braced", "quoted") and (not literal or PREPRINT_RE.match(literal)):
+            continue
+        sj = e["fields"].get("shortjournal")
+        out.append((e["key"], bool(sj and (sj[3] not in ("braced", "quoted") or _value(e, "shortjournal")))))
+    return out
+
+
 def journal_keys(bib_text: str, only=None) -> list[str]:
     """Keys of the entries in scope whose journal field names a journal (not a preprint server)."""
-    return [key for _entry_type, key, body in bib_entries(bib_text)
-            if (only is None or key in only) and JOURNAL_FIELD_RE.search(body) and not is_preprint(body)]
+    return [key for key, _has_short in _journal_entries(bib_text, only)]
 
 
 def keys_missing_shortjournal(bib_text: str, only=None) -> list[str]:
@@ -219,13 +303,7 @@ def keys_missing_shortjournal(bib_text: str, only=None) -> list[str]:
     server named as the journal is not one of them, and with ``only`` given, an entry the
     manuscript does not cite never prints at all.
     """
-    missing = []
-    for _entry_type, key, body in bib_entries(bib_text):
-        if only is not None and key not in only:
-            continue
-        if JOURNAL_FIELD_RE.search(body) and not SHORTJOURNAL_RE.search(body) and not is_preprint(body):
-            missing.append(key)
-    return missing
+    return [key for key, has_short in _journal_entries(bib_text, only) if not has_short]
 
 
 def render(csl: str, bib: str, fmt: str, keys: list[str], outdir: str) -> str:
@@ -349,6 +427,46 @@ def analyze(csl: str, bib: str, only=None) -> dict:
             "abbrev_not_assessed": not_assessed, "abbrev_preprint": preprint,
             "sampled": keys, "superscript_runs": sup}
 
+def prints_short_titles(csl: str):
+    """True if the style prints the short journal title, False if not, None if it cannot be told.
+
+    Read with an XML parser (attribute quoting and spacing vary between valid styles). A dependent
+    style takes its layout from its parent, which is read from the same folder.
+    """
+    try:
+        root = ET.parse(csl).getroot()
+    except (OSError, ET.ParseError):
+        return None
+    local = lambda el: el.tag.rsplit("}", 1)[-1]
+    for el in root.iter():
+        if local(el) == "link" and el.get("rel") == "independent-parent":
+            parent_csl = Path(csl).with_name(el.get("href", "").rstrip("/").rsplit("/", 1)[-1] + ".csl")
+            return prints_short_titles(str(parent_csl)) if parent_csl.is_file() else None
+    return any(local(el) == "text" and el.get("variable") == "container-title" and el.get("form") == "short"
+               for el in root.iter())
+
+
+def abbrev_warning(csl: str, bib: str, md: str, pandoc_args=()) -> list[str]:
+    """Warning lines for the cited journal entries this style will print with the FULL title.
+
+    Empty when there are none, or when the style prints full titles anyway (nothing to abbreviate).
+    Raises RenderError when the check cannot be made (unreadable bib, pandoc missing, ...).
+    """
+    short = prints_short_titles(csl)
+    name = os.path.basename(csl)
+    if short is None:
+        raise RenderError(f"cannot tell whether {name} prints abbreviated journal titles")
+    if not short:
+        return []
+    missing = keys_missing_shortjournal(_read_bib(bib), cited_keys(md, pandoc_args))
+    if not missing:
+        return []
+    shown = ", ".join(missing[:20]) + (f" (+{len(missing) - 20} more)" if len(missing) > 20 else "")
+    return [f"journal abbreviations: {len(missing)} cited journal entr{'y has' if len(missing) == 1 else 'ies have'} "
+            f"no shortjournal, so {name} prints the FULL journal name: {shown}",
+            "  fill_journal_abbrev.py adds them (check any value it marks as CrossRef)"]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csl", required=True)
@@ -358,7 +476,24 @@ def main():
     ap.add_argument("--expect-doi", type=int, choices=[0, 1])
     ap.add_argument("--expect-abbrev", choices=["yes", "no"])
     ap.add_argument("--md", help="manuscript (.md); judge only the keys it cites")
+    ap.add_argument("pandoc_args", nargs="*", metavar="-- PANDOC_ARGS",
+                    help="with --abbrev-warning: the render's extra pandoc options, after --")
+    ap.add_argument("--abbrev-warning", action="store_true",
+                    help="with --md: only list cited journal entries the style prints in full (no render, "
+                         "no verdict); exit 0, or 2 if the check could not run")
     a = ap.parse_args()
+    if a.abbrev_warning:
+        if not a.md:
+            print("ERROR: --abbrev-warning needs --md", file=sys.stderr)
+            sys.exit(2)
+        try:
+            lines = abbrev_warning(a.csl, a.bib, a.md, a.pandoc_args)
+        except RenderError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            sys.exit(2)
+        if lines:
+            print("\n".join(lines))
+        sys.exit(0)
     only = None
     if a.md:
         try:

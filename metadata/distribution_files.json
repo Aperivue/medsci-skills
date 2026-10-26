@@ -2783,8 +2783,8 @@
     },
     {
       "path": "skills/manage-refs/SKILL.md",
-      "size": 17169,
-      "sha256": "c431aa627592e7c918655c308eb0f4cc7fa36d7bce1b07e6e459d5f51dcd51cb"
+      "size": 17277,
+      "sha256": "9facce47514f6a8c5425479055084f0392d24ff268999ce34c99c741c190c3f6"
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
@@ -2978,8 +2978,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_csl_render.py",
-      "size": 22599,
-      "sha256": "5ef066111bdf4684875456058a6cd78695492a68b1337f9b180e8a9f3b41d1e2"
+      "size": 29367,
+      "sha256": "4e247451a520b7be8b190d5cee88b0d1b17799e791d370fc7b82abf9f4d89b2f"
     },
     {
       "path": "skills/manage-refs/scripts/check_reference_duplication.py",
@@ -3013,8 +3013,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/render_pandoc.sh",
-      "size": 6650,
-      "sha256": "31c1bdec77ad4d56e016d66827a8d0226948dbf1abbb308ece6561a71c47d6dd"
+      "size": 7686,
+      "sha256": "1743def044ae81c741a7d9c2f640294d997f5ce2bc3935588aeba11698bbe3dc"
     },
     {
       "path": "skills/manage-refs/scripts/strip_source_metadata.lua",
