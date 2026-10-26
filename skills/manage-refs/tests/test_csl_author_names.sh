@@ -16,9 +16,9 @@
 # POSITIVE: the {Family, Full Given} entry SKILL.md prescribes must not come out given-name-first.
 # NEGATIVE control: every CSL still prints both family names (the entry rendered at all).
 # The same missing inheritance also switched off et-al truncation (bibliography et-al-min /
-# et-al-use-first): an eight-author entry printed all eight names. A style that declares et-al-min
-# must therefore drop the eighth author; one that declares no et-al rule (the JMIR style, matching
-# journals that list every author) must print all eight.
+# et-al-use-first): an eight-author entry printed all eight names. A style whose bibliography declares
+# et-al-min at or below 8 must therefore drop the eighth author; one with a higher threshold or no
+# et-al rule (the JMIR style, matching journals that list every author) must print all eight.
 # EDITORS: a book with editors and no author falls back to the one-line <names variable="editor"/>
 # inside the author <substitute>, which inherits the author <name>. An explicit <name/> there drops
 # that inheritance, and the editors print given-name-first; this happened once in a contributed
@@ -70,9 +70,14 @@ for csl in "$STYLES"/*.csl; do
     continue
   fi
   checked=$((checked + 1))
-  # A style that declares an et-al rule must apply it (the pandoc inheritance bug above dropped it);
-  # a style that declares none lists every author, as the JMIR style does on purpose.
-  if grep -q 'et-al-min=' "$csl"; then truncates=yes; else truncates=no; fi
+  # A style must apply the et-al rule its bibliography declares (the pandoc inheritance bug above
+  # dropped it): with et-al-min at or below 8 the eight-author entry is shortened; with a higher one,
+  # or none at all (the JMIR style lists every author on purpose), all eight print.
+  etal_min="$(python3 -c 'import sys, xml.etree.ElementTree as ET
+root = ET.parse(sys.argv[1]).getroot()
+bib = next((e for e in root.iter() if e.tag.rsplit("}", 1)[-1] == "bibliography"), None)
+print((bib.get("et-al-min") if bib is not None else None) or root.get("et-al-min") or "")' "$csl")"
+  if [[ -n "$etal_min" && "$etal_min" -le 8 ]]; then truncates=yes; else truncates=no; fi
   out="$(pandoc "$WORK/ms.md" --citeproc --bibliography "$WORK/refs.bib" --csl "$csl" -t plain --wrap=none 2>&1)"
   if [[ "$out" == *"Jong Hyun Kim"* || "$out" == *"Su Min Lee"* ]]; then
     printf '  FAIL  %-46s given-name-first: %s\n' "$name" "$(printf '%s' "$out" | grep -m1 -E 'Kim|Jong')"
