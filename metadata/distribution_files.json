@@ -2783,8 +2783,8 @@
     },
     {
       "path": "skills/manage-refs/SKILL.md",
-      "size": 16559,
-      "sha256": "0ed36281bee86f5d104942b81484ad2234d1b0854352071f2ca026beb031d743"
+      "size": 17120,
+      "sha256": "91e9426e0e7ea4455c07d9de9cdae8e2a6ea47fa82138a8a9090c00c49f42e36"
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
@@ -2933,8 +2933,8 @@
     },
     {
       "path": "skills/manage-refs/references/REFERENCE_STYLE_SPECS.md",
-      "size": 3503,
-      "sha256": "d3bed7ceabe6f081521b0ebb630762264370357c284301c9a1780b80d694909d"
+      "size": 5586,
+      "sha256": "805e74ed3db066423d1ce53c6c676f8e0384b7279c634df531e8249b1c13dabf"
     },
     {
       "path": "skills/manage-refs/references/check_xref_symptoms.md",
@@ -2978,8 +2978,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_csl_render.py",
-      "size": 15895,
-      "sha256": "fd2a688c739e60e267b6faec255e3baca75191ad26a37a3e81e394c03dbb17f1"
+      "size": 19565,
+      "sha256": "8a96eea6f61f19f8166013ec6662e821050373905115be641ae35bb8fbc95c15"
     },
     {
       "path": "skills/manage-refs/scripts/check_reference_duplication.py",
@@ -2993,8 +2993,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",
-      "size": 5365,
-      "sha256": "4d9d63c58eccef692c8a6b2cca01dc8046c6221c087ec865bdbf1d363b6052a6"
+      "size": 19497,
+      "sha256": "836452fa6c3bd77ff07f07dba6d819021ccafb46d87adf148a7079203963a2bf"
     },
     {
       "path": "skills/manage-refs/scripts/inject_zotero_cwyw.py",

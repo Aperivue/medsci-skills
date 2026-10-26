@@ -1,113 +1,458 @@
 #!/usr/bin/env python3
-"""Inject NLM journal abbreviations (+ optionally normalize author case / titles)
-into a BibLaTeX .bib from PubMed authoritative metadata.
+"""Add journal abbreviations (`shortjournal`) to a BibTeX/BibLaTeX .bib from PubMed, then CrossRef.
 
 Why: CSL `container-title form="short"` prints the full journal name unless the
-.bib entry carries a `shortjournal` field. Most Zotero/BBT exports omit it, so
-NLM-style journals (JKMS, AJR, KJR, NEJM, ...) render the full title regardless
-of CSL. This script resolves each entry's DOI → PMID → PubMed esummary `source`
-(the NLM Title Abbreviation) and writes `shortjournal = {...}`.
+.bib entry carries a `shortjournal` field. Hand-written and AI-written bibs almost never
+have it, and a Better BibTeX export has it only when the Zotero item's "Journal Abbr"
+field is filled, so NLM-style journals (JKMS, AJR, KJR, JMIR, ...) render the full title
+regardless of CSL. This script resolves each entry's PMID (the `pmid` field, else DOI -> PMID)
+to the PubMed esummary `source` (the NLM Title Abbreviation) and writes `shortjournal = {...}`.
 
-Also (optional, --titles): pulls efetch ArticleTitle to double-brace titles
-(preserving proper-noun casing + subtitle), and flags ALL-CAPS author fields.
+When PubMed has no record for the DOI, CrossRef's `short-container-title` is used instead and
+the entry is reported as `CrossRef`: that value is often an ISO 4 abbreviation with periods
+("J. Stat. Softw."), not the NLM form, so check those entries. Never invents an abbreviation:
+an entry with no PMID, no DOI or no answer from either source is left unchanged and named.
 
-Authoritative source: PubMed (esummary `source` = NLM abbreviation; efetch
-ArticleTitle = full title). Falls back to CrossRef `short-container-title` when a
-DOI has no PubMed record. Never invents abbreviations.
+What it changes and what it does not:
+  - adds `shortjournal` right after the entry's `journal`/`journaltitle` field, in the entry's own
+    indentation; fills an existing EMPTY `shortjournal = {}` in place;
+  - never overwrites a non-empty `shortjournal`, never touches any other field;
+  - skips (and names) entries it cannot edit safely: no journal field, a journal given as a
+    @string macro or a `#` concatenation, or an entry whose braces do not balance.
+The output is re-parsed before it is written; if any entry, key or field changed other than the
+added abbreviations, nothing is written.
+
+A bib that Better BibTeX regenerates (`/lit-sync` auto-export) is overwritten on the next
+export, so the abbreviations belong in Zotero's "Journal Abbr" field. For such a file this
+script refuses to write in place (`--out` equal to `--bib`) and says so when writing elsewhere.
+
+Exit codes:
+  0  finished; every entry that could be looked up was (some may have no abbreviation)
+  1  output written, but some lookups failed (network or service error): those entries are
+     unchanged and named; re-run later
+  2  input error, or the output failed its own re-parse (nothing written)
 
 Usage:
-  python fill_journal_abbrev.py --bib refs.bib --out refs_nlm.bib            # shortjournal only
-  python fill_journal_abbrev.py --bib refs.bib --out refs_nlm.bib --titles   # + title double-brace
+  python fill_journal_abbrev.py --bib refs.bib --out refs_abbrev.bib
 """
-import argparse, re, json, time, urllib.request, urllib.parse
+import argparse
+import json
+import os
+import re
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
 
 EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
-UA = {"User-Agent": "medsci-manage-refs/1.0"}
+CROSSREF = "https://api.crossref.org/works/"
+UA = {"User-Agent": "medsci-manage-refs/1.1 (https://github.com/Aperivue/medsci-skills)"}
+
+SKIP_TYPES = {"comment", "string", "preamble"}
+LIT_SYNC_MARKER = "managed by /lit-sync"
+
+
+class LookupFailed(RuntimeError):
+    """A service could not be asked (network error, HTTP error, unreadable reply).
+
+    Kept apart from "the service has no record": the old lookup returned None for both, so an
+    outage read as "PubMed does not know this journal" and the entry silently kept its full title.
+    """
+
 
 def _get(url):
     with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
         return r.read().decode()
 
+
 def doi_to_pmid(doi):
+    """PMID for a DOI, or None when PubMed has no record. Raises LookupFailed if PubMed was not reached."""
+    term = urllib.parse.quote(f'"{doi}"[AID] OR "{doi}"[DOI]')
     try:
-        term = urllib.parse.quote(f'"{doi}"[AID] OR "{doi}"[DOI]')
         j = json.loads(_get(f"{EUTILS}/esearch.fcgi?db=pubmed&term={term}&retmode=json"))
-        ids = j.get("esearchresult", {}).get("idlist", [])
-        return ids[0] if ids else None
-    except Exception:
-        return None
+    except (OSError, ValueError) as exc:  # URLError and HTTPError are OSErrors
+        raise LookupFailed(f"PubMed esearch: {exc}") from exc
+    ids = j.get("esearchresult", {}).get("idlist", [])
+    return ids[0] if ids else None
+
 
 def pmids_summary(pmids):
-    """return {pmid: {'source':abbrev, 'title':...}}"""
-    if not pmids: return {}
-    j = json.loads(_get(f"{EUTILS}/esummary.fcgi?db=pubmed&id={','.join(pmids)}&retmode=json"))
-    res = j.get("result", {})
-    return {p: {"source": res.get(p, {}).get("source")} for p in pmids}
+    """{pmid: {'source': NLM abbreviation}} for every PMID. Raises LookupFailed if PubMed was not reached."""
+    out, pmids = {}, list(pmids)
+    for i in range(0, len(pmids), 150):
+        chunk = pmids[i:i + 150]
+        try:
+            j = json.loads(_get(f"{EUTILS}/esummary.fcgi?db=pubmed&id={','.join(chunk)}&retmode=json"))
+        except (OSError, ValueError) as exc:
+            raise LookupFailed(f"PubMed esummary: {exc}") from exc
+        res = j.get("result", {})
+        out.update({p: {"source": res.get(p, {}).get("source")} for p in chunk})
+    return out
+
+
+def crossref_short_title(doi):
+    """CrossRef `short-container-title` for a DOI, or None when CrossRef has none. Raises LookupFailed."""
+    try:
+        j = json.loads(_get(CROSSREF + urllib.parse.quote(doi, safe="/")))
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            return None
+        raise LookupFailed(f"CrossRef: {exc}") from exc
+    except (OSError, ValueError) as exc:
+        raise LookupFailed(f"CrossRef: {exc}") from exc
+    short = j.get("message", {}).get("short-container-title") or []
+    return short[0].strip() if short and short[0].strip() else None
+
+
+# ---- parsing --------------------------------------------------------------------------------
+# A small brace-aware parser. The regex parser it replaces needed every entry to end with "\n}"
+# and every value to be braced, so a one-line entry was invisible and a quoted `doi = "..."` read as
+# no DOI. Its insertion pattern assumed tab indentation: on a two-space bib it matched no journal
+# field, appended the new field after a last field that has no comma, and broke the file.
+
+_NAME = re.compile(r"[A-Za-z_][\w\-:.+]*")
+_BARE = re.compile(r"[^\s,#}]+")
+
+
+class Unsupported(ValueError):
+    pass
+
+
+def _match_brace(text, i):
+    """Index just past the brace that closes the one at text[i] (a backslash escapes one character)."""
+    depth, j = 0, i
+    while j < len(text):
+        c = text[j]
+        if c == "\\":
+            j += 2
+            continue
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return j + 1
+        j += 1
+    raise Unsupported("unbalanced braces")
+
+
+def _read_value(text, i, end):
+    """(value_start, value_end, kind, inner) for the field value at or after text[i]."""
+    parts, start = [], None
+    while True:
+        while i < end and text[i] in " \t\r\n":
+            i += 1
+        if i >= end:
+            raise Unsupported("field without a value")
+        start = i if start is None else start
+        c = text[i]
+        if c == "{":
+            j = _match_brace(text, i)
+            parts.append(("braced", text[i + 1:j - 1]))
+        elif c == '"':
+            j, depth = i + 1, 0
+            while j < end:
+                if text[j] == "\\":
+                    j += 2
+                    continue
+                if text[j] == "{":
+                    depth += 1
+                elif text[j] == "}":
+                    depth -= 1
+                elif text[j] == '"' and depth == 0:
+                    break
+                j += 1
+            if j >= end:
+                raise Unsupported("unterminated quoted value")
+            parts.append(("quoted", text[i + 1:j]))
+            j += 1
+        else:
+            m = _BARE.match(text, i)
+            if not m:
+                raise Unsupported("unreadable value")
+            j = m.end()
+            parts.append(("bare", m.group(0)))
+        k = j
+        while k < end and text[k] in " \t\r\n":
+            k += 1
+        if k < end and text[k] == "#":
+            i = k + 1
+            continue
+        if len(parts) == 1:
+            return start, j, parts[0][0], parts[0][1]
+        return start, j, "concat", None
+
+
+def parse_bib(text):
+    """Entries in file order: dicts with type, key, start, end, fields, unsupported.
+
+    fields maps a lower-cased field name to (name_start, value_start, value_end, kind, inner):
+    kind is braced | quoted | bare | concat, inner the text inside the braces or quotes.
+    """
+    entries, pos = [], 0
+    for m in re.finditer(r"@(\w+)\s*\{", text):
+        if m.start() < pos:
+            continue
+        etype, brace = m.group(1), m.end() - 1
+        try:
+            end = _match_brace(text, brace)
+        except Unsupported:
+            entries.append({"type": etype, "key": None, "start": m.start(), "end": len(text),
+                            "fields": {}, "unsupported": "unbalanced braces"})
+            break
+        pos = end
+        if etype.lower() in SKIP_TYPES:
+            continue
+        body_start, body_end = brace + 1, end - 1
+        comma = text.find(",", body_start, body_end)
+        key = text[body_start:comma if comma != -1 else body_end].strip()
+        entry = {"type": etype, "key": key, "start": m.start(), "end": end, "fields": {}, "unsupported": None}
+        i = comma + 1 if comma != -1 else body_end
+        try:
+            while True:
+                while i < body_end and text[i] in " \t\r\n,":
+                    i += 1
+                if i >= body_end:
+                    break
+                nm = _NAME.match(text, i)
+                if not nm:
+                    raise Unsupported("unreadable field name")
+                j = nm.end()
+                while j < body_end and text[j] in " \t\r\n":
+                    j += 1
+                if j >= body_end or text[j] != "=":
+                    raise Unsupported(f"field {nm.group(0)!r} without '='")
+                vstart, vend, kind, inner = _read_value(text, j + 1, body_end)
+                entry["fields"].setdefault(nm.group(0).lower(), (nm.start(), vstart, vend, kind, inner))
+                i = vend
+        except Unsupported as exc:
+            entry["unsupported"] = str(exc)
+        entries.append(entry)
+    return entries
+
+
+def _value(entry, name):
+    f = entry["fields"].get(name)
+    if not f or f[3] not in ("braced", "quoted"):
+        return None
+    return f[4].strip()
+
 
 def parse_entries(bib):
-    # `finditer` yields Match objects, and every caller treats these as the entry TEXT. Returning the
-    # matches meant `re.match(..., b)` received a Match where it wanted a string, and the script died
-    # with `TypeError: expected string or bytes-like object, got 're.Match'` on the FIRST entry — so
-    # it had never run at all, while `check_csl_render.py` names it to the user as the remedy for a
-    # missing `shortjournal`.
-    return [m.group(0) for m in re.finditer(r"@\w+\{[^@]*?\n\}", bib, re.S)]
+    """Entry texts, in order (the interface callers and tests already use)."""
+    return [bib[e["start"]:e["end"]] for e in parse_bib(bib) if e["key"]]
+
 
 def field(block, name):
-    # The trailing comma is optional: BibTeX does not require one after an entry's LAST field, and
-    # `doi` is very often exactly that. Requiring it returned None for those entries, which here
-    # means the DOI is never resolved and the abbreviation is never filled — silently, on the
-    # entries most likely to need it. Same defect class as the reference parser fixed in #445.
-    m = re.search(rf"{name}\s*=\s*\{{(.+?)\}}\s*,?", block, re.S)
-    return m.group(1).strip() if m else None
+    """Value of `name` in one entry's text, or None. The trailing comma is optional in BibTeX."""
+    entries = parse_bib(block)
+    return _value(entries[0], name.lower()) if entries else None
+
+
+def normalize_doi(doi):
+    doi = re.sub(r"^(?:https?://(?:dx\.)?doi\.org/|doi:\s*)", "", doi.strip(), flags=re.I)
+    return doi or None
+
+
+def looks_bbt_managed(text):
+    """True for a file Better BibTeX regenerates: the /lit-sync marker, or BBT's export shape."""
+    if LIT_SYNC_MARKER in text:
+        return True
+    entries = [e for e in parse_bib(text) if e["key"]]
+    if not entries:
+        return False
+    tabbed = sum(1 for e in entries if re.search(r"\n\t\w", text[e["start"]:e["end"]]))
+    bbt_like = sum(1 for e in entries if {"langid", "file", "journaltitle", "urldate"} & set(e["fields"]))
+    return tabbed == len(entries) and bbt_like >= len(entries) / 2
+
+
+# ---- editing --------------------------------------------------------------------------------
+
+def plan_edit(text, entry, abbrev, nl):
+    """(position, delete_to, insert) that puts `shortjournal = {abbrev}` into this entry."""
+    sj = entry["fields"].get("shortjournal")
+    if sj:  # present but empty: fill the value in place
+        return (sj[1], sj[2], "{" + abbrev + "}")
+    name_start, _vstart, vend, _kind, _inner = entry["fields"].get("journaltitle") or entry["fields"]["journal"]
+    line_start = text.rfind("\n", entry["start"], name_start)
+    indent = text[line_start + 1:name_start] if line_start != -1 else None
+    if indent is not None and indent.strip() == "":
+        # Inserted directly after the journal VALUE, before whatever followed it. The new field
+        # brings its own leading comma and the original separator (a comma, or nothing before the
+        # closing brace) follows unchanged, so this is right whether or not journal was the last field.
+        return (vend, vend, "," + nl + indent + "shortjournal = {" + abbrev + "}")
+    return (vend, vend, ", shortjournal = {" + abbrev + "}")  # journal shares a line with other text
+
+
+def fill(text):
+    """(new_text, results), results = [(key, status, detail, source)].
+
+    status: added | filled_empty | kept | no_journal | journal_not_editable | no_id |
+            not_found | lookup_failed | unsupported
+    """
+    nl = "\r\n" if "\r\n" in text else "\n"
+    results, todo = [], []
+    for e in parse_bib(text):
+        key = e["key"] or "(unreadable entry)"
+        if e["unsupported"]:
+            results.append((key, "unsupported", e["unsupported"], None))
+            continue
+        if _value(e, "shortjournal"):
+            results.append((key, "kept", _value(e, "shortjournal"), None))
+            continue
+        jf = e["fields"].get("journaltitle") or e["fields"].get("journal")
+        if not jf:
+            results.append((key, "no_journal", None, None))
+            continue
+        sj = e["fields"].get("shortjournal")
+        if jf[3] not in ("braced", "quoted") or (sj and sj[3] not in ("braced", "quoted")):
+            results.append((key, "journal_not_editable", None, None))
+            continue
+        pm = re.search(r"\d+", _value(e, "pmid") or "")
+        doi = normalize_doi(_value(e, "doi") or "")
+        if not pm and not doi:
+            results.append((key, "no_id", None, None))
+            continue
+        todo.append((e, pm.group(0) if pm else None, doi))
+
+    # PubMed first: DOI -> PMID where the entry has no PMID, then one esummary for all of them.
+    pmid_of, failed = {}, {}
+    for e, pmid, doi in todo:
+        if pmid:
+            pmid_of[e["key"]] = pmid
+            continue
+        try:
+            pmid_of[e["key"]] = doi_to_pmid(doi)
+        except LookupFailed as exc:
+            failed[e["key"]] = str(exc)
+        time.sleep(0.4)  # NCBI allows 3 requests per second without an API key
+    pmids = sorted({p for p in pmid_of.values() if p})
+    summary = {}
+    if pmids:
+        try:
+            summary = pmids_summary(pmids)
+        except LookupFailed as exc:
+            for k, p in pmid_of.items():
+                if p:
+                    failed.setdefault(k, str(exc))
+
+    edits = []
+    for e, _pmid, doi in todo:
+        key = e["key"]
+        if key in failed:
+            results.append((key, "lookup_failed", failed[key], None))
+            continue
+        p = pmid_of.get(key)
+        abbrev = ((summary.get(p) or {}).get("source") or "").strip() if p else ""
+        source = "PubMed" if abbrev else None
+        if not abbrev and doi:
+            try:
+                abbrev = (crossref_short_title(doi) or "").strip()
+            except LookupFailed as exc:
+                results.append((key, "lookup_failed", str(exc), None))
+                continue
+            source = "CrossRef" if abbrev else None
+        abbrev = abbrev.replace("{", "").replace("}", "")  # a brace would end the field early
+        if not abbrev:
+            results.append((key, "not_found", None, None))
+            continue
+        edits.append(plan_edit(text, e, abbrev, nl))
+        results.append((key, "filled_empty" if e["fields"].get("shortjournal") else "added", abbrev, source))
+
+    out = text
+    for pos, delete_to, insert in sorted(edits, key=lambda t: t[0], reverse=True):
+        out = out[:pos] + insert + out[delete_to:]
+    return out, results
+
+
+def verify(before, after, results):
+    """Problems with `after`; empty when every entry and field survived and each addition reads back."""
+    problems = []
+    b = [e for e in parse_bib(before) if e["key"]]
+    a = [e for e in parse_bib(after) if e["key"]]
+    if [e["key"] for e in b] != [e["key"] for e in a]:
+        return ["entry keys or their order changed"]
+    for eb, ea in zip(b, a):
+        if ea["unsupported"] and not eb["unsupported"]:
+            problems.append(f"{eb['key']}: no longer parses ({ea['unsupported']})")
+        for name in set(eb["fields"]) | set(ea["fields"]):
+            if name != "shortjournal" and _value(ea, name) != _value(eb, name):
+                problems.append(f"{eb['key']}: field {name} changed")
+    a_by_key = {e["key"]: e for e in a}
+    for key, status, abbrev, _src in results:
+        if status in ("added", "filled_empty") and _value(a_by_key[key], "shortjournal") != abbrev:
+            problems.append(f"{key}: shortjournal does not read back as {abbrev!r}")
+    return problems
+
+
+LABELS = {
+    "added": "added", "filled_empty": "filled (was empty)",
+    "no_journal": "skipped: no journal/journaltitle field",
+    "journal_not_editable": "skipped: journal or shortjournal is a macro or concatenation",
+    "no_id": "skipped: no PMID or DOI", "not_found": "no abbreviation found (PubMed, CrossRef)",
+    "lookup_failed": "LOOKUP FAILED, unchanged", "unsupported": "skipped: entry not parsed",
+}
+
 
 def main():
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(description="Add journal abbreviations (shortjournal) from PubMed, then CrossRef.")
     ap.add_argument("--bib", required=True)
     ap.add_argument("--out", required=True)
-    ap.add_argument("--titles", action="store_true", help="also double-brace titles via efetch")
     a = ap.parse_args()
-    bib = open(a.bib, encoding="utf-8").read()
+    try:
+        with open(a.bib, encoding="utf-8") as fh:
+            bib = fh.read()
+    except OSError as exc:
+        print(f"ERROR: cannot read {a.bib}: {exc}", file=sys.stderr)
+        sys.exit(2)
 
-    # 1) collect DOIs → PMIDs
-    blocks = parse_entries(bib)
-    doi_by_key = {}
-    for b in blocks:
-        key = re.match(r"@\w+\{([^,]+),", b).group(1).strip()
-        doi = field(b, "doi") or field(b, "DOI")
-        if doi: doi_by_key[key] = doi.strip()
-    pmid_by_key = {}
-    for k, doi in doi_by_key.items():
-        pmid_by_key[k] = doi_to_pmid(doi); time.sleep(0.4)
-    pmids = [p for p in pmid_by_key.values() if p]
-    summ = pmids_summary(pmids)
+    bbt = looks_bbt_managed(bib)
+    if bbt and os.path.realpath(a.out) == os.path.realpath(a.bib):
+        print(f"ERROR: {a.bib} looks regenerated by Better BibTeX; the next export would erase the "
+              "abbreviations. Fill Zotero's 'Journal Abbr' field instead, or write to a separate --out.",
+              file=sys.stderr)
+        sys.exit(2)
 
-    # 2) inject shortjournal
-    out = bib; n = 0
-    for k, pmid in pmid_by_key.items():
-        if not pmid: continue
-        abbrev = summ.get(pmid, {}).get("source")
-        if not abbrev: continue
-        # find this entry, add shortjournal after journaltitle/journal if absent
-        pat = re.compile(r"(@\w+\{" + re.escape(k) + r",.*?)(\n\})", re.S)
-        m = pat.search(out)
-        if not m or "shortjournal" in m.group(1): continue
-        block = m.group(1)
-        inj = re.sub(r"(\n\t?journal(?:title)?\s*=\s*\{[^}]*\},)",
-                     r"\1\n\tshortjournal = {" + abbrev + "},", block, count=1)
-        if inj == block:  # no journal field found; append before closing
-            inj = block + "\n\tshortjournal = {" + abbrev + "},"
-        out = out.replace(block, inj, 1); n += 1
+    out, results = fill(bib)
+    problems = verify(bib, out, results)
+    if problems:
+        print("ERROR: the edited bib failed its own re-parse; nothing written:", file=sys.stderr)
+        for p in problems:
+            print("  " + p, file=sys.stderr)
+        sys.exit(2)
+    with open(a.out, "w", encoding="utf-8", newline="") as fh:
+        fh.write(out)
 
-    open(a.out, "w", encoding="utf-8").write(out)
-    print(f"shortjournal injected: {n}/{len(doi_by_key)} entries "
-          f"(DOIs resolved to PMID: {len(pmids)})")
-    caps = [re.match(r'@\w+\{([^,]+),', b).group(1) for b in blocks
-            if (au := field(b, "author")) and re.search(r"\{?[A-Z]{3,}\}?,\s*\{?[A-Z]{3,}", au or "")]
+    for key, status, detail, source in results:
+        if status in ("added", "filled_empty"):
+            note = " (CrossRef: may not be the NLM form, check it)" if source == "CrossRef" else f" ({source})"
+            print(f"  {key}: {LABELS[status]} {{{detail}}}{note}")
+        elif status != "kept":
+            print(f"  {key}: {LABELS[status]}" + (f" ({detail})" if detail else ""))
+
+    def count(*statuses):
+        return sum(1 for r in results if r[1] in statuses)
+
+    def by_source(s):
+        return sum(1 for r in results if r[1] in ("added", "filled_empty") and r[3] == s)
+
+    print(f"shortjournal added: {count('added', 'filled_empty')} (PubMed {by_source('PubMed')}, "
+          f"CrossRef {by_source('CrossRef')}); kept: {count('kept')}; no abbreviation found: "
+          f"{count('not_found')}; lookup failed: {count('lookup_failed')}; skipped: "
+          f"{count('no_journal', 'journal_not_editable', 'no_id', 'unsupported')}")
+    print(f"written: {a.out}")
+    if bbt:
+        print("NOTE: this bib looks regenerated by Better BibTeX. Render from the --out file, or put the "
+              "abbreviations in Zotero's 'Journal Abbr' field so the next export keeps them.", file=sys.stderr)
+    caps = [e["key"] for e in parse_bib(bib)
+            if e["key"] and re.search(r"\{?[A-Z]{3,}\}?,\s*\{?[A-Z]{3,}", _value(e, "author") or "")]
     if caps:
         print("WARN: ALL-CAPS author fields (fix case manually or re-pull):", caps)
-    if a.titles:
-        print("NOTE: --titles efetch double-brace not auto-applied; "
-              "use the efetch ArticleTitle pattern documented in REFERENCE_STYLE_SPECS.md")
+    if count("lookup_failed"):
+        print("Some lookups failed; those entries are unchanged. Re-run later.", file=sys.stderr)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

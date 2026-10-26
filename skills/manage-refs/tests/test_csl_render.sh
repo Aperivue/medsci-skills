@@ -33,14 +33,17 @@ else
   bad "missing bib (rc=$rc): $err"
 fi
 
-# 2. Valid bib: pandoc present -> happy path renders, exit 0 + JSON.
+# 2. Valid bib: pandoc present -> renders and emits JSON. With no expectation given nothing is
+#    compared, so the run ends NOT_ASSESSED with exit 2; it used to print PASS and exit 0, which
+#    reads exactly like a passed check.
 #    pandoc absent (e.g. CI) -> clean 'pandoc not found' error, exit 2.
 out="$(python3 "$SCRIPT" --csl "$CSL" --bib "$BIB" 2>&1)"; rc=$?
 if command -v pandoc >/dev/null 2>&1; then
-  if [[ $rc -eq 0 && "$out" == *'"got"'* && "$out" != *"Traceback"* ]]; then
-    pass "valid bib + pandoc -> renders, exit 0, JSON emitted"
+  if [[ $rc -eq 2 && "$out" == *'"got"'* && "$out" == *"NOT_ASSESSED"* && "$out" != *"PASS"* \
+        && "$out" != *"Traceback"* ]]; then
+    pass "valid bib + pandoc, no expectation -> JSON emitted, NOT_ASSESSED, exit 2"
   else
-    bad "valid bib + pandoc (rc=$rc): $out"
+    bad "valid bib + pandoc, no expectation (rc=$rc): $out"
   fi
 else
   if [[ $rc -eq 2 && "$out" == *"pandoc not found"* && "$out" != *"Traceback"* ]]; then
@@ -360,5 +363,110 @@ BIB
 else
   echo "  SKIP  sample-citation and unresolved-citation render checks (pandoc unavailable)"
 fi
+
+# 8. Scope and preprints. A real .bib holds entries the manuscript no longer cites, and preprints whose
+#    "journal" is a server with no abbreviation. Counting either as a missing shortjournal kept the
+#    check red on a bib whose cited journal entries were all abbreviated, and a red that cannot go
+#    green is a check nobody runs. The bib scan needs no pandoc.
+scope_dir="$(mktemp -d)"
+cat > "$scope_dir/refs.bib" <<'BIB'
+@article{citedA2020,
+  title   = {A cited synthetic study},
+  author  = {Alpha, Ada},
+  journal = {Journal of Synthetic Methods},
+  year    = {2020},
+  doi     = {10.1234/jsm.2020.001}
+}
+@article{uncitedB2021,
+  title   = {An uncited synthetic study},
+  author  = {Beta, Boris},
+  journal = {Synthetic Reports},
+  year    = {2021}
+}
+@article{preprintC2026,
+  title   = {A synthetic preprint},
+  author  = {Gamma, Grace},
+  journal = {arXiv},
+  date    = {2026-04-22},
+  doi     = {10.48550/arXiv.0000.00000}
+}
+BIB
+printf 'Cited [@citedA2020; @preprintC2026].\n' > "$scope_dir/ms.md"
+# The verdict is read from the FAIL line alone: the JSON above it lists the sampled keys.
+out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \
+         --md "$scope_dir/ms.md" --expect-abbrev yes 2>&1)"; rc=$?
+failline="$(printf '%s\n' "$out" | grep '^FAIL:')"
+if [[ $rc -eq 1 && "$failline" == *"1 journal entry without shortjournal"*"citedA2020"* \
+      && "$failline" != *"uncitedB2021"* && "$failline" != *"preprintC2026"* ]]; then
+  pass "--md: a cited journal entry is named; uncited and arXiv entries are not"
+else
+  bad "--md scope / preprint exemption (rc=$rc): $out"
+fi
+# Without --md the whole bib is judged, so the uncited entry is named too (the old behaviour, kept).
+out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \
+         --expect-abbrev yes 2>&1)"; rc=$?
+failline="$(printf '%s\n' "$out" | grep '^FAIL:')"
+if [[ $rc -eq 1 && "$failline" == *"uncitedB2021"* && "$failline" == *"citedA2020"* \
+      && "$failline" != *"preprintC2026"* ]]; then
+  pass "no --md: the whole bib is judged; the arXiv entry is still exempt"
+else
+  bad "whole-bib scope (rc=$rc): $out"
+fi
+if command -v pandoc >/dev/null 2>&1; then
+  # With the cited entry abbreviated, the render sample holds it and the arXiv entry: "arXiv" printed
+  # in full is correct and must not read as an unabbreviated journal.
+  python3 - "$scope_dir" <<'PY'
+import pathlib, sys
+d = pathlib.Path(sys.argv[1])
+old = "  journal = {Journal of Synthetic Methods},\n"
+text = (d / "refs.bib").read_text()
+assert text.count(old) == 1
+(d / "refs.bib").write_text(text.replace(old, old + "  shortjournal = {J Synth Methods},\n"))
+PY
+  out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/refs.bib" \
+           --md "$scope_dir/ms.md" --expect-abbrev yes 2>&1)"; rc=$?
+  if [[ $rc -eq 0 && "$out" == *'"abbrev_full_detected": false'* && "$out" == *'"preprintC2026"'* \
+        && "$out" == *'"scope": "cited keys"'* ]]; then
+    pass "an arXiv entry in the render sample is not an unabbreviated journal"
+  else
+    bad "arXiv entry in the render sample (rc=$rc): $out"
+  fi
+
+  # 9. The JMIR spec: bracketed numbers and abbreviated journal names. JMIR accepts a PMID *or* a DOI,
+  #    so a PMID-only entry must not fail on DOI (a spec asserting DOI did exactly that).
+  cat > "$scope_dir/pmid.bib" <<'BIB'
+@article{pmidOnly2019,
+  title        = {A synthetic PubMed-indexed study},
+  author       = {Delta, Dan},
+  journal      = {Journal of Synthetic Methods},
+  shortjournal = {J Synth Methods},
+  year         = {2019},
+  pmid         = {10000000}
+}
+BIB
+  out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/pmid.bib" --journal jmir 2>&1)"; rc=$?
+  if [[ $rc -eq 0 && "$out" == *"PASS"* && "$out" != *"DOI 0 != expected"* ]]; then
+    pass "--journal jmir: a PMID-only entry passes (DOI not asserted)"
+  else
+    bad "--journal jmir, PMID-only entry (rc=$rc): $out"
+  fi
+  # ...and the same spec still fails a full journal name, and a parenthesised in-text style.
+  sed 's/  shortjournal = {J Synth Methods},//' "$scope_dir/pmid.bib" > "$scope_dir/pmid_full.bib"
+  out="$(python3 "$SCRIPT" --csl "$STYLES/elsevier-vancouver.csl" --bib "$scope_dir/pmid_full.bib" --journal jmir 2>&1)"; rc=$?
+  if [[ $rc -eq 1 && "$out" == *"pmidOnly2019"* ]]; then
+    pass "--journal jmir fails an entry without shortjournal"
+  else
+    bad "--journal jmir, missing shortjournal (rc=$rc): $out"
+  fi
+  out="$(python3 "$SCRIPT" --csl "$STYLES/vancouver.csl" --bib "$scope_dir/pmid.bib" --journal jmir 2>&1)"; rc=$?
+  if [[ $rc -eq 1 && "$out" == *"in-text paren != expected bracket"* ]]; then
+    pass "--journal jmir fails a parenthesised in-text style"
+  else
+    bad "--journal jmir, parenthesised style (rc=$rc): $out"
+  fi
+else
+  echo "  SKIP  render-sample preprint and JMIR spec checks (pandoc unavailable)"
+fi
+rm -rf "$scope_dir"
 
 if [[ $fail -eq 0 ]]; then echo "  OK"; exit 0; else echo "  $fail check(s) failed"; exit 1; fi
