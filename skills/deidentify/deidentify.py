@@ -1132,13 +1132,28 @@ def _keyed_hash(key: bytes, val: str) -> str:
     return hmac.new(key, val.encode("utf-8"), hashlib.sha256).hexdigest()
 
 
-def load_mapping(path: str | Path) -> dict[str, dict]:
+def load_mapping(path: str | Path, max_days: int = 365) -> dict[str, dict]:
     """Load a previous run's mapping.json for cross-run reuse (--mapping-in).
 
     Returns the names, ids, and date_offsets sections. A mapping written
     with --hash-mapping stores SHA-256 hashes instead of original values,
     so it cannot map a new run's values back to the old ones; reusing one
     would silently re-number everything, so it is refused outright.
+
+    The file is treated as untrusted input and validated before anything
+    is reused from it: all three sections must be present and be objects
+    (a reviewed report or a partial file is not a mapping); replacement
+    values must have the expected form (P + digits for names, ID + digits
+    for ids) and be unique within their section; date offsets must be
+    integers with 1 <= abs(offset) <= max_days (DateShifter never draws 0,
+    and a zero offset would write the original date to the output).
+    Row-keyed offsets ("row N", the fallback when a run has no patient
+    key) are dropped, since the next run's row N is a different patient.
+    Validation errors name the section and the entry's position, never
+    the original value, so patient identifiers are not copied into
+    terminals or logs. max_days defaults to DateShifter's default; pass
+    the same value when reusing a mapping with a DateShifter built on a
+    different max_days.
     """
     p = Path(path)
     if not p.exists():
@@ -1149,16 +1164,52 @@ def load_mapping(path: str | Path) -> dict[str, dict]:
         sys.exit(f"--mapping-in: cannot read {p}: {e}")
     if not isinstance(data, dict):
         sys.exit(f"--mapping-in: {p} is not a mapping object")
-    sections = {k: dict(data.get(k, {})) for k in ("names", "ids", "date_offsets")}
+    for section in ("names", "ids", "date_offsets"):
+        if section not in data:
+            sys.exit(f"--mapping-in: {p} is missing the {section!r} section; "
+                     "a reviewed report or a partial file is not a mapping")
+        if not isinstance(data[section], dict):
+            sys.exit(f"--mapping-in: {p} section {section!r} is not an object")
+    sections = {k: dict(data[k]) for k in ("names", "ids", "date_offsets")}
+    # A mapping written with --hash-mapping is refused outright: its keys
+    # are hashes, not original values. New files carry hash_mode in _meta
+    # (see write_mapping); older files are caught by the all-hex-keys
+    # heuristic below.
+    meta = data.get("_meta") if isinstance(data.get("_meta"), dict) else {}
+    if meta.get("hash_mode") is True:
+        sys.exit(f"--mapping-in: {p} was written with --hash-mapping "
+                 "(its keys are hashes, not original values); "
+                 "re-run the first batch without --hash-mapping to get a reusable mapping")
     for section in ("names", "ids", "date_offsets"):
         keys = list(sections[section])
         if keys and all(re.fullmatch(r"[0-9a-f]{64}", k) for k in keys):
             sys.exit(f"--mapping-in: {p} looks like a --hash-mapping file "
                      f"(the {section} keys are hashes, not original values); "
                      "re-run the first batch without --hash-mapping to get a reusable mapping")
-    for entity, offset in sections["date_offsets"].items():
-        if not isinstance(offset, int) or isinstance(offset, bool):
-            sys.exit(f"--mapping-in: date_offsets[{entity!r}] is not an integer: {offset!r}")
+    for section, prefix in (("names", "P"), ("ids", "ID")):
+        seen: set[str] = set()
+        for pos, value in enumerate(sections[section].values(), start=1):
+            if (not isinstance(value, str)
+                    or not re.fullmatch(rf"{prefix}\d+", value)):
+                sys.exit(f"--mapping-in: {section} entry {pos} is not a "
+                         f"{prefix}-plus-digits replacement value")
+            if value in seen:
+                sys.exit(f"--mapping-in: {section} entry {pos} reuses a "
+                         "replacement value already used in that section")
+            seen.add(value)
+    for pos, offset in enumerate(sections["date_offsets"].values(), start=1):
+        if (not isinstance(offset, int) or isinstance(offset, bool)
+                or not 1 <= abs(offset) <= max_days):
+            sys.exit(f"--mapping-in: date_offsets entry {pos} is not an "
+                     f"integer offset with 1 <= abs(offset) <= {max_days}")
+    # Row-keyed offsets come from runs with no patient key, where the
+    # entity id is just the row number; the next run's row N is a
+    # different patient, so those offsets must not carry across runs.
+    # Names and ids still reuse: only the offsets are dropped.
+    sections["date_offsets"] = {
+        k: v for k, v in sections["date_offsets"].items()
+        if not re.fullmatch(r"row \d+", k)
+    }
     return sections
 
 
@@ -1171,7 +1222,10 @@ def apply_anonymization(data: list[dict], report: dict,
     load_mapping), values already seen keep their pseudonym, ID, and date
     offset, and new values continue numbering after the previous run's.
     Without it, every run numbers from 0001, so merging outputs from
-    separate runs silently collides patients. Returns (de-identified data, mapping dict, audit entries).
+    separate runs silently collides patients. If no column is marked for
+    anonymization, the prior mapping is returned unchanged (rather than
+    an empty mapping) so a later batch can still chain from it.
+    Returns (de-identified data, mapping dict, audit entries).
     """
     classifications = report["classifications"]
     to_anonymize = {c["column"]: c for c in classifications
@@ -1179,7 +1233,10 @@ def apply_anonymization(data: list[dict], report: dict,
 
     if not to_anonymize:
         log.info("No columns marked for anonymization.")
-        return data, {}, []
+        # With a prior mapping, return it unchanged: writing {} here
+        # would erase the accumulated mapping and break the next batch's
+        # chaining. Without one, there is nothing to preserve.
+        return data, dict(prior_mapping) if prior_mapping else {}, []
 
     # The patient key the researcher chose in review (see review_problems).
     # Without one, each row gets its own offset: never one shared offset.
@@ -1191,9 +1248,17 @@ def apply_anonymization(data: list[dict], report: dict,
     prior = prior_mapping or {}
     name_gen = PseudonymGenerator(prefix="P", initial=prior.get("names"))
     id_gen = IDReplacer(prefix="ID", initial=prior.get("ids"))
+    prior_offsets = dict(prior.get("date_offsets") or {})
+    if key_col is None:
+        # Without a patient key, entity ids are row numbers, and the next
+        # run's row N is a different patient: row-keyed offsets from a
+        # prior mapping must not be reused (load_mapping drops them too;
+        # this covers a prior mapping passed in directly).
+        prior_offsets = {k: v for k, v in prior_offsets.items()
+                         if not re.fullmatch(r"row \d+", k)}
     # No seed by default: offsets come from the OS CSPRNG (see DateShifter).
     date_shifter = DateShifter(seed=date_shift_seed,
-                               initial_offsets=prior.get("date_offsets"))
+                               initial_offsets=prior_offsets)
     audit_key = secrets.token_bytes(32)
 
     meta: dict = {
@@ -1282,9 +1347,13 @@ def write_mapping(mapping: dict, path: Path, hash_mode: bool = False) -> Path:
 
     The hashes are not keyed, so a date or a numeric ID can be recovered from
     them by trying every candidate: mapping.json stays restricted either way.
+    Hash-mode files record hash_mode in _meta, so load_mapping can refuse
+    them exactly; the all-hex-keys heuristic remains for older files.
     """
     if hash_mode:
-        hashed = {"_meta": mapping.get("_meta", {})}
+        meta = dict(mapping.get("_meta", {}))
+        meta["hash_mode"] = True
+        hashed = {"_meta": meta}
         for section in ("names", "ids"):
             if section in mapping:
                 hashed[section] = {_sha256(k): v for k, v in mapping[section].items()}

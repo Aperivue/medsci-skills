@@ -768,5 +768,98 @@ except SystemExit:
 check "mapping reuse: prior mapping keeps pseudonyms/IDs/offsets, continues numbering" python3 -c "$MAPREUSE" "$SCRIPT" "$OUTDIR/mapping1.json"
 check "mapping reuse: --mapping-in is a documented CLI flag" bash -c "python3 \"$SCRIPT\" apply --help | grep -q -- --mapping-in && python3 \"$SCRIPT\" full --help | grep -q -- --mapping-in"
 
+# --- Imported-mapping validation (review on #697) ---
+# An imported mapping is untrusted input: it is validated before anything
+# is reused from it, and a validation error names the section and the
+# entry's position, never an original value.
+MAPVALID='
+import importlib.util, json, sys
+spec = importlib.util.spec_from_file_location("d", sys.argv[1])
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+from pathlib import Path
+p = Path(sys.argv[2])
+
+def expect_refusal(mapping, why):
+    p.write_text(json.dumps(mapping))
+    try:
+        m.load_mapping(p)
+    except SystemExit as e:
+        assert "Alice" not in str(e) and "MRN-111" not in str(e), (why, e)
+        return
+    raise AssertionError(f"accepted: {why}")
+
+base = {"names": {"Alice": "P0001"}, "ids": {"MRN-111": "ID0001"},
+        "date_offsets": {"Alice": 42}}
+
+# 1. A zero (or out-of-range) date offset must be refused, not reused.
+for bad in (0, 366, -366):
+    expect_refusal({**base, "date_offsets": {"Alice": bad}}, f"offset {bad}")
+# A non-integer offset is refused the same way.
+expect_refusal({**base, "date_offsets": {"Alice": "42"}}, "string offset")
+# Boundary offsets are fine.
+p.write_text(json.dumps({**base, "date_offsets": {"Alice": 365}}))
+assert m.load_mapping(p)["date_offsets"] == {"Alice": 365}
+p.write_text(json.dumps({**base, "date_offsets": {"Alice": -365}}))
+assert m.load_mapping(p)["date_offsets"] == {"Alice": -365}
+
+# 2. Row-keyed offsets from a run with no patient key are dropped, not
+# carried to the next run'"'"'s different patients; names/ids still reuse.
+p.write_text(json.dumps({**base, "date_offsets": {"row 1": 42, "Alice": -17}}))
+prior = m.load_mapping(p)
+assert prior["date_offsets"] == {"Alice": -17}, prior["date_offsets"]
+assert prior["names"] == {"Alice": "P0001"} and prior["ids"] == {"MRN-111": "ID0001"}
+# Same drop inside apply_anonymization for a prior mapping passed in
+# directly: with no patient key, the row-1 offset is freshly drawn.
+no_key_report = {"classifications": [
+    {"column": "dob", "approved_action": "anonymize", "phi_type": "date"},
+]}
+fresh = m.DateShifter(seed=7)._get_offset("row 1")
+prior_off = fresh + 1 if fresh < 365 else fresh - 1
+_, map_nk, _ = m.apply_anonymization(
+    [{"dob": "1980-01-01"}], no_key_report, date_shift_seed=7,
+    prior_mapping={"names": {}, "ids": {}, "date_offsets": {"row 1": prior_off}})
+assert map_nk["date_offsets"]["row 1"] == fresh, map_nk["date_offsets"]
+
+# 3. Imported replacement values must have the expected form and be
+# unique within their section.
+expect_refusal({**base, "names": {"Alice": "Alice"}}, "identity pseudonym")
+expect_refusal({**base, "ids": {"MRN-111": "ID0001", "MRN-222": "ID0001"}}, "shared ID")
+expect_refusal({**base, "names": {"Alice": "P0001", "Bob": "P0001"}}, "shared pseudonym")
+
+# 4. A file that is not a mapping is refused: a missing section, a
+# section that is not an object, and a reviewed report (which has none
+# of the three sections, so it used to read as empty sections and
+# restart numbering at 0001 while appearing to reuse the mapping).
+expect_refusal({"names": {"Alice": "P0001"}, "ids": {"MRN-111": "ID0001"}}, "missing date_offsets")
+expect_refusal({**base, "ids": ["ID0001"]}, "ids not an object")
+expect_refusal({"reviewed": True, "classifications": []}, "reviewed report")
+
+# 5. A batch with nothing to anonymize keeps the prior mapping instead
+# of erasing it.
+empty_report = {"classifications": [
+    {"column": "name", "approved_action": "keep", "phi_type": "name"},
+]}
+_, kept, _ = m.apply_anonymization([{"name": "Alice"}], empty_report, prior_mapping=base)
+assert kept == base, kept
+_, empty, _ = m.apply_anonymization([{"name": "Alice"}], empty_report)
+assert empty == {}, empty
+
+# 7. A hash-mode file records hash_mode in _meta and is refused exactly,
+# even when its keys are not hashes (older files still use the heuristic).
+hp = Path(sys.argv[2] + ".hash")
+m.write_mapping(base, hp, hash_mode=True)
+assert json.loads(hp.read_text())["_meta"]["hash_mode"] is True
+try:
+    m.load_mapping(hp); raise AssertionError("hash-mode file accepted")
+except SystemExit:
+    pass
+p.write_text(json.dumps({**base, "_meta": {"hash_mode": True}}))
+try:
+    m.load_mapping(p); raise AssertionError("hash_mode flag ignored")
+except SystemExit:
+    pass
+'
+check "mapping reuse: imported mapping is validated (offsets, forms, sections, row keys, no-anonymize)" python3 -c "$MAPVALID" "$SCRIPT" "$OUTDIR/mapping-valid.json"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
