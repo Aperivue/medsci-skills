@@ -2473,8 +2473,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/raincloud_plot.md",
-      "size": 4245,
-      "sha256": "e943203a57df4b9ad78d6fce04a16b3f52194bb0d844d38a1e40446b7e3fd944"
+      "size": 4191,
+      "sha256": "c60d63892c0f5c4165423cd669cd08c7ad9bd2084802c13f1f8ff3c0e5cb3be5"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/roc_pr.md",
