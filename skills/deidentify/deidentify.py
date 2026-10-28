@@ -1132,6 +1132,21 @@ def _keyed_hash(key: bytes, val: str) -> str:
     return hmac.new(key, val.encode("utf-8"), hashlib.sha256).hexdigest()
 
 
+def _no_duplicate_keys(pairs: list) -> dict:
+    """object_pairs_hook that rejects duplicate JSON keys.
+
+    json.loads keeps only the last of two entries with the same key, so
+    a duplicated key would silently drop an earlier mapping entry. The
+    error names no key, so no identifier is copied into logs.
+    """
+    obj: dict = {}
+    for key, value in pairs:
+        if key in obj:
+            raise ValueError("duplicate key in mapping file")
+        obj[key] = value
+    return obj
+
+
 def load_mapping(path: str | Path, max_days: int = 365) -> dict[str, dict]:
     """Load a previous run's mapping.json for cross-run reuse (--mapping-in).
 
@@ -1144,9 +1159,14 @@ def load_mapping(path: str | Path, max_days: int = 365) -> dict[str, dict]:
     is reused from it: all three sections must be present and be objects
     (a reviewed report or a partial file is not a mapping); replacement
     values must have the expected form (P + digits for names, ID + digits
-    for ids) and be unique within their section; date offsets must be
+    for ids), be unique within their section, and differ from the
+    original they replace (an entry mapping a value to itself would
+    write the original identifier to the output); date offsets must be
     integers with 1 <= abs(offset) <= max_days (DateShifter never draws 0,
     and a zero offset would write the original date to the output).
+    Duplicate JSON keys are rejected at parse time (json.loads would
+    otherwise keep only the last of two entries with the same key, so
+    an earlier entry's replacement could be handed to a new patient).
     Row-keyed offsets ("row N", the fallback when a run has no patient
     key) are dropped, since the next run's row N is a different patient.
     Validation errors name the section and the entry's position, never
@@ -1159,7 +1179,8 @@ def load_mapping(path: str | Path, max_days: int = 365) -> dict[str, dict]:
     if not p.exists():
         sys.exit(f"--mapping-in: file not found: {p}")
     try:
-        data = json.loads(p.read_text(encoding="utf-8"))
+        data = json.loads(p.read_text(encoding="utf-8"),
+                          object_pairs_hook=_no_duplicate_keys)
     except (OSError, ValueError) as e:
         sys.exit(f"--mapping-in: cannot read {p}: {e}")
     if not isinstance(data, dict):
@@ -1188,11 +1209,15 @@ def load_mapping(path: str | Path, max_days: int = 365) -> dict[str, dict]:
                      "re-run the first batch without --hash-mapping to get a reusable mapping")
     for section, prefix in (("names", "P"), ("ids", "ID")):
         seen: set[str] = set()
-        for pos, value in enumerate(sections[section].values(), start=1):
+        for pos, (original, value) in enumerate(sections[section].items(), start=1):
             if (not isinstance(value, str)
                     or not re.fullmatch(rf"{prefix}\d+", value)):
                 sys.exit(f"--mapping-in: {section} entry {pos} is not a "
                          f"{prefix}-plus-digits replacement value")
+            if value == original:
+                sys.exit(f"--mapping-in: {section} entry {pos} maps a "
+                         "value to itself, so the original identifier "
+                         "would be written to the output")
             if value in seen:
                 sys.exit(f"--mapping-in: {section} entry {pos} reuses a "
                          "replacement value already used in that section")

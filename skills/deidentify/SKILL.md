@@ -100,8 +100,9 @@ python3 ${CLAUDE_SKILL_DIR}/deidentify.py apply ./deidentified/reviewed_report.j
   from 0001: merging outputs from separate runs silently gives two patients the same pseudonym
   (and one patient different ones). A `--hash-mapping` file cannot be reused this way, since
   its keys are hashes, not original values. An imported mapping is validated before use: all
-  three sections must be present, replacement values must be P/ID-plus-digits and unique within
-  their section, and date offsets must be within 1..365 days (never 0). Row-keyed offsets from
+  three sections must be present, replacement values must be P/ID-plus-digits, unique within
+  their section, and different from the original they replace, duplicate JSON keys are rejected,
+  and date offsets must be within 1..365 days (never 0). Row-keyed offsets from
   a run with no patient key are not carried across runs, and a batch with nothing to anonymize
   keeps the prior mapping instead of erasing it
 - `--output-dir`: Where to save de-identified file, mapping, and audit log

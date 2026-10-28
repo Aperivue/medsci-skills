@@ -844,6 +844,31 @@ assert kept == base, kept
 _, empty, _ = m.apply_anonymization([{"name": "Alice"}], empty_report)
 assert empty == {}, empty
 
+# 6. A replacement equal to its original slips past the form and
+# uniqueness checks (an ID-shaped source value mapped to itself), so it
+# is refused explicitly, in both sections; the error names the section
+# and position, never the value.
+expect_refusal({**base, "ids": {"ID1234": "ID1234"}}, "identity ID")
+expect_refusal({**base, "names": {"P0001": "P0001"}}, "identity pseudonym")
+# A duplicate JSON key is refused at parse time, at the top level and
+# inside a section: json.loads would otherwise keep only the last entry,
+# handing an earlier entry replacement to a new patient.
+p.write_text("{\"names\": {\"Alice\": \"P0001\"}, \"names\": {\"Bob\": \"P0002\"}, "
+             "\"ids\": {\"MRN-111\": \"ID0001\"}, \"date_offsets\": {\"Alice\": 42}}")
+try:
+    m.load_mapping(p); raise AssertionError("duplicate top-level key accepted")
+except SystemExit:
+    pass
+p.write_text("{\"names\": {\"Alice\": \"P0001\", \"Alice\": \"P0002\"}, "
+             "\"ids\": {\"MRN-111\": \"ID0001\"}, \"date_offsets\": {\"Alice\": 42}}")
+try:
+    m.load_mapping(p); raise AssertionError("duplicate entry key accepted")
+except SystemExit as e:
+    assert "Alice" not in str(e), e
+# Distinct entries still load after the stricter checks.
+p.write_text(json.dumps(base))
+assert m.load_mapping(p) == base, m.load_mapping(p)
+
 # 7. A hash-mode file records hash_mode in _meta and is refused exactly,
 # even when its keys are not hashes (older files still use the heuristic).
 hp = Path(sys.argv[2] + ".hash")
