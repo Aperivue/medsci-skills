@@ -45,8 +45,9 @@
   unchanged.** Pseudonyms and IDs are numbered `P0001`, `ID0001`, …, so a source value such as
   `ID0002` was handed out as its own replacement (or another patient's) and appeared in the output
   and the audit log. New replacements now skip every original value in the anonymized columns, the
-  patient key column and a `--mapping-in` file. A plain mapping whose original IDs are 64-hex strings is reusable again:
-  every mapping.json now records `hash_mode`, and the all-hex-keys guess applies only to older files.
+  patient key column and a `--mapping-in` file. A plain mapping whose original IDs are 64-hex
+  strings is reusable again: every mapping.json now records `hash_mode`, and the all-hex-keys guess
+  applies only to older files.
   Blank duplicate headers are reported as unnamed columns rather than as a bare `''`.
 - **`/deidentify`: a table that repeats a column name is refused** before any report is written. The
   CSV reader kept only the last of the repeated columns, so the earlier one was never reviewed.
