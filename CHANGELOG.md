@@ -29,9 +29,28 @@
   (#699). Every bundled independent style prints the short journal title, which falls back to the full
   one for an entry without `shortjournal`. After the render the cited entries affected are named; the
   render never fails because of it, and says so when the check could not run.
+- **`/deidentify`: `--mapping-in` reuses a previous run's mapping.json** (`apply`/`full`), so
+  separately de-identified batches of one cohort keep each patient's pseudonym, ID and date offset
+  instead of restarting at 0001 and colliding patients when merged. The imported file is validated
+  before use and refused with the section and entry position, never the value. Contributed by
+  @rtmalikian (#697), fixing #695 reported by @Dr-HSU.
+- **`/make-figures`: a raincloud plot exemplar** (`exemplar_plots/raincloud_plot.md`) for comparing a
+  continuous outcome across groups: common-scale half-violins, every participant, median and IQR,
+  per-group denominators, and a design-aware contrast with its interval. Contributed by
+  @dhruva207-ctrml (#703).
 
 ### Fixed
 
+- **`/deidentify`: a source ID already shaped like a replacement is no longer written out
+  unchanged.** Pseudonyms and IDs are numbered `P0001`, `ID0001`, …, so a source value such as
+  `ID0002` was handed out as its own replacement (or another patient's) and appeared in the output
+  and the audit log. New replacements now skip every original value in the anonymized columns and
+  in a `--mapping-in` file. A plain mapping whose original IDs are 64-hex strings is reusable again:
+  every mapping.json now records `hash_mode`, and the all-hex-keys guess applies only to older files.
+  Blank duplicate headers are reported as unnamed columns rather than as a bare `''`.
+- **`/deidentify`: a table that repeats a column name is refused** before any report is written. The
+  CSV reader kept only the last of the repeated columns, so the earlier one was never reviewed.
+  Contributed by @dajiaohuang (#701).
 - **`/render-pdf-doc`: Korean and English spacing in the PDF.** `render_pdf.sh` always sets
   `CJKmainfont`, which loads xeCJK with Chinese defaults: the space after curly quotes and en/em
   dashes was deleted (`“no difference”and`), and a space

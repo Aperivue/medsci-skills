@@ -586,6 +586,15 @@ import sys
 out = open(sys.argv[1]).read()
 assert 'duplicate column names' in out and 'contact' in out, out
 assert 'SYNTHETIC_' not in out, out" "$DUP/scan.out"
+# Blank duplicate headers are counted, not quoted as a bare ''.
+printf ',,score\nSYNTHETIC_FIRST_VALUE,SYNTHETIC_SECOND_VALUE,1\n' > "$DUP/blank.csv"
+python3 "$SCRIPT" scan "$DUP/blank.csv" --locale us -o "$DUP" > "$DUP/blank.out" 2>&1
+check "blank duplicate headers: scan refuses" test "$?" -ne 0
+check "blank duplicate headers: error counts the unnamed columns" python3 -c "
+import sys
+out = open(sys.argv[1]).read()
+assert '2 columns have no header name' in out and \"''\" not in out, out
+assert 'SYNTHETIC_' not in out, out" "$DUP/blank.out"
 
 # --- A shifted date is never the original date ---
 # Offsets were drawn from [-365, 365], so about one patient in 731 got 0:
@@ -894,6 +903,46 @@ except SystemExit:
 p.write_text(json.dumps({**base, "_meta": {"hash_mode": True}}))
 try:
     m.load_mapping(p); raise AssertionError("hash_mode flag ignored")
+except SystemExit:
+    pass
+
+# 8. A source value already shaped like a replacement is never written
+# out unchanged: new pseudonyms and IDs skip every original value in the
+# anonymized columns and in the prior mapping.
+rep = {"classifications": [
+    {"column": "name", "approved_action": "anonymize", "phi_type": "name"},
+    {"column": "mrn", "approved_action": "anonymize", "phi_type": "id"},
+]}
+rows = [{"name": "Zed", "mrn": "MRN-9"}, {"name": "P0001", "mrn": "ID0002"},
+        {"name": "Amy", "mrn": "ID0001"}]
+out, mp, aud = m.apply_anonymization(rows, rep)
+originals = {v for r in rows for v in r.values()}
+written = {v for r in out for v in r.values()} | {a["after_value"] for a in aud}
+assert not originals & written, originals & written
+assert mp["names"]["P0001"] != "P0001" and mp["ids"]["ID0002"] != "ID0002", mp
+# Across batches the counter continues past the prior mapping, and a new
+# source value shaped like the next replacement is skipped as well.
+prior_map = {"names": {"Alice": "P0001"}, "ids": {"MRN-111": "ID0001"}, "date_offsets": {}}
+out2, _, _ = m.apply_anonymization([{"name": "Bob", "mrn": "ID0002"}], rep,
+                                   prior_mapping=prior_map)
+assert out2[0]["mrn"] == "ID0003", out2
+# Original values recorded in the prior mapping are skipped too.
+prior_map = {"names": {"P0002": "P0001"}, "ids": {}, "date_offsets": {}}
+out3, _, _ = m.apply_anonymization([{"name": "Cy", "mrn": "MRN-5"}], rep,
+                                   prior_mapping=prior_map)
+assert out3[0]["name"] == "P0003", out3
+
+# 9. A plain mapping whose original IDs are 64-hex strings is reusable:
+# the file records hash_mode false, so the all-hex-keys heuristic (kept
+# for older files without the flag) does not refuse it. Only a boolean
+# false is trusted.
+hexmap = {"names": {}, "ids": {"a" * 64: "ID0001"}, "date_offsets": {}}
+m.write_mapping(hexmap, p)
+assert json.loads(p.read_text())["_meta"]["hash_mode"] is False
+assert m.load_mapping(p)["ids"] == {"a" * 64: "ID0001"}
+p.write_text(json.dumps({**hexmap, "_meta": {"hash_mode": "no"}}))
+try:
+    m.load_mapping(p); raise AssertionError("non-boolean hash_mode trusted")
 except SystemExit:
     pass
 '
