@@ -574,6 +574,19 @@ check "short row: review and apply run (exit 0)" test "$?" -eq 0
 check "short row: both rows written" \
     python3 -c "import csv, sys; assert len(list(csv.reader(open(sys.argv[1])))) == 3" "$G/short/s_deidentified.csv"
 
+# Duplicate headers make DictReader overwrite earlier fields before review; refuse them
+# rather than silently returning incomplete rows or presenting an ambiguous review.
+DUP="$OUTDIR/duplicate-headers"; mkdir -p "$DUP"
+printf 'contact,contact,score\nSYNTHETIC_FIRST_VALUE,SYNTHETIC_SECOND_VALUE,1\n' > "$DUP/d.csv"
+python3 "$SCRIPT" scan "$DUP/d.csv" --locale us -o "$DUP" > "$DUP/scan.out" 2>&1
+check "duplicate headers: scan refuses ambiguous columns" test "$?" -ne 0
+check "duplicate headers: no report written" test ! -e "$DUP/scan_report.json"
+check "duplicate headers: error names header issue, not cell values" python3 -c "
+import sys
+out = open(sys.argv[1]).read()
+assert 'duplicate column names' in out and 'contact' in out, out
+assert 'SYNTHETIC_' not in out, out" "$DUP/scan.out"
+
 # --- A shifted date is never the original date ---
 # Offsets were drawn from [-365, 365], so about one patient in 731 got 0:
 # with seed 827 the first patient's date of birth came out unchanged, and
