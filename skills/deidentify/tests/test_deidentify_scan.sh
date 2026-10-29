@@ -717,5 +717,187 @@ check "control: 3-part non-date values stay SAFE" probe us score SAFE/None 120/8
 check "dates: 3-part M/D/YY under us is PHI/date" probe us score PHI/date 1/2/10 5/5/10
 check "zip: ZIP+4 inside an address line is PHI"  probe us x  PHI/address "Springfield 94110-1234" "Town, 10001-0001."
 
+# --- Mapping reuse across runs (issue #695) ---
+# Without --mapping-in, every run numbers from 0001, so merging outputs
+# from separate runs silently collides patients (run 2's Bob gets run 1's
+# Alice pseudonym). With a previous run's mapping loaded, values already
+# seen keep their pseudonym/ID/date offset and new values continue after
+# the highest number already used.
+MAPREUSE='
+import importlib.util, json, sys
+spec = importlib.util.spec_from_file_location("d", sys.argv[1])
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+
+report = {"classifications": [
+    {"column": "name", "approved_action": "anonymize", "phi_type": "name"},
+    {"column": "mrn", "approved_action": "anonymize", "phi_type": "id"},
+    {"column": "dob", "approved_action": "anonymize", "phi_type": "date"},
+], "patient_key": {"type": "column", "column": "patient"}}
+batch1 = [
+    {"patient": "Alice", "name": "Alice", "mrn": "MRN-111", "dob": "1980-01-01"},
+    {"patient": "Bob", "name": "Bob", "mrn": "MRN-222", "dob": "1990-06-15"},
+]
+batch2 = [{"patient": "Bob", "name": "Bob", "mrn": "MRN-222", "dob": "1990-06-15"},
+          {"patient": "Carol", "name": "Carol", "mrn": "MRN-333", "dob": "1975-03-03"}]
+
+_, map1, _ = m.apply_anonymization(batch1, report, date_shift_seed=42)
+assert map1["names"] == {"Alice": "P0001", "Bob": "P0002"}, map1["names"]
+assert map1["ids"] == {"MRN-111": "ID0001", "MRN-222": "ID0002"}, map1["ids"]
+
+# Negative control: without a prior mapping, run 2 restarts at 0001 and
+# collides with run 1 (Bob takes the P0001 Alice had, MRN-222 takes the ID
+# MRN-111 had).
+_, map2_fresh, _ = m.apply_anonymization(batch2, report, date_shift_seed=42)
+assert map2_fresh["names"]["Bob"] == "P0001", map2_fresh["names"]
+assert map2_fresh["ids"]["MRN-222"] == "ID0001", map2_fresh["ids"]
+
+# With the prior mapping, run 2 reuses the run 1 values and continues numbering.
+_, map2, _ = m.apply_anonymization(batch2, report, date_shift_seed=42, prior_mapping=map1)
+assert map2["names"] == {"Alice": "P0001", "Bob": "P0002", "Carol": "P0003"}, map2["names"]
+assert map2["ids"] == {"MRN-111": "ID0001", "MRN-222": "ID0002", "MRN-333": "ID0003"}, map2["ids"]
+assert map2["date_offsets"]["Bob"] == map1["date_offsets"]["Bob"], (map2["date_offsets"], map1["date_offsets"])
+assert map2["date_offsets"]["Alice"] == map1["date_offsets"]["Alice"]
+
+# load_mapping round-trip through a mapping.json file on disk.
+from pathlib import Path
+p = Path(sys.argv[2]); m.write_mapping(map1, p)
+prior = m.load_mapping(p)
+assert prior["names"] == map1["names"] and prior["ids"] == map1["ids"]
+assert prior["date_offsets"] == map1["date_offsets"]
+
+# A --hash-mapping file (64-hex keys, no original values) must be refused:
+# reusing it would silently re-number everything it was meant to continue.
+p.write_text(json.dumps({"names": {"a" * 64: "P0001"}, "ids": {}, "date_offsets": {}}))
+try:
+    m.load_mapping(p); raise AssertionError("hash mapping was accepted")
+except SystemExit:
+    pass
+# A missing file is a clean error, not a traceback.
+try:
+    m.load_mapping(p.parent / "no-such-mapping.json"); raise AssertionError("missing file was accepted")
+except SystemExit:
+    pass
+'
+check "mapping reuse: prior mapping keeps pseudonyms/IDs/offsets, continues numbering" python3 -c "$MAPREUSE" "$SCRIPT" "$OUTDIR/mapping1.json"
+check "mapping reuse: --mapping-in is a documented CLI flag" bash -c "python3 \"$SCRIPT\" apply --help | grep -q -- --mapping-in && python3 \"$SCRIPT\" full --help | grep -q -- --mapping-in"
+
+# --- Imported-mapping validation (review on #697) ---
+# An imported mapping is untrusted input: it is validated before anything
+# is reused from it, and a validation error names the section and the
+# entry's position, never an original value.
+MAPVALID='
+import importlib.util, json, sys
+spec = importlib.util.spec_from_file_location("d", sys.argv[1])
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+from pathlib import Path
+p = Path(sys.argv[2])
+
+def expect_refusal(mapping, why):
+    p.write_text(json.dumps(mapping))
+    try:
+        m.load_mapping(p)
+    except SystemExit as e:
+        assert "Alice" not in str(e) and "MRN-111" not in str(e), (why, e)
+        return
+    raise AssertionError(f"accepted: {why}")
+
+base = {"names": {"Alice": "P0001"}, "ids": {"MRN-111": "ID0001"},
+        "date_offsets": {"Alice": 42}}
+
+# 1. A zero (or out-of-range) date offset must be refused, not reused.
+for bad in (0, 366, -366):
+    expect_refusal({**base, "date_offsets": {"Alice": bad}}, f"offset {bad}")
+# A non-integer offset is refused the same way.
+expect_refusal({**base, "date_offsets": {"Alice": "42"}}, "string offset")
+# Boundary offsets are fine.
+p.write_text(json.dumps({**base, "date_offsets": {"Alice": 365}}))
+assert m.load_mapping(p)["date_offsets"] == {"Alice": 365}
+p.write_text(json.dumps({**base, "date_offsets": {"Alice": -365}}))
+assert m.load_mapping(p)["date_offsets"] == {"Alice": -365}
+
+# 2. Row-keyed offsets from a run with no patient key are dropped, not
+# carried to the next run'"'"'s different patients; names/ids still reuse.
+p.write_text(json.dumps({**base, "date_offsets": {"row 1": 42, "Alice": -17}}))
+prior = m.load_mapping(p)
+assert prior["date_offsets"] == {"Alice": -17}, prior["date_offsets"]
+assert prior["names"] == {"Alice": "P0001"} and prior["ids"] == {"MRN-111": "ID0001"}
+# Same drop inside apply_anonymization for a prior mapping passed in
+# directly: with no patient key, the row-1 offset is freshly drawn.
+no_key_report = {"classifications": [
+    {"column": "dob", "approved_action": "anonymize", "phi_type": "date"},
+]}
+fresh = m.DateShifter(seed=7)._get_offset("row 1")
+prior_off = fresh + 1 if fresh < 365 else fresh - 1
+_, map_nk, _ = m.apply_anonymization(
+    [{"dob": "1980-01-01"}], no_key_report, date_shift_seed=7,
+    prior_mapping={"names": {}, "ids": {}, "date_offsets": {"row 1": prior_off}})
+assert map_nk["date_offsets"]["row 1"] == fresh, map_nk["date_offsets"]
+
+# 3. Imported replacement values must have the expected form and be
+# unique within their section.
+expect_refusal({**base, "names": {"Alice": "Alice"}}, "identity pseudonym")
+expect_refusal({**base, "ids": {"MRN-111": "ID0001", "MRN-222": "ID0001"}}, "shared ID")
+expect_refusal({**base, "names": {"Alice": "P0001", "Bob": "P0001"}}, "shared pseudonym")
+
+# 4. A file that is not a mapping is refused: a missing section, a
+# section that is not an object, and a reviewed report (which has none
+# of the three sections, so it used to read as empty sections and
+# restart numbering at 0001 while appearing to reuse the mapping).
+expect_refusal({"names": {"Alice": "P0001"}, "ids": {"MRN-111": "ID0001"}}, "missing date_offsets")
+expect_refusal({**base, "ids": ["ID0001"]}, "ids not an object")
+expect_refusal({"reviewed": True, "classifications": []}, "reviewed report")
+
+# 5. A batch with nothing to anonymize keeps the prior mapping instead
+# of erasing it.
+empty_report = {"classifications": [
+    {"column": "name", "approved_action": "keep", "phi_type": "name"},
+]}
+_, kept, _ = m.apply_anonymization([{"name": "Alice"}], empty_report, prior_mapping=base)
+assert kept == base, kept
+_, empty, _ = m.apply_anonymization([{"name": "Alice"}], empty_report)
+assert empty == {}, empty
+
+# 6. A replacement equal to its original slips past the form and
+# uniqueness checks (an ID-shaped source value mapped to itself), so it
+# is refused explicitly, in both sections; the error names the section
+# and position, never the value.
+expect_refusal({**base, "ids": {"ID1234": "ID1234"}}, "identity ID")
+expect_refusal({**base, "names": {"P0001": "P0001"}}, "identity pseudonym")
+# A duplicate JSON key is refused at parse time, at the top level and
+# inside a section: json.loads would otherwise keep only the last entry,
+# handing an earlier entry replacement to a new patient.
+p.write_text("{\"names\": {\"Alice\": \"P0001\"}, \"names\": {\"Bob\": \"P0002\"}, "
+             "\"ids\": {\"MRN-111\": \"ID0001\"}, \"date_offsets\": {\"Alice\": 42}}")
+try:
+    m.load_mapping(p); raise AssertionError("duplicate top-level key accepted")
+except SystemExit:
+    pass
+p.write_text("{\"names\": {\"Alice\": \"P0001\", \"Alice\": \"P0002\"}, "
+             "\"ids\": {\"MRN-111\": \"ID0001\"}, \"date_offsets\": {\"Alice\": 42}}")
+try:
+    m.load_mapping(p); raise AssertionError("duplicate entry key accepted")
+except SystemExit as e:
+    assert "Alice" not in str(e), e
+# Distinct entries still load after the stricter checks.
+p.write_text(json.dumps(base))
+assert m.load_mapping(p) == base, m.load_mapping(p)
+
+# 7. A hash-mode file records hash_mode in _meta and is refused exactly,
+# even when its keys are not hashes (older files still use the heuristic).
+hp = Path(sys.argv[2] + ".hash")
+m.write_mapping(base, hp, hash_mode=True)
+assert json.loads(hp.read_text())["_meta"]["hash_mode"] is True
+try:
+    m.load_mapping(hp); raise AssertionError("hash-mode file accepted")
+except SystemExit:
+    pass
+p.write_text(json.dumps({**base, "_meta": {"hash_mode": True}}))
+try:
+    m.load_mapping(p); raise AssertionError("hash_mode flag ignored")
+except SystemExit:
+    pass
+'
+check "mapping reuse: imported mapping is validated (offsets, forms, sections, row keys, no-anonymize)" python3 -c "$MAPVALID" "$SCRIPT" "$OUTDIR/mapping-valid.json"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
