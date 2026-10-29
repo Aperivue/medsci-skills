@@ -89,6 +89,9 @@ the figure types that do not yet have a generator.
 - `confusion_matrix.md` — confusion matrix: TP/FP/FN/TN with explicit Predicted/Actual axes, raw
   counts AND row-normalized (recall) / column-normalized (precision) views, class-imbalance caveat,
   stated operating threshold, per-class metrics, multi-class macro-average. Pairs roc_pr.
+- `raincloud_plot.md` — continuous-outcome comparison: common-scale half-violins, every participant
+  point, median/IQR boxes, per-group denominators, and a design-aware contrast with its CI; density
+  is not sample size, and smoothing must not invent distributional features. Pairs `/analyze-stats`.
 - `clinical_timeline.md` — CARE case-report timeline: relative time axis, symptoms/tests/treatment/
   outcome lanes, index presentation marker, final follow-up endpoint, de-identification discipline,
   and annotated imaging-panel pairing when imaging is the teaching point. Pairs `write-paper`
