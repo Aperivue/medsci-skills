@@ -386,9 +386,18 @@ def load_tabular(path: Path) -> tuple[list[dict], dict]:
         seen_headers.add(header)
     duplicates = sorted(duplicate_headers)
     if duplicates:
-        sys.exit(f"{path.name}: duplicate column names are ambiguous: "
-                 + ", ".join(repr(header) for header in duplicates)
-                 + ". Rename them and scan again.")
+        # Blank headers are counted rather than quoted: a bare '' in the
+        # message read like a formatting slip, not like missing names.
+        named = [repr(header) for header in duplicates if header.strip()]
+        blank = sum(1 for header in headers
+                    if header in duplicate_headers and not header.strip())
+        problems = []
+        if named:
+            problems.append("duplicate column names are ambiguous: " + ", ".join(named))
+        if blank:
+            problems.append(f"{blank} columns have no header name and cannot be told apart")
+        sys.exit(f"{path.name}: " + "; ".join(problems)
+                 + ". Give each column a unique name and scan again.")
 
     meta["rows"] = len(data)
     meta["columns"] = len(headers) if data else 0
@@ -1012,16 +1021,25 @@ class PseudonymGenerator:
     their pseudonym and new values continue numbering after the highest
     one already used, so separately de-identified batches can be merged
     without two patients sharing a pseudonym.
+
+    `reserved` holds original values (this batch's and the prior mapping's):
+    a new pseudonym skips any of them, so a source value already shaped
+    like one ("P0002") is never written out unchanged, as its own
+    replacement or as another patient's.
     """
 
-    def __init__(self, prefix: str = "P", initial: dict[str, str] | None = None):
+    def __init__(self, prefix: str = "P", initial: dict[str, str] | None = None,
+                 reserved: set[str] | None = None):
         self._map: dict[str, str] = dict(initial) if initial else {}
         self._counter = _max_suffix(list(self._map.values()), prefix)
         self._prefix = prefix
+        self._reserved = set(reserved or ())
 
     def get(self, original: str) -> str:
         if original not in self._map:
             self._counter += 1
+            while f"{self._prefix}{self._counter:04d}" in self._reserved:
+                self._counter += 1
             self._map[original] = f"{self._prefix}{self._counter:04d}"
         return self._map[original]
 
@@ -1106,17 +1124,21 @@ class IDReplacer:
 
     With `initial` (a previous run's mapping), values already seen keep
     their ID and new values continue numbering after the highest one
-    already used (see PseudonymGenerator).
+    already used, skipping `reserved` original values (see PseudonymGenerator).
     """
 
-    def __init__(self, prefix: str = "ID", initial: dict[str, str] | None = None):
+    def __init__(self, prefix: str = "ID", initial: dict[str, str] | None = None,
+                 reserved: set[str] | None = None):
         self._map: dict[str, str] = dict(initial) if initial else {}
         self._counter = _max_suffix(list(self._map.values()), prefix)
         self._prefix = prefix
+        self._reserved = set(reserved or ())
 
     def get(self, original: str) -> str:
         if original not in self._map:
             self._counter += 1
+            while f"{self._prefix}{self._counter:04d}" in self._reserved:
+                self._counter += 1
             self._map[original] = f"{self._prefix}{self._counter:04d}"
         return self._map[original]
 
@@ -1205,9 +1227,10 @@ def load_mapping(path: str | Path, max_days: int = 365) -> dict[str, dict]:
             sys.exit(f"--mapping-in: {p} section {section!r} is not an object")
     sections = {k: dict(data[k]) for k in ("names", "ids", "date_offsets")}
     # A mapping written with --hash-mapping is refused outright: its keys
-    # are hashes, not original values. New files carry hash_mode in _meta
-    # (see write_mapping); older files are caught by the all-hex-keys
-    # heuristic below.
+    # are hashes, not original values. New files carry hash_mode in _meta,
+    # true or false (see write_mapping); only older files, without it, go
+    # through the all-hex-keys heuristic below, which would also refuse a
+    # plain mapping whose original values are 64-hex strings.
     meta = data.get("_meta") if isinstance(data.get("_meta"), dict) else {}
     if meta.get("hash_mode") is True:
         sys.exit(f"--mapping-in: {p} was written with --hash-mapping "
@@ -1215,7 +1238,8 @@ def load_mapping(path: str | Path, max_days: int = 365) -> dict[str, dict]:
                  "re-run the first batch without --hash-mapping to get a reusable mapping")
     for section in ("names", "ids", "date_offsets"):
         keys = list(sections[section])
-        if keys and all(re.fullmatch(r"[0-9a-f]{64}", k) for k in keys):
+        if (meta.get("hash_mode") is not False and keys
+                and all(re.fullmatch(r"[0-9a-f]{64}", k) for k in keys)):
             sys.exit(f"--mapping-in: {p} looks like a --hash-mapping file "
                      f"(the {section} keys are hashes, not original values); "
                      "re-run the first batch without --hash-mapping to get a reusable mapping")
@@ -1283,8 +1307,20 @@ def apply_anonymization(data: list[dict], report: dict,
     # Initialize anonymizers (resumed from a previous run's mapping when
     # --mapping-in was given, so batches of one cohort stay consistent).
     prior = prior_mapping or {}
-    name_gen = PseudonymGenerator(prefix="P", initial=prior.get("names"))
-    id_gen = IDReplacer(prefix="ID", initial=prior.get("ids"))
+    # New pseudonyms and IDs skip every original value in the columns being
+    # anonymized, in the patient key column, and in the prior mapping (its
+    # date_offsets keys are patient keys): a source ID already shaped like a
+    # replacement ("ID0002") was otherwise handed out as its own replacement
+    # or another patient's, writing the original identifier to the output.
+    reserved = {(row.get(col) or "").strip() for row in data for col in to_anonymize}
+    if key_col:
+        reserved |= {(row.get(key_col) or "").strip() for row in data}
+    for section in ("names", "ids", "date_offsets"):
+        reserved |= set(prior.get(section) or {})
+    reserved.discard("")
+    name_gen = PseudonymGenerator(prefix="P", initial=prior.get("names"),
+                                  reserved=reserved)
+    id_gen = IDReplacer(prefix="ID", initial=prior.get("ids"), reserved=reserved)
     prior_offsets = dict(prior.get("date_offsets") or {})
     if key_col is None:
         # Without a patient key, entity ids are row numbers, and the next
@@ -1384,12 +1420,13 @@ def write_mapping(mapping: dict, path: Path, hash_mode: bool = False) -> Path:
 
     The hashes are not keyed, so a date or a numeric ID can be recovered from
     them by trying every candidate: mapping.json stays restricted either way.
-    Hash-mode files record hash_mode in _meta, so load_mapping can refuse
-    them exactly; the all-hex-keys heuristic remains for older files.
+    Every file records hash_mode in _meta (true or false), so load_mapping
+    can tell the two apart exactly; the all-hex-keys heuristic remains for
+    older files only.
     """
+    meta = dict(mapping.get("_meta", {}))
+    meta["hash_mode"] = hash_mode
     if hash_mode:
-        meta = dict(mapping.get("_meta", {}))
-        meta["hash_mode"] = True
         hashed = {"_meta": meta}
         for section in ("names", "ids"):
             if section in mapping:
@@ -1398,7 +1435,7 @@ def write_mapping(mapping: dict, path: Path, hash_mode: bool = False) -> Path:
             hashed["date_offsets"] = {_sha256(k): v for k, v in mapping["date_offsets"].items()}
         out_data = hashed
     else:
-        out_data = mapping
+        out_data = {**mapping, "_meta": meta}
 
     path.write_text(json.dumps(out_data, ensure_ascii=False, indent=2), encoding="utf-8")
 
