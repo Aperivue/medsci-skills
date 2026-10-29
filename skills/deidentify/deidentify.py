@@ -1308,11 +1308,15 @@ def apply_anonymization(data: list[dict], report: dict,
     # --mapping-in was given, so batches of one cohort stay consistent).
     prior = prior_mapping or {}
     # New pseudonyms and IDs skip every original value in the columns being
-    # anonymized and in the prior mapping: a source ID already shaped like a
+    # anonymized, in the patient key column, and in the prior mapping (its
+    # date_offsets keys are patient keys): a source ID already shaped like a
     # replacement ("ID0002") was otherwise handed out as its own replacement
     # or another patient's, writing the original identifier to the output.
     reserved = {(row.get(col) or "").strip() for row in data for col in to_anonymize}
-    reserved |= set(prior.get("names") or {}) | set(prior.get("ids") or {})
+    if key_col:
+        reserved |= {(row.get(key_col) or "").strip() for row in data}
+    for section in ("names", "ids", "date_offsets"):
+        reserved |= set(prior.get(section) or {})
     reserved.discard("")
     name_gen = PseudonymGenerator(prefix="P", initial=prior.get("names"),
                                   reserved=reserved)

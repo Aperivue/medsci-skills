@@ -931,6 +931,15 @@ prior_map = {"names": {"P0002": "P0001"}, "ids": {}, "date_offsets": {}}
 out3, _, _ = m.apply_anonymization([{"name": "Cy", "mrn": "MRN-5"}], rep,
                                    prior_mapping=prior_map)
 assert out3[0]["name"] == "P0003", out3
+# So are patient keys: those in the prior date_offsets and those in this
+# batch when the key column itself is kept.
+prior_map = {"names": {}, "ids": {}, "date_offsets": {"ID0001": 7}}
+out4, _, _ = m.apply_anonymization([{"name": "Di", "mrn": "MRN-6"}], rep,
+                                   prior_mapping=prior_map)
+assert out4[0]["mrn"] == "ID0002", out4
+keyed = {**rep, "patient_key": {"type": "column", "column": "patient"}}
+out5, _, _ = m.apply_anonymization([{"patient": "ID0001", "name": "Ed", "mrn": "MRN-7"}], keyed)
+assert out5[0]["mrn"] == "ID0002", out5
 
 # 9. A plain mapping whose original IDs are 64-hex strings is reusable:
 # the file records hash_mode false, so the all-hex-keys heuristic (kept

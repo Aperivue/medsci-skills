@@ -105,10 +105,10 @@ python3 ${CLAUDE_SKILL_DIR}/deidentify.py apply ./deidentified/reviewed_report.j
   and date offsets must be within 1..365 days (never 0). Row-keyed offsets from
   a run with no patient key are not carried across runs, and a batch with nothing to anonymize
   keeps the prior mapping instead of erasing it. With or without it, a new pseudonym or ID skips
-  every original value in the anonymized columns and in the prior mapping, so a source ID
-  already shaped like `ID0002` is never written out unchanged. An earlier batch cannot see
-  values that arrive later: if source IDs share the P/ID-plus-digits form, an earlier batch's
-  pseudonym can still equal a later batch's original value
+  every original value in the anonymized columns, the patient key column and the prior mapping,
+  so a source ID already shaped like `ID0002` is never written out unchanged. An earlier batch
+  cannot see values that arrive later: if source IDs share the P/ID-plus-digits form, an earlier
+  batch's pseudonym can still equal a later batch's original value
 - `--output-dir`: Where to save de-identified file, mapping, and audit log
 - `-v/--verbose`: Enable debug logging
 
