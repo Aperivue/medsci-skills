@@ -105,6 +105,8 @@ Should include:
 - **Disclosure location:** Cover letter AND the Methods or Acknowledgements section of the manuscript.
 - **AI-generated images:** Not banned as a separate category — use of AI to help generate images falls under the same dual-disclosure requirement above.
 - **Policy URL:** https://academic.oup.com/jamia/pages/General_Instructions (no dedicated AI policy page; the guidelines point to the COPE position statement on Authorship and AI)
+- **Publisher-level policy (OUP, applies subject to the journal-specific rule above):** OUP's Policy on AI Use and Disclosure for Oxford Journals Authors (last updated 13 July 2026) — improving language clarity and formatting references to journal style need no disclosure; substantial rewriting, translation, data collection/analysis/visualization, code generation, and illustrative images such as graphical abstracts are permitted with disclosure; presenting generative-AI content as original human research data, and creating or altering primary factual images such as clinical or diagnostic images, are not permitted. Disclosure is required at initial submission and updated on revision, naming the tool and version, how it was used, and the author's role in directing and reviewing the output. Where the two policies differ, the journal-specific rule prevails.
+- **Publisher policy URL:** https://academic.oup.com/pages/for-authors/journals/preparing-and-submitting-your-manuscript/ai-principles-for-oxford-journals/policy-on-ai-use-and-disclosure-for-oxford-journals-authors
 
 ---
 
