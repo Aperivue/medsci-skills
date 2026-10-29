@@ -979,12 +979,32 @@ def review_problems(report: dict, data: list[dict], headers: list[str]) -> list[
 # Section 5: Anonymizers
 # ================================================================
 
-class PseudonymGenerator:
-    """Maps original values to consistent pseudonyms (P001, P002, ...)."""
+def _max_suffix(values: list[str], prefix: str) -> int:
+    """Highest numeric suffix among values like PREFIX + digits.
 
-    def __init__(self, prefix: str = "P"):
-        self._map: dict[str, str] = {}
-        self._counter = 0
+    Lets a generator resumed from a previous run's mapping continue
+    numbering after the last value already handed out, instead of
+    restarting at 0001 and colliding with it.
+    """
+    best = 0
+    for v in values:
+        if v.startswith(prefix) and v[len(prefix):].isdigit():
+            best = max(best, int(v[len(prefix):]))
+    return best
+
+
+class PseudonymGenerator:
+    """Maps original values to consistent pseudonyms (P001, P002, ...).
+
+    With `initial` (a previous run's mapping), values already seen keep
+    their pseudonym and new values continue numbering after the highest
+    one already used, so separately de-identified batches can be merged
+    without two patients sharing a pseudonym.
+    """
+
+    def __init__(self, prefix: str = "P", initial: dict[str, str] | None = None):
+        self._map: dict[str, str] = dict(initial) if initial else {}
+        self._counter = _max_suffix(list(self._map.values()), prefix)
         self._prefix = prefix
 
     def get(self, original: str) -> str:
@@ -1005,7 +1025,8 @@ class DateShifter:
     preserving relative time intervals between events for the same entity.
     """
 
-    def __init__(self, seed: int | None = None, max_days: int = 365):
+    def __init__(self, seed: int | None = None, max_days: int = 365,
+                 initial_offsets: dict[str, int] | None = None):
         # Each offset is drawn from the operating system's CSPRNG. Offsets
         # used to come from random.Random(seed) with a seed drawn from
         # 1..999999, in row order: anyone who knew two or three patients'
@@ -1015,7 +1036,9 @@ class DateShifter:
         self._rng = (random.Random(seed) if seed is not None
                      else secrets.SystemRandom())
         self._max_days = max_days
-        self._offsets: dict[str, int] = {}
+        # With initial_offsets (a previous run's mapping), entities already
+        # seen keep their offset, so intervals stay comparable across batches.
+        self._offsets: dict[str, int] = dict(initial_offsets) if initial_offsets else {}
         self.seed = seed
 
     def _get_offset(self, entity_id: str) -> int:
@@ -1067,11 +1090,16 @@ class DateShifter:
 
 
 class IDReplacer:
-    """Replaces identifiers with sequential IDs (ID001, ID002, ...)."""
+    """Replaces identifiers with sequential IDs (ID001, ID002, ...).
 
-    def __init__(self, prefix: str = "ID"):
-        self._map: dict[str, str] = {}
-        self._counter = 0
+    With `initial` (a previous run's mapping), values already seen keep
+    their ID and new values continue numbering after the highest one
+    already used (see PseudonymGenerator).
+    """
+
+    def __init__(self, prefix: str = "ID", initial: dict[str, str] | None = None):
+        self._map: dict[str, str] = dict(initial) if initial else {}
+        self._counter = _max_suffix(list(self._map.values()), prefix)
         self._prefix = prefix
 
     def get(self, original: str) -> str:
@@ -1104,10 +1132,124 @@ def _keyed_hash(key: bytes, val: str) -> str:
     return hmac.new(key, val.encode("utf-8"), hashlib.sha256).hexdigest()
 
 
+def _no_duplicate_keys(pairs: list) -> dict:
+    """object_pairs_hook that rejects duplicate JSON keys.
+
+    json.loads keeps only the last of two entries with the same key, so
+    a duplicated key would silently drop an earlier mapping entry. The
+    error names no key, so no identifier is copied into logs.
+    """
+    obj: dict = {}
+    for key, value in pairs:
+        if key in obj:
+            raise ValueError("duplicate key in mapping file")
+        obj[key] = value
+    return obj
+
+
+def load_mapping(path: str | Path, max_days: int = 365) -> dict[str, dict]:
+    """Load a previous run's mapping.json for cross-run reuse (--mapping-in).
+
+    Returns the names, ids, and date_offsets sections. A mapping written
+    with --hash-mapping stores SHA-256 hashes instead of original values,
+    so it cannot map a new run's values back to the old ones; reusing one
+    would silently re-number everything, so it is refused outright.
+
+    The file is treated as untrusted input and validated before anything
+    is reused from it: all three sections must be present and be objects
+    (a reviewed report or a partial file is not a mapping); replacement
+    values must have the expected form (P + digits for names, ID + digits
+    for ids), be unique within their section, and differ from the
+    original they replace (an entry mapping a value to itself would
+    write the original identifier to the output); date offsets must be
+    integers with 1 <= abs(offset) <= max_days (DateShifter never draws 0,
+    and a zero offset would write the original date to the output).
+    Duplicate JSON keys are rejected at parse time (json.loads would
+    otherwise keep only the last of two entries with the same key, so
+    an earlier entry's replacement could be handed to a new patient).
+    Row-keyed offsets ("row N", the fallback when a run has no patient
+    key) are dropped, since the next run's row N is a different patient.
+    Validation errors name the section and the entry's position, never
+    the original value, so patient identifiers are not copied into
+    terminals or logs. max_days defaults to DateShifter's default; pass
+    the same value when reusing a mapping with a DateShifter built on a
+    different max_days.
+    """
+    p = Path(path)
+    if not p.exists():
+        sys.exit(f"--mapping-in: file not found: {p}")
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"),
+                          object_pairs_hook=_no_duplicate_keys)
+    except (OSError, ValueError) as e:
+        sys.exit(f"--mapping-in: cannot read {p}: {e}")
+    if not isinstance(data, dict):
+        sys.exit(f"--mapping-in: {p} is not a mapping object")
+    for section in ("names", "ids", "date_offsets"):
+        if section not in data:
+            sys.exit(f"--mapping-in: {p} is missing the {section!r} section; "
+                     "a reviewed report or a partial file is not a mapping")
+        if not isinstance(data[section], dict):
+            sys.exit(f"--mapping-in: {p} section {section!r} is not an object")
+    sections = {k: dict(data[k]) for k in ("names", "ids", "date_offsets")}
+    # A mapping written with --hash-mapping is refused outright: its keys
+    # are hashes, not original values. New files carry hash_mode in _meta
+    # (see write_mapping); older files are caught by the all-hex-keys
+    # heuristic below.
+    meta = data.get("_meta") if isinstance(data.get("_meta"), dict) else {}
+    if meta.get("hash_mode") is True:
+        sys.exit(f"--mapping-in: {p} was written with --hash-mapping "
+                 "(its keys are hashes, not original values); "
+                 "re-run the first batch without --hash-mapping to get a reusable mapping")
+    for section in ("names", "ids", "date_offsets"):
+        keys = list(sections[section])
+        if keys and all(re.fullmatch(r"[0-9a-f]{64}", k) for k in keys):
+            sys.exit(f"--mapping-in: {p} looks like a --hash-mapping file "
+                     f"(the {section} keys are hashes, not original values); "
+                     "re-run the first batch without --hash-mapping to get a reusable mapping")
+    for section, prefix in (("names", "P"), ("ids", "ID")):
+        seen: set[str] = set()
+        for pos, (original, value) in enumerate(sections[section].items(), start=1):
+            if (not isinstance(value, str)
+                    or not re.fullmatch(rf"{prefix}\d+", value)):
+                sys.exit(f"--mapping-in: {section} entry {pos} is not a "
+                         f"{prefix}-plus-digits replacement value")
+            if value == original:
+                sys.exit(f"--mapping-in: {section} entry {pos} maps a "
+                         "value to itself, so the original identifier "
+                         "would be written to the output")
+            if value in seen:
+                sys.exit(f"--mapping-in: {section} entry {pos} reuses a "
+                         "replacement value already used in that section")
+            seen.add(value)
+    for pos, offset in enumerate(sections["date_offsets"].values(), start=1):
+        if (not isinstance(offset, int) or isinstance(offset, bool)
+                or not 1 <= abs(offset) <= max_days):
+            sys.exit(f"--mapping-in: date_offsets entry {pos} is not an "
+                     f"integer offset with 1 <= abs(offset) <= {max_days}")
+    # Row-keyed offsets come from runs with no patient key, where the
+    # entity id is just the row number; the next run's row N is a
+    # different patient, so those offsets must not carry across runs.
+    # Names and ids still reuse: only the offsets are dropped.
+    sections["date_offsets"] = {
+        k: v for k, v in sections["date_offsets"].items()
+        if not re.fullmatch(r"row \d+", k)
+    }
+    return sections
+
+
 def apply_anonymization(data: list[dict], report: dict,
-                        date_shift_seed: int | None = None) -> tuple[list[dict], dict, list[dict]]:
+                        date_shift_seed: int | None = None,
+                        prior_mapping: dict[str, dict] | None = None) -> tuple[list[dict], dict, list[dict]]:
     """Apply approved anonymization actions.
 
+    With `prior_mapping` (a previous run's mapping.json, loaded by
+    load_mapping), values already seen keep their pseudonym, ID, and date
+    offset, and new values continue numbering after the previous run's.
+    Without it, every run numbers from 0001, so merging outputs from
+    separate runs silently collides patients. If no column is marked for
+    anonymization, the prior mapping is returned unchanged (rather than
+    an empty mapping) so a later batch can still chain from it.
     Returns (de-identified data, mapping dict, audit entries).
     """
     classifications = report["classifications"]
@@ -1116,18 +1258,32 @@ def apply_anonymization(data: list[dict], report: dict,
 
     if not to_anonymize:
         log.info("No columns marked for anonymization.")
-        return data, {}, []
+        # With a prior mapping, return it unchanged: writing {} here
+        # would erase the accumulated mapping and break the next batch's
+        # chaining. Without one, there is nothing to preserve.
+        return data, dict(prior_mapping) if prior_mapping else {}, []
 
     # The patient key the researcher chose in review (see review_problems).
     # Without one, each row gets its own offset: never one shared offset.
     key = report.get("patient_key") or {}
     key_col = key.get("column") if key.get("type") == "column" else None
 
-    # Initialize anonymizers
-    name_gen = PseudonymGenerator(prefix="P")
-    id_gen = IDReplacer(prefix="ID")
+    # Initialize anonymizers (resumed from a previous run's mapping when
+    # --mapping-in was given, so batches of one cohort stay consistent).
+    prior = prior_mapping or {}
+    name_gen = PseudonymGenerator(prefix="P", initial=prior.get("names"))
+    id_gen = IDReplacer(prefix="ID", initial=prior.get("ids"))
+    prior_offsets = dict(prior.get("date_offsets") or {})
+    if key_col is None:
+        # Without a patient key, entity ids are row numbers, and the next
+        # run's row N is a different patient: row-keyed offsets from a
+        # prior mapping must not be reused (load_mapping drops them too;
+        # this covers a prior mapping passed in directly).
+        prior_offsets = {k: v for k, v in prior_offsets.items()
+                         if not re.fullmatch(r"row \d+", k)}
     # No seed by default: offsets come from the OS CSPRNG (see DateShifter).
-    date_shifter = DateShifter(seed=date_shift_seed)
+    date_shifter = DateShifter(seed=date_shift_seed,
+                               initial_offsets=prior_offsets)
     audit_key = secrets.token_bytes(32)
 
     meta: dict = {
@@ -1216,9 +1372,13 @@ def write_mapping(mapping: dict, path: Path, hash_mode: bool = False) -> Path:
 
     The hashes are not keyed, so a date or a numeric ID can be recovered from
     them by trying every candidate: mapping.json stays restricted either way.
+    Hash-mode files record hash_mode in _meta, so load_mapping can refuse
+    them exactly; the all-hex-keys heuristic remains for older files.
     """
     if hash_mode:
-        hashed = {"_meta": mapping.get("_meta", {})}
+        meta = dict(mapping.get("_meta", {}))
+        meta["hash_mode"] = True
+        hashed = {"_meta": meta}
         for section in ("names", "ids"):
             if section in mapping:
                 hashed[section] = {_sha256(k): v for k, v in mapping[section].items()}
@@ -1362,7 +1522,9 @@ def cmd_apply(args: argparse.Namespace) -> None:
     _exit_on_review_problems(report, data, meta["headers"])
 
     log.info("Applying anonymization ...")
-    clean_data, mapping, audit = apply_anonymization(data, report)
+    prior = (load_mapping(args.mapping_in)
+             if getattr(args, "mapping_in", None) else None)
+    clean_data, mapping, audit = apply_anonymization(data, report, prior_mapping=prior)
 
     # Write outputs
     deid_path = write_deidentified_file(clean_data, input_path, output_dir)
@@ -1430,7 +1592,9 @@ def cmd_full(args: argparse.Namespace) -> None:
 
     # Apply
     log.info("Applying anonymization ...")
-    clean_data, mapping, audit = apply_anonymization(data, reviewed)
+    prior = (load_mapping(args.mapping_in)
+             if getattr(args, "mapping_in", None) else None)
+    clean_data, mapping, audit = apply_anonymization(data, reviewed, prior_mapping=prior)
 
     # Write outputs
     deid_path = write_deidentified_file(clean_data, input_path, output_dir)
@@ -1486,6 +1650,8 @@ def main() -> None:
     p_apply.add_argument("report_file", help="Path to reviewed_report.json")
     p_apply.add_argument("--hash-mapping", action="store_true",
                          help="Hash original values in mapping file (unkeyed: dates and IDs stay recoverable)")
+    p_apply.add_argument("--mapping-in", type=str, metavar="PATH",
+                         help="Reuse a previous run's mapping.json so values already de-identified keep the same pseudonym, ID, and date offset (prevents silent collisions when outputs from separate runs are merged)")
 
     # full
     p_full = sub.add_parser("full", help="Full pipeline: scan + review + apply")
@@ -1496,6 +1662,8 @@ def main() -> None:
                         help="Keep SAFE columns without showing them (SAFE means no pattern matched)")
     p_full.add_argument("--hash-mapping", action="store_true",
                         help="Hash original values in mapping file (unkeyed: dates and IDs stay recoverable)")
+    p_full.add_argument("--mapping-in", type=str, metavar="PATH",
+                        help="Reuse a previous run's mapping.json so values already de-identified keep the same pseudonym, ID, and date offset (prevents silent collisions when outputs from separate runs are merged)")
 
     args = parser.parse_args()
 
