@@ -32,6 +32,13 @@
 
 ### Fixed
 
+- **`/render-pdf-doc`: Korean and English spacing in the PDF.** `render_pdf.sh` always sets
+  `CJKmainfont`, which loads xeCJK with Chinese defaults: the space after curly quotes and en/em
+  dashes was deleted (`“no difference”and`), and a space
+  was inserted wherever Latin letters or digits met Hangul (`AI를` printed as `AI 를`). The wrapper now
+  classes quotes and dashes as Western text and turns the automatic Latin–CJK space off
+  (`scripts/xecjk_korean.tex`), appended to the document's `header-includes` (a Lua filter) or added
+  as one more `-H` when the caller passes `-H`. `--xecjk-defaults` restores xeCJK's behaviour (#696).
 - **`/manage-refs`: `fill_journal_abbrev.py` no longer breaks the bib it fills** (#698). Its insertion
   pattern knew only tab indentation, so on a two-space bib it appended `shortjournal` after a last
   field with no comma and pandoc could not read the file. It now inserts after the journal value in
