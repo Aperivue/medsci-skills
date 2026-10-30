@@ -10,7 +10,7 @@
 - **Impact Factor**: 7.1 (JCR 2025)
 - **Open Access**: Hybrid — authors may pay an open-access charge for immediate open access; otherwise standard subscription-based access with no charge
 - **Acceptance rate**: Not published in the author guidelines
-- **Peer review**: Not specified in the author guidelines (the title page is submitted separately from the main document)
+- **Peer review**: Not specified in the author guidelines
 
 ## Manuscript Types and Word Limits
 
@@ -93,8 +93,10 @@ The author guidelines consulted specify no p-value, confidence-interval, or effe
 Should include:
 - Any special considerations regarding the submission, including details of related papers by the same author(s) already published or under consideration for publication.
 - Details of previous reviews of the submitted article.
-- Copies of related papers, previous Editors' and reviewers' comments, and responses to those comments (submitted as "Supplementary file for Editors only").
 - Disclosure of any AI use (AI use must also be disclosed in the Methods or Acknowledgements section of the manuscript).
+
+Optional, as a "Supplementary file for Editors only":
+- Copies of related papers, previous Editors' and reviewers' comments, and responses to those comments.
 
 ---
 
@@ -103,7 +105,7 @@ Should include:
 - **Requirement level:** Required — disclosure of AI use, in two places (see below).
 - **Permitted scope:** AI use to help generate content or images, write code, process data, or for translation, with disclosure as below. AI tools do not qualify as authors, and the journal screens author lists for them.
 - **Disclosure location:** Cover letter AND the Methods or Acknowledgements section of the manuscript.
-- **AI-generated images:** Not banned as a separate category — use of AI to help generate images falls under the same dual-disclosure requirement above.
+- **AI-generated images:** Not banned as a separate category — use of AI to help generate images falls under the same dual-disclosure requirement above; however, creating or altering primary factual images, such as clinical or diagnostic images, is not permitted.
 - **Policy URL:** https://academic.oup.com/jamia/pages/General_Instructions (no dedicated AI policy page; the guidelines point to the COPE position statement on Authorship and AI)
 - **Publisher-level policy (OUP, applies subject to the journal-specific rule above):** OUP's Policy on AI Use and Disclosure for Oxford Journals Authors (last updated 13 July 2026) — improving language clarity and formatting references to journal style need no disclosure; substantial rewriting, translation, data collection/analysis/visualization, code generation, and illustrative images such as graphical abstracts are permitted with disclosure; presenting generative-AI content as original human research data, and creating or altering primary factual images such as clinical or diagnostic images, are not permitted. Disclosure is required at initial submission and updated on revision, naming the tool and version, how it was used, and the author's role in directing and reviewing the output. Where the two policies differ, the journal-specific rule prevails.
 - **Publisher policy URL:** https://academic.oup.com/pages/for-authors/journals/preparing-and-submitting-your-manuscript/ai-principles-for-oxford-journals/policy-on-ai-use-and-disclosure-for-oxford-journals-authors
@@ -122,6 +124,6 @@ Submit here when the contribution is the informatics itself: a new method, a sys
 
 | Dimension | JAMIA | Journal of Biomedical Informatics | npj Digital Medicine |
 |-----------|-------|-----------------------------------|----------------------|
-| Society | American Medical Informatics Association (AMIA) | None stated in profile (Elsevier) | Nature Portfolio (Springer Nature) |
+| Society | American Medical Informatics Association (AMIA) | Elsevier (no society) | Nature Portfolio (Springer Nature) |
 | Scope | Full spectrum of biomedical and health informatics: clinical care, clinical research, translational science, implementation, imaging, education, consumer health, public health, policy | Computational and informatics methods applied to biomedical data, with emphasis on structured clinical data (EHR, claims, lab results) rather than imaging | Digital health technologies and their clinical application, Nature-family format |
 | Distinguishing feature | AMIA's flagship; explicitly welcomes implementation, policy, and education pieces alongside methods and evaluations | Structured-data / EHR / clinical NLP emphasis; methodological rigor and clinical applicability | Continuous online publication, Nature-style Methods-after-Discussion order, mandatory Data and Code Availability statements |
