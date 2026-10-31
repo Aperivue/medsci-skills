@@ -34,17 +34,22 @@ Word counts exclude abstract, references, tables, and figure legends.
 ```
 Importance: [Why this question matters — clinical impact, knowledge gap]
 Objective: [Specific aims — 1 sentence]
-Design, Setting, and Participants: [Study design, setting, eligibility criteria,
-    dates of data collection, follow-up duration]
+Design: [Basic design and specific study type, years of the study,
+    follow-up duration]
+Setting: [Study setting, so readers can judge applicability]
+Participants: [Clinical disorders, eligibility criteria, key sociodemographic
+    features; number eligible and how they were selected]
 Intervention(s) [if applicable]: [Description of interventions/exposures]
 Main Outcomes and Measures: [Primary and secondary outcomes defined]
 Results: [Number enrolled/analyzed, demographic summary, primary results
     with effect sizes, CIs, and exact P values]
 Conclusions and Relevance: [Main conclusion — 1-2 sentences answering
     the Objective; clinical relevance]
+Trial Registration: [Clinical trials only — registry name, registration
+    number and URL]
 ```
 
-**Critical**: JAMA's structured abstract has 7 headings (not 4). The "Importance" heading is unique to JAMA and is the first thing editors read.
+**Critical**: Design, Setting and Participants are separate headings at submission; JAMA combines them as "Design, Setting, and Participants" only during editing ("for manuscript submission these sections should be kept separate"). A clinical trial adds Trial Registration ("the name of the trial registry, registration number, and URL of the registry must be included"). This template is for reports of original data; a meta-analysis uses its own list: Importance, Objective, Data Sources, Study Selection, Data Extraction and Synthesis, Main Outcome(s) and Measure(s), Results, Conclusions and Relevance (no Design, Setting, Participants or Intervention/Exposure headings). The "Importance" heading is a JAMA Network heading and is the first thing editors read.
 
 ---
 

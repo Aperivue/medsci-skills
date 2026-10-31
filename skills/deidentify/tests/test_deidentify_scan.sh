@@ -24,7 +24,7 @@ check() { local label="$1"; shift
 }
 
 [[ -f "$SCRIPT" ]] || { echo "ENV-ERR: deidentify.py missing" >&2; exit 2; }
-for fx in test_phi_korean test_clean test_edge_cases test_phi_italian; do
+for fx in test_phi_korean test_clean test_edge_cases test_phi_italian test_phi_spanish; do
     [[ -f "$HERE/$fx.csv" ]] || { echo "ENV-ERR: fixture $fx.csv missing" >&2; exit 2; }
 done
 
@@ -90,6 +90,52 @@ with open('$HERE/test_phi_italian.csv', encoding='utf-8') as f:
 cl={x['column']: x['classification'] for x in d['classifications']}
 for i in (5, 6):
     assert cl.get(hdr[i])=='SAFE', (i, hdr[i], cl.get(hdr[i]))"
+
+# --- Fixture 5: Spanish PHI (15 columns) -> PHI=13, REVIEW_NEEDED=0, SAFE=2 ---
+# Covers the review follow-ups: split surnames (primer/segundo_apellido),
+# accented column names (teléfono), abbreviated address keywords
+# (C/, Avda., Pza., Ctra.), health-card IDs (cip, nhc, nuss), and IBAN ES.
+# Every DNI/NIE carries a wrong check letter and every IBAN a wrong check
+# number. The fixture's columns all have dictionary names, so it does not
+# exercise the value patterns; the es probes further down do.
+python3 "$SCRIPT" scan "$HERE/test_phi_spanish.csv" --locale es -o "$OUTDIR" >/dev/null 2>&1
+ES_REPORT="$OUTDIR/scan_report.json"
+check "spanish fixture: report written"      test -s "$ES_REPORT"
+check "spanish fixture: PHI == 13"            test "$(count "$ES_REPORT" PHI)"           -eq 13
+check "spanish fixture: REVIEW_NEEDED == 0"   test "$(count "$ES_REPORT" REVIEW_NEEDED)" -eq 0
+check "spanish fixture: SAFE == 2"            test "$(count "$ES_REPORT" SAFE)"          -eq 2
+
+# Per-column contract: every PHI column carries the expected phi_type.
+# The accented header (teléfono, position 9) is read positionally so this
+# shell file stays ASCII-only.
+check "spanish fixture: per-column phi types" python3 -c "
+import json,csv
+d=json.load(open('$ES_REPORT'))
+with open('$HERE/test_phi_spanish.csv', encoding='utf-8') as f:
+    hdr=next(csv.reader(f))
+cl={x['column']: (x['classification'], x.get('phi_type')) for x in d['classifications']}
+expected={
+ 'dni':('PHI','national_id'), 'primer_apellido':('PHI','name'),
+ 'segundo_apellido':('PHI','name'), 'cip':('PHI','national_id'),
+ 'nhc':('PHI','id'), 'nuss':('PHI','national_id'),
+ 'iban':('PHI','bank_account'), 'nombre':('PHI','name'),
+ 'telefono':('PHI','phone'), 'fecha_nacimiento':('PHI','date'),
+ 'direccion':('PHI','address'), 'direccion_abrev':('PHI','address'),
+}
+for col,(cls,pt) in expected.items():
+    assert cl.get(col)==(cls,pt), (col, cl.get(col))
+assert cl.get(hdr[9])==('PHI','phone'), (hdr[9], cl.get(hdr[9]))"
+
+# Header positions 13 (diagnostico) and 14 (valor) must be SAFE.
+check "spanish fixture: diagnostico + valor (cols 13,14) are SAFE" python3 -c "
+import json,csv
+d=json.load(open('$ES_REPORT'))
+with open('$HERE/test_phi_spanish.csv', encoding='utf-8') as f:
+    hdr=next(csv.reader(f))
+cl={x['column']: x['classification'] for x in d['classifications']}
+for i in (13, 14):
+    assert cl.get(hdr[i])=='SAFE', (i, hdr[i], cl.get(hdr[i]))"
+
 
 # --- Fixture 2: clean (no PHI) -> PHI == 0 (false-positive guard) ---
 python3 "$SCRIPT" scan "$HERE/test_clean.csv" --locale kr -o "$OUTDIR" >/dev/null 2>&1
@@ -528,6 +574,28 @@ check "short row: review and apply run (exit 0)" test "$?" -eq 0
 check "short row: both rows written" \
     python3 -c "import csv, sys; assert len(list(csv.reader(open(sys.argv[1])))) == 3" "$G/short/s_deidentified.csv"
 
+# Duplicate headers make DictReader overwrite earlier fields before review; refuse them
+# rather than silently returning incomplete rows or presenting an ambiguous review.
+DUP="$OUTDIR/duplicate-headers"; mkdir -p "$DUP"
+printf 'contact,contact,score\nSYNTHETIC_FIRST_VALUE,SYNTHETIC_SECOND_VALUE,1\n' > "$DUP/d.csv"
+python3 "$SCRIPT" scan "$DUP/d.csv" --locale us -o "$DUP" > "$DUP/scan.out" 2>&1
+check "duplicate headers: scan refuses ambiguous columns" test "$?" -ne 0
+check "duplicate headers: no report written" test ! -e "$DUP/scan_report.json"
+check "duplicate headers: error names header issue, not cell values" python3 -c "
+import sys
+out = open(sys.argv[1]).read()
+assert 'duplicate column names' in out and 'contact' in out, out
+assert 'SYNTHETIC_' not in out, out" "$DUP/scan.out"
+# Blank duplicate headers are counted, not quoted as a bare ''.
+printf ',,score\nSYNTHETIC_FIRST_VALUE,SYNTHETIC_SECOND_VALUE,1\n' > "$DUP/blank.csv"
+python3 "$SCRIPT" scan "$DUP/blank.csv" --locale us -o "$DUP" > "$DUP/blank.out" 2>&1
+check "blank duplicate headers: scan refuses" test "$?" -ne 0
+check "blank duplicate headers: error counts the unnamed columns" python3 -c "
+import sys
+out = open(sys.argv[1]).read()
+assert '2 columns have no header name' in out and \"''\" not in out, out
+assert 'SYNTHETIC_' not in out, out" "$DUP/blank.out"
+
 # --- A shifted date is never the original date ---
 # Offsets were drawn from [-365, 365], so about one patient in 731 got 0:
 # with seed 827 the first patient's date of birth came out unchanged, and
@@ -613,6 +681,27 @@ check "dates: 3/15/24 under us is PHI/date"       probe us x  PHI/date 3/15/24 8
 check "dates: 03/15/2024 under kr is PHI/date"    probe kr x  PHI/date 03/15/2024 08/07/2019
 check "phone: kr 070 number is PHI/phone"         probe kr col7 PHI/phone 070-1234-5678 07098765432
 check "zip: us ZIP+4 is PHI/address"              probe us x  PHI/address 94110-1234 10001-0001
+# es value patterns, under a column name the dictionary does not know.
+# One spelling per check: a column is PHI once enough of its values match, so
+# mixing spellings in one check would let a broken pattern pass.
+check "es: DNI with a hyphen is PHI"                   probe es x PHI/national_id 12345678-A 87654321-B
+check "es: DNI with a space is PHI"                    probe es x PHI/national_id "12345678 A" "87654321 B"
+check "es: DNI with no separator is PHI"               probe es x PHI/national_id 12345678A 23456789f
+check "es: NIE with a space is PHI"                    probe es x PHI/national_id "X1234567 T" "Y7654321 B"
+check "es: NIE with no separator is PHI"               probe es x PHI/national_id X1234567T y7654321b
+check "es: IBAN grouped or compact is PHI"            probe es x PHI/bank_account "ES90 2100 0418 4502 0005 1332" ES9021000418450200051332
+check "es: lower-case IBAN is PHI"                     probe es x PHI/bank_account "es90 2100 0418 4502 0005 1332" es9021000418450200051332
+for ab in "C/" "Cl." "Avda." "Av." "Pza." "Ctra." "Pº" "P.º"; do
+  check "es: address abbreviated $ab is PHI"         probe es x PHI/address "$ab Mayor 1, Madrid" "$ab Serrano 45"
+done
+check "es: mobile numbers are PHI/phone"               probe es x PHI/phone "612 345 678" 655444333
+check "es: 0034-prefixed numbers are PHI/phone"        probe es x PHI/phone 0034612345678 "0034 655 444 333"
+check "es: accented record-number column is PHI/id"    probe es "historia_clínica" PHI/id HC0001 HC0002
+check "es: numero_historia column is PHI/id"           probe es numero_historia PHI/id HC0001 HC0002
+check "control: es lab values stay SAFE"               probe es valor SAFE/None 5.6 7.1 120
+# "tis" (tarjeta individual sanitaria) is not a column key: short keys match as a
+# substring of short column names, and "tis" sits inside every -itis diagnosis.
+check "control: es -itis diagnosis columns stay SAFE"  probe es hepatitis SAFE/None 0 1
 # Negative controls: these must stay SAFE.
 check "control: month names alone stay SAFE"      probe us month SAFE/None March May June
 check "control: words around a month stay SAFE"   probe us note SAFE/None "Seen in March" "may improve" "Summary 5 2020"
@@ -636,6 +725,237 @@ for v in ('94110-1234', 'CA 94110-1234.'):
 check "control: 3-part non-date values stay SAFE" probe us score SAFE/None 120/80/60 13/40/99 1/2/3
 check "dates: 3-part M/D/YY under us is PHI/date" probe us score PHI/date 1/2/10 5/5/10
 check "zip: ZIP+4 inside an address line is PHI"  probe us x  PHI/address "Springfield 94110-1234" "Town, 10001-0001."
+
+# --- Mapping reuse across runs (issue #695) ---
+# Without --mapping-in, every run numbers from 0001, so merging outputs
+# from separate runs silently collides patients (run 2's Bob gets run 1's
+# Alice pseudonym). With a previous run's mapping loaded, values already
+# seen keep their pseudonym/ID/date offset and new values continue after
+# the highest number already used.
+MAPREUSE='
+import importlib.util, json, sys
+spec = importlib.util.spec_from_file_location("d", sys.argv[1])
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+
+report = {"classifications": [
+    {"column": "name", "approved_action": "anonymize", "phi_type": "name"},
+    {"column": "mrn", "approved_action": "anonymize", "phi_type": "id"},
+    {"column": "dob", "approved_action": "anonymize", "phi_type": "date"},
+], "patient_key": {"type": "column", "column": "patient"}}
+batch1 = [
+    {"patient": "Alice", "name": "Alice", "mrn": "MRN-111", "dob": "1980-01-01"},
+    {"patient": "Bob", "name": "Bob", "mrn": "MRN-222", "dob": "1990-06-15"},
+]
+batch2 = [{"patient": "Bob", "name": "Bob", "mrn": "MRN-222", "dob": "1990-06-15"},
+          {"patient": "Carol", "name": "Carol", "mrn": "MRN-333", "dob": "1975-03-03"}]
+
+_, map1, _ = m.apply_anonymization(batch1, report, date_shift_seed=42)
+assert map1["names"] == {"Alice": "P0001", "Bob": "P0002"}, map1["names"]
+assert map1["ids"] == {"MRN-111": "ID0001", "MRN-222": "ID0002"}, map1["ids"]
+
+# Negative control: without a prior mapping, run 2 restarts at 0001 and
+# collides with run 1 (Bob takes the P0001 Alice had, MRN-222 takes the ID
+# MRN-111 had).
+_, map2_fresh, _ = m.apply_anonymization(batch2, report, date_shift_seed=42)
+assert map2_fresh["names"]["Bob"] == "P0001", map2_fresh["names"]
+assert map2_fresh["ids"]["MRN-222"] == "ID0001", map2_fresh["ids"]
+
+# With the prior mapping, run 2 reuses the run 1 values and continues numbering.
+_, map2, _ = m.apply_anonymization(batch2, report, date_shift_seed=42, prior_mapping=map1)
+assert map2["names"] == {"Alice": "P0001", "Bob": "P0002", "Carol": "P0003"}, map2["names"]
+assert map2["ids"] == {"MRN-111": "ID0001", "MRN-222": "ID0002", "MRN-333": "ID0003"}, map2["ids"]
+assert map2["date_offsets"]["Bob"] == map1["date_offsets"]["Bob"], (map2["date_offsets"], map1["date_offsets"])
+assert map2["date_offsets"]["Alice"] == map1["date_offsets"]["Alice"]
+
+# load_mapping round-trip through a mapping.json file on disk.
+from pathlib import Path
+p = Path(sys.argv[2]); m.write_mapping(map1, p)
+prior = m.load_mapping(p)
+assert prior["names"] == map1["names"] and prior["ids"] == map1["ids"]
+assert prior["date_offsets"] == map1["date_offsets"]
+
+# A --hash-mapping file (64-hex keys, no original values) must be refused:
+# reusing it would silently re-number everything it was meant to continue.
+p.write_text(json.dumps({"names": {"a" * 64: "P0001"}, "ids": {}, "date_offsets": {}}))
+try:
+    m.load_mapping(p); raise AssertionError("hash mapping was accepted")
+except SystemExit:
+    pass
+# A missing file is a clean error, not a traceback.
+try:
+    m.load_mapping(p.parent / "no-such-mapping.json"); raise AssertionError("missing file was accepted")
+except SystemExit:
+    pass
+'
+check "mapping reuse: prior mapping keeps pseudonyms/IDs/offsets, continues numbering" python3 -c "$MAPREUSE" "$SCRIPT" "$OUTDIR/mapping1.json"
+check "mapping reuse: --mapping-in is a documented CLI flag" bash -c "python3 \"$SCRIPT\" apply --help | grep -q -- --mapping-in && python3 \"$SCRIPT\" full --help | grep -q -- --mapping-in"
+
+# --- Imported-mapping validation (review on #697) ---
+# An imported mapping is untrusted input: it is validated before anything
+# is reused from it, and a validation error names the section and the
+# entry's position, never an original value.
+MAPVALID='
+import importlib.util, json, sys
+spec = importlib.util.spec_from_file_location("d", sys.argv[1])
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+from pathlib import Path
+p = Path(sys.argv[2])
+
+def expect_refusal(mapping, why):
+    p.write_text(json.dumps(mapping))
+    try:
+        m.load_mapping(p)
+    except SystemExit as e:
+        assert "Alice" not in str(e) and "MRN-111" not in str(e), (why, e)
+        return
+    raise AssertionError(f"accepted: {why}")
+
+base = {"names": {"Alice": "P0001"}, "ids": {"MRN-111": "ID0001"},
+        "date_offsets": {"Alice": 42}}
+
+# 1. A zero (or out-of-range) date offset must be refused, not reused.
+for bad in (0, 366, -366):
+    expect_refusal({**base, "date_offsets": {"Alice": bad}}, f"offset {bad}")
+# A non-integer offset is refused the same way.
+expect_refusal({**base, "date_offsets": {"Alice": "42"}}, "string offset")
+# Boundary offsets are fine.
+p.write_text(json.dumps({**base, "date_offsets": {"Alice": 365}}))
+assert m.load_mapping(p)["date_offsets"] == {"Alice": 365}
+p.write_text(json.dumps({**base, "date_offsets": {"Alice": -365}}))
+assert m.load_mapping(p)["date_offsets"] == {"Alice": -365}
+
+# 2. Row-keyed offsets from a run with no patient key are dropped, not
+# carried to the next run'"'"'s different patients; names/ids still reuse.
+p.write_text(json.dumps({**base, "date_offsets": {"row 1": 42, "Alice": -17}}))
+prior = m.load_mapping(p)
+assert prior["date_offsets"] == {"Alice": -17}, prior["date_offsets"]
+assert prior["names"] == {"Alice": "P0001"} and prior["ids"] == {"MRN-111": "ID0001"}
+# Same drop inside apply_anonymization for a prior mapping passed in
+# directly: with no patient key, the row-1 offset is freshly drawn.
+no_key_report = {"classifications": [
+    {"column": "dob", "approved_action": "anonymize", "phi_type": "date"},
+]}
+fresh = m.DateShifter(seed=7)._get_offset("row 1")
+prior_off = fresh + 1 if fresh < 365 else fresh - 1
+_, map_nk, _ = m.apply_anonymization(
+    [{"dob": "1980-01-01"}], no_key_report, date_shift_seed=7,
+    prior_mapping={"names": {}, "ids": {}, "date_offsets": {"row 1": prior_off}})
+assert map_nk["date_offsets"]["row 1"] == fresh, map_nk["date_offsets"]
+
+# 3. Imported replacement values must have the expected form and be
+# unique within their section.
+expect_refusal({**base, "names": {"Alice": "Alice"}}, "identity pseudonym")
+expect_refusal({**base, "ids": {"MRN-111": "ID0001", "MRN-222": "ID0001"}}, "shared ID")
+expect_refusal({**base, "names": {"Alice": "P0001", "Bob": "P0001"}}, "shared pseudonym")
+
+# 4. A file that is not a mapping is refused: a missing section, a
+# section that is not an object, and a reviewed report (which has none
+# of the three sections, so it used to read as empty sections and
+# restart numbering at 0001 while appearing to reuse the mapping).
+expect_refusal({"names": {"Alice": "P0001"}, "ids": {"MRN-111": "ID0001"}}, "missing date_offsets")
+expect_refusal({**base, "ids": ["ID0001"]}, "ids not an object")
+expect_refusal({"reviewed": True, "classifications": []}, "reviewed report")
+
+# 5. A batch with nothing to anonymize keeps the prior mapping instead
+# of erasing it.
+empty_report = {"classifications": [
+    {"column": "name", "approved_action": "keep", "phi_type": "name"},
+]}
+_, kept, _ = m.apply_anonymization([{"name": "Alice"}], empty_report, prior_mapping=base)
+assert kept == base, kept
+_, empty, _ = m.apply_anonymization([{"name": "Alice"}], empty_report)
+assert empty == {}, empty
+
+# 6. A replacement equal to its original slips past the form and
+# uniqueness checks (an ID-shaped source value mapped to itself), so it
+# is refused explicitly, in both sections; the error names the section
+# and position, never the value.
+expect_refusal({**base, "ids": {"ID1234": "ID1234"}}, "identity ID")
+expect_refusal({**base, "names": {"P0001": "P0001"}}, "identity pseudonym")
+# A duplicate JSON key is refused at parse time, at the top level and
+# inside a section: json.loads would otherwise keep only the last entry,
+# handing an earlier entry replacement to a new patient.
+p.write_text("{\"names\": {\"Alice\": \"P0001\"}, \"names\": {\"Bob\": \"P0002\"}, "
+             "\"ids\": {\"MRN-111\": \"ID0001\"}, \"date_offsets\": {\"Alice\": 42}}")
+try:
+    m.load_mapping(p); raise AssertionError("duplicate top-level key accepted")
+except SystemExit:
+    pass
+p.write_text("{\"names\": {\"Alice\": \"P0001\", \"Alice\": \"P0002\"}, "
+             "\"ids\": {\"MRN-111\": \"ID0001\"}, \"date_offsets\": {\"Alice\": 42}}")
+try:
+    m.load_mapping(p); raise AssertionError("duplicate entry key accepted")
+except SystemExit as e:
+    assert "Alice" not in str(e), e
+# Distinct entries still load after the stricter checks.
+p.write_text(json.dumps(base))
+assert m.load_mapping(p) == base, m.load_mapping(p)
+
+# 7. A hash-mode file records hash_mode in _meta and is refused exactly,
+# even when its keys are not hashes (older files still use the heuristic).
+hp = Path(sys.argv[2] + ".hash")
+m.write_mapping(base, hp, hash_mode=True)
+assert json.loads(hp.read_text())["_meta"]["hash_mode"] is True
+try:
+    m.load_mapping(hp); raise AssertionError("hash-mode file accepted")
+except SystemExit:
+    pass
+p.write_text(json.dumps({**base, "_meta": {"hash_mode": True}}))
+try:
+    m.load_mapping(p); raise AssertionError("hash_mode flag ignored")
+except SystemExit:
+    pass
+
+# 8. A source value already shaped like a replacement is never written
+# out unchanged: new pseudonyms and IDs skip every original value in the
+# anonymized columns and in the prior mapping.
+rep = {"classifications": [
+    {"column": "name", "approved_action": "anonymize", "phi_type": "name"},
+    {"column": "mrn", "approved_action": "anonymize", "phi_type": "id"},
+]}
+rows = [{"name": "Zed", "mrn": "MRN-9"}, {"name": "P0001", "mrn": "ID0002"},
+        {"name": "Amy", "mrn": "ID0001"}]
+out, mp, aud = m.apply_anonymization(rows, rep)
+originals = {v for r in rows for v in r.values()}
+written = {v for r in out for v in r.values()} | {a["after_value"] for a in aud}
+assert not originals & written, originals & written
+assert mp["names"]["P0001"] != "P0001" and mp["ids"]["ID0002"] != "ID0002", mp
+# Across batches the counter continues past the prior mapping, and a new
+# source value shaped like the next replacement is skipped as well.
+prior_map = {"names": {"Alice": "P0001"}, "ids": {"MRN-111": "ID0001"}, "date_offsets": {}}
+out2, _, _ = m.apply_anonymization([{"name": "Bob", "mrn": "ID0002"}], rep,
+                                   prior_mapping=prior_map)
+assert out2[0]["mrn"] == "ID0003", out2
+# Original values recorded in the prior mapping are skipped too.
+prior_map = {"names": {"P0002": "P0001"}, "ids": {}, "date_offsets": {}}
+out3, _, _ = m.apply_anonymization([{"name": "Cy", "mrn": "MRN-5"}], rep,
+                                   prior_mapping=prior_map)
+assert out3[0]["name"] == "P0003", out3
+# So are patient keys: those in the prior date_offsets and those in this
+# batch when the key column itself is kept.
+prior_map = {"names": {}, "ids": {}, "date_offsets": {"ID0001": 7}}
+out4, _, _ = m.apply_anonymization([{"name": "Di", "mrn": "MRN-6"}], rep,
+                                   prior_mapping=prior_map)
+assert out4[0]["mrn"] == "ID0002", out4
+keyed = {**rep, "patient_key": {"type": "column", "column": "patient"}}
+out5, _, _ = m.apply_anonymization([{"patient": "ID0001", "name": "Ed", "mrn": "MRN-7"}], keyed)
+assert out5[0]["mrn"] == "ID0002", out5
+
+# 9. A plain mapping whose original IDs are 64-hex strings is reusable:
+# the file records hash_mode false, so the all-hex-keys heuristic (kept
+# for older files without the flag) does not refuse it. Only a boolean
+# false is trusted.
+hexmap = {"names": {}, "ids": {"a" * 64: "ID0001"}, "date_offsets": {}}
+m.write_mapping(hexmap, p)
+assert json.loads(p.read_text())["_meta"]["hash_mode"] is False
+assert m.load_mapping(p)["ids"] == {"a" * 64: "ID0001"}
+p.write_text(json.dumps({**hexmap, "_meta": {"hash_mode": "no"}}))
+try:
+    m.load_mapping(p); raise AssertionError("non-boolean hash_mode trusted")
+except SystemExit:
+    pass
+'
+check "mapping reuse: imported mapping is validated (offsets, forms, sections, row keys, no-anonymize)" python3 -c "$MAPVALID" "$SCRIPT" "$OUTDIR/mapping-valid.json"
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

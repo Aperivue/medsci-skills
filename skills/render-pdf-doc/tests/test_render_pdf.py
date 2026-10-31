@@ -145,6 +145,44 @@ class RenderPrecedence(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn("[render_pdf] ok", result.stderr)
 
+    # xeCJK's Chinese-style defaults delete the space after curly quotes and dashes
+    # and add one between Latin letters or digits and Hangul (an acronym split from its particle).
+    KOREAN_SPACING = (r'\xeCJKDeclareCharClass{Default}{"2013,"2014,"2018,"2019,"201C,"201D}',
+                      r"\xeCJKsetup{CJKecglue={}}")
+
+    def test_korean_spacing_is_on_by_default(self):
+        result, tex = self.render("The study said “no difference” and stopped.\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for value in self.KOREAN_SPACING:
+            self.assertIn(value, tex)
+        self.assertLess(tex.index(r"\usepackage{xeCJK}"), tex.index(self.KOREAN_SPACING[0]),
+                        "the settings need xeCJK loaded first")
+
+    def test_korean_spacing_keeps_frontmatter_header_includes(self):
+        # An -H file would replace these; the wrapper appends to them instead.
+        result, tex = self.render("---\nheader-includes:\n  - \\newcommand{\\fromfrontmatter}{F}\n---\n\nBody.\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(r"\newcommand{\fromfrontmatter}{F}", tex)
+        for value in self.KOREAN_SPACING:
+            self.assertIn(value, tex)
+
+    def test_korean_spacing_survives_caller_include_in_header(self):
+        header = self.root / "caller header.tex"
+        header.write_text("\\newcommand{\\fromcaller}{C}\n", encoding="utf-8")
+        for flag in (("-H", str(header)), ("--include-in-header=" + str(header),)):
+            with self.subTest(flag=flag[0][:20]):
+                result, tex = self.render("Body.\n", extra=flag)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn(r"\newcommand{\fromcaller}{C}", tex)
+                for value in self.KOREAN_SPACING:
+                    self.assertIn(value, tex)
+
+    def test_xecjk_defaults_flag_leaves_xecjk_alone(self):
+        result, tex = self.render("Body.\n", ("--xecjk-defaults",))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for value in self.KOREAN_SPACING:
+            self.assertNotIn(value, tex)
+
 
 # Writes what xelatex writes when the font lacks a character: the PDF, and a log
 # line pandoc turns into a "Missing character" warning. STUB_MISSING=0 is a clean run.

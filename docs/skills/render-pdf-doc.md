@@ -48,6 +48,8 @@
 - `infer_colwidths.py`
 - `render_pdf.sh`
 - `scan_glyph_coverage.py`
+- `xecjk_korean.lua`
+- `xecjk_korean.tex`
 
 **Templates** (`skills/render-pdf-doc/templates/`):
 
