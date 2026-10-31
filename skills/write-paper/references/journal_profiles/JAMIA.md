@@ -46,7 +46,7 @@ Structured abstracts; no references in abstracts.
 3. **Main text** — sections corresponding to the abstract headings, plus a section describing Background and Significance (Research and Applications).
 4. **Acknowledgments, Competing Interests, Funding, and all other required statements**.
 5. **Data Availability Statement** — required for articles published in JAMIA; describe and provide means of access, where possible by linking to the data or providing a unique identifier.
-6. **Reference list** — numbered consecutively in order of mention in the text; only papers published or in press.
+6. **Reference list** — numbered consecutively in order of mention in the text; only papers published or in press. Publicly available datasets are cited in the reference list too, with an accession number or unique identifier such as a DOI, each citation starting with a `[dataset]` tag (removed in the published list).
 7. **Tables** — in Word format, placed in the main text where first cited, cited in numerical order.
 8. **Figure legends** — at the end of the manuscript; images uploaded as separate files and cited in numerical order.
 9. **Appendices** — uploaded as Supplementary File and cited in the main text.
