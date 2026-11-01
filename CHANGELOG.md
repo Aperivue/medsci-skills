@@ -38,6 +38,11 @@
   continuous outcome across groups: common-scale half-violins, every participant, median and IQR,
   per-group denominators, and a design-aware contrast with its interval. Contributed by
   @dhruva207-ctrml (#703).
+- **`/find-journal`, `/write-paper`: a JAMIA profile.** Built from the journal's Instructions to
+  Authors, About page and OUP's AI policy: article types and limits, the Research and Applications and
+  tutorial abstracts, title page, alt text, the Data Availability Statement and dataset citations, and
+  the AI disclosure rules, including OUP's ban on creating or altering clinical or diagnostic images
+  with AI. Contributed by @rtmalikian (#705).
 
 ### Fixed
 
