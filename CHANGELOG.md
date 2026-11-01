@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [6.2.0] - 2026-11-01
+
+**Re-check de-identified data:** with 6.1.0, `/deidentify` could write an original identifier to the output and the audit log when source IDs already had the shape of its replacements (an MRN such as `ID0002`), and in a table that repeated a column name the earlier of those columns was dropped without review. Re-run `/deidentify` on such inputs (#701, #704).
+
 ### Added
 
 - **`/deidentify`: a Spanish locale pack (`--locale es`).** Detects DNI and NIE numbers (also with a
