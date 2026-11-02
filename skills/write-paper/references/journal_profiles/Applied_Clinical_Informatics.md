@@ -6,7 +6,7 @@
 - **Abbreviation**: Appl Clin Inform (ACI)
 - **Publisher**: Georg Thieme Verlag KG
 - **ISSN**: 1869-0327 (online; no separate print ISSN is listed by the publisher)
-- **Frequency**: Quarterly (4 issues per year)
+- **Frequency**: 5 issues per year
 - **Impact Factor**: 2.7 (JCR 2025)
 - **Open Access**: Hybrid — subscription journal with an optional article processing charge for open access; AMIA members receive a 50% discount on open-access fees and journal reviewers receive 15%. There are no submission charges. All articles are sent to PubMed Central, with a 12-month embargo before free full text is available unless the open-access option is chosen.
 - **Acceptance rate**: Not published in the author guidelines
@@ -32,7 +32,7 @@ State of the Art / Best Practice Papers are generally solicited contributions de
 
 ## Abstract Requirements
 
-Structured abstract, on a separate page, up to 300 words (250 words for Brief Scientific Communications). Headings: Background (optional), Objectives, Methods, Results, Conclusions. Keywords on a separate line below the abstract: up to 10 per the article-type table, using Medical Subject Headings (MeSH) terms; at least 2 keywords must be selected from the menu provided by ACI. Note: the abstract section of the instructions also states "no more than 5" keywords — the table value (10) is used in the table above and this discrepancy should be checked at submission.
+Structured abstract, on a separate page, up to 300 words (250 words for Brief Scientific Communications). Headings: Background (optional), Objectives, Methods, Results, Conclusions. Keywords on a separate line below the abstract: no more than 5, using Medical Subject Headings (MeSH) terms; at least 2 keywords must be selected from the menu provided by ACI. Note: the article-type table in the instructions lists 10 keywords for the other types (5 for Brief Scientific Communications), so confirm the limit at submission if submitting more than 5.
 
 ---
 
@@ -48,11 +48,11 @@ Research papers are organized into the following, in order:
 6. **Results** — numbered heading 4.
 7. **Discussion** — numbered heading 5.
 8. **Conclusions** — numbered heading 6.
-9. **Clinical Relevance Statement** — a short paragraph of no more than 3 succinct sentences on the implications of the results for practitioners and/or consumers, placed following the Conclusions and before the References.
-10. **Multiple Choice Questions** — 2-4 questions pertinent to the paper's content, placed after the Conclusions. Each question has a short stem (no negation words such as "not", "least likely", or "wrong"), four answers of similar structure of which one is clearly correct, with the correct answer indicated and an explanation of 1-3 paragraphs.
-11. **Conflict of Interest** — every author must disclose all financial and personal relationships that could bias the work, or state that there are none (for example: "The authors declare that they have no conflicts of interest in the research").
-12. **Protection of Human and Animal Subjects** — as in Methods above.
-13. **Acknowledgments** — scientific advice, technical assistance, and financial support/materials, grouped at the end of the text (immediately after the Protection of Human and Animal Subjects section); blinded before submission, unblinded for accepted manuscripts.
+9. **Clinical Relevance Statement** — a short paragraph of no more than 3 succinct sentences on the implications of the results for practitioners and/or consumers, placed following the Conclusions.
+10. **Conflict of Interest** — every author must disclose all financial and personal relationships that could bias the work, or state that there are none (for example: "The authors declare that they have no conflicts of interest in the research").
+11. **Protection of Human and Animal Subjects** — as in Methods above.
+12. **Acknowledgments** — scientific advice, technical assistance, and financial support/materials, grouped at the end of the text (immediately after the Protection of Human and Animal Subjects section); blinded before submission, unblinded for accepted manuscripts.
+13. **Multiple Choice Questions** — 2-4 questions pertinent to the paper's content, placed after the Acknowledgments. Each question has a short stem (no negation words such as "not", "least likely", or "wrong"), four answers of similar structure of which one is clearly correct, with the correct answer indicated and an explanation of 1-3 paragraphs.
 14. **Appendices** — permitted; each appendix contains only one media type (text, images, or tables), listed after the body of the paper and before the references, and mentioned in the text.
 15. **References** — AMA style with one Thieme exception (do not italicize book titles or journal title abbreviations, and do not put a period at the end of a reference); cited sequentially in the text with superscript numbers; list all author names up to six, and for more than six list the first three followed by et al. A page break separates the end of the text from the references.
 16. **Figure captions** — written after the reference list, with a page break between references and captions; figures themselves are uploaded as separate files, never embedded in the manuscript.
@@ -127,4 +127,4 @@ Submit here when the contribution is applied clinical informatics in practice: a
 | Society | Official eJournal of AMIA, IMIA, and EFMI (Thieme) | American Medical Informatics Association (AMIA), via Oxford University Press | IMIA journal family (Thieme) | Thieme (ACI sister journal) |
 | Scope | Full applied range: clinical, administrative, eHealth, and mobile systems; development, deployment, evaluation, socio-technical aspects, training | Full spectrum of biomedical and health informatics: clinical care, clinical research, translational science, implementation, imaging, education, consumer health, public health, policy | "Science and Research" journal for medical informatics methods and research | Same clinical-informatics field as ACI, as an open-access venue |
 | Impact factor | 2.7 (JCR 2025) | 7.1 (JCR 2025) | 2.4 | Not stated on the Thieme journals page consulted |
-| Distinguishing feature | The "practical" informatics journal: deployment, evaluation, and lessons learned, with a Clinical Relevance Statement and multiple-choice questions on every research paper | AMIA's flagship; explicitly welcomes implementation, policy, and education pieces alongside methods and evaluations | Methods and research emphasis, against ACI's practical emphasis | Fully open access, against ACI's hybrid model |
+| Distinguishing feature | Applied emphasis: deployment, evaluation, and lessons learned, with a Clinical Relevance Statement and multiple-choice questions on every research paper | AMIA's flagship; explicitly welcomes implementation, policy, and education pieces alongside methods and evaluations | Methods and research emphasis | Fully open access, against ACI's hybrid model |
