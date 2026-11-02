@@ -1,6 +1,6 @@
 ---
 name: deidentify
-description: Use when clinical data may contain PHI and must be de-identified before any LLM-assisted analysis. A local Python script (no network or AI calls) detects identifiers with regex and heuristics in 11 country locale packs, with interactive terminal review.
+description: Use when clinical data may contain PHI and must be de-identified before any LLM-assisted analysis. A local Python script (no network or AI calls) detects identifiers with regex and heuristics in 12 country locale packs, with interactive terminal review.
 metadata:
   triggers: "deidentify, de-identify, anonymize, 비식별화, 익명화, remove PHI, remove PII, strip patient info"
 ---
@@ -55,7 +55,7 @@ Based on answers, recommend the appropriate command:
 - Step-by-step (cautious): `python3 deidentify.py scan <file> --locale <code>` first
 
 Available locale codes: `kr` (Korea), `us` (USA), `jp` (Japan), `cn` (China), `de` (Germany),
-`uk` (United Kingdom), `fr` (France), `ca` (Canada), `au` (Australia), `in` (India), `it` (Italy).
+`uk` (United Kingdom), `fr` (France), `ca` (Canada), `au` (Australia), `in` (India), `it` (Italy), `es` (Spain).
 If `--locale` is omitted, the script shows an interactive country selection menu.
 Users can provide a custom locale file via `--locale-file custom.json`.
 
@@ -87,7 +87,7 @@ python3 ${CLAUDE_SKILL_DIR}/deidentify.py apply ./deidentified/reviewed_report.j
 ```
 
 **Options:**
-- `--locale CODE`: Country locale for PHI patterns (kr, us, jp, cn, de, uk, fr, ca, au, in, it)
+- `--locale CODE`: Country locale for PHI patterns (kr, us, jp, cn, de, uk, fr, ca, au, in, it, es)
 - `--locale-file PATH`: Custom locale JSON file (copy `locales/_template.json` to create one)
 - `--auto-accept-safe`: Keep SAFE columns without showing them. Not recommended: SAFE means
   no pattern matched, not that the column holds no identifiers (a name typed into a short
@@ -95,6 +95,20 @@ python3 ${CLAUDE_SKILL_DIR}/deidentify.py apply ./deidentified/reviewed_report.j
 - `--hash-mapping`: Store unkeyed SHA-256 hashes instead of original names/IDs in the mapping
   file. Dates and numeric IDs can be recovered from such hashes by trying every candidate, so
   mapping.json stays restricted either way
+- `--mapping-in PATH` (`apply`/`full`): Reuse a previous run's mapping.json, so values already
+  de-identified keep the same pseudonym, ID, and date offset. Without it, every run numbers
+  from 0001: merging outputs from separate runs silently gives two patients the same pseudonym
+  (and one patient different ones). A `--hash-mapping` file cannot be reused this way, since
+  its keys are hashes, not original values. An imported mapping is validated before use: all
+  three sections must be present, replacement values must be P/ID-plus-digits, unique within
+  their section, and different from the original they replace, duplicate JSON keys are rejected,
+  and date offsets must be within 1..365 days (never 0). Row-keyed offsets from
+  a run with no patient key are not carried across runs, and a batch with nothing to anonymize
+  keeps the prior mapping instead of erasing it. With or without it, a new pseudonym or ID skips
+  every original value in the anonymized columns, the patient key column and the prior mapping,
+  so a source ID already shaped like `ID0002` is never written out unchanged. An earlier batch
+  cannot see values that arrive later: if source IDs share the P/ID-plus-digits form, an earlier
+  batch's pseudonym can still equal a later batch's original value
 - `--output-dir`: Where to save de-identified file, mapping, and audit log
 - `-v/--verbose`: Enable debug logging
 
@@ -220,7 +234,7 @@ not by itself make a dataset HIPAA Safe Harbor de-identified, or anonymous under
 
 **Supported (v1)**:
 - Structured tabular data: CSV, TSV, Excel (.xlsx)
-- 11 country locales with country-specific PHI patterns:
+- 12 country locales with country-specific PHI patterns:
   - Korea (kr): RRN (주민번호), phone, email, address, Hangul names, dates
   - USA (us): SSN, US phone, US address, zip codes
   - Japan (jp): マイナンバー, Japanese phone, 都道府県 address, Kanji names
@@ -232,6 +246,7 @@ not by itself make a dataset HIPAA Safe Harbor de-identified, or anonymous under
   - Australia (au): TFN, Medicare number, AU phone
   - India (in): Aadhaar, PAN, Indian phone, pin codes
   - Italy (it): Codice Fiscale, Italian phone, Via address
+  - Spain (es): DNI/NIE, Spanish phone, Calle address
 - Universal patterns (all locales): email, ISO dates, high-cardinality numeric IDs (MRN)
 - English column names recognized across all locales
 - Custom locale support via `--locale-file` with template

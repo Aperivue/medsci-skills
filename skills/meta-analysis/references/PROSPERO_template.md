@@ -6,8 +6,12 @@ PROSPERO (International Prospective Register of Systematic Reviews) requires com
 a structured web form. This template provides field-by-field guidance with word limits and
 common pitfalls from real registration experience.
 
-**Key constraint**: Initial registrations are NOT allowed after data extraction is completed.
-Searching and screening may be completed.
+**Key constraint**: the form states that "Reviews that have started data extraction (at the time
+of initial submission) are not eligible for inclusion in PROSPERO. If there is later evidence that
+incorrect status and/or completion date has been supplied, the published PROSPERO record will be
+marked as retracted." Submit before the formal search, and in any case before screening begins:
+registration before screening is what lets the manuscript call the review "prospectively
+registered". An AI first-pass screen or extraction draft counts as screening or extraction.
 
 ---
 
@@ -153,13 +157,17 @@ Mention leave-one-out if planned.
 |---|---|
 | Pilot work | Started or Completed OK |
 | Formal searching | Started or Completed OK |
-| Screening | Started or Completed OK |
-| **Data extraction** | **Not started or Started ONLY** |
+| Screening | Started or Completed OK, but the manuscript then says "registered retrospectively" |
+| **Data extraction** | **Not started** |
 | Risk of bias | Not started |
 | Data synthesis | Not started |
 
-**CRITICAL**: If data extraction is "Completed", registration will be REJECTED.
-If protocol restructuring invalidates prior extraction → defensible to mark "Not started."
+**CRITICAL**: enter the actual stage of every step on the day of submission. Extraction that was
+later discarded or redone after a protocol change still started on the day it started; marking it
+"Not started" is an incorrect status, which is the stated ground for retracting the record.
+If extraction has already begun, the review is not eligible for PROSPERO: register it with a
+registry that accepts reviews already under way (for example OSF Registries), state the actual
+stage there, and write "registered retrospectively" in the manuscript.
 
 #### 20. Review status
 Usually: "The review is planned or ongoing"
@@ -205,7 +213,8 @@ Before submitting, verify:
 - [ ] **RoB tool**: JBI requires "Other" selection (not in standard list)
 - [ ] **Certainty/GRADE**: "No" unless explicitly planned with SoF table
 - [ ] **Funding text**: Matches actual funding status
-- [ ] **Data extraction stage**: Not marked as "Completed"
+- [ ] **Review stages**: every stage entered as it actually stands today; data extraction
+      genuinely not started (an AI first-pass extraction draft counts as started)
 - [ ] **Similar records**: All reviewed and confirmed "not similar"
 - [ ] **All authors**: Listed with correct ORCID and affiliation
 - [ ] **End date**: In the future (update if past)

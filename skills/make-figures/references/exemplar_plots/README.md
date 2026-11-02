@@ -39,6 +39,12 @@ the figure types that do not yet have a generator.
 - `forest_plot.md` — meta-analysis forest plot: per-study square-by-weight + CI, pooled diamond
   with the model named, prediction interval, I²/τ²/Q, no-pool discipline under extreme
   heterogeneity, subgroup-difference test, funnel/Egger only at k ≥ 10.
+- `funnel_plot.md` — meta-analysis funnel plot for small-study effects: effect on the analysis scale
+  against inverted SE, pooled-estimate line with the model named, pseudo 95% limits, **contour
+  shading for significance**, an asymmetry test matched to the measure (Harbord/Peters/Pustejovsky/
+  Egger) only at k ≥ 10 and, for OR/RR, only with 2×2 counts, trim-and-fill as sensitivity only;
+  asymmetry is small-study effects, not proof of publication bias. Deeks' funnel for DTA;
+  descriptive only for pooled proportions. Pairs `forest_plot.md`.
 - `external_validation_comparison.md` — performance across cohorts (internal vs external / by
   site·scanner·vendor·sequence) with the **honest drop**: forest/dumbbell, internal as reference,
   per-cohort N + bootstrap-BCa CI, Δ-from-internal annotation, subgroup/structure faceting, failed
@@ -83,6 +89,9 @@ the figure types that do not yet have a generator.
 - `confusion_matrix.md` — confusion matrix: TP/FP/FN/TN with explicit Predicted/Actual axes, raw
   counts AND row-normalized (recall) / column-normalized (precision) views, class-imbalance caveat,
   stated operating threshold, per-class metrics, multi-class macro-average. Pairs roc_pr.
+- `raincloud_plot.md` — continuous-outcome comparison: common-scale half-violins, every participant
+  point, median/IQR boxes, per-group denominators, and a design-aware contrast with its CI; density
+  is not sample size, and smoothing must not invent distributional features. Pairs `/analyze-stats`.
 - `clinical_timeline.md` — CARE case-report timeline: relative time axis, symptoms/tests/treatment/
   outcome lanes, index presentation marker, final follow-up endpoint, de-identification discipline,
   and annotated imaging-panel pairing when imaging is the teaching point. Pairs `write-paper`

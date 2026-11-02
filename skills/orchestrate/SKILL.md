@@ -125,7 +125,7 @@ below); N1–N11 are defined in `${CLAUDE_SKILL_DIR}/references/dialogue_nodes.m
 | **ICMJE COI batch (multi-author submission)** | `fill-icmje-coi` (per-author docx generation from synthetic seed) -> manual circulation | — |
 | **Medical-AI paper, AI-search visibility pass** | `self-review` -> `humanize` -> `academic-aio` (title, abstract, summary box, README / CITATION.cff / HF card) | N4, N9 (section entry for re-edit scope) |
 | **Reviewer comments received** | `revise` -> `analyze-stats` (if new analyses needed) -> `make-figures` (if new figures needed) | N1 |
-| **Meta-analysis from scratch** | `search-lit` -> `fulltext-retrieval` -> `meta-analysis` (handles its own pipeline internally) | N2 (MA type), N5 (synthesis scope) |
+| **Meta-analysis from scratch** | `meta-analysis` (handles its own pipeline: protocol, then a stop until the registration is submitted or the user records a choice to proceed without it, then the search via `search-lit` and full texts via `fulltext-retrieval`; do not run either before it, since `search-lit` selects papers and extracts results) | N2 (MA type), N5 (synthesis scope) |
 | **Grant writing** | `search-lit` -> `grant-builder` | N2 (option 5) |
 | **Conference presentation** | `present-paper` (handles its own pipeline internally) | N1 |
 | **New study, need IRB protocol** | `search-lit` -> `design-study` -> `calc-sample-size` -> `define-variables` -> `write-protocol` | N3, N2 (option 4 — protocol) |
@@ -221,8 +221,13 @@ When `--e2e` is passed (or the user says "end-to-end", "Arm A", or "fully autono
    `default` (from `dialogue_nodes.md`) and log the choice to `qc/_pipeline_log.md` as:
    `[orchestrate] N{id}: defaulted to option {n} ({label}) — {autonomous_rationale}`.
 6. DO still respect data-safety gates (PHI Safety Gate / node N6): if PHI status is
-   unknown, HALT the autonomous run with a single prompt. After pre-flight passes, PHI is
-   the only node that can interrupt autonomous mode.
+   unknown, HALT the autonomous run with a single prompt. After pre-flight passes, two
+   things can interrupt autonomous mode: PHI, and registration on a systematic-review chain.
+   `/meta-analysis` writes the protocol, then HALTs with `REGISTRATION_PENDING` before the
+   search unless the project records a registration submission date or the user's own choice
+   to proceed without one (its Phase 2 entry check). The
+   orchestrator never submits a registration and never defaults past this halt: screening or
+   extraction done before registration cannot be made prospective afterwards.
 7. Audit Recovery (node N8): auto-invoke the routed recovery skill. If the route itself
    fails validation twice, HALT with `RECOVERY_HALT_HUMAN_DECISION` in the log.
 8. AIO (academic-aio) is OFF by default in `--e2e`, because AI-search visibility is a

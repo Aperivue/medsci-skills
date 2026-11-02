@@ -2,7 +2,7 @@
 
 # deidentify
 
-> Use when clinical data may contain PHI and must be de-identified before any LLM-assisted analysis. A local Python script (no network or AI calls) detects identifiers with regex and heuristics in 11 country locale packs, with interactive terminal review.
+> Use when clinical data may contain PHI and must be de-identified before any LLM-assisted analysis. A local Python script (no network or AI calls) detects identifiers with regex and heuristics in 12 country locale packs, with interactive terminal review.
 
 **Invoke:** `/deidentify`
 
@@ -22,8 +22,8 @@
 
 **Known limitations**
 
-- Regex and heuristic detection across 11 country locale packs is not a substitute for expert disclosure review or an IRB determination.
-- PHI coverage is limited to the bundled locale packs (kr, us, jp, cn, de, uk, fr, ca, au, in, it).
+- Regex and heuristic detection across 12 country locale packs is not a substitute for expert disclosure review or an IRB determination.
+- PHI coverage is limited to the bundled locale packs (kr, us, jp, cn, de, uk, fr, ca, au, in, it, es).
 
 **Validation**
 

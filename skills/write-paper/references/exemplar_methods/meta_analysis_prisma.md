@@ -6,8 +6,10 @@ text. Pairs with `paper_types/meta_analysis.md` (which carries the fuller prose 
 this file is the paragraph-order skeleton and the reviewer-critical checklist.
 
 ## Protocol and registration
-- Prospective registration (PROSPERO `CRD[number]`) or an OSF/protocol reference, **lodged
-  before data extraction began** — state the registration date relative to the search.
+- Registration (PROSPERO `CRD[number]`) or an OSF/protocol reference, with its timing stated as
+  it happened, judged by the initial submission date: "prospectively registered" only when it
+  predated the start of screening, otherwise "registered retrospectively"; or "not registered".
+  An AI first-pass screen or extraction draft counts as the start of that step.
 - Adherence to PRISMA 2020 (name the base guideline *and* the extension used, e.g. PRISMA
   base + **PRISMA-DTA** for diagnostic accuracy, PRISMA-NMA for network — never just the
   extension acronym).

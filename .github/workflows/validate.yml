@@ -1316,7 +1316,9 @@ jobs:
   # paths (extraction, journal recovery, settings merge) the way that user's machine will. No
   # third-party packages are installed, because the installer must not need any.
   python-floor:
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to 26.04, which setup-python has no Python 3.9 build for, so the job
+    # failed at setup on every pull request without testing anything.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
