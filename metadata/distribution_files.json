@@ -1417,6 +1417,11 @@
       "sha256": "33a169e9458616cf3261019e3ffe8cd699901ab8fa2706cc4298b035b5edffe3"
     },
     {
+      "path": "skills/find-journal/references/journal_profiles/Applied_Clinical_Informatics.md",
+      "size": 1941,
+      "sha256": "5ffb400d1566bfba551560b4e10bb5bd4cf137dd5706752f4fb14c65f2759a29"
+    },
+    {
       "path": "skills/find-journal/references/journal_profiles/Artificial_Intelligence_in_Medicine.md",
       "size": 1554,
       "sha256": "1025d7b47de5cdc7f5ae43689774571e4c15711fc75714730fa91564c5fe2101"
@@ -6750,6 +6755,11 @@
       "path": "skills/write-paper/references/journal_profiles/Annals_of_Oncology.md",
       "size": 7859,
       "sha256": "5352cfac5c6a396c78fc506224371b5ee6fc69bdd26694d261ef299cf1dfab09"
+    },
+    {
+      "path": "skills/write-paper/references/journal_profiles/Applied_Clinical_Informatics.md",
+      "size": 15200,
+      "sha256": "a9f3589e2d272f2d2abbd3beecf501644203c50e34dcd7128e73f350fdbae045"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Artificial_Intelligence_in_Medicine.md",
