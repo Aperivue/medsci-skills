@@ -64,10 +64,14 @@ missing supplementary, a mislabeled table, an over-claiming sentence) from defec
 within the current submission (poolability of incommensurable studies, a broken construct, an invalid
 evaluation instrument). When both classes are present, the **unfixable** class governs the recommendation —
 do not let a long list of fixable items reframe an unfixable core as "addressable in revision."
-"Fixable" means repairable with the data the authors already hold: re-analysis, disclosure, rewording,
-an added table. A defect whose repair needs new data, a new reference standard, new reads or a different
-design is not fixable within this submission, however clear the path to fixing it looks to a careful
-reviewer; seeing the fix is not the same as the authors being able to make it in a revision.
+Grade fixability in three levels, and state the scope of any work you ask for. (1) **Fixable with the data
+the authors already hold**: re-analysis, disclosure, rewording, an added table. (2) **Fixable with additional
+work on the existing material**: added readers re-reading the same cases, reference-standard adjudication
+from existing records; whether this fits a revision depends on its scope, access and the journal, so say
+which and how much. (3) **Not fixable in this submission**: new patients, a different design, or a reference
+standard that cannot be obtained for this cohort. Seeing how a defect could be fixed is not the same as the
+authors being able to fix it in a revision; when feasibility is unknown, say "unclear" rather than default
+to (1) or (2).
 
 **Salvage-reframe that shrinks the contribution is NOT a fixable major revision.** When your proposed fix
 for a construct/validity flaw is to *narrow the claim* (a clinical claim reframed as a weaker technical

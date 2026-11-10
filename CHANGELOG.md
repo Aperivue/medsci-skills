@@ -4,14 +4,17 @@
 
 ### Fixed
 
-- **`/peer-review`, `/self-review`: three probe statements that pushed reviews the wrong way.**
+- **`/peer-review`, `/self-review`: probe statements that pushed reviews the wrong way.**
   `ai_overclaiming.md` AO2 advised reframing an unsupported "outperforms" as "comparable to"; a
   non-significant difference is not evidence of similarity, so it now asks for the difference with its
-  CI and reserves "comparable" for a pre-specified margin. `clinical_prediction_model.md` CP3 treated
-  EPV 10 as sufficient and penalization below it as the remedy; EPV is now a rough screen beside the
-  sample-size criteria for model development, counted over candidate parameters. CP6 called bootstrap
-  and cross-validation "not validation"; they are internal validation when every development step is
-  repeated per resample, and the overclaim is presenting them as external evidence.
+  CI and reserves "comparable" for a pre-specified margin. AO2 also no longer treats overlapping
+  marginal CIs or a small sample alone as grounds to flag. `clinical_prediction_model.md` CP3 treated
+  EPV 10 as sufficient and low-EPV subgroup models as necessarily descriptive; EPV is now a rough screen
+  beside the sample-size criteria for model development, counted over candidate parameters. CP6 called
+  bootstrap and cross-validation "not validation"; they are internal validation when every development
+  step is repeated per resample, and the overclaim is presenting them as external evidence. CP2 read a
+  null incremental-value result as "does not improve prediction" without asking whether its
+  uncertainty excludes a meaningful gain.
 
 ### Added
 
@@ -29,11 +32,11 @@
   to flag (exploratory analyses declared as such, sparse-data fallbacks, small calibration samples).
 - **`/peer-review`: editor block in four parts, with a provisional record.** The confidential
   block now gives the main claim, major issues ranked by their effect on it with a fixability call
-  (fixable with the authors' existing data / not fixable in this submission / unclear), the balance
-  of contribution and limitations, and a recommendation consistent with the fixability calls. A
-  provisional version is recorded after the first read; a change of recommendation in either
-  direction is logged with the new fact or corrected reasoning. `recommendation_calibration.md`
-  defines "fixable" as repairable with data the authors already hold.
+  (fixable with existing data / fixable with additional work on the existing material, scope
+  stated / not fixable in this submission / unclear), the balance of contribution and limitations,
+  and a recommendation consistent with the fixability calls. A provisional version is recorded after
+  the first read; a change of recommendation in either direction is logged with the new fact or
+  corrected reasoning. `recommendation_calibration.md` defines the three fixability levels.
 - **`/write-paper`, `/self-review`: comparison language and observed power.** The Discussion guide
   matches "superior", "non-inferior", "equivalent" and "comparable" to what the design supports;
   the Abstract guide keeps its purpose and conclusion aligned with the Introduction and Discussion;

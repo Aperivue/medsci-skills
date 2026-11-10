@@ -36,9 +36,10 @@ together they are the reviewer's calibration record.
 
 {100-150 words, in this order:
  (1) the manuscript's main claim, in one sentence;
- (2) the major issues ranked by their effect on that claim, each marked fixable with the data the
-     authors already hold (re-analysis, disclosure, rewording) / not fixable in this submission
-     (new data, a new reference standard, new reads, redesign) / unclear;
+ (2) the major issues ranked by their effect on that claim, each graded as in
+     `reviewer_calibration/recommendation_calibration.md`: fixable with existing data / fixable
+     with additional work on the existing material (state the scope) / not fixable in this
+     submission / unclear;
  (3) the balance of contribution against limitations, including strengths;
  (4) the recommendation, consistent with (2): an unfixable issue that undercuts the main claim
      governs it, unless a narrower contribution still stands on its own.}
