@@ -3933,8 +3933,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 49410,
-      "sha256": "1308a19f90fc7f31f80ec5d80133501c61bf979867724cd86cb262951e05588b"
+      "size": 49468,
+      "sha256": "5d57385ed7bc5e5999df0590e9ff1b66619a3999671b25254c9753edc5654f74"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3943,8 +3943,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/ai_overclaiming.md",
-      "size": 16735,
-      "sha256": "441c686b26297d89a0f19e53da829fa7ca37e4b7f4401e7cc790d5f0a0937fe0"
+      "size": 16991,
+      "sha256": "bd49626c2448c8f2838609a261a8828b280c3e2dcbc2750b9e12b10552077fe4"
     },
     {
       "path": "skills/peer-review/references/domain-probes/case_report.md",
@@ -3953,13 +3953,13 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 13274,
-      "sha256": "60402e3dac35e617584d50b821d24c3410ee4ccaf9bf3cc28a3c8917dc17845f"
+      "size": 13422,
+      "sha256": "7b09dc0b2d0d27def6b0ab76683a7be29fc88cd1f4234ee5f904783cf38768db"
     },
     {
       "path": "skills/peer-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 22342,
-      "sha256": "b966e6dc8706f6eb0fa1707c32eff34d57eb27230d939b84941706f8b74a5590"
+      "size": 22678,
+      "sha256": "d08a7c8e5c362cad85f526addbe9404b82841612f2e1d5e009e3dfab23af48ae"
     },
     {
       "path": "skills/peer-review/references/domain-probes/equity_fairness.md",
@@ -4998,8 +4998,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
-      "size": 16735,
-      "sha256": "441c686b26297d89a0f19e53da829fa7ca37e4b7f4401e7cc790d5f0a0937fe0"
+      "size": 16991,
+      "sha256": "bd49626c2448c8f2838609a261a8828b280c3e2dcbc2750b9e12b10552077fe4"
     },
     {
       "path": "skills/self-review/references/domain-probes/case_report.md",
@@ -5008,13 +5008,13 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 13274,
-      "sha256": "60402e3dac35e617584d50b821d24c3410ee4ccaf9bf3cc28a3c8917dc17845f"
+      "size": 13422,
+      "sha256": "7b09dc0b2d0d27def6b0ab76683a7be29fc88cd1f4234ee5f904783cf38768db"
     },
     {
       "path": "skills/self-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 22342,
-      "sha256": "b966e6dc8706f6eb0fa1707c32eff34d57eb27230d939b84941706f8b74a5590"
+      "size": 22678,
+      "sha256": "d08a7c8e5c362cad85f526addbe9404b82841612f2e1d5e009e3dfab23af48ae"
     },
     {
       "path": "skills/self-review/references/domain-probes/equity_fairness.md",
@@ -5204,7 +5204,7 @@
     {
       "path": "skills/self-review/references/phases/phase2_6_panel.md",
       "size": 10425,
-      "sha256": "4e470139a45dfcb5336da7a8f93fb859ea5af1fdb7c39950864fd2203366251f"
+      "sha256": "a27ada41080a3cb5cb66d6fa33acbcd50566fde3230c5bc7a28f6bf40b87c2b0"
     },
     {
       "path": "skills/self-review/references/phases/phase2_systematic_check.md",
