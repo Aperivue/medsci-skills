@@ -3953,13 +3953,13 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 13639,
-      "sha256": "b075de6275d1e0f7cbac356aa8da5208437e88d2ead77aff48fb72e36c964270"
+      "size": 14043,
+      "sha256": "7961e69a55a3431534cf0506f8902b184c5869857df4b3cd354f17ded1397a9f"
     },
     {
       "path": "skills/peer-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 22769,
-      "sha256": "99712ad63ec6ba86a08ae0a59120a8288637df2d22620e170b2a47cf697a2862"
+      "size": 22829,
+      "sha256": "c89820cbf404e4cb52baa58ba0efe7b397582fb7cc137fde26562af748d3c69a"
     },
     {
       "path": "skills/peer-review/references/domain-probes/equity_fairness.md",
@@ -5008,13 +5008,13 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 13639,
-      "sha256": "b075de6275d1e0f7cbac356aa8da5208437e88d2ead77aff48fb72e36c964270"
+      "size": 14043,
+      "sha256": "7961e69a55a3431534cf0506f8902b184c5869857df4b3cd354f17ded1397a9f"
     },
     {
       "path": "skills/self-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 22769,
-      "sha256": "99712ad63ec6ba86a08ae0a59120a8288637df2d22620e170b2a47cf697a2862"
+      "size": 22829,
+      "sha256": "c89820cbf404e4cb52baa58ba0efe7b397582fb7cc137fde26562af748d3c69a"
     },
     {
       "path": "skills/self-review/references/domain-probes/equity_fairness.md",
