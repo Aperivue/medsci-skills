@@ -81,7 +81,7 @@ A checklist for **diagnostic test accuracy (DTA) primary studies** — an index 
 
 **D15 — One metric chosen from many (histogram percentiles × sequences × readers)**:
 - When the index test is one of many candidate measures (histogram percentiles, several sequences or parameters, several readers or ROIs), ask which metric was primary and whether it was fixed in advance, whether every tested candidate is reported (a supplementary table suffices), how multiplicity was handled for the claim being made, what rationale supports the chosen metric, and whether it was confirmed in independent data. With 20 independent tests at α = 0.05, the chance of at least one "significant" result is about 64%.
-- Several metrics combined into a score or model make the study a prediction-model study: route to `clinical_prediction_model.md`.
+- When candidate measures are combined through a fitted model, co-apply `clinical_prediction_model.md` and distinguish development from validation. A fixed, pre-specified ratio or composite index stays in this diagnostic-accuracy framework; assess any data-driven construction or threshold choice under D3.
 - Severity: MAJOR when a post hoc selected metric is the headline and the selection is not disclosed; a transparently exploratory screen with all candidates reported is not a defect. Cross-link `model_development.md` MD2, `ai_overclaiming.md` AO5, `observational_confounding.md` O17.
 
 **Output template (D2 / D6 example)**:

@@ -91,7 +91,7 @@ not installed.
 
 ### Phase 2: Manuscript Analysis
 
-1. **Read the manuscript PDF** thoroughly — Abstract, Methods, Results, Discussion, Tables, Figures.
+1. **Read the manuscript PDF** thoroughly (all sections, Tables, Figures); then, before the detailed checks, write the provisional editor record at the top of `references/review_draft_template.md` (finalize it in Phase 3).
 2. **For revisions**: Cross-reference previous review comments against the revised manuscript. Do
    **not** trust the response letter's "we added / we changed X" at face value — the source of truth is
    the revised body. When you have both the author response and the revised manuscript as text/`.docx`,

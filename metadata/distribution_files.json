@@ -3933,8 +3933,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 49290,
-      "sha256": "cc3febc47d49486e104867dc8996e9a238864228a477c2f2b17088e93c3287c7"
+      "size": 49410,
+      "sha256": "1308a19f90fc7f31f80ec5d80133501c61bf979867724cd86cb262951e05588b"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3953,13 +3953,13 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 13063,
-      "sha256": "fb36ec5acb90a870ad464dac4d8eabe7a3184e59b8e0207fe0553f651e3f209d"
+      "size": 13274,
+      "sha256": "60402e3dac35e617584d50b821d24c3410ee4ccaf9bf3cc28a3c8917dc17845f"
     },
     {
       "path": "skills/peer-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 22166,
-      "sha256": "5a0a0945227f5db31de159130745adfb1dcb88807bc02c86397e237d3b31283c"
+      "size": 22342,
+      "sha256": "b966e6dc8706f6eb0fa1707c32eff34d57eb27230d939b84941706f8b74a5590"
     },
     {
       "path": "skills/peer-review/references/domain-probes/equity_fairness.md",
@@ -4103,8 +4103,8 @@
     },
     {
       "path": "skills/peer-review/references/review_draft_template.md",
-      "size": 3047,
-      "sha256": "234205742d92bc24401ecee13f46e132e7d7bf24794d4e3762cc0e8b06a8c4db"
+      "size": 3066,
+      "sha256": "36082224771207494be415907b74178536af3ca6285904ae48cc81efee44787b"
     },
     {
       "path": "skills/peer-review/references/reviewer_calibration/README.md",
@@ -5008,13 +5008,13 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 13063,
-      "sha256": "fb36ec5acb90a870ad464dac4d8eabe7a3184e59b8e0207fe0553f651e3f209d"
+      "size": 13274,
+      "sha256": "60402e3dac35e617584d50b821d24c3410ee4ccaf9bf3cc28a3c8917dc17845f"
     },
     {
       "path": "skills/self-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 22166,
-      "sha256": "5a0a0945227f5db31de159130745adfb1dcb88807bc02c86397e237d3b31283c"
+      "size": 22342,
+      "sha256": "b966e6dc8706f6eb0fa1707c32eff34d57eb27230d939b84941706f8b74a5590"
     },
     {
       "path": "skills/self-review/references/domain-probes/equity_fairness.md",

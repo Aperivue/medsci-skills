@@ -11,8 +11,8 @@ Confidential-to-Editor block carries the recommendation and must never reach the
 Verify the split on the rendered proof, not on this draft — the portal's two free-text
 boxes are adjacent and unvalidated.
 
-**Provisional editor record.** After the first full read, and before the detailed Phase 2
-checks, write elements (1), (2) and (4) of the editor block below as a provisional record in
+**Provisional editor record** (Phase 2 step 1 sends you here before the detailed checks). After
+the first full read, write elements (1), (2) and (4) of the editor block below as a provisional record in
 `work/` (a fixability call may be "unclear" at this point). Finalize the block after
 verification. If the final recommendation differs from the provisional one, in either direction,
 add one line to the record naming the new fact or the corrected reasoning. Keep both versions:
