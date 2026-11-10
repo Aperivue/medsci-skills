@@ -3933,8 +3933,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 49468,
-      "sha256": "5d57385ed7bc5e5999df0590e9ff1b66619a3999671b25254c9753edc5654f74"
+      "size": 49661,
+      "sha256": "6594ae48b8d40064cf7f56c10cd9b0ece35c7643e506f8f3b13802ecb3321de1"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3953,13 +3953,13 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 13422,
-      "sha256": "7b09dc0b2d0d27def6b0ab76683a7be29fc88cd1f4234ee5f904783cf38768db"
+      "size": 13639,
+      "sha256": "b075de6275d1e0f7cbac356aa8da5208437e88d2ead77aff48fb72e36c964270"
     },
     {
       "path": "skills/peer-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 22678,
-      "sha256": "d08a7c8e5c362cad85f526addbe9404b82841612f2e1d5e009e3dfab23af48ae"
+      "size": 22769,
+      "sha256": "99712ad63ec6ba86a08ae0a59120a8288637df2d22620e170b2a47cf697a2862"
     },
     {
       "path": "skills/peer-review/references/domain-probes/equity_fairness.md",
@@ -4043,8 +4043,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/sr_ma.md",
-      "size": 22832,
-      "sha256": "9a49b7978e259631cc7957f546092dd759b1b4e18486ca46c11d8c314c36d7d5"
+      "size": 22905,
+      "sha256": "fda58b8530b62ef88d09f943611c3e1834901b84d9d70d8977d81086e8abcd5d"
     },
     {
       "path": "skills/peer-review/references/domain-probes/survey_research.md",
@@ -5008,13 +5008,13 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 13422,
-      "sha256": "7b09dc0b2d0d27def6b0ab76683a7be29fc88cd1f4234ee5f904783cf38768db"
+      "size": 13639,
+      "sha256": "b075de6275d1e0f7cbac356aa8da5208437e88d2ead77aff48fb72e36c964270"
     },
     {
       "path": "skills/self-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 22678,
-      "sha256": "d08a7c8e5c362cad85f526addbe9404b82841612f2e1d5e009e3dfab23af48ae"
+      "size": 22769,
+      "sha256": "99712ad63ec6ba86a08ae0a59120a8288637df2d22620e170b2a47cf697a2862"
     },
     {
       "path": "skills/self-review/references/domain-probes/equity_fairness.md",
@@ -5098,8 +5098,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/sr_ma.md",
-      "size": 22832,
-      "sha256": "9a49b7978e259631cc7957f546092dd759b1b4e18486ca46c11d8c314c36d7d5"
+      "size": 22905,
+      "sha256": "fda58b8530b62ef88d09f943611c3e1834901b84d9d70d8977d81086e8abcd5d"
     },
     {
       "path": "skills/self-review/references/domain-probes/survey_research.md",
