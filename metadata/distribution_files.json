@@ -3933,8 +3933,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 49290,
-      "sha256": "cddc6a8b6a4b7e73c94de9bfd038526530e763e8034ffac0331efdb47849f8c1"
+      "size": 49661,
+      "sha256": "6594ae48b8d40064cf7f56c10cd9b0ece35c7643e506f8f3b13802ecb3321de1"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3943,8 +3943,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/ai_overclaiming.md",
-      "size": 15829,
-      "sha256": "fc7ec96f3976af91eb99877f6beb417d497652fe6ea68dd7a37a5656b10b99fe"
+      "size": 16991,
+      "sha256": "bd49626c2448c8f2838609a261a8828b280c3e2dcbc2750b9e12b10552077fe4"
     },
     {
       "path": "skills/peer-review/references/domain-probes/case_report.md",
@@ -3953,13 +3953,13 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 7928,
-      "sha256": "3e830afd9b5aee9dd4f491702d38e5ca0d96672221d612b79e365d3dc1776e0d"
+      "size": 14043,
+      "sha256": "7961e69a55a3431534cf0506f8902b184c5869857df4b3cd354f17ded1397a9f"
     },
     {
       "path": "skills/peer-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 14885,
-      "sha256": "2d4351fba4362a58f7ba4956ce1e9aa530a3604f8afe35a41f541beb394f0129"
+      "size": 22829,
+      "sha256": "c89820cbf404e4cb52baa58ba0efe7b397582fb7cc137fde26562af748d3c69a"
     },
     {
       "path": "skills/peer-review/references/domain-probes/equity_fairness.md",
@@ -4043,8 +4043,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/sr_ma.md",
-      "size": 20878,
-      "sha256": "193cf17d3a95665f2a555601b7b3e757d06c55830d52f406ee6fc79f5c178984"
+      "size": 22905,
+      "sha256": "fda58b8530b62ef88d09f943611c3e1834901b84d9d70d8977d81086e8abcd5d"
     },
     {
       "path": "skills/peer-review/references/domain-probes/survey_research.md",
@@ -4103,8 +4103,8 @@
     },
     {
       "path": "skills/peer-review/references/review_draft_template.md",
-      "size": 1792,
-      "sha256": "94cfb6369b3ba17da0ba18361d189b479a84033e77d4aa8ef28725371e0baf2d"
+      "size": 3066,
+      "sha256": "36082224771207494be415907b74178536af3ca6285904ae48cc81efee44787b"
     },
     {
       "path": "skills/peer-review/references/reviewer_calibration/README.md",
@@ -4118,8 +4118,8 @@
     },
     {
       "path": "skills/peer-review/references/reviewer_calibration/recommendation_calibration.md",
-      "size": 7118,
-      "sha256": "63bbef5b05b9fb31794e0942062147bd845001ae0ccfdd95f2909e1c2ec902e1"
+      "size": 8081,
+      "sha256": "96c404a329a53b5515dfcd8f56f26d560fad3c5ab9ef911fe0be5bd2ebfa4836"
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/AJR.md",
@@ -4994,12 +4994,12 @@
     {
       "path": "skills/self-review/SKILL.md",
       "size": 48300,
-      "sha256": "dca8eb084221f023c28c641434699f4877eae2ef76d4bde526a5f1ac796fc0f7"
+      "sha256": "12d6f648e7a4770b49bac295e9833923b45adcd96a839b3e440a65b3bc34a31f"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
-      "size": 15829,
-      "sha256": "fc7ec96f3976af91eb99877f6beb417d497652fe6ea68dd7a37a5656b10b99fe"
+      "size": 16991,
+      "sha256": "bd49626c2448c8f2838609a261a8828b280c3e2dcbc2750b9e12b10552077fe4"
     },
     {
       "path": "skills/self-review/references/domain-probes/case_report.md",
@@ -5008,13 +5008,13 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 7928,
-      "sha256": "3e830afd9b5aee9dd4f491702d38e5ca0d96672221d612b79e365d3dc1776e0d"
+      "size": 14043,
+      "sha256": "7961e69a55a3431534cf0506f8902b184c5869857df4b3cd354f17ded1397a9f"
     },
     {
       "path": "skills/self-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 14885,
-      "sha256": "2d4351fba4362a58f7ba4956ce1e9aa530a3604f8afe35a41f541beb394f0129"
+      "size": 22829,
+      "sha256": "c89820cbf404e4cb52baa58ba0efe7b397582fb7cc137fde26562af748d3c69a"
     },
     {
       "path": "skills/self-review/references/domain-probes/equity_fairness.md",
@@ -5098,8 +5098,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/sr_ma.md",
-      "size": 20878,
-      "sha256": "193cf17d3a95665f2a555601b7b3e757d06c55830d52f406ee6fc79f5c178984"
+      "size": 22905,
+      "sha256": "fda58b8530b62ef88d09f943611c3e1834901b84d9d70d8977d81086e8abcd5d"
     },
     {
       "path": "skills/self-review/references/domain-probes/survey_research.md",
@@ -5173,8 +5173,8 @@
     },
     {
       "path": "skills/self-review/references/phases/phase2_5a2_design_power.md",
-      "size": 4310,
-      "sha256": "de68080a1d7987ea835e93475fd01b809c1750d4c9e242fcbf4f94d63d98d74e"
+      "size": 4970,
+      "sha256": "eaa791164d8d8e42fc3cfdf493eeee21fd4be3293ebf44ac517789e9ee39066c"
     },
     {
       "path": "skills/self-review/references/phases/phase2_5a_source_fidelity.md",
@@ -5204,7 +5204,7 @@
     {
       "path": "skills/self-review/references/phases/phase2_6_panel.md",
       "size": 10425,
-      "sha256": "4e470139a45dfcb5336da7a8f93fb859ea5af1fdb7c39950864fd2203366251f"
+      "sha256": "a27ada41080a3cb5cb66d6fa33acbcd50566fde3230c5bc7a28f6bf40b87c2b0"
     },
     {
       "path": "skills/self-review/references/phases/phase2_systematic_check.md",
@@ -7123,8 +7123,8 @@
     },
     {
       "path": "skills/write-paper/references/section_guides/discussion.md",
-      "size": 6787,
-      "sha256": "4fa8628a6321880ddb80054548912d6cdb5786a5cddef7c1a5a0f75898033564"
+      "size": 7383,
+      "sha256": "908b932a98b4fe6fc77e3bac07d204c5e8727f2c15aeebb0dffef9282f3c81b6"
     },
     {
       "path": "skills/write-paper/references/section_guides/introduction.md",
@@ -7153,8 +7153,8 @@
     },
     {
       "path": "skills/write-paper/references/section_guides/title_abstract.md",
-      "size": 7244,
-      "sha256": "064699fc03ffd2b203da2b9b5a4840dc92a4cf9927d87105cd3b846a2b4083d7"
+      "size": 7708,
+      "sha256": "5bd996d0b688d850547af79b491ffe186e2633546b5acb96f24ab6568d979406"
     },
     {
       "path": "skills/write-paper/references/section_templates/methods_statistical.md",

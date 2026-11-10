@@ -6,9 +6,9 @@
        - self-review: Anticipated Major / Minor Comments (Fatal / Fixable) mapped to category letters.
      Do NOT edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`. -->
 
-# Systematic Review / Meta-Analysis probes (P0–P19)
+# Systematic Review / Meta-Analysis probes (P0–P20)
 
-Internal-consistency-first gate (P0) plus a 19-probe checklist (P1–P19). These probes complement (do not replace) the generic Phase 2 issue checklist.
+Internal-consistency-first gate (P0) plus a 20-probe checklist (P1–P20). These probes complement (do not replace) the generic Phase 2 issue checklist.
 
 **P0 — Internal-consistency-first gate (run before P1; gates any fabrication claim)**:
 - Before alleging fabrication on a manuscript that "feels AI-generated", reproduce the headline pooled statistics, paired study counts (k), and subgroup counts directly from the extracted data table (or supplement included-studies table).
@@ -83,6 +83,7 @@ Internal-consistency-first gate (P0) plus a 19-probe checklist (P1–P19). These
 - Cross-check the **figure-generating data matrix** (the R/Python script that draws the traffic-light) against the **supplementary RoB table** cell-by-cell. A transcription drift between the two surfaces as a figure-vs-table mismatch even when each row's printed total looks fine.
 - The single source of truth is the **primary reviewer assessment form** (the filled extraction/appraisal sheet), not a value hardcoded in a plotting script. When they disagree, regenerate the figure from the assessment form and re-derive the table; then re-sync the table, caption, and any prose sentence that names per-item losses.
 - Severity: a row-sum vs total mismatch (or figure vs table mismatch) in a submitted artifact is MAJOR (it reads as a data-handling error). Motivating case: an NOS figure drew one study with seven stars but labeled it 6/9 because the plotting script's comparability cell contradicted the primary appraisal form.
+- Beyond reconciliation, the text should say which risk-of-bias and applicability domains were most often high or unclear and what that means for the pooled estimates; a traffic-light figure alone leaves the reader to infer it. Missing interpretation alone is MINOR. Do not sum QUADAS-2 domains into a score.
 
 **P13 — Included-study ↔ reference-list completeness**:
 - In an SR/MA, **every study in the characteristics table (Table 1) must be cited as a numbered reference.** A manuscript that lists included studies only as "First-author Year" labels in Table 1, while the reference list holds only methodology/guideline citations, will draw an "included studies not cited" reviewer flag.
@@ -121,6 +122,12 @@ Internal-consistency-first gate (P0) plus a 19-probe checklist (P1–P19). These
 - Beyond value-matches-source (P1), check three extraction pathologies: **(a) metric-type identity** — an `accuracy` or a *different task's* AUC tabulated AS the target AUC (accuracy ↔ AUC ↔ sens/spec are not interchangeable); **(b) self-eligibility contradiction** — an extracted metric/design that violates the review's OWN stated inclusion rule (e.g. an accuracy-only study the eligibility text excludes, entered anyway); **(c) CI provenance** — a CI present in the MA table that **does not exist in the source** ("derived from the point estimate and sample size" is not a valid route to an AUC CI).
 - Also flag validation-type / analysis-unit mislabels (5-fold CV recorded as train/validation; N scans counted as N patients). Absence of a per-study 2×2 / sens–spec table is itself a PRISMA-DTA reporting MAJOR.
 - Lead: sample K OA included studies; per study confirm metric TYPE + value + that the extracted design satisfies the paper's own eligibility + that any tabled CI appears in the source. Severity scales with the sampled error rate.
+
+**P20 — DTA pooling model and threshold effect**:
+- Sensitivity and specificity from the same studies are correlated and may trade off across thresholds. The default synthesis is a bivariate random-effects model (or the equivalent HSROC model), which also yields the summary ROC curve; separate univariate pooling of sensitivity and specificity ignores that correlation. A univariate logistic random-effects fallback is acceptable when the bivariate model is not estimable (few studies, sparse cells, non-convergence), provided the paper says so and why, as `/meta-analysis` also allows. Do not assert that univariate pooling always gives narrower intervals.
+- Heterogeneity in a DTA review is not captured by I² for each margin alone. Judge a threshold effect from what the studies actually used (the explicit thresholds, and whether the study points fall along an ROC-shaped curve in SROC space), not from a significance test. A Spearman correlation between sensitivity and false-positive rate (positive under a threshold effect; equivalently, negative between sensitivity and specificity) is descriptive: its absence does not exclude a threshold effect and its presence does not prove one.
+- Check that within-study choices were pre-specified: which threshold, reader or analysis unit was taken when a study reported several, and how indeterminate results were handled (cross-link P2, P11, `diagnostic_accuracy.md` D4).
+- Severity: first ask for the rationale and model diagnostics. MAJOR when the chosen synthesis is inappropriate for the data or the undescribed threshold or reader selection could materially change the conclusions; MINOR when an appropriate fallback or selection rule is simply unexplained.
 
 **Output template (P1 cell-swap example)**:
 > "I spot-checked [Author Year] (PMID [...]) against the source paper and found that the values in Figure X are swapped. The source paper reports external-test sensitivity A% / specificity B% (n=N); the manuscript forest entries place [num1/denom1] in the sensitivity slot (which is the source's specificity numerator/denominator) and [num2/denom2] in the specificity slot (which is the source's sensitivity)."
