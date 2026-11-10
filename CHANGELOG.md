@@ -2,6 +2,43 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **`/peer-review`, `/self-review`: three probe statements that pushed reviews the wrong way.**
+  `ai_overclaiming.md` AO2 advised reframing an unsupported "outperforms" as "comparable to"; a
+  non-significant difference is not evidence of similarity, so it now asks for the difference with its
+  CI and reserves "comparable" for a pre-specified margin. `clinical_prediction_model.md` CP3 treated
+  EPV 10 as sufficient and penalization below it as the remedy; EPV is now a rough screen beside the
+  sample-size criteria for model development, counted over candidate parameters. CP6 called bootstrap
+  and cross-validation "not validation"; they are internal validation when every development step is
+  repeated per resample, and the overclaim is presenting them as external evidence.
+
+### Added
+
+- **`/peer-review`, `/self-review`: new diagnostic-accuracy, prediction-model and DTA meta-analysis
+  probes.** D13 (the test's role in the pathway decides the metric and comparison that can carry the
+  claim), D14 (a significant group difference is not diagnostic performance; judge differences
+  against measurement error in units, not ICC), D15 (one metric chosen from many candidates);
+  CP7 (prediction claim supported only by association statistics), CP8 (univariable screening,
+  stepwise selection, data-driven dichotomisation, complete-case exclusion, table-versus-model
+  mismatch, reporting completeness versus risk of bias); P20 (bivariate/HSROC pooling with a stated
+  univariate fallback, threshold effect judged from thresholds and SROC shape rather than a test).
+  D3 now covers thresholds of any quantitative index test, D6 adds "not significant is not
+  equivalent" and observed power, D8 adds Methods-promised versus Results-reported, CP1 adds
+  Hosmer–Lemeshow, P12 adds interpretation of risk-of-bias domains. Each new probe states when not
+  to flag (exploratory analyses declared as such, sparse-data fallbacks, small calibration samples).
+- **`/peer-review`: editor block in four parts, with a provisional record.** The confidential
+  block now gives the main claim, major issues ranked by their effect on it with a fixability call
+  (fixable with the authors' existing data / not fixable in this submission / unclear), the balance
+  of contribution and limitations, and a recommendation consistent with the fixability calls. A
+  provisional version is recorded after the first read; a change of recommendation in either
+  direction is logged with the new fact or corrected reasoning. `recommendation_calibration.md`
+  defines "fixable" as repairable with data the authors already hold.
+- **`/write-paper`, `/self-review`: comparison language and observed power.** The Discussion guide
+  matches "superior", "non-inferior", "equivalent" and "comparable" to what the design supports;
+  the Abstract guide keeps its purpose and conclusion aligned with the Introduction and Discussion;
+  Phase 2.5a-2 flags observed power used to argue "no difference".
+
 ## [6.2.0] - 2026-11-01
 
 **Re-check de-identified data:** with 6.1.0, `/deidentify` could write an original identifier to the output and the audit log when source IDs already had the shape of its replacements (an MRN such as `ID0002`), and in a table that repeated a column name the earlier of those columns was dropped without review. Re-run `/deidentify` on such inputs (#701, #704).

@@ -60,3 +60,11 @@ primary-model covariates → Major (P0 when the MDE is a headline). This is `req
 (re-simulate, not a prose edit). **`POWER_VALUE_INTERPOLATED`** — any `interpolat`/`approx`/`interp`
 token in a power/MDE CSV's provenance column means the headline value was never simulated on the
 grid; treat a non-reproducible headline power/MDE as Major.
+
+**Post hoc (observed) power cannot support "no difference".** Power computed from the
+observed effect size is a one-to-one transformation of the P value: a non-significant result always has
+low observed power, so quoting it to argue "no difference" or "adequately powered" adds no information.
+Flag it and ask for the confidence interval of the difference instead (and, for a similarity claim, a
+pre-specified margin). Power or minimum-detectable-effect calculations that use an effect size justified
+independently of the observed result (a planning value, a sensitivity analysis over plausible effects)
+are legitimate and are audited by the procedure above.

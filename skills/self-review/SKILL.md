@@ -158,7 +158,7 @@ whose row matches:
 
 | Manuscript type / signal | Probe module |
 |---|---|
-| Systematic Review / Meta-Analysis | `references/domain-probes/sr_ma.md` (P0–P19) |
+| Systematic Review / Meta-Analysis | `references/domain-probes/sr_ma.md` (P0–P20) |
 | Time-to-event / survival / prognostic model (Cox, Fine-Gray, DeepSurv, nomogram, risk-stratification cutoff) | `references/domain-probes/survival_prognostic.md` (S1–S9) |
 | Radiomic feature reproducibility / acquisition-parameter sweep / reliability-based feature filtering | `references/domain-probes/radiomics.md` (R1–R4) |
 | Cross-modality image synthesis (MRI→PET / MRI→CT / non-contrast→contrast / low-dose→full-dose) claiming functional/molecular information or target-modality substitution | `references/domain-probes/image_synthesis.md` (IS1–IS4) |
@@ -168,7 +168,7 @@ whose row matches:
 | Engineer-built medical-imaging model (segmentation / classification / detection) being validated — partition/leakage, seed & run variance, metric selection, reproducibility, reference-standard quality; plus saliency faithfulness, uncertainty/OOD/abstention and deployment feasibility when a clinical-use claim is made | `references/domain-probes/model_development.md` (MD0–MD11) |
 | LLM / MLLM evaluated on a clinical task (report generation, VQA, clinical text extraction/classification; closed API or open weights) | `references/domain-probes/mllm_evaluation.md` (ME0–ME8) |
 | Randomised controlled trial (parallel / crossover / cluster / stepped-wedge) | `references/domain-probes/rct_trial.md` (RC0–RC7) |
-| Diagnostic test accuracy (DTA) primary study / multi-reader multi-case (MRMC) reader study (AI-vs-reader, AI-assisted reading, modality comparison) | `references/domain-probes/diagnostic_accuracy.md` (D1–D12) |
+| Diagnostic test accuracy (DTA) primary study / multi-reader multi-case (MRMC) reader study (AI-vs-reader, AI-assisted reading, modality comparison) | `references/domain-probes/diagnostic_accuracy.md` (D1–D15) |
 | Case report / case series (incl. adverse-event/pharmacovigilance and imaging-led radiology/nuclear-medicine/IR reports) | `references/domain-probes/case_report.md` (CR1–CR9) |
 | AI/ML, prediction, or diagnostic study claiming cross-population performance, or presenting subgroup analyses as a fairness/equity argument | `references/domain-probes/equity_fairness.md` (EQ0–EQ6) |
 | Mendelian randomization (two-sample, one-sample, multivariable, drug-target / cis-MR, non-linear MR) | `references/domain-probes/mendelian_randomization.md` (MR1–MR8) |

@@ -3934,7 +3934,7 @@
     {
       "path": "skills/peer-review/SKILL.md",
       "size": 49290,
-      "sha256": "cddc6a8b6a4b7e73c94de9bfd038526530e763e8034ffac0331efdb47849f8c1"
+      "sha256": "cc3febc47d49486e104867dc8996e9a238864228a477c2f2b17088e93c3287c7"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3943,8 +3943,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/ai_overclaiming.md",
-      "size": 15829,
-      "sha256": "fc7ec96f3976af91eb99877f6beb417d497652fe6ea68dd7a37a5656b10b99fe"
+      "size": 16236,
+      "sha256": "7b43af16e220847843ecb77132fee0a8375e44719ee0ac4fdc2e012eebec59d9"
     },
     {
       "path": "skills/peer-review/references/domain-probes/case_report.md",
@@ -3953,13 +3953,13 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 7928,
-      "sha256": "3e830afd9b5aee9dd4f491702d38e5ca0d96672221d612b79e365d3dc1776e0d"
+      "size": 12228,
+      "sha256": "28d636c8895c1c66a299e845467b225279523f9defea63eb88ed873cbb4d4060"
     },
     {
       "path": "skills/peer-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 14885,
-      "sha256": "2d4351fba4362a58f7ba4956ce1e9aa530a3604f8afe35a41f541beb394f0129"
+      "size": 21672,
+      "sha256": "cada5036e2cb323d8edd36236ca8040233faa06d02bf474fb2d507d93c22ee88"
     },
     {
       "path": "skills/peer-review/references/domain-probes/equity_fairness.md",
@@ -4043,8 +4043,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/sr_ma.md",
-      "size": 20878,
-      "sha256": "193cf17d3a95665f2a555601b7b3e757d06c55830d52f406ee6fc79f5c178984"
+      "size": 22832,
+      "sha256": "9a49b7978e259631cc7957f546092dd759b1b4e18486ca46c11d8c314c36d7d5"
     },
     {
       "path": "skills/peer-review/references/domain-probes/survey_research.md",
@@ -4103,8 +4103,8 @@
     },
     {
       "path": "skills/peer-review/references/review_draft_template.md",
-      "size": 1792,
-      "sha256": "94cfb6369b3ba17da0ba18361d189b479a84033e77d4aa8ef28725371e0baf2d"
+      "size": 2794,
+      "sha256": "327abd4779bec7c04219495956dc40eba8b5be7024e44d1fe9445638f68e8e6d"
     },
     {
       "path": "skills/peer-review/references/reviewer_calibration/README.md",
@@ -4118,8 +4118,8 @@
     },
     {
       "path": "skills/peer-review/references/reviewer_calibration/recommendation_calibration.md",
-      "size": 7118,
-      "sha256": "63bbef5b05b9fb31794e0942062147bd845001ae0ccfdd95f2909e1c2ec902e1"
+      "size": 7520,
+      "sha256": "aa5f25534507210d398b4afb23992105852078554ec82914b79a4d6e5720b82c"
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/AJR.md",
@@ -4994,12 +4994,12 @@
     {
       "path": "skills/self-review/SKILL.md",
       "size": 48300,
-      "sha256": "dca8eb084221f023c28c641434699f4877eae2ef76d4bde526a5f1ac796fc0f7"
+      "sha256": "12d6f648e7a4770b49bac295e9833923b45adcd96a839b3e440a65b3bc34a31f"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
-      "size": 15829,
-      "sha256": "fc7ec96f3976af91eb99877f6beb417d497652fe6ea68dd7a37a5656b10b99fe"
+      "size": 16236,
+      "sha256": "7b43af16e220847843ecb77132fee0a8375e44719ee0ac4fdc2e012eebec59d9"
     },
     {
       "path": "skills/self-review/references/domain-probes/case_report.md",
@@ -5008,13 +5008,13 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 7928,
-      "sha256": "3e830afd9b5aee9dd4f491702d38e5ca0d96672221d612b79e365d3dc1776e0d"
+      "size": 12228,
+      "sha256": "28d636c8895c1c66a299e845467b225279523f9defea63eb88ed873cbb4d4060"
     },
     {
       "path": "skills/self-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 14885,
-      "sha256": "2d4351fba4362a58f7ba4956ce1e9aa530a3604f8afe35a41f541beb394f0129"
+      "size": 21672,
+      "sha256": "cada5036e2cb323d8edd36236ca8040233faa06d02bf474fb2d507d93c22ee88"
     },
     {
       "path": "skills/self-review/references/domain-probes/equity_fairness.md",
@@ -5098,8 +5098,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/sr_ma.md",
-      "size": 20878,
-      "sha256": "193cf17d3a95665f2a555601b7b3e757d06c55830d52f406ee6fc79f5c178984"
+      "size": 22832,
+      "sha256": "9a49b7978e259631cc7957f546092dd759b1b4e18486ca46c11d8c314c36d7d5"
     },
     {
       "path": "skills/self-review/references/domain-probes/survey_research.md",
@@ -5173,8 +5173,8 @@
     },
     {
       "path": "skills/self-review/references/phases/phase2_5a2_design_power.md",
-      "size": 4310,
-      "sha256": "de68080a1d7987ea835e93475fd01b809c1750d4c9e242fcbf4f94d63d98d74e"
+      "size": 4970,
+      "sha256": "eaa791164d8d8e42fc3cfdf493eeee21fd4be3293ebf44ac517789e9ee39066c"
     },
     {
       "path": "skills/self-review/references/phases/phase2_5a_source_fidelity.md",
@@ -7123,8 +7123,8 @@
     },
     {
       "path": "skills/write-paper/references/section_guides/discussion.md",
-      "size": 6787,
-      "sha256": "4fa8628a6321880ddb80054548912d6cdb5786a5cddef7c1a5a0f75898033564"
+      "size": 7383,
+      "sha256": "908b932a98b4fe6fc77e3bac07d204c5e8727f2c15aeebb0dffef9282f3c81b6"
     },
     {
       "path": "skills/write-paper/references/section_guides/introduction.md",
@@ -7153,8 +7153,8 @@
     },
     {
       "path": "skills/write-paper/references/section_guides/title_abstract.md",
-      "size": 7244,
-      "sha256": "064699fc03ffd2b203da2b9b5a4840dc92a4cf9927d87105cd3b846a2b4083d7"
+      "size": 7708,
+      "sha256": "5bd996d0b688d850547af79b491ffe186e2633546b5acb96f24ab6568d979406"
     },
     {
       "path": "skills/write-paper/references/section_templates/methods_statistical.md",
