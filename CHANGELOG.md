@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [6.3.0] - 2026-11-10
+
+**Re-check one review suggestion:** before 6.3.0, `/peer-review` and `/self-review` (probe AO2) suggested rewording an unsupported "outperforms" as "comparable to". A non-significant difference is not evidence of similarity, so a review or manuscript drafted with an earlier version that carries that wording should report the difference with its CI instead, and keep "comparable" for a pre-specified margin.
+
 ### Fixed
 
 - **`/peer-review`, `/self-review`: probe statements that pushed reviews the wrong way.**
