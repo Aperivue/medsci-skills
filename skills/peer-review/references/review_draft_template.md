@@ -24,7 +24,7 @@ together they are the reviewer's calibration record.
 **Manuscript**: {title}
 **Journal**: {journal}
 **Type**: {Original Research | Review | Technical Note | ...}
-**Recommendation**: {Major Revision | Minor Revision}
+**Recommendation**: {the journal's own options, e.g. Accept | Minor Revision | Major Revision | Reject & resubmit | Reject}
 
 ---
 
@@ -58,7 +58,7 @@ Major strengths:
 2. {Specific strength}
 3. {Specific strength (optional)}
 
-{Scope + feasibility: 1-2 sentences — "I have suggestions focused on [areas]. Achievable within existing data."}
+{Scope + feasibility: 1-2 sentences — "I have suggestions focused on [areas]." Describe feasibility from the fixability grades in the editor block (for example, "most can be addressed with the existing data; point 2 would need [additional work]"), not as a stock phrase.}
 
 (80-150 words total)
 
