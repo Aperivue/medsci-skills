@@ -10,7 +10,7 @@
 - **Impact Factor**: 2.7 (JCR 2025)
 - **Open Access**: Hybrid — subscription journal with an optional article processing charge for open access; AMIA members receive a 50% discount on open-access fees and journal reviewers receive 15%. There are no submission charges. All articles are sent to PubMed Central, with a 12-month embargo before free full text is available unless the open-access option is chosen.
 - **Acceptance rate**: Not published in the author guidelines
-- **Peer review**: Double-anonymized (double-blinded) — authors submit an anonymized version for review and a non-anonymized version for publication; the Managing Editor checks blinding before peer review and returns inadequately blinded papers without review.
+- **Peer review**: Double-anonymized (double-blinded) — at initial submission, authors submit an anonymized version for review and a non-anonymized version for publication; the Managing Editor checks blinding before peer review and returns inadequately blinded papers without review.
 
 ## Manuscript Types and Word Limits
 
@@ -38,7 +38,7 @@ Structured abstract, on a separate page, up to 300 words (250 words for Brief Sc
 
 ## Required Sections (Original Article)
 
-Research papers are organized into the following, in order:
+Research papers are organized into the following, in order. The instructions give two orders for the back matter: the manuscript-format paragraph lists Clinical Relevance Statement, Acknowledgments, Conflict of Interest, Human Subjects Protections, Multiple Choice Questions, References, while the Acknowledgments section places Acknowledgments immediately after Protection of Human and Animal Subjects. The list below follows the Acknowledgments section; confirm the order at submission.
 
 1. **Title page** — concise and informative title; author list with affiliations; corresponding-author section with name, institution, address, country, ORCID, and email. The submitting author must provide an ORCID; other authors are recommended to link theirs.
 2. **Abstract** — structured, as above.
@@ -58,7 +58,7 @@ Research papers are organized into the following, in order:
 16. **Figure captions** — written after the reference list, with a page break between references and captions; figures themselves are uploaded as separate files, never embedded in the manuscript.
 17. **Tables** — placed after the figure captions as Word tables, double-spaced, numbered in citation order, with a short descriptive title; table data should be commented on but not repeated in the text.
 
-Manuscript format: double-spaced, 12-point Times New Roman, 1-inch margins, American English, SI units (nonmetric equivalents in parentheses where helpful), generic drug names, no vendor-specific language. ACI's style guide reserves the word "impact" for collisions of bodies of mass — use "effect" or "affect" instead. Blinding: mask all identifying information (author names/initials, institutions/sites, self-citations framed as the authors' own work, traceable funding numbers) by replacing it with "XXX", and submit both an anonymized and a non-anonymized version identical in content apart from the masking.
+Manuscript format: double-spaced, 12-point Times New Roman, 1-inch margins, American English, SI units (nonmetric equivalents in parentheses where helpful), generic drug names, no vendor-specific language. ACI's style guide reserves the word "impact" for collisions of bodies of mass — use "effect" or "affect" instead. Blinding: mask all identifying information (author names/initials, institutions/sites, self-citations framed as the authors' own work, traceable funding numbers) by replacing it with "XXX", and, at initial submission, submit both an anonymized and a non-anonymized version identical in content apart from the masking. A revision is submitted as one un-anonymized, tracked-changes copy with all identifying information restored.
 
 ---
 
@@ -125,6 +125,6 @@ Submit here when the contribution is applied clinical informatics in practice: a
 | Dimension | ACI | JAMIA | Methods of Information in Medicine | ACI Open |
 |-----------|-----|-------|------------------------------------|----------|
 | Society | Official eJournal of AMIA, IMIA, and EFMI (Thieme) | American Medical Informatics Association (AMIA), via Oxford University Press | IMIA journal family (Thieme) | Thieme (ACI sister journal) |
-| Scope | Full applied range: clinical, administrative, eHealth, and mobile systems; development, deployment, evaluation, socio-technical aspects, training | Full spectrum of biomedical and health informatics: clinical care, clinical research, translational science, implementation, imaging, education, consumer health, public health, policy | "Science and Research" journal for medical informatics methods and research | Same clinical-informatics field as ACI, as an open-access venue |
+| Scope | Full applied range: clinical, administrative, eHealth, and mobile systems; development, deployment, evaluation, socio-technical aspects, training | Full spectrum of biomedical and health informatics: clinical care, clinical research, translational science, implementation, imaging, education, consumer health, public health, policy | Not stated in the sources consulted | Same clinical-informatics field as ACI, as an open-access venue |
 | Impact factor | 2.7 (JCR 2025) | 7.1 (JCR 2025) | 2.4 | Not stated on the Thieme journals page consulted |
-| Distinguishing feature | Applied emphasis: deployment, evaluation, and lessons learned, with a Clinical Relevance Statement and multiple-choice questions on every research paper | AMIA's flagship; explicitly welcomes implementation, policy, and education pieces alongside methods and evaluations | Methods and research emphasis | Fully open access, against ACI's hybrid model |
+| Distinguishing feature | Applied emphasis: deployment, evaluation, and lessons learned, with a Clinical Relevance Statement and multiple-choice questions on every research paper | AMIA's flagship; explicitly welcomes implementation, policy, and education pieces alongside methods and evaluations | Not stated in the sources consulted | Fully open access, against ACI's hybrid model |
