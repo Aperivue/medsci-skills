@@ -14,7 +14,9 @@ the shared library.
 
 ## The verification bar (public library)
 
-Every public profile must meet **all** of the following. No exceptions, no defaults.
+Every public profile must meet **all** of the following. No exceptions. A default appears
+only where the journal states nothing, and only under a `[TODO: verify at journal site]`
+marker (item 3 below).
 
 ### Source discipline
 
@@ -23,7 +25,10 @@ Every public profile must meet **all** of the following. No exceptions, no defau
    sections were pasted into the session by the maintainer.
 3. Every line of the profile cites or is traceable to content on (1) or (2). Plausible
    inference from adjacent journals is not acceptable, even when the journals are in the
-   same publisher family.
+   same publisher family. The one exception is a value (1) and (2) do not state: it is
+   either left out or marked `[TODO: verify at journal site]`, including the
+   statistical-reporting defaults `/add-journal` supplies, so it is never read as a
+   journal requirement.
 
 ### Field-level checks
 
@@ -81,7 +86,11 @@ repo) into `skills/*/references/journal_profiles/`, confirm each item:
 - [ ] "Choose X over Y" decision rule defensible from each journal's own scope text.
 - [ ] Any `Acceptance Signals` lines are generic and traceable to the journal's own public
       guidance — no confidential editor-corpus content, no fabricated acceptance %.
-- [ ] No `[TODO: verify at journal site]` markers remaining.
+- [ ] Every remaining `[TODO: verify at journal site]` marks a value the journal's public
+      pages do not state (for example an Impact Factor, or a statistical-reporting rule).
+      A value the pages do state is transcribed, not left as a TODO. Defaults that
+      `/add-journal` supplies where the journal is silent stay marked, so they are never
+      read as journal requirements.
 - [ ] Commit message records which pages were opened and on what date.
 
 Only after all items pass does `git mv` from private to public become appropriate.
