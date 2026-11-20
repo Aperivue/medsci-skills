@@ -8,6 +8,9 @@
   `/add-journal` tells profile authors to mark a value they cannot find instead of guessing it, and
   public profiles already carry such markers. The checklist item now asks that each remaining marker
   name a value the journal's pages do not state, and that values the pages do state are transcribed.
+- **`/deidentify`: dropped a generic three-bullet "Anti-Hallucination" block** about journal metadata,
+  DOIs and package names. None of it concerned de-identification; the skill's own safety rules are
+  unchanged.
 
 ## [6.3.0] - 2026-11-10
 

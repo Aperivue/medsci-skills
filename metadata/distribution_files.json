@@ -1053,8 +1053,8 @@
     },
     {
       "path": "skills/deidentify/SKILL.md",
-      "size": 15087,
-      "sha256": "bfc9300df626579ee8d7dea5a8520043ea8f949250f9fa03ae0a7e2810de479f"
+      "size": 14730,
+      "sha256": "23889aa8b318a08d945de92420a2759408d5f71dc569a260ee33b36472328845"
     },
     {
       "path": "skills/deidentify/deidentify.py",
