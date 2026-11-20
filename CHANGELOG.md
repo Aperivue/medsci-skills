@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **`/find-journal` POLICY: the promotion checklist no longer forbids every `[TODO: verify at journal site]` marker.**
+  `/add-journal` tells profile authors to mark a value they cannot find instead of guessing it, and
+  public profiles already carry such markers. The checklist item now asks that each remaining marker
+  name a value the journal's pages do not state, and that values the pages do state are transcribed.
+
 ## [6.3.0] - 2026-11-10
 
 **Re-check one review suggestion:** before 6.3.0, `/peer-review` and `/self-review` (probe AO2) suggested rewording an unsupported "outperforms" as "comparable to". A non-significant difference is not evidence of similarity, so a review or manuscript drafted with an earlier version that carries that wording should report the difference with its CI instead, and keep "comparable" for a pre-specified margin.
