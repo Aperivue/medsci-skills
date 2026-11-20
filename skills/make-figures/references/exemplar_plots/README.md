@@ -92,6 +92,11 @@ the figure types that do not yet have a generator.
 - `raincloud_plot.md` — continuous-outcome comparison: common-scale half-violins, every participant
   point, median/IQR boxes, per-group denominators, and a design-aware contrast with its CI; density
   is not sample size, and smoothing must not invent distributional features. Pairs `/analyze-stats`.
+- `dose_response_spline.md` — adjusted dose-response / restricted cubic spline: log-ratio axis,
+  null at 1, named reference with a zero-width CI, pre-specified knots, and exposure distribution
+  explaining sparse-tail uncertainty; overall-association and non-linearity tests, adjustment set,
+  and survey-design caveat in the caption. No extrapolation or data-mined threshold claims.
+  Pairs `analyze-stats` `analysis_guides/survey_weighted.md` and review probe O12.
 - `clinical_timeline.md` — CARE case-report timeline: relative time axis, symptoms/tests/treatment/
   outcome lanes, index presentation marker, final follow-up endpoint, de-identification discipline,
   and annotated imaging-panel pairing when imaging is the teaching point. Pairs `write-paper`
