@@ -117,6 +117,7 @@ target — do not pad toward the cap. Do not state a word count or limit inside 
 - No "Disease X is a major health concern" openers
 - Go directly to what is unknown or insufficient about current methods
 - 2-3 sentences maximum
+- The purpose must say the same thing as the purpose at the end of the Introduction (population, index test or exposure, comparator, outcome). Reusing the same sentence is the simplest way to keep them aligned; compressing it is fine if the meaning does not drift
 
 #### Methods
 
@@ -140,6 +141,7 @@ target — do not pad toward the cap. Do not state a word count or limit inside 
 - 1-2 sentences only: state the core finding and its clinical implication
 - Do not include limitations or "further studies are needed" (add only if reviewer requests)
 - Must be a directly citable statement
+- Must say the same thing as the conclusion at the end of the Discussion, in the same terms (reusing the sentence is the simplest way); a reader of only one of the two should take away the same claim
 
 ### Abstract Self-Check
 

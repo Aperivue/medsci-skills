@@ -121,6 +121,7 @@ Introduction was too broad or the Discussion overclaims.
 6. **Literature dump**: Paragraphs of prior study summaries with no connection to your findings
 7. **Defensive limitation writing**: Every limitation immediately countered with a strength
 8. **Ignoring contradictory evidence**: Not addressing studies that found opposite results
+9. **Comparison words the design cannot carry**: "superior" needs a supported difference; "non-inferior" needs a pre-specified, clinically justified margin and a CI that excludes the unacceptable loss; "equivalent" needs both CI bounds inside the margin. Without a margin, report the difference with its CI and say what loss cannot be excluded. "Comparable" or "similar" after a non-significant test reads as an equivalence claim, so either support it with a margin or describe the result without it. Post hoc power computed from the observed effect does not support a "no difference" conclusion
 
 ---
 
