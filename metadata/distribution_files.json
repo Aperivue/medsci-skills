@@ -2403,8 +2403,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 11940,
-      "sha256": "97a4919fb837a49adc9f4fef62607ecf22514846e45f2a7bdd3371175c7b3fce"
+      "size": 12410,
+      "sha256": "69cfcf25b82fb89cfdc1fb398796a773260e3a26d29898b267a1792f224de1e1"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/ai_assistance_effect.md",
@@ -2440,6 +2440,11 @@
       "path": "skills/make-figures/references/exemplar_plots/decision_curve.md",
       "size": 3973,
       "sha256": "d237ce553ff9abefe6a5c2ea87d3f10e678468a2317007a9d1a3c237faaf5255"
+    },
+    {
+      "path": "skills/make-figures/references/exemplar_plots/dose_response_spline.md",
+      "size": 4568,
+      "sha256": "099c736b675431d2694af25d7a357c3a4636635dc4529eaf1ed4256fdfceec28"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/external_validation_comparison.md",
