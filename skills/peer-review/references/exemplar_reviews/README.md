@@ -36,6 +36,8 @@ models, authored from scratch**, not extracted from any published review.
   the registered/protocol primary, or outcomes dropped/added without a disclosed amendment.
 - `comparator_adequacy.md` — an added-value claim whose comparator is absent, trivial,
   outdated, or answering a different question, so the reported gain is uninterpretable.
+- `immortal_time_bias.md` — future treatment defines exposure while follow-up starts earlier,
+  crediting users with pre-treatment survival time and distorting a protective-effect claim.
 
 ## Curator guidelines (for adding more)
 
