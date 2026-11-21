@@ -1,0 +1,36 @@
+{
+  "detector": "check_review_request_types",
+  "source": "fixture/new_data_only.md",
+  "verdict": "REQUEST-TYPE VIOLATIONS",
+  "asks": 4,
+  "disclosure": 1,
+  "computation": 0,
+  "new_data": 3,
+  "descriptive": 0,
+  "findings": [
+    {
+      "kind": "NEW_DATA_REQUESTED",
+      "severity": "MAJOR",
+      "line": 5,
+      "detail": "asks for data that does not exist — cannot be satisfied within a revision: \"Have a second reader independently label every examination and report agreeme…\""
+    },
+    {
+      "kind": "NEW_DATA_REQUESTED",
+      "severity": "MAJOR",
+      "line": 6,
+      "detail": "asks for data that does not exist — cannot be satisfied within a revision: \"Please collect an external validation cohort from a second site.\""
+    },
+    {
+      "kind": "NEW_DATA_REQUESTED",
+      "severity": "MAJOR",
+      "line": 7,
+      "detail": "asks for data that does not exist — cannot be satisfied within a revision: \"Have a second operator repeat the segmentation on every examination.\""
+    },
+    {
+      "kind": "COMPUTATION_HEAVY",
+      "severity": "MAJOR",
+      "line": 0,
+      "detail": "3 computation/new-data requests (limit 2) — each is a new, unreviewed error surface produced under revision deadline"
+    }
+  ]
+}

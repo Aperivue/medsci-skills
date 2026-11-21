@@ -1,0 +1,8 @@
+undisciplined 1
+disciplined 0
+domain_nouns 0
+computation_verbs 1
+resubmit_mixed 1
+new_data_only 1
+same_line_nested 1
+canonical_header 1

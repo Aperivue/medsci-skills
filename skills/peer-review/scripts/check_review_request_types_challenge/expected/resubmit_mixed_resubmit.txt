@@ -1,0 +1,8 @@
+== REQUEST-TYPE VIOLATIONS ==  fixture/resubmit_mixed.md
+asks=4 disclosure=1 computation=1 new_data=2 descriptive=0
+recommendation=reject-and-resubmit: NEW_DATA_REQUESTED and COMPUTATION_HEAVY are reported as INFO (3 line(s)); every other finding is unchanged
+[INFO] COMPUTATION_HEAVY L0  3 computation/new-data requests (1 computation) exceed the revision budget of 2; not raised, because reject-and-resubmit invites a new submission with no revision deadline
+[INFO] NEW_DATA_REQUESTED L8  new-data request exempted — the recommendation is reject-and-resubmit, so the resubmission can supply it: "Have a second reader independently label every examination and report agreeme…"
+[INFO] NEW_DATA_REQUESTED L9  new-data request exempted — the recommendation is reject-and-resubmit, so the resubmission can supply it: "Please collect an external validation cohort from a second site."
+[MAJOR] COMPUTATION_UNJUSTIFIED L10  computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: "Please report a P value comparing the analysed subset with the full cohort."
+[MAJOR] NESTED_P_REQUESTED L10  requests a P value between a subset and the cohort containing it — nested groups, so the test is invalid; ask for the subset's characteristics instead: "Please report a P value comparing the analysed subset with the full cohort."

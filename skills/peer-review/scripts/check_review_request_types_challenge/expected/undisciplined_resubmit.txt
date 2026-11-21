@@ -1,0 +1,11 @@
+== REQUEST-TYPE VIOLATIONS ==  fixture/undisciplined.md
+asks=9 disclosure=2 computation=3 new_data=3 descriptive=1
+recommendation=reject-and-resubmit: NEW_DATA_REQUESTED and COMPUTATION_HEAVY are reported as INFO (4 line(s)); every other finding is unchanged
+[INFO] COMPUTATION_HEAVY L0  6 computation/new-data requests (3 computation) exceed the revision budget of 2; not raised, because reject-and-resubmit invites a new submission with no revision deadline
+[MAJOR] COMPUTATION_UNJUSTIFIED L6  computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: "Propagate the measured false-negative rates to the screened population and re…"
+[MAJOR] COMPUTATION_UNJUSTIFIED L7  computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: "Bootstrap confidence intervals for the reported percentiles."
+[MINOR] ESTIMATOR_UNNAMED L7  an effect size or interval is requested without naming the estimator; the authors will adopt the loose phrase verbatim: "Bootstrap confidence intervals for the reported percentiles."
+[INFO] NEW_DATA_REQUESTED L8  new-data request exempted — the recommendation is reject-and-resubmit, so the resubmission can supply it: "Have a second reader independently label a subsample and report agreement."
+[MAJOR] COMPUTATION_UNJUSTIFIED L16  computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: "Consider modelling the outcome as a continuous function of age rather than bi…"
+[INFO] NEW_DATA_REQUESTED L21  new-data request exempted — the recommendation is reject-and-resubmit, so the resubmission can supply it: "Have a second operator repeat the segmentation on a random subsample and repo…"
+[INFO] NEW_DATA_REQUESTED L22  new-data request exempted — the recommendation is reject-and-resubmit, so the resubmission can supply it: "Have an independent panel re-adjudicate the discordant examinations."

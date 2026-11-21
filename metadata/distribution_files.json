@@ -3943,8 +3943,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 55684,
-      "sha256": "6e6901a2989999bc3f32c0f22636cd4098f3b28c10a2fe8c4c445d574719fca8"
+      "size": 57099,
+      "sha256": "b2b26b061ddd6b86df0dd921e86e0d7554eead82c77d5a58bbf2ac89735af126"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -4288,8 +4288,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types.py",
-      "size": 15831,
-      "sha256": "e80f9d8807b5fa69befc3dca4641cf8e27e20799606c310022c04bd33a81fd02"
+      "size": 20384,
+      "sha256": "45f21adba6cb9cb3eb07031ad3b25d4876dda4472c4c981608e42436db19018d"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/disciplined.txt",
@@ -4297,9 +4297,109 @@
       "sha256": "3974dd4241db1e253f435ed6ac7c40e8c48a424c2e0dfabccc18e6154dfe39b5"
     },
     {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/resubmit_mixed_resubmit.txt",
+      "size": 1382,
+      "sha256": "90ec6cebd3c6275b6cedd30ea81e3289f2fb3bec0382657db69005250f10b0a9"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/canonical_header.json",
+      "size": 1260,
+      "sha256": "23225e97043e0be43a18252b5cf5a8dbb8fe18b0555b86f6a800a0515f9a382e"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/canonical_header.txt",
+      "size": 813,
+      "sha256": "dd353583bf9da5b5a82a13b27f3de3698b0c7d6bbbb015524191906dea74abd2"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/computation_verbs.json",
+      "size": 1989,
+      "sha256": "7c8039f2a3742ac585a025d2f9513f42fff51900110ef5d7a1d1576cf9314750"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/computation_verbs.txt",
+      "size": 1378,
+      "sha256": "cfd41888fe4a7b307907954cd6b76693383149c663385462ec87215a688135c1"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/disciplined.json",
+      "size": 211,
+      "sha256": "21f285565575c50419848b2812f2a4ec7fd0e7f46fb632c7f8709905732d95fc"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/disciplined.txt",
+      "size": 155,
+      "sha256": "3974dd4241db1e253f435ed6ac7c40e8c48a424c2e0dfabccc18e6154dfe39b5"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/domain_nouns.json",
+      "size": 212,
+      "sha256": "e8c76de11649d3496c9fe5cb743de734243dd3fb88ea98e3c0f9fddb9e2e8dee"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/domain_nouns.txt",
+      "size": 156,
+      "sha256": "293aa4f55875e0784b7883628cb1399e1eede9507c4033e3997d85a607aaa560"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/new_data_only.json",
+      "size": 1256,
+      "sha256": "898a5557c591a2eddf68385471c48614428a9197bf379901788467d1fa5fe895"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/new_data_only.txt",
+      "size": 809,
+      "sha256": "6565e21c54c7c379cd2f26faa57bed4a6e72cb32e087f6a54c69d94805d50047"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/resubmit_mixed.json",
+      "size": 1655,
+      "sha256": "155acde0f8ba4c9f4e02954df8490029428a82b2345dc8607d61ad1f82b6f10b"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/resubmit_mixed.txt",
+      "size": 1126,
+      "sha256": "1c6e65cdd87251d5a69f72bdbaacbdba4c914896831b44d3855dc9afd728fa62"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/same_line_nested.json",
+      "size": 862,
+      "sha256": "51f8b01d3b1edc25859e10e21ab296ec62d25e6e587c12ed0b9bc106408c4f91"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/same_line_nested.txt",
+      "size": 577,
+      "sha256": "fbbd6e9f3f5afad2bf4d955b5b15d49e79516951973d4f9634f351be5729752b"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/strict_exit_codes.txt",
+      "size": 136,
+      "sha256": "f1dbfcd14c470e4f5b9153330969f5ddcc18e9adc11401bb1747772fe7d0b36c"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/undisciplined.json",
+      "size": 2495,
+      "sha256": "ee457cb909464a4731100b18566891cff29a64c2b1ac320b8318eefa05b7afcd"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/tier_blind/undisciplined.txt",
+      "size": 1720,
+      "sha256": "301f77498e96e71536a48afb54f82db48e3d245c8738b2ab6943b4c37f6aab08"
+    },
+    {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/undisciplined.txt",
       "size": 1720,
       "sha256": "301f77498e96e71536a48afb54f82db48e3d245c8738b2ab6943b4c37f6aab08"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/undisciplined_resubmit.txt",
+      "size": 2006,
+      "sha256": "44a5dd63bdaf337ab58b8ff99b7b96c1dce430c16864da8eac99d27568bd5a86"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/canonical_header.md",
+      "size": 470,
+      "sha256": "efef531bc6064ff6415d1635e1d44d7b9aa4801c0e89df09fcfc389d9724217d"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/computation_verbs.md",
@@ -4317,19 +4417,34 @@
       "sha256": "abc02da0e864a7261b0226c4201a2c13b5fb071e284782ab253623344ea45f6e"
     },
     {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/new_data_only.md",
+      "size": 367,
+      "sha256": "c9721856fe29d6d64a7780aa4811abb6e53cea8a2cd04ef0b88702abb2fd17b4"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/resubmit_mixed.md",
+      "size": 415,
+      "sha256": "3f269f3ae88cbbccc3a0e871c981b50557bce82cb8b66816c8634b1b63babb8a"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/same_line_nested.md",
+      "size": 295,
+      "sha256": "64bee3f7d37417931d95a6784645bc84eb5e589d8d30447dc5695f3e44445fd9"
+    },
+    {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/undisciplined.md",
       "size": 965,
       "sha256": "7b120dc88c02f617f977f6ae657c52b2f97cb8ea263af746902cb87fba64d1de"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/problem.md",
-      "size": 4279,
-      "sha256": "223776d2efddce8a199c7dc3bc273fb6c96f49709df93f674d1961c80f2fe591"
+      "size": 6893,
+      "sha256": "5d28befb31833ffc1f8b7ba326e6eaa25701c33ce90f2af41e67663109d6a686"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/verify.sh",
-      "size": 3039,
-      "sha256": "5a2f2d084741c8baa3127dcfd93d10205ef8631194c8253d0984e5046403a237"
+      "size": 12708,
+      "sha256": "8e62763b9721abec4aadae5d3aab2d48e4841ed951f3de47eb54fa86b0d102f3"
     },
     {
       "path": "skills/peer-review/scripts/check_self_improvement_claims.py",

@@ -1,0 +1,60 @@
+{
+  "detector": "check_review_request_types",
+  "source": "fixture/undisciplined.md",
+  "verdict": "REQUEST-TYPE VIOLATIONS",
+  "asks": 9,
+  "disclosure": 2,
+  "computation": 3,
+  "new_data": 3,
+  "descriptive": 1,
+  "findings": [
+    {
+      "kind": "COMPUTATION_UNJUSTIFIED",
+      "severity": "MAJOR",
+      "line": 6,
+      "detail": "computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: \"Propagate the measured false-negative rates to the screened population and re…\""
+    },
+    {
+      "kind": "COMPUTATION_UNJUSTIFIED",
+      "severity": "MAJOR",
+      "line": 7,
+      "detail": "computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: \"Bootstrap confidence intervals for the reported percentiles.\""
+    },
+    {
+      "kind": "ESTIMATOR_UNNAMED",
+      "severity": "MINOR",
+      "line": 7,
+      "detail": "an effect size or interval is requested without naming the estimator; the authors will adopt the loose phrase verbatim: \"Bootstrap confidence intervals for the reported percentiles.\""
+    },
+    {
+      "kind": "NEW_DATA_REQUESTED",
+      "severity": "MAJOR",
+      "line": 8,
+      "detail": "asks for data that does not exist — cannot be satisfied within a revision: \"Have a second reader independently label a subsample and report agreement.\""
+    },
+    {
+      "kind": "COMPUTATION_UNJUSTIFIED",
+      "severity": "MAJOR",
+      "line": 16,
+      "detail": "computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: \"Consider modelling the outcome as a continuous function of age rather than bi…\""
+    },
+    {
+      "kind": "NEW_DATA_REQUESTED",
+      "severity": "MAJOR",
+      "line": 21,
+      "detail": "asks for data that does not exist — cannot be satisfied within a revision: \"Have a second operator repeat the segmentation on a random subsample and repo…\""
+    },
+    {
+      "kind": "NEW_DATA_REQUESTED",
+      "severity": "MAJOR",
+      "line": 22,
+      "detail": "asks for data that does not exist — cannot be satisfied within a revision: \"Have an independent panel re-adjudicate the discordant examinations.\""
+    },
+    {
+      "kind": "COMPUTATION_HEAVY",
+      "severity": "MAJOR",
+      "line": 0,
+      "detail": "6 computation/new-data requests (limit 2) — each is a new, unreviewed error surface produced under revision deadline"
+    }
+  ]
+}

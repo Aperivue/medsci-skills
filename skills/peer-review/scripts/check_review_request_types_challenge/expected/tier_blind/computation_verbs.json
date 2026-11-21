@@ -1,0 +1,48 @@
+{
+  "detector": "check_review_request_types",
+  "source": "fixture/computation_verbs.md",
+  "verdict": "REQUEST-TYPE VIOLATIONS",
+  "asks": 5,
+  "disclosure": 0,
+  "computation": 5,
+  "new_data": 0,
+  "descriptive": 0,
+  "findings": [
+    {
+      "kind": "COMPUTATION_UNJUSTIFIED",
+      "severity": "MAJOR",
+      "line": 3,
+      "detail": "computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: \"Please compute the net benefit at a 10% threshold.\""
+    },
+    {
+      "kind": "COMPUTATION_UNJUSTIFIED",
+      "severity": "MAJOR",
+      "line": 4,
+      "detail": "computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: \"Please derive the 95% Wilson confidence interval for the difference in sensit…\""
+    },
+    {
+      "kind": "COMPUTATION_UNJUSTIFIED",
+      "severity": "MAJOR",
+      "line": 5,
+      "detail": "computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: \"Please consider computing time to progression for each participant.\""
+    },
+    {
+      "kind": "COMPUTATION_UNJUSTIFIED",
+      "severity": "MAJOR",
+      "line": 6,
+      "detail": "computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: \"Please consider computing power for each proposed sample size.\""
+    },
+    {
+      "kind": "COMPUTATION_UNJUSTIFIED",
+      "severity": "MAJOR",
+      "line": 7,
+      "detail": "computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: \"Please consider computing resources required per site from the scan volumes.\""
+    },
+    {
+      "kind": "COMPUTATION_HEAVY",
+      "severity": "MAJOR",
+      "line": 0,
+      "detail": "5 computation/new-data requests (limit 2) — each is a new, unreviewed error surface produced under revision deadline"
+    }
+  ]
+}
