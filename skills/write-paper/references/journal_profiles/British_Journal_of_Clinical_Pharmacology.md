@@ -64,7 +64,9 @@ Conclusion:
 11. **Figure legends**.
 12. **Appendices** — supplied as separate files, referred to in the text.
 
-Figures, supplementary information and Graphical Abstracts are uploaded separately. Written in British English (Oxford spelling: "-ize" endings); no abbreviations section, and each abbreviation defined at first use; no footnotes to the text; SI units; rINN/pINN drug names (else BAN or chemical name); stereoisomers designated in the Methods (e.g. rac-propranolol, (S)-warfarin). Human-participant studies need a statement naming the approving ethics committee and the recognised standard followed (e.g. Declaration of Helsinki) in the Methods. Clinical trials must be prospectively registered.
+After acceptance, original articles, reviews and short reports are asked to hyperlink key ligands and targets, at first mention, to the BPS/IUPHAR Guide to Pharmacology (the guidelines also call it the Concise Guide to Pharmacology), and to send the editorial office a list of the hyperlinked ligands and targets; skip this if the article has no relevant key ligands or targets.
+
+Figures, supplementary information and Graphical Abstracts are uploaded separately. Written in British English (Oxford spelling: "-ize" endings); no abbreviations section, and each abbreviation defined at first use; no footnotes to the text; SI units; rINN/pINN drug names (else BAN or chemical name); stereoisomers designated in the Methods (e.g. rac-propranolol, (S)-warfarin). Human-participant studies need a statement naming the approving ethics committee and the recognised standard followed (e.g. Declaration of Helsinki) in the Methods. Clinical trials must be prospectively registered in a publicly accessible database; if a trial is not registered, or was registered retrospectively, explain why.
 
 Reporting guidelines: meta-analyses "should adhere to the PRISMA statement"; disproportionality analyses in an individual case safety reports database require a completed READUS-PV checklist as a condition of submission. Authors are "encouraged to adhere", where applicable, to CONSORT (including randomised crossover), SPIRIT, PRISMA, PRISMA-P, STROBE, CARE, COREQ, STARD and TRIPOD, CHEERS, the EQUATOR Network, ARRIVE, READUS-PV and the REFLECT statement, among others listed.
 
@@ -138,7 +140,7 @@ https://bpspubs.onlinelibrary.wiley.com/hub/journal/13652125/author-guidelines.h
 
 ## Positioning
 
-Submit here for clinical pharmacology in humans: first-in-human and Phase 1 studies with pharmacodynamic measures, clinical PK/PD, experimental medicine and therapeutics, precision medicine, clinical toxicology, drug safety (including disproportionality analyses), prescribing, and clinical pharmacology education, for a readership of clinical pharmacologists, pharmacists, physicians and pharmaceutical-industry scientists. Do not submit purely basic pharmacology (British Journal of Pharmacology is the BPS sister journal for that), pharmacokinetics-only studies of a new medicine, or case reports with only routine clinical data.
+Submit here for clinical pharmacology in humans: first-in-human and Phase 1 studies with pharmacodynamic measures, clinical PK/PD, experimental medicine and therapeutics, precision medicine, clinical toxicology, drug safety (including disproportionality analyses), prescribing, and clinical pharmacology education, for a readership of clinical pharmacologists, pharmacists, physicians and pharmaceutical-industry scientists. Do not submit purely basic pharmacology (BJCP's Senior Editors may offer to transfer out-of-scope manuscripts to its sister journal, British Journal of Pharmacology), pharmacokinetics-only studies of a new medicine, or case reports with only routine clinical data.
 
 | Dimension | BJCP | British Journal of Pharmacology | Pharmacology Research & Perspectives |
 |-----------|------|---------------------------------|--------------------------------------|
