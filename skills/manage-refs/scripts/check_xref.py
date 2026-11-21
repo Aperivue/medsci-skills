@@ -150,13 +150,34 @@ IMAGE_CAPTION_RE = re.compile(
 # start with "|" is not a table, and a single table cannot define the caption above it and a
 # different one below it, so a cited table that is defined nowhere still blocks.
 #
-# A table block is a pipe table (a row containing "|" followed by a delimiter row; the outer
-# pipes are optional), a grid table ("+---+" border), or an HTML <table>...</table> element.
-# Fenced code blocks and HTML comments are not rendered and are skipped.
-PIPE_DELIM_RE = re.compile(r"^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)*\|?\s*$")
+# A table block is a pipe table (a header row followed by a delimiter row with the same number
+# of cells; the outer pipes are optional), a grid table (a "+---+" border, cell rows, a closing
+# border), or an HTML <table>...</table> element. Fenced code blocks and HTML comments are not
+# tables, and one standing between a caption and a table separates them.
+PIPE_DELIM_CELL_RE = re.compile(r"^\s*:?-+:?\s*$")
 GRID_BORDER_RE = re.compile(r"^\s*\+(?:[-=:]{2,}\+)+\s*$")
-HTML_TABLE_OPEN_RE = re.compile(r"<table\b", re.IGNORECASE)
+# A real tag, not the word inside an attribute value: it opens the line or follows a space or ">".
+HTML_TABLE_OPEN_RE = re.compile(r"(?:^|(?<=[\s>]))<table\b[^>]*>", re.IGNORECASE)
 HTML_TABLE_CLOSE_RE = re.compile(r"</table\s*>", re.IGNORECASE)
+
+
+def _pipe_cells(line: str) -> list[str]:
+    """Cells of a pipe-table row, outer pipes optional, escaped pipes kept inside their cell."""
+    s = line.strip()
+    if s.startswith("|"):
+        s = s[1:]
+    if s.endswith("|") and not s.endswith("\\|"):
+        s = s[:-1]
+    return re.split(r"(?<!\\)\|", s)
+
+
+def _is_pipe_table_head(header: str, delim: str) -> bool:
+    """A header row followed by a delimiter row with the same number of cells."""
+    if "|" not in header or "|" not in delim:
+        return False
+    d = _pipe_cells(delim)
+    return all(PIPE_DELIM_CELL_RE.match(c) for c in d) and len(_pipe_cells(header)) == len(d)
+
 
 # Section header patterns for the manuscript body's caption sections.
 # Longer alternatives MUST come first so that "FIGURE LEGENDS" is not
@@ -298,14 +319,17 @@ def find_table_blocks(lines: list[str]) -> list[tuple[int, int]]:
                 i = j + 1
                 continue
         elif GRID_BORDER_RE.match(ln):
+            # border, at least one "|" cell row, and a closing border: "+---+" over a list item
+            # that starts with "+" is not a table.
             j = i
-            while j + 1 < n and lines[j + 1].lstrip()[:1] in ("+", "|"):
+            while j + 1 < n and (lines[j + 1].lstrip().startswith("|") or GRID_BORDER_RE.match(lines[j + 1])):
                 j += 1
-            if j > i:
+            if j > i + 1 and GRID_BORDER_RE.match(lines[j]) \
+                    and any(lines[k].lstrip().startswith("|") for k in range(i + 1, j)):
                 blocks.append((i, j))
                 i = j + 1
                 continue
-        elif "|" in ln and i + 1 < n and "|" in lines[i + 1] and PIPE_DELIM_RE.match(lines[i + 1]):
+        elif i + 1 < n and _is_pipe_table_head(ln, lines[i + 1]):
             j = i + 1
             while j + 1 < n and lines[j + 1].strip() and "|" in lines[j + 1]:
                 j += 1
@@ -324,6 +348,10 @@ def find_inline_table_captions(md_text: str) -> list[tuple[int, int, "re.Match[s
         starts.append(pos)
         pos += len(ln)
     lines = [ln.rstrip("\r\n") for ln in mask_inert(md_text).splitlines(keepends=True)]
+    # A line that mask_inert blanked (fenced code, an HTML comment) is not a table and not a
+    # caption, but the reader sees it: it stands between a caption and a table, so it is a
+    # boundary, not a blank line to step over.
+    inert = [bool(r.strip()) and not m.strip() for r, m in zip(raw, lines)]
 
     def caption_at(i: int):
         m = CAPTION_RE.match(lines[i]) if 0 <= i < len(lines) else None
@@ -331,7 +359,7 @@ def find_inline_table_captions(md_text: str) -> list[tuple[int, int, "re.Match[s
 
     def neighbour(i: int, step: int) -> int:
         j = i + step
-        while 0 <= j < len(lines) and not lines[j].strip():
+        while 0 <= j < len(lines) and not lines[j].strip() and not inert[j]:
             j += step
         return j
 

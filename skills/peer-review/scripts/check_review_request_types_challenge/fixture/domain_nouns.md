@@ -6,3 +6,5 @@
 4. Please describe the computational resources and the computing time used for training.
 5. Please describe the derivation and validation cohorts in one table.
 6. Please report the computerized tomography protocol and whether cloud computing was used.
+7. Please report the computing time to train the model on each site.
+8. Please describe the derivation/validation cohorts and the computing hardware.

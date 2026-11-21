@@ -146,9 +146,11 @@ DEFERRED_MITIGATION_RE = re.compile(
 # cannot contain a dual-review claim, so the check passed without having looked.
 SECTION_HEADERS = {
     "Methods": re.compile(
-        r"^#{1,3}[ \t]*\*{0,2}(?:Methods?"
-        r"|(?:Materials?|Patients|Subjects|Participants)(?:[ \t]+and[ \t]+|[ \t]*\\?&[ \t]*)Methods?"
-        r"|Methods?(?:[ \t]+and[ \t]+|[ \t]*\\?&[ \t]*)Materials?)\*{0,2}[ \t]*$",
+        r"^#{1,3}[^\S\r\n]*\*{0,2}(?:Methods?"
+        r"|(?:Materials?|Patients|Subjects|Participants)"
+        r"(?:[^\S\r\n]+and[^\S\r\n]+|[^\S\r\n]*\\?&[^\S\r\n]*)Methods?"
+        r"|Methods?(?:[^\S\r\n]+and[^\S\r\n]+|[^\S\r\n]*\\?&[^\S\r\n]*)Materials?)"
+        r"\*{0,2}[^\S\r\n]*$",
         re.IGNORECASE | re.MULTILINE,
     ),
     "Discussion": re.compile(
@@ -180,6 +182,9 @@ class Report:
     # claim was not checked, whatever submission_safe says.
     methods_section_found: bool = True
 
+
+# A heading shown inside a fenced code block is an example, not the manuscript's section.
+_FENCED_RE = re.compile(r"^[ \t]*(```|~~~).*?^[ \t]*\1[^\n]*$", re.DOTALL | re.MULTILINE)
 
 METHODS_NOT_FOUND = ("Methods section not found: no heading was recognised as Methods, so a "
                      "dual-review claim in the manuscript was NOT checked against the "
@@ -296,7 +301,7 @@ def build_report(manuscript: str, prospero: str | None,
         single_hits=single_hits,
         llm_reviewer_hits=llm_reviewer_hits,
         deferred_mitigation_hits=deferred_hits,
-        methods_section_found=bool(SECTION_HEADERS["Methods"].search(manuscript)),
+        methods_section_found=bool(SECTION_HEADERS["Methods"].search(_FENCED_RE.sub("", manuscript))),
     )
 
 

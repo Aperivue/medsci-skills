@@ -184,7 +184,7 @@ fi
 # "## Patients" followed by a body line "and Methods ..." has no Methods section.
 # --------------------------------------------------------------------------
 {
-    printf '## Patients\nand Methods of recruitment are described elsewhere.\n'
+    printf '## Patients\nand Methods\n'
     printf 'Two reviewers independently screened titles and abstracts.\n\n'
     printf '## Discussion\n\n### Limitations\n'
     printf 'We used a single primary reviewer for data extraction.\n'
@@ -196,6 +196,29 @@ if grep "Methods section not found" "$TMP/c10.stderr" >/dev/null; then
 else
     echo "  FAIL  case 10: '## Patients' + 'and Methods' was read as a Methods heading"; fail=$((fail + 1))
 fi
+
+# --------------------------------------------------------------------------
+# Case 11: a Methods heading inside a fenced code block is an example, not a section;
+# and a heading followed by a no-break space is still a heading.
+# --------------------------------------------------------------------------
+{
+    printf '## Study procedures\nTwo reviewers independently screened titles and abstracts.\n\n'
+    printf '```\n## Materials & Methods\n```\n\n'
+    printf '## Discussion\n\n### Limitations\nWe used a single primary reviewer for data extraction.\n'
+} > "$TMP/c11.md"
+python3 "$SCRIPT" --manuscript "$TMP/c11.md" --out "$TMP/c11.md.audit" --quiet 2> "$TMP/c11.stderr"
+ran=$((ran + 1))
+if grep "Methods section not found" "$TMP/c11.stderr" >/dev/null; then
+    echo "  PASS  case 11: a heading inside a code fence does not count as found"
+else
+    echo "  FAIL  case 11: a fenced example heading silenced the not-found warning"; fail=$((fail + 1))
+fi
+{
+    printf '## Methods\302\240\nTwo reviewers independently screened titles and abstracts and extracted data.\n\n'
+    printf '## Discussion\n\n### Limitations\nWe used a single primary reviewer for data extraction.\n'
+} > "$TMP/c11b.md"
+python3 "$SCRIPT" --manuscript "$TMP/c11b.md" --out "$TMP/c11b.md.audit" --quiet
+assert_exit "case 11b: '## Methods' + no-break space is the Methods section (FAIL)" 1 $?
 
 echo ""
 echo "ran=$ran fail=$fail"

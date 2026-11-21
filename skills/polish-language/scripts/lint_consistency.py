@@ -112,13 +112,20 @@ UNIT_RE = re.compile(
 # tail is outside the capture group, and the lookahead still has to hold after it, so a longer
 # lowercase word that merely starts with capitals is not a use.
 #
-# A use may also carry letters after its digits ("IL2R", "CD8A"): the definition pattern always
-# accepted that form, and a use pattern that did not reported every such abbreviation as unused.
+# ABBR_USE_RE finds candidate abbreviations nobody defined. It is deliberately narrower than the
+# definition pattern (it does not read "T2" or "H2AX" as an abbreviation), so the uses of an
+# abbreviation that IS defined are counted by its own exact token instead: see _uses_of().
 ABBR_TAIL = r"(?:s|['\u2019]s)?"
 ABBR_DEF_RE = re.compile(r"\(([A-Z][A-Z0-9]{1,5}[0-9]*(?:-[A-Z0-9]{1,6})*)s?\)")
 ABBR_USE_RE = re.compile(
-    r"(?<![A-Za-z0-9-])([A-Z]{2,6}(?:[0-9]+[A-Z]{1,3})?[0-9]*(?:-[A-Z0-9]{1,6})*)"
-    + ABBR_TAIL + r"(?![A-Za-z0-9-])")
+    r"(?<![A-Za-z0-9-])([A-Z]{2,6}[0-9]*(?:-[A-Z0-9]{1,6})*)" + ABBR_TAIL + r"(?![A-Za-z0-9-])")
+
+
+def _uses_of(abbr: str):
+    """Pattern for a use of this exact defined abbreviation, plural or possessive included."""
+    return re.compile(r"(?<![A-Za-z0-9-])" + re.escape(abbr) + ABBR_TAIL + r"(?![A-Za-z0-9-])")
+
+
 NUM_RANGE_RE = re.compile(r"(?<![\w/.\-])(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)(?![\w/.\-])")
 PVAL_RE = re.compile(r"(?<![A-Za-z])([Pp])\s*([=<>])\s*(0?\.\d+|\d+\.\d+|\.\d+)")
 SMALL_NUM_RE = re.compile(r"(?<![\w.=<>+\-/])([1-9])\s+([a-z]{3,})")
@@ -165,7 +172,14 @@ def check_abbreviations(lines):
         masked = ABBR_DEF_RE.sub(lambda m: " " * len(m.group(0)), line)
         for m in ABBR_USE_RE.finditer(masked):
             ab = m.group(1)
-            uses.setdefault(ab, []).append(i)
+            if ab not in defs:
+                uses.setdefault(ab, []).append(i)
+        # A defined abbreviation is counted by its own token, whatever shape it has, so the
+        # definition and its uses can never be read by two different grammars.
+        for ab in defs:
+            n = len(_uses_of(ab).findall(masked))
+            if n:
+                uses.setdefault(ab, []).extend([i] * n)
 
     all_abbr = set(defs) | {a for a in uses}
     for ab in sorted(all_abbr):

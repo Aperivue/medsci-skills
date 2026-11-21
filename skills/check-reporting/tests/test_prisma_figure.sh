@@ -106,15 +106,15 @@ else
   bad "assessed status rc0=$rc0 rc1=$rc1 s0=$s0 s1=$s1"
 fi
 
-# 9. A mismatch found on the side that WAS read is still a found defect. The broken figure
-#    fails its own arithmetic while the body has no counts: exit 1, with the mismatch and the
-#    unparsable body both reported, and status not_assessed because nothing was cross-checked.
+# 9. A mismatch found on the side that WAS read is not lost. The broken figure fails its own
+#    arithmetic while the body has no counts: still exit 2 and not_assessed (nothing was
+#    cross-checked), with the mismatch and the unparsable body both in action_items.
 out="$(python3 "$SCRIPT" --md "$WORK/emptybody.md" --figure "$BROKEN" --out "$WORK/o9.json" 2>&1)"; rc=$?
-if [[ $rc -eq 1 && "$out" == *"UNPARSEABLE_BODY"* ]] \
+if [[ $rc -eq 2 && "$out" == *"UNPARSEABLE_BODY"* && "$out" == *"figure arithmetic"* ]] \
    && python3 -c "import json,sys; d=json.load(open('$WORK/o9.json')); a=d['action_items']; sys.exit(0 if (d['status']=='not_assessed' and d['audit_safe'] is False and any('UNPARSEABLE_BODY' in x for x in a) and any('figure arithmetic' in x for x in a)) else 1)"; then
-  pass "unreadable body + broken figure arithmetic -> exit 1, both reported"
+  pass "unreadable body + broken figure arithmetic -> exit 2, both reported"
 else
-  bad "masked mismatch rc=$rc (expected 1 + both action items)"
+  bad "masked mismatch rc=$rc (expected 2 + both action items)"
 fi
 
 if [[ $fail -eq 0 ]]; then echo "  OK"; exit 0; else echo "  $fail check(s) failed"; exit 1; fi

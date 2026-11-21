@@ -175,6 +175,43 @@ ck "pipe table without outer pipes, HTML table: exit 0" 0 "$(run forms.md)"
 ck "  Table 1 is OK"                                   OK "$(status_of forms.md Table:1)"
 ck "  Table 2 is OK"                                   OK "$(status_of forms.md Table:2)"
 
+# Things that look like a table and are not one. Each follows a caption for a cited Table 1.
+not_a_table() {  # not_a_table <label> <lines after the caption...>
+  local label="$1"; shift
+  {
+    echo "## Results"; echo
+    echo "The values are in Table 1."; echo
+    echo "**Table 1.** Results."; echo
+    for line in "$@"; do echo "$line"; done
+  } > "$WORK/nat.md"
+  run nat.md >/dev/null
+  ck "not a table: $label" MISSING_BODY "$(status_of nat.md Table:1)"
+}
+not_a_table "header and delimiter rows with different cell counts" "A | B" "--- | --- | ---"
+not_a_table "a '+---+' line over a '+' list item"                  "+---+" "+ List item"
+not_a_table "'<table>' inside an attribute value"                  '<div data-example="<table></table>"></div>'
+not_a_table "a code fence between the caption and a table"         '```' 'x = 1' '```' "" "| A | B |" "|---|---|" "| 1 | 2 |"
+
+# A table GFM renders with one-hyphen delimiter cells is a table.
+{
+  echo "## Results"; echo
+  echo "The values are in Table 1."; echo
+  echo "**Table 1.** Results."; echo
+  echo "| A | B |"; echo "|-|-|"; echo "|1|2|"
+} > "$WORK/short.md"
+run short.md >/dev/null
+ck "one-hyphen delimiter cells are a table"            OK "$(status_of short.md Table:1)"
+
+# A grid table with cell rows and a closing border is a table.
+{
+  echo "## Results"; echo
+  echo "The values are in Table 1."; echo
+  echo "**Table 1.** Results."; echo
+  echo "+-----+-----+"; echo "| A   | B   |"; echo "+=====+=====+"; echo "| 1   | 2   |"; echo "+-----+-----+"
+} > "$WORK/grid.md"
+run grid.md >/dev/null
+ck "a grid table with cell rows and a closing border"  OK "$(status_of grid.md Table:1)"
+
 # The caption line must not count as a citation of its own table.
 {
   echo "## Results"; echo
@@ -187,5 +224,5 @@ ck "an inline table nobody cites is UNCITED"           UNCITED "$(status_of unci
 
 echo
 echo "  passed=$pass failed=$fail"
-[ "$fail" -eq 0 ] || { for f in inline notable one uncited pipeprose onetable fenced forms; do echo "--- $f"; cat "$WORK/$f.md.out"; done; exit 1; }
+[ "$fail" -eq 0 ] || { for f in inline notable one uncited pipeprose onetable fenced forms nat short grid; do echo "--- $f"; cat "$WORK/$f.md.out"; done; exit 1; }
 echo "OK: a caption line beside its table is a body definition, and the gate still blocks real defects."

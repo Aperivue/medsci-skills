@@ -65,10 +65,15 @@ class ConsistencyControls(unittest.TestCase):
         self.assertEqual(linter.check_abbreviations([
             'Confidence intervals (CIs) are reported.', 'Each CI was Wald-type.',
             'The CI excluded zero.']), [])
-        # Letters after the digits: the definition and the use must read the same token.
-        self.assertEqual(linter.check_abbreviations([
-            'Interleukin-2 receptors (IL2Rs) were measured.', 'Both IL2Rs were detected.',
-            'IL2R density was reported.']), [])
+        # A defined abbreviation is found by its own token, whatever its shape. Each of these
+        # was "defined but never used" while the use pattern required two leading capitals or
+        # stopped at the digits.
+        for abbr in ('IL2R', 'H2AX', 'T2'):
+            self.assertEqual(linter.check_abbreviations([
+                f'Expanded name ({abbr}) was measured.', f'Both {abbr}s were detected.']), [], abbr)
+        # ... and a defined one that is never used still fires.
+        self.assertEqual(linter.check_abbreviations(['Histone variant (H2AX) was measured.']),
+                         [(1, '"H2AX" defined but never used')])
 
     def test_plural_handling_does_not_hide_real_findings(self):
         # A plural use of an undefined abbreviation is still an undefined use.
