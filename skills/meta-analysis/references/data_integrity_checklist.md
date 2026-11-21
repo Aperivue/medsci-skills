@@ -41,6 +41,8 @@
 - **Problem pattern**: Included-study count `k` quoted as two different values across consecutive manuscript versions because it was hand-typed into prose rather than derived from the analysis CSV.
 - **Rule**: Derive k only from the `4_Analysis/*.csv` row count. When entering k into the manuscript / MANIFEST / PROSPERO, also state the CSV path + row count.
 
+**Trace every reported number, table and figure to its source.** When adding an outcome, a main or supplementary table, or a figure, record its source data and version, the script that produces it, and where the output is written; for anything edited by hand, also record which output values it was checked against. A value typed into a script, a document builder or a caption, and a file converted or edited by hand, sit outside that chain and are not refreshed when the data change. A consistency check covers only the values it is given, so an artifact outside the chain can be wrong while the check passes.
+
 ## 3. Pre-submission cleanup
 
 ### DI-8. Remove every tag / TODO

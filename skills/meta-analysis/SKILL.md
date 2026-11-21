@@ -95,7 +95,14 @@ submission, AI first-pass drafts included, cannot be made prospective afterwards
 2. **Report per PRISMA-S** (Rethlefsen et al. 2021, PMID:33499930): one section per database with
    date of search, number of results, and any limits applied.
 3. **Merge and deduplicate** into a single spreadsheet: by DOI first, then PMID. Save raw counts
-   for the PRISMA flow.
+   for the PRISMA flow, and keep each database's exported record-ID list with them.
+4. **A missing record-ID list is not yet an unreproducible count.** If the IDs behind a PRISMA
+   identification count were not kept but the executed search string was archived verbatim,
+   re-run that string with its original date range and filters (capped at the original search
+   date where the database allows, naming the date field used) before reporting the count as
+   unreproducible. Label the result as a re-run record list, with the re-run date and whether the
+   count matched; a matching count does not show that the list holds the same records. Database contents change after the search date, so a
+   mismatch is recorded as such, not used to overwrite the reported count.
 
 ### Phase 3: Screening & Selection
 

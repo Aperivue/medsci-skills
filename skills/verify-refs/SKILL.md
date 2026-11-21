@@ -178,6 +178,12 @@ because paraphrase is legitimate. Read the "not checked" lines: a citation with 
 disk is reported unresolved, and a source whose extracted text is an abstract is reported as too
 short to judge. Silence means "nothing checkable was wrong", not "everything is right".
 
+The same limit applies to a citation audit done by hand or by another model from abstracts: a claim
+the abstract does not mention is unresolved, not a finding, so do not propose changing the citing
+sentence until the full text has been read, and record for each verdict what was actually read (full
+text, a complete or truncated abstract, a supplement). A retrieved abstract can itself be cut short in retrieval, so an abstract that
+ends abruptly is a retrieval problem to check before it is read as what the paper leaves out.
+
 Known limits: a quote whose words all appear in order with source tokens between them
 (`INTERLEAVED`) is treated as verified, so a quotation that drops a source word such as "not"
 produces no finding; reread every quotation that changes a negation or qualifier.
