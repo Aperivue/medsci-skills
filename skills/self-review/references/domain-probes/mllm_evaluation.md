@@ -65,6 +65,7 @@ image-to-image generative models use `image_synthesis.md`; this is for text / VQ
   are non-deterministic even at temperature 0). A single-prompt single-run number overstates stability.
   Require: the **exact prompt(s)** (MI-CLEAR-LLM transparency), temperature / seed, **≥ 3 runs** with
   variance, and a **prompt-robustness** check (≥ 2 phrasings / formats) for the headline.
+- Check that the Methods say how the queries were executed: for each prediction, which cases and earlier turns the model could see, when the context was reset, and whether several cases shared one prompt. Earlier turns kept as context can make an answer depend on what was entered before it, which affects reproducibility; the 2025 MI-CLEAR-LLM update lists this "prompt execution setup" as a reporting item and encourages sharing the execution script (Park SH et al., *Korean J Radiol* 2025;26(12):1123-1132, doi:10.3348/kjr.2025.1522). An unstated execution setup → MINOR (ask for it); MAJOR when context that crossed case boundaries could have carried information bearing on the headline result.
 - Single prompt, single run, temperature / seed undisclosed → MAJOR; prompt disclosed but variance
   unreported → MINOR.
 

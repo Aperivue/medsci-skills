@@ -64,6 +64,20 @@
   string is re-run before a count is called unreproducible. `/check-reporting` keeps its top-line
   note when a requested guideline fits the design less well than another, and `/verify-refs`
   treats a claim an abstract does not mention as unresolved.
+- **`/self-review`, `/peer-review`, `/mllm-eval`, `/check-reporting`, `/fill-icmje-coi`: author-side
+  checks and literature-backed additions.** `/self-review` re-runs the whole-document gates after
+  any edit, checks each figure citation against the cited panel, anchors comments that criticise a
+  claim to the current draft, checks a label against the source that assigns it, and guards panel
+  reviews against truncated replies and against a fix limit hiding a design point. Shared probes:
+  growth-endpoint definition sensitivity (`observational_confounding` O16); planning, conduct and
+  timing as separate questions for a registered review (`sr_ma` P16); how prompts were executed
+  (`mllm_evaluation`, citing the MI-CLEAR-LLM 2025 update); what the AI did and showed in an
+  assisted reader arm (`diagnostic_accuracy` D12, citing CONSORT-AI); two published guides as
+  background reading (`ai_overclaiming`). `/peer-review` Phase 1 checks that the journal permits an
+  AI tool before the manuscript is entered into it (ICMJE Recommendations II.C.3).
+  `/check-reporting` names FLAIR and REFINE with pointers to their publications and asks that item
+  numbers be checked against the official instrument; `/fill-icmje-coi` treats item 1 as each
+  author's own answer.
 
 - **`/design-study`, `/design-ai-benchmarking`, `/model-assessment`: design-stage guidance that was
   missing.** Reader studies: decide the claim's scope for readers and for cases separately (fixed

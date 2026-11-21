@@ -61,7 +61,10 @@ post-cutoff set, or a contamination probe.
 
 ### Phase 4 — Prompt sensitivity + reader study (ME5, ME7)
 Disclose the **exact prompt(s)**, temperature/seed, **≥ 3 runs** with variance, and a prompt-robustness
-check. For a deployment/utility claim, design a **blinded reader study** with an error taxonomy (route
+check. State how queries were executed (for each prediction, which cases and earlier turns the model
+could see, when the context was reset, and whether several cases shared one prompt), because earlier
+turns kept as context can affect an answer; MI-CLEAR-LLM 2025 lists this
+as its prompt-execution item (doi:10.3348/kjr.2025.1522). For a deployment/utility claim, design a **blinded reader study** with an error taxonomy (route
 the rubric/IRR to `/design-ai-benchmarking`, ICC/κ to `/analyze-stats`, sizing to `/calc-sample-size`).
 
 ### Phase 5 — Gate the plan (deterministic)
