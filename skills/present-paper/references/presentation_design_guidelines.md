@@ -71,7 +71,9 @@ Phase 3.5 slide critic scores against them.
 
 ## 6. Animation & transitions — sparing
 
-- Use builds **only** to reveal layered data step-by-step (e.g. add one curve at a time).
+- Use builds **only** where one step is needed to follow the next: layered data (e.g. add one
+  curve at a time), or blocks the speaker walks through in that order. Items meant to be
+  compared stay on screen together.
 - **No decorative transitions** (cube, dissolve, fly-in). Excessive motion distracts the
   audience from the content and reads as amateur.
 

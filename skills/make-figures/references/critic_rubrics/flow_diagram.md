@@ -93,7 +93,9 @@ PARTIAL item. Return the scored rubric + edit list to the user.
 15. **Vector format available** — Both PNG (for DOCX embedding) and PDF
     (for journal submission) were produced. If PDF missing, flag.
 16. **Dimensions match journal spec** — Width matches the target journal's
-    single-column or double-column specification (±0.3 in).
+    single-column or double-column specification (±0.3 in). Place the
+    diagram at the venue's actual column width and read the type and the
+    connectors there.
 17. **DPI meets spec** — ≥600 DPI for line-art submissions, ≥300 DPI for
     halftone.
 18. **Policy compliance** — Tool is D2 or a permitted auto-layout engine,

@@ -87,6 +87,22 @@ WONG = ['#000000', '#E69F00', '#56B4E9', '#009E73',
 - Test figures in grayscale to ensure readability.
 - Avoid pure red (#FF0000) and pure green (#00FF00) adjacent to each other.
 
+### Colour that carries meaning across figures
+
+When the figures of one paper are drawn by different authors, matching their look is not enough:
+a reader links two figures by colour, so a hue must mean the same thing wherever it carries meaning.
+Before unifying a multi-author set, write a short palette lock (`PALETTE_LOCK.md`, beside the figure
+manifest) and build every figure from it:
+
+- **Hex → meaning**: each semantic colour and the one thing it stands for in this paper.
+- **Where it applies**: the figures that use the mapping. A colour given a meaning is reserved for
+  it; unrelated categories elsewhere get other colours or shapes, since the visual link survives
+  a legend that is silent about it.
+- **The ramp**: for a quantity compared across panels, fix unit, range, colour map and any
+  diverging midpoint; where panels are normalised separately, say so in each legend.
+- **The font**: one family for the set. Confirm which font the build environment selects, and
+  check the font and line breaks in the exported file.
+
 ---
 
 ## Font Size Table

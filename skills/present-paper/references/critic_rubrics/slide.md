@@ -105,7 +105,10 @@ Run this once on the final deck before sending to a Mac viewer:
 ## H. References and AI policy
 
 33. **Inline citation at point-of-use** — `[Smith 2024]` placed on the slide where the
-    fact appears, not consolidated on a single end-slide.
+    fact appears, not consolidated on a single end-slide. Where the cited work is the
+    speaker's own, ask whether it belongs to this talk's topic or is there because it is
+    theirs; cut an off-topic self-citation, and re-check any disclosure line that it alone
+    required.
 34. **Reference list slide ≤ 1** — if mandated by venue, capped to one slide; otherwise
     move full bibliography to a handout or supplementary.
 35. **AI-image policy verified** — if any visual abstract / Central Illustration is
