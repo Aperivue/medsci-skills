@@ -156,8 +156,10 @@ IMAGE_CAPTION_RE = re.compile(
 # tables, and one standing between a caption and a table separates them.
 PIPE_DELIM_CELL_RE = re.compile(r"^\s*:?-+:?\s*$")
 GRID_BORDER_RE = re.compile(r"^\s*\+(?:[-=:]{2,}\+)+\s*$")
-# A real tag, not the word inside an attribute value: it opens the line or follows a space or ">".
-HTML_TABLE_OPEN_RE = re.compile(r"(?:^|(?<=[\s>]))<table\b[^>]*>", re.IGNORECASE)
+# A real tag opens its line (its attributes may run on to later lines); the word inside another
+# element's attribute value does not.
+HTML_TABLE_OPEN_RE = re.compile(r"^\s*<table\b", re.IGNORECASE)
+ATX_HEADING_RE = re.compile(r"^ {0,3}#{1,6}(?:\s|$)")
 HTML_TABLE_CLOSE_RE = re.compile(r"</table\s*>", re.IGNORECASE)
 
 
@@ -310,7 +312,7 @@ def find_table_blocks(lines: list[str]) -> list[tuple[int, int]]:
     i, n = 0, len(lines)
     while i < n:
         ln = lines[i]
-        if HTML_TABLE_OPEN_RE.search(ln):
+        if HTML_TABLE_OPEN_RE.match(ln):
             j = i
             while j < n and not HTML_TABLE_CLOSE_RE.search(lines[j]):
                 j += 1
@@ -321,17 +323,23 @@ def find_table_blocks(lines: list[str]) -> list[tuple[int, int]]:
         elif GRID_BORDER_RE.match(ln):
             # border, at least one "|" cell row, and a closing border: "+---+" over a list item
             # that starts with "+" is not a table.
+            def cell_row(s: str) -> bool:
+                s = s.strip()
+                return len(s) >= 2 and s.startswith("|") and s.endswith("|")
+
+            width = len(ln.strip())
             j = i
-            while j + 1 < n and (lines[j + 1].lstrip().startswith("|") or GRID_BORDER_RE.match(lines[j + 1])):
+            while j + 1 < n and (cell_row(lines[j + 1]) or GRID_BORDER_RE.match(lines[j + 1])):
                 j += 1
-            if j > i + 1 and GRID_BORDER_RE.match(lines[j]) \
-                    and any(lines[k].lstrip().startswith("|") for k in range(i + 1, j)):
+            if j > i + 1 and GRID_BORDER_RE.match(lines[j]) and len(lines[j].strip()) == width \
+                    and any(cell_row(lines[k]) for k in range(i + 1, j)):
                 blocks.append((i, j))
                 i = j + 1
                 continue
         elif i + 1 < n and _is_pipe_table_head(ln, lines[i + 1]):
             j = i + 1
-            while j + 1 < n and lines[j + 1].strip() and "|" in lines[j + 1]:
+            while j + 1 < n and lines[j + 1].strip() and "|" in lines[j + 1] \
+                    and not ATX_HEADING_RE.match(lines[j + 1]):
                 j += 1
             blocks.append((i, j))
             i = j + 1

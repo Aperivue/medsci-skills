@@ -201,18 +201,31 @@ fi
 # Case 11: a Methods heading inside a fenced code block is an example, not a section;
 # and a heading followed by a no-break space is still a heading.
 # --------------------------------------------------------------------------
-{
-    printf '## Study procedures\nTwo reviewers independently screened titles and abstracts.\n\n'
-    printf '```\n## Materials & Methods\n```\n\n'
-    printf '## Discussion\n\n### Limitations\nWe used a single primary reviewer for data extraction.\n'
-} > "$TMP/c11.md"
-python3 "$SCRIPT" --manuscript "$TMP/c11.md" --out "$TMP/c11.md.audit" --quiet 2> "$TMP/c11.stderr"
-ran=$((ran + 1))
-if grep "Methods section not found" "$TMP/c11.stderr" >/dev/null; then
-    echo "  PASS  case 11: a heading inside a code fence does not count as found"
-else
-    echo "  FAIL  case 11: a fenced example heading silenced the not-found warning"; fail=$((fail + 1))
-fi
+# The fenced example holds a Methods heading AND a dual-review claim; neither is the paper's.
+# Three layouts: a plain fence, a four-tilde fence holding a three-tilde line, an HTML comment.
+c11() {  # c11 <name> <opening line> <inner extra line or ''> <closing line>
+    {
+        printf '## Study procedures\nRecords were screened.\n\n'
+        printf '%s\n' "$2"
+        [ -n "$3" ] && printf '%s\n' "$3"
+        printf '## Materials & Methods\nTwo reviewers independently screened titles and abstracts.\n'
+        printf '%s\n\n' "$4"
+        printf '## Discussion\n\n### Limitations\nWe used a single primary reviewer for data extraction.\n'
+    } > "$TMP/$1.md"
+    python3 "$SCRIPT" --manuscript "$TMP/$1.md" --out "$TMP/$1.md.audit" --quiet 2> "$TMP/$1.stderr"
+    assert_exit "case 11 ($1): an example in a fence or comment is no conflict" 0 $?
+    ran=$((ran + 1))
+    if grep "Methods section not found" "$TMP/$1.stderr" >/dev/null \
+       && grep '"methods_section_found": false' "$TMP/$1.md.audit.json" >/dev/null \
+       && python3 -c "import json,sys; sys.exit(0 if json.load(open(sys.argv[1]))['dual_hits']==[] else 1)" "$TMP/$1.md.audit.json"; then
+        echo "  PASS  case 11 ($1): not found, and no dual claim read from the example"
+    else
+        echo "  FAIL  case 11 ($1): the example was read as manuscript text"; fail=$((fail + 1))
+    fi
+}
+c11 fence '```' '' '```'
+c11 tilde4 '~~~~' '~~~' '~~~~'
+c11 comment '<!--' '' '-->'
 {
     printf '## Methods\302\240\nTwo reviewers independently screened titles and abstracts and extracted data.\n\n'
     printf '## Discussion\n\n### Limitations\nWe used a single primary reviewer for data extraction.\n'

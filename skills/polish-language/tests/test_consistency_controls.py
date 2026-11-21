@@ -65,6 +65,10 @@ class ConsistencyControls(unittest.TestCase):
         self.assertEqual(linter.check_abbreviations([
             'Confidence intervals (CIs) are reported.', 'Each CI was Wald-type.',
             'The CI excluded zero.']), [])
+        # After a singular definition, a plural in parentheses is a use, not a second definition.
+        self.assertEqual(linter.check_abbreviations([
+            'Confidence interval (CI) was defined above.',
+            'The table reports estimates (CIs) in column 2.']), [])
         # A defined abbreviation is found by its own token, whatever its shape. Each of these
         # was "defined but never used" while the use pattern required two leading capitals or
         # stopped at the digits.

@@ -183,8 +183,31 @@ class Report:
     methods_section_found: bool = True
 
 
-# A heading shown inside a fenced code block is an example, not the manuscript's section.
-_FENCED_RE = re.compile(r"^[ \t]*(```|~~~).*?^[ \t]*\1[^\n]*$", re.DOTALL | re.MULTILINE)
+_FENCE_OPEN = re.compile(r"^ {0,3}(`{3,}|~{3,})")
+_HTML_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
+
+
+def visible_text(text: str) -> str:
+    """The manuscript without what a reader does not see as manuscript: HTML comments and
+    fenced code blocks. A fence closes on a line of the same character at least as long as the
+    one that opened it, or at the end of the file. Line count is preserved."""
+    text = _HTML_COMMENT.sub(lambda m: "\n" * m.group(0).count("\n"), text)
+    out, fence = [], None
+    for line in text.split("\n"):
+        if fence is None:
+            m = _FENCE_OPEN.match(line)
+            if m:
+                fence = m.group(1)
+                out.append("")
+            else:
+                out.append(line)
+        else:
+            s = line.strip()
+            if s and set(s) == {fence[0]} and len(s) >= len(fence):
+                fence = None
+            out.append("")
+    return "\n".join(out)
+
 
 METHODS_NOT_FOUND = ("Methods section not found: no heading was recognised as Methods, so a "
                      "dual-review claim in the manuscript was NOT checked against the "
@@ -270,6 +293,8 @@ def scan_deferred_mitigation(manuscript: str) -> list[dict]:
 
 def build_report(manuscript: str, prospero: str | None,
                  extraction: Path | None = None) -> Report:
+    # A heading or a claim inside a code fence or an HTML comment is an example, not the paper.
+    manuscript = visible_text(manuscript)
     sections = split_sections(manuscript)
 
     dual_hits: list[dict] = []
@@ -301,7 +326,7 @@ def build_report(manuscript: str, prospero: str | None,
         single_hits=single_hits,
         llm_reviewer_hits=llm_reviewer_hits,
         deferred_mitigation_hits=deferred_hits,
-        methods_section_found=bool(SECTION_HEADERS["Methods"].search(_FENCED_RE.sub("", manuscript))),
+        methods_section_found=bool(SECTION_HEADERS["Methods"].search(manuscript)),
     )
 
 

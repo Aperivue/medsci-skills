@@ -14,9 +14,10 @@ Outputs:
 Exit codes:
   0  audit_safe (all PRESENT)
   1  arithmetic or cross-reference MISMATCH / MISSING
-  2  not assessed: a file is missing, or no PRISMA number could be read from the
-     figure source or from the manuscript body. The JSON then carries
-     "status": "not_assessed"; it is not evidence that the figure was checked.
+  2  not assessed: a file is missing (no JSON is written), or no PRISMA number
+     could be read from the figure source or from the manuscript body. In the
+     second case the JSON carries "status": "not_assessed"; it is not evidence
+     that the figure was checked.
      An arithmetic mismatch on the side that WAS read is still listed in
      action_items.
 """

@@ -27,11 +27,11 @@ python3 "$DET" --review fixture/disciplined.md   --strict --quiet >/dev/null 2>&
 # "computers", "computed tomography", "derivation cohort", "computational resources".
 # Every radiology review contains the second one. The verbs themselves must still fire.
 nouns="$(python3 "$DET" --review fixture/domain_nouns.md)"
-printf '%s\n' "$nouns" | grep "computation=0 " >/dev/null \
+printf '%s\n' "$nouns" | grep "asks=8 disclosure=8 computation=0 " >/dev/null \
   || { echo "FAIL: a domain noun was read as a computation request:" >&2; printf '%s\n' "$nouns" >&2; pass=0; }
 python3 "$DET" --review fixture/domain_nouns.md --strict --quiet >/dev/null 2>&1 && rn=0 || rn=$?
 [ "$rn" -eq 0 ] || { echo "FAIL: domain_nouns should exit 0 (got $rn)" >&2; pass=0; }
 verbs="$(python3 "$DET" --review fixture/computation_verbs.md)"
-[ "$(printf '%s\n' "$verbs" | grep -c "COMPUTATION_UNJUSTIFIED")" -eq 4 ] \
+[ "$(printf '%s\n' "$verbs" | grep -c "COMPUTATION_UNJUSTIFIED")" -eq 5 ] \
   || { echo "FAIL: 'compute', 'derive' and bare 'computing time/power ...' must still be computation requests:" >&2; printf '%s\n' "$verbs" >&2; pass=0; }
 [ "$pass" -eq 1 ] && echo "PASS: request-type gate flags unjustified computation and clears a disclosure-led review." || exit 1

@@ -154,15 +154,17 @@ REQUEST_CUE_RE = re.compile(
 # review, so the bare stems turned ordinary asks into MAJOR findings. These noun phrases are
 # blanked before COMPUTE_RE reads the ask; the verbs ("compute", "derive", "computing the ...",
 # "computing time to progression") are untouched.
-# "computing time", "computing power" and "computing cost" are nouns only behind a determiner
-# ("the computing time to train the model"). Bare, "computing" is the verb: "consider computing
-# time to progression", "consider computing power for each sample size".
+# "computing <noun>" is a noun phrase only behind a determiner ("the computing time to train the
+# model", "the computing resources used per site"). Bare, "computing" is the verb: "consider
+# computing time to progression", "consider computing resources required per site". A bare noun
+# use ("report computing time on the validation set") therefore still reads as a computation
+# request, as it did before; that direction costs a false flag, the other hides a real request.
 _DET = r"(?:the|their|its|this|that|total|overall|mean|median|average|available|required|training|inference)"
 COMPUTE_NOUN_RE = re.compile(
     r"\bcomputers?\b|\bcomputeri[sz]ed\b|\bcomputed[- ]tomograph\w*|\bcomputational\b|"
     r"\b(?:cloud|edge|distributed|parallel|high[- ]performance|GPU)[- ]computing\b|"
-    r"\bcomputing\s+(?:resources?|hardware|infrastructure|environments?|clusters?|platforms?)\b|"
-    r"\b" + _DET + r"\s+computing\s+(?:time|power|costs?)\b|"
+    r"\b" + _DET + r"\s+computing\s+(?:time|power|costs?|resources?|hardware|infrastructure|"
+    r"environments?|clusters?|platforms?)\b|"
     r"\bderivation(?:\s*(?:and|or|/)\s*(?:validation|test(?:ing)?))?\s+"
     r"(?:cohort|set|sample|group|population|dataset|data)s?\b",
     re.IGNORECASE)

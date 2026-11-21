@@ -176,21 +176,45 @@ ck "  Table 1 is OK"                                   OK "$(status_of forms.md 
 ck "  Table 2 is OK"                                   OK "$(status_of forms.md Table:2)"
 
 # Things that look like a table and are not one. Each follows a caption for a cited Table 1.
-not_a_table() {  # not_a_table <label> <lines after the caption...>
+nat=0
+not_a_table() {  # not_a_table <label> <lines after the caption...>; each call has its own files
   local label="$1"; shift
+  nat=$((nat + 1))
   {
     echo "## Results"; echo
     echo "The values are in Table 1."; echo
     echo "**Table 1.** Results."; echo
     for line in "$@"; do echo "$line"; done
-  } > "$WORK/nat.md"
-  run nat.md >/dev/null
-  ck "not a table: $label" MISSING_BODY "$(status_of nat.md Table:1)"
+  } > "$WORK/nat$nat.md"
+  ck "not a table: $label (exit 1)" 1 "$(run "nat$nat.md")"
+  ck "  Table 1 is MISSING_BODY" MISSING_BODY "$(status_of "nat$nat.md" Table:1)"
 }
 not_a_table "header and delimiter rows with different cell counts" "A | B" "--- | --- | ---"
 not_a_table "a '+---+' line over a '+' list item"                  "+---+" "+ List item"
 not_a_table "'<table>' inside an attribute value"                  '<div data-example="<table></table>"></div>'
 not_a_table "a code fence between the caption and a table"         '```' 'x = 1' '```' "" "| A | B |" "|---|---|" "| 1 | 2 |"
+not_a_table "'<table>' in an attribute value after a space"        '<div title="see <table></table>"></div>'
+not_a_table "an unclosed grid cell row"                            "+---+" "| unfinished" "+------+"
+
+# A heading ends a pipe table; a caption below the heading does not belong to that table.
+{
+  echo "## Results"; echo
+  echo "The values are in Table 1."; echo
+  echo "| A | B |"; echo "|-|-|"; echo "| 1 | 2 |"; echo "## Error | bias"; echo
+  echo "**Table 1.** Results."
+} > "$WORK/heading.md"
+ck "a heading ends the table above it: exit 1"         1 "$(run heading.md)"
+ck "  Table 1 is MISSING_BODY"                         MISSING_BODY "$(status_of heading.md Table:1)"
+
+# An HTML table whose opening tag runs over two lines is a table.
+{
+  echo "## Results"; echo
+  echo "The values are in Table 1."; echo
+  echo "**Table 1.** Results."; echo
+  echo "<table"; echo ' class="results">'; echo "<tr><td>1</td></tr>"; echo "</table>"
+} > "$WORK/htmlwrap.md"
+run htmlwrap.md >/dev/null
+ck "an HTML table with a wrapped opening tag"          OK "$(status_of htmlwrap.md Table:1)"
 
 # A table GFM renders with one-hyphen delimiter cells is a table.
 {
@@ -224,5 +248,5 @@ ck "an inline table nobody cites is UNCITED"           UNCITED "$(status_of unci
 
 echo
 echo "  passed=$pass failed=$fail"
-[ "$fail" -eq 0 ] || { for f in inline notable one uncited pipeprose onetable fenced forms nat short grid; do echo "--- $f"; cat "$WORK/$f.md.out"; done; exit 1; }
+[ "$fail" -eq 0 ] || { for f in inline notable one uncited pipeprose onetable fenced forms short grid heading htmlwrap; do echo "--- $f"; cat "$WORK/$f.md.out"; done; exit 1; }
 echo "OK: a caption line beside its table is a body definition, and the gate still blocks real defects."

@@ -116,7 +116,7 @@ UNIT_RE = re.compile(
 # definition pattern (it does not read "T2" or "H2AX" as an abbreviation), so the uses of an
 # abbreviation that IS defined are counted by its own exact token instead: see _uses_of().
 ABBR_TAIL = r"(?:s|['\u2019]s)?"
-ABBR_DEF_RE = re.compile(r"\(([A-Z][A-Z0-9]{1,5}[0-9]*(?:-[A-Z0-9]{1,6})*)s?\)")
+ABBR_DEF_RE = re.compile(r"\(([A-Z][A-Z0-9]{1,5}[0-9]*(?:-[A-Z0-9]{1,6})*)(s?)\)")
 ABBR_USE_RE = re.compile(
     r"(?<![A-Za-z0-9-])([A-Z]{2,6}[0-9]*(?:-[A-Z0-9]{1,6})*)" + ABBR_TAIL + r"(?![A-Za-z0-9-])")
 
@@ -162,14 +162,22 @@ def check_abbreviations(lines):
     defs = {}          # abbr -> first definition line
     uses = {}          # abbr -> list of (line) excluding the def-parenthesis line
     def_lines = {}     # abbr -> set of lines where defined
+    # A plural in parentheses defines the abbreviation only when nothing defined it earlier:
+    # after "confidence interval (CI)", a later "estimates (CIs)" is a use, not a second definition.
+    first_def = {}     # abbr -> (line, column) of the definition that counts
     for i, line in enumerate(lines, 1):
         for m in ABBR_DEF_RE.finditer(line):
             ab = m.group(1)
+            if m.group(2) and ab in first_def:
+                continue
+            first_def.setdefault(ab, (i, m.start()))
             defs.setdefault(ab, i)
             def_lines.setdefault(ab, set()).add(i)
     for i, line in enumerate(lines, 1):
         # mask the "(ABBR)" definition spans so they don't count as bare uses
-        masked = ABBR_DEF_RE.sub(lambda m: " " * len(m.group(0)), line)
+        masked = ABBR_DEF_RE.sub(
+            lambda m: " " * len(m.group(0))
+            if (not m.group(2) or first_def.get(m.group(1)) == (i, m.start())) else m.group(0), line)
         for m in ABBR_USE_RE.finditer(masked):
             ab = m.group(1)
             if ab not in defs:
