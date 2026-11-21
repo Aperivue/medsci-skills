@@ -49,6 +49,18 @@
   instead of as a major unverified claim. A near match there changes nothing.
 ### Changed
 
+- **`/design-study`, `/design-ai-benchmarking`, `/model-assessment`: design-stage guidance that was
+  missing.** Reader studies: decide the claim's scope for readers and for cases separately (fixed
+  set or defined population) before spending budget on reader breadth; fix a dichotomy's
+  definition before the confirmatory read and record the boundary-defining attributes per reader
+  and case; each record identifies the instrument version the rater actually used. A novelty claim
+  of the form "study X did not do Y" needs X's full text before the design is locked. Benchmarks:
+  the timed comparison read and the reference standard are separate roles; per-category tallies
+  shown to raters are a bias path; merging rating records from several devices must not let an
+  opened or unsubmitted record replace a submitted one. Validation: tie each result to the tool
+  version and configuration that produced it, and compare cohorts only under the same
+  pre-specified inference configuration.
+
 - **Writing and submission guidance in seven skills.** `/find-journal`: when a rejection asks for
   what the data cannot supply, decide first which claim the data support; POLICY now says how to
   search before writing that something was not found. `/add-journal`, `/find-journal` POLICY:

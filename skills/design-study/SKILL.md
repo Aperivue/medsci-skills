@@ -178,6 +178,17 @@ Ask whether the comparator and endpoint support the stated claim:
     effort paired against manual-from-scratch, per
     `references/segmentation_failure_characterization_design.md`. A mean DSC cannot be converted into
     a usability claim after the fact.
+- **differentiation from a named prior study**: when the novelty rests on "study X did not do Y",
+  read X's full text (including supplements) before the design is locked. An abstract reports only
+  part of what a study measured, so a method, category or analysis absent from it may be in
+  the Methods, and the design's central argument fails with it. Until the full text is read, mark
+  the claim `[UNVERIFIED - abstract only]`; `/verify-refs` (claim-evidence workflow) likewise
+  treats abstract-only evidence as unresolved. After reading: if Y is there, revise the novelty
+  claim; if it is not, the supported
+  wording is "Y was not reported in the article or the supplements we reviewed"; when a supplement
+  could not be obtained, name it and keep the novelty claim unverified. "X did not perform Y" needs
+  evidence of non-performance, such as an explicit statement in the paper or the authors'
+  confirmation.
 - **endpoint↔conclusion scope**: decide up front what *kind* of conclusion the design can support. A
   cross-sectional / single-visit / prevalence design cannot support a prognostic or surveillance claim
   (rescreen interval, disease progression) — that needs longitudinal follow-up. A binary surrogate

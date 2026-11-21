@@ -1148,8 +1148,8 @@
     },
     {
       "path": "skills/design-ai-benchmarking/SKILL.md",
-      "size": 9627,
-      "sha256": "fb18e9acb611a51132e25f4f8690ea61138c424ebdda5a18ea32da5c0cfb99d7"
+      "size": 11765,
+      "sha256": "e878a3ff45a9d848d2c17e4f7340fbeb4d27b76ebce12a4c1f7ced68bd9d1c9f"
     },
     {
       "path": "skills/design-ai-benchmarking/references/anchor_rotate_reader_allocation.md",
@@ -1173,8 +1173,8 @@
     },
     {
       "path": "skills/design-study/SKILL.md",
-      "size": 15586,
-      "sha256": "ee49cc85fe95901d752d55a9fe7f78de0af3864523fabcc4ef37012135c47b62"
+      "size": 16505,
+      "sha256": "6a9a24f5ad806741e080e45e555c27f4580761e5ce23a0a9fd8b23ca1e801234"
     },
     {
       "path": "skills/design-study/references/combine_models_ablation_design.md",
@@ -1193,8 +1193,8 @@
     },
     {
       "path": "skills/design-study/references/reader_elicitation_design.md",
-      "size": 8203,
-      "sha256": "5c1d097cedf6bb4c477633ee25847bb9b1462241c8e8abab8ee669eb9f7d898e"
+      "size": 10410,
+      "sha256": "df154459c86ecf62dc57a9cbe9666d2cae8fca2a127fa117f34bf85cbce055ab"
     },
     {
       "path": "skills/design-study/references/segmentation_failure_characterization_design.md",
@@ -3393,8 +3393,8 @@
     },
     {
       "path": "skills/model-assessment/SKILL.md",
-      "size": 18064,
-      "sha256": "cfb3fcd9c4083ce13e08466b8d9557631a150f11d32c446b5a8413cf822d9340"
+      "size": 18619,
+      "sha256": "0b97e285e3a1e4e38c149da8ed44b081099ee08e600244e3d04c19d0e1962481"
     },
     {
       "path": "skills/model-assessment/references/explainability_guide.md",
@@ -3423,8 +3423,8 @@
     },
     {
       "path": "skills/model-assessment/references/validation_design.md",
-      "size": 14815,
-      "sha256": "965210d1cd5c8a7efeee8549e5514a751e31a2c5b548a48d5b2cd68e47e564b0"
+      "size": 16557,
+      "sha256": "5bb328753414a4eb78abddf89158621bec582c756b7419ebcb7bc6bd4e58e397"
     },
     {
       "path": "skills/model-assessment/scripts/check_explainability_report.py",

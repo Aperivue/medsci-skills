@@ -50,6 +50,22 @@ al., *J Clin Epidemiol* 2006).
 - Define a structured export schema (per-item ratings, free-text justifications, follow-ups, timing) up front.
 - Require each item to be judged standalone; discourage cross-item references in free-text, which
   signal non-independent rating.
+- **An unsettled category boundary.** Fix the primary definition of each dichotomy the raters
+  apply (typical vs atypical, in scope vs out of scope), and any alternative definition, before
+  the confirmatory read; choosing among definitions after seeing the results is a selection the
+  agreement statistics cannot undo. If the boundary is still open, explore it in a pilot. A form
+  that records the boundary-defining attributes for only one verdict leaves the other verdict's
+  cases with no record of why, so moving the boundary through them means re-reading them. Record
+  the boundary-defining attributes per reader and case, before adjudication, for every case on the
+  side(s) a boundary move could come from
+  (both sides if unknown), and label agreement computed by re-applying another definition to the
+  recorded attributes as such.
+- **Record which instrument version produced each record.** If the version a rating, labelling or
+  survey tool writes into its records does not change when the tool's content changes, that field
+  alone cannot establish whether the instrument changed during collection. Each submitted record
+  must identify the instrument version the rater actually used (the form as loaded, not the
+  server's version at submission), by an identifier that changes
+  whenever the instrument's content changes.
 
 **Human-as-operator arm (interactive / promptable AI).** The reader-study patterns above assume the
 human is a *rater / reference* judging outputs. Interactive / promptable segmentation (SAM2, MedSAM2,
@@ -89,8 +105,17 @@ of the journal you actually want):
 4. **Reader independence and breadth.** Recruit an independent, non-author, multi-site (ideally
    multi-national) reader cohort; collect reader characteristics; blind readers to the hypothesis
    where feasible.
-5. **Estimand and power (generalize, don't condition).** Power the reader-AND-case generalization as
-   the **primary** estimand from the start, so the two-way interval — not a pool-conditional number —
+   Define the target reader population first; multi-site recruitment as above is how to cover
+   it when the claim is meant to hold across institutions. Decide the
+   claim's scope for readers and for cases separately: a fixed set (this named panel, this
+   benchmark case set) or a defined population. The analysis reflects sampling variation only on
+   the axes being generalised, a result on a fixed axis is reported as conditional on that set,
+   and recruitment breadth follows that scope. When a named panel scores a property of the model
+   or system, state its composition, training and disagreement-resolution rule; high agreement
+   does not reveal a bias the whole panel shares.
+5. **Estimand and power (match decision 4).** Define the primary endpoint and contrast on the
+   reader and case scope set in decision 4, and size the study for it (power for a test, interval
+   width for an estimate); when the scope is the reader-AND-case generalization, make it the **primary** estimand from the start, so the two-way interval — not a pool-conditional number —
    supports the headline claim. Fix the analysis model at the same time, once the outcome type, link,
    reader/case sampling, estimand (conditional or population-average) and any weights are defined:
    for a conditional reader-and-case estimand, a mixed model with crossed reader and case random
