@@ -144,10 +144,19 @@ IMAGE_CAPTION_RE = re.compile(
 #
 #     | Characteristic | Value |
 #
-# A caption line counts as a definition only when a table row is the nearest non-blank line on
-# one side of it. Adjacency is the whole test: a paragraph that merely begins "Table 1. ..." with
-# prose around it is not a definition, so a cited table that is defined nowhere still blocks.
-TABLE_ROW_RE = re.compile(r"^\s*(?:\||\+[-=]{2,}|<table\b)", re.IGNORECASE)
+# A caption line counts as a definition only when it is the nearest non-blank line above or
+# below an actual table block, and one table block defines at most one caption. A paragraph that
+# merely begins "Table 1. ..." with prose around it is not a definition, a line that happens to
+# start with "|" is not a table, and a single table cannot define the caption above it and a
+# different one below it, so a cited table that is defined nowhere still blocks.
+#
+# A table block is a pipe table (a row containing "|" followed by a delimiter row; the outer
+# pipes are optional), a grid table ("+---+" border), or an HTML <table>...</table> element.
+# Fenced code blocks and HTML comments are not rendered and are skipped.
+PIPE_DELIM_RE = re.compile(r"^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)*\|?\s*$")
+GRID_BORDER_RE = re.compile(r"^\s*\+(?:[-=:]{2,}\+)+\s*$")
+HTML_TABLE_OPEN_RE = re.compile(r"<table\b", re.IGNORECASE)
+HTML_TABLE_CLOSE_RE = re.compile(r"</table\s*>", re.IGNORECASE)
 
 # Section header patterns for the manuscript body's caption sections.
 # Longer alternatives MUST come first so that "FIGURE LEGENDS" is not
@@ -274,28 +283,68 @@ def find_caption_section_ranges(md_text: str) -> list[tuple[int, int]]:
     return ranges
 
 
+def find_table_blocks(lines: list[str]) -> list[tuple[int, int]]:
+    """(first, last) line indexes of each table block in already-masked lines."""
+    blocks: list[tuple[int, int]] = []
+    i, n = 0, len(lines)
+    while i < n:
+        ln = lines[i]
+        if HTML_TABLE_OPEN_RE.search(ln):
+            j = i
+            while j < n and not HTML_TABLE_CLOSE_RE.search(lines[j]):
+                j += 1
+            if j < n:                      # an unclosed <table> is not a table block
+                blocks.append((i, j))
+                i = j + 1
+                continue
+        elif GRID_BORDER_RE.match(ln):
+            j = i
+            while j + 1 < n and lines[j + 1].lstrip()[:1] in ("+", "|"):
+                j += 1
+            if j > i:
+                blocks.append((i, j))
+                i = j + 1
+                continue
+        elif "|" in ln and i + 1 < n and "|" in lines[i + 1] and PIPE_DELIM_RE.match(lines[i + 1]):
+            j = i + 1
+            while j + 1 < n and lines[j + 1].strip() and "|" in lines[j + 1]:
+                j += 1
+            blocks.append((i, j))
+            i = j + 1
+            continue
+        i += 1
+    return blocks
+
+
 def find_inline_table_captions(md_text: str) -> list[tuple[int, int, "re.Match[str]"]]:
     """(start, end, match) for each table caption line that sits directly beside its table."""
-    lines = md_text.splitlines(keepends=True)
+    raw = md_text.splitlines(keepends=True)
     starts, pos = [], 0
-    for ln in lines:
+    for ln in raw:
         starts.append(pos)
         pos += len(ln)
+    lines = [ln.rstrip("\r\n") for ln in mask_inert(md_text).splitlines(keepends=True)]
 
-    def neighbour(i: int, step: int) -> str:
+    def caption_at(i: int):
+        m = CAPTION_RE.match(lines[i]) if 0 <= i < len(lines) else None
+        return m if m and m.group(2).lower().startswith("table") else None
+
+    def neighbour(i: int, step: int) -> int:
         j = i + step
         while 0 <= j < len(lines) and not lines[j].strip():
             j += step
-        return lines[j] if 0 <= j < len(lines) else ""
+        return j
 
+    claimed: set[int] = set()
     found = []
-    for i, ln in enumerate(lines):
-        m = CAPTION_RE.match(ln.rstrip("\r\n"))
-        if not m or not m.group(2).lower().startswith("table"):
-            continue
-        if TABLE_ROW_RE.match(neighbour(i, 1)) or TABLE_ROW_RE.match(neighbour(i, -1)):
-            found.append((starts[i], starts[i] + len(ln), m))
-    return found
+    for first, last in find_table_blocks(lines):
+        for idx in (neighbour(first, -1), neighbour(last, 1)):   # the caption above wins
+            m = caption_at(idx)
+            if m and idx not in claimed:
+                claimed.add(idx)
+                found.append((starts[idx], starts[idx] + len(raw[idx]), m))
+                break
+    return sorted(found, key=lambda t: t[0])
 
 
 def extract_body_captions(md_text: str) -> dict[str, Caption]:

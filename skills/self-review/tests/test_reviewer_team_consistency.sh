@@ -138,7 +138,7 @@ assert_exit "case 7: human reviewers in extraction JSON (PASS)" 0 $?
 # case the heading was not recognised, the Methods text was empty, the dual
 # claim was never seen and the conflict below PASSED.
 # --------------------------------------------------------------------------
-for heading in "Materials & Methods" 'Materials \& Methods' "MATERIALS AND METHODS" \
+for heading in "Materials & Methods" 'Materials \& Methods' "Material and Methods" \
                "Patients and Methods" "Methods and Materials"; do
     {
         printf '## %s\n' "$heading"
@@ -159,9 +159,12 @@ done
     printf '## Discussion\n\n### Limitations\n'
     printf 'We used a single primary reviewer for data extraction.\n'
 } > "$TMP/c9.md"
-out9="$(python3 "$SCRIPT" --manuscript "$TMP/c9.md" --out "$TMP/c9.md.audit" 2>&1)"
+python3 "$SCRIPT" --manuscript "$TMP/c9.md" --out "$TMP/c9.md.audit" --quiet \
+    > "$TMP/c9.stdout" 2> "$TMP/c9.stderr"
+assert_exit "case 9: missing Methods heading keeps exit 0" 0 $?
 ran=$((ran + 1))
-if printf '%s' "$out9" | grep "Methods section not found" >/dev/null \
+if grep "Methods section not found" "$TMP/c9.stderr" >/dev/null \
+   && ! grep "Methods section not found" "$TMP/c9.stdout" >/dev/null \
    && grep "Methods section not found" "$TMP/c9.md.audit" >/dev/null \
    && grep '"methods_section_found": false' "$TMP/c9.md.audit.json" >/dev/null; then
     echo "  PASS  case 9: missing Methods heading is reported"
@@ -174,6 +177,24 @@ if grep '"methods_section_found": true' "$TMP/c1.md.audit.json" >/dev/null \
     echo "  PASS  case 9b: a recognised Methods heading carries no warning"
 else
     echo "  FAIL  case 9b: warning or flag wrong on a recognised heading"; fail=$((fail + 1))
+fi
+
+# --------------------------------------------------------------------------
+# Case 10: a heading that only starts like a compound Methods heading is not one.
+# "## Patients" followed by a body line "and Methods ..." has no Methods section.
+# --------------------------------------------------------------------------
+{
+    printf '## Patients\nand Methods of recruitment are described elsewhere.\n'
+    printf 'Two reviewers independently screened titles and abstracts.\n\n'
+    printf '## Discussion\n\n### Limitations\n'
+    printf 'We used a single primary reviewer for data extraction.\n'
+} > "$TMP/c10.md"
+python3 "$SCRIPT" --manuscript "$TMP/c10.md" --out "$TMP/c10.md.audit" --quiet 2> "$TMP/c10.stderr"
+ran=$((ran + 1))
+if grep "Methods section not found" "$TMP/c10.stderr" >/dev/null; then
+    echo "  PASS  case 10: a heading split across lines is not a Methods heading"
+else
+    echo "  FAIL  case 10: '## Patients' + 'and Methods' was read as a Methods heading"; fail=$((fail + 1))
 fi
 
 echo ""

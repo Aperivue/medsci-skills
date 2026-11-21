@@ -17,6 +17,9 @@ Exit codes:
   2  not assessed: a file is missing, or no PRISMA number could be read from the
      figure source or from the manuscript body. The JSON then carries
      "status": "not_assessed"; it is not evidence that the figure was checked.
+     If the side that WAS read fails its own arithmetic, that mismatch is a found
+     defect and the exit code is 1; the status stays "not_assessed" because the
+     body was never compared with the figure.
 """
 from __future__ import annotations
 
@@ -229,7 +232,8 @@ def main() -> int:
     if not_assessed:
         for a in not_assessed:
             print(f"ERROR: {a}", file=sys.stderr)
-        return 2
+        found_mismatch = any(r["status"] == "MISMATCH" for r in arith_body + arith_figure)
+        return 1 if found_mismatch else 2
     return 0 if audit_safe else 1
 
 

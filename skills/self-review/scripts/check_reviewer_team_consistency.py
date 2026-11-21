@@ -146,9 +146,9 @@ DEFERRED_MITIGATION_RE = re.compile(
 # cannot contain a dual-review claim, so the check passed without having looked.
 SECTION_HEADERS = {
     "Methods": re.compile(
-        r"^#{1,3}\s*\*{0,2}(?:Methods?"
-        r"|(?:Materials|Patients|Subjects|Participants)\s*(?:and|\\?&)\s*Methods"
-        r"|Methods\s*(?:and|\\?&)\s*Materials)\*{0,2}\s*$",
+        r"^#{1,3}[ \t]*\*{0,2}(?:Methods?"
+        r"|(?:Materials?|Patients|Subjects|Participants)(?:[ \t]+and[ \t]+|[ \t]*\\?&[ \t]*)Methods?"
+        r"|Methods?(?:[ \t]+and[ \t]+|[ \t]*\\?&[ \t]*)Materials?)\*{0,2}[ \t]*$",
         re.IGNORECASE | re.MULTILINE,
     ),
     "Discussion": re.compile(

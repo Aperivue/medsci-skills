@@ -923,8 +923,8 @@
     },
     {
       "path": "skills/check-reporting/scripts/check_prisma_figure.py",
-      "size": 9446,
-      "sha256": "0e2870cfdca384e88309cb1bea7c91f52fa0d6cc49ce6f57ac5367ca96d008a8"
+      "size": 9770,
+      "sha256": "dc6722969cab4e777bb42ed937f0dcebcded52b9c71523e040a49e7b9b478bd9"
     },
     {
       "path": "skills/check-reporting/scripts/prisma_cascade_check.py",
@@ -3013,8 +3013,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_xref.py",
-      "size": 38425,
-      "sha256": "37a85003be1e51d5dc5a319358afb1740ffac113e0a43deaa6ac339d6bc4496f"
+      "size": 40531,
+      "sha256": "c05117377a0336a428985c2f3b8250575d62fdbb8573b7303365a943c9ca10b2"
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",
@@ -4283,8 +4283,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types.py",
-      "size": 14618,
-      "sha256": "e254c721b5e762231bc57d34763c84bee615c581250526810b8e0decaf89dd8b"
+      "size": 15263,
+      "sha256": "237bc558bd2c6d2913139ba31bea76362e1e7b5ae575281332f881a67fb41eef"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/disciplined.txt",
@@ -4298,8 +4298,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/computation_verbs.md",
-      "size": 160,
-      "sha256": "d2b3db2d3219d6079a21d57360f241244dcb6f41708dd3dd98bbbd5f87db2fac"
+      "size": 231,
+      "sha256": "1f9b010281f9583487652584145e95e75d6f08a73775e4d228de21c1b86488e1"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/disciplined.md",
@@ -4308,8 +4308,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/domain_nouns.md",
-      "size": 355,
-      "sha256": "a51622ee570da51379510b10fed0524ef709ad032036a3eb02ba231e64055e23"
+      "size": 518,
+      "sha256": "8d30dc576fd62ca97da8bb4a3315203ed51a0a8f1a619b9090ed24a8885da25b"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/undisciplined.md",
@@ -4323,8 +4323,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/verify.sh",
-      "size": 2986,
-      "sha256": "baadffe179f50512c51ae0050dc22a723be3b0fc12e1863399db6ccf1a907fad"
+      "size": 3011,
+      "sha256": "4bbfb202e3d3eedfd4fa9a7c0b6510b81e61ab84170fb606729b923dbc2fd0dc"
     },
     {
       "path": "skills/peer-review/scripts/check_self_improvement_claims.py",
@@ -4378,8 +4378,8 @@
     },
     {
       "path": "skills/polish-language/scripts/lint_consistency.py",
-      "size": 16672,
-      "sha256": "d740446f56f456c3339735ee58f4f189924f58c49842399cb4a272096d0c7763"
+      "size": 16858,
+      "sha256": "114d870ef5ae04924c208d2084b6ec720fc11a32ce7d88f0753e2db3c2379fdc"
     },
     {
       "path": "skills/polish-language/scripts/lint_figure_locale.py",
@@ -5773,8 +5773,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_reviewer_team_consistency.py",
-      "size": 16820,
-      "sha256": "b5ec7fb7964ebda7e7809be7e8b17a990862667fb1c8423ce7c3e6b196452ee3"
+      "size": 16866,
+      "sha256": "81fe8707deeb79ffb13fe12e711f585ba5a14cb6e1cbc09083ca610efc4449f0"
     },
     {
       "path": "skills/self-review/scripts/check_rhetorical_density.py",
@@ -6498,8 +6498,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/scope_drift_check.py",
-      "size": 12143,
-      "sha256": "4c9b6d38c6582df64a52fad359648e355716f0a7fdbffee2f54e382811d70032"
+      "size": 12189,
+      "sha256": "1b0057aa2fe7dba64100f30a96362e8b73c5d0f46d39e5e404c5a01e8494e409"
     },
     {
       "path": "skills/sync-submission/scripts/sync_submission.py",

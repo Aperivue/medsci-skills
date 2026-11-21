@@ -128,6 +128,53 @@ mk_docx "$WORK/partial.docx" "Table 1. Baseline characteristics of the synthetic
 ck "Table 3 absent from the DOCX: exit 1"              1 "$(run inline.md partial.docx)"
 ck "  Table 3 is MISSING_DOCX"                         MISSING_DOCX "$(status_of inline.md Table:3)"
 
+# A line that merely starts with "|" is not a table: here it is an absolute-value expression.
+{
+  echo "## Results"; echo
+  echo "The error metric is defined in Table 1."; echo
+  echo "**Table 1.** Error metric."; echo
+  echo "|x - y| denotes the absolute error between readers."
+} > "$WORK/pipeprose.md"
+ck "a '|' that is not a table: exit 1"                 1 "$(run pipeprose.md)"
+ck "  Table 1 is MISSING_BODY"                         MISSING_BODY "$(status_of pipeprose.md Table:1)"
+
+# One table cannot define the caption above it and a different caption below it.
+{
+  echo "## Results"; echo
+  echo "Baseline characteristics are in Table 1 and outcomes in Table 2."; echo
+  echo "**Table 1.** Baseline characteristics of the synthetic cohort."; echo
+  echo "$TABLE"; echo
+  echo "**Table 2.** Outcomes by study arm."
+} > "$WORK/onetable.md"
+ck "one table, two captions: exit 1"                   1 "$(run onetable.md)"
+ck "  Table 1 (above) is OK"                           OK "$(status_of onetable.md Table:1)"
+ck "  Table 2 (no table of its own) is MISSING_BODY"   MISSING_BODY "$(status_of onetable.md Table:2)"
+
+# A caption and table shown inside a fenced code block are an example, not a float.
+{
+  echo "## Results"; echo
+  echo "Baseline characteristics are in Table 1."; echo
+  echo '```'
+  echo "**Table 1.** Baseline characteristics of the synthetic cohort."; echo
+  echo "$TABLE"
+  echo '```'
+} > "$WORK/fenced.md"
+ck "caption and table inside a code fence: exit 1"     1 "$(run fenced.md)"
+ck "  Table 1 is MISSING_BODY"                         MISSING_BODY "$(status_of fenced.md Table:1)"
+
+# Table forms other than a fully piped table: no outer pipes, and HTML with the caption below.
+{
+  echo "## Results"; echo
+  echo "Ages are in Table 1 and sites in Table 2."; echo
+  echo "**Table 1.** Age by group."; echo
+  echo "Group | N"; echo "--- | ---"; echo "A | 4"; echo
+  echo "<table>"; echo "<tr><td>Site</td><td>N</td></tr>"; echo "</table>"; echo
+  echo "**Table 2.** Participants by site."
+} > "$WORK/forms.md"
+ck "pipe table without outer pipes, HTML table: exit 0" 0 "$(run forms.md)"
+ck "  Table 1 is OK"                                   OK "$(status_of forms.md Table:1)"
+ck "  Table 2 is OK"                                   OK "$(status_of forms.md Table:2)"
+
 # The caption line must not count as a citation of its own table.
 {
   echo "## Results"; echo
@@ -140,5 +187,5 @@ ck "an inline table nobody cites is UNCITED"           UNCITED "$(status_of unci
 
 echo
 echo "  passed=$pass failed=$fail"
-[ "$fail" -eq 0 ] || { for f in inline notable one uncited; do echo "--- $f"; cat "$WORK/$f.md.out"; done; exit 1; }
+[ "$fail" -eq 0 ] || { for f in inline notable one uncited pipeprose onetable fenced forms; do echo "--- $f"; cat "$WORK/$f.md.out"; done; exit 1; }
 echo "OK: a caption line beside its table is a body definition, and the gate still blocks real defects."

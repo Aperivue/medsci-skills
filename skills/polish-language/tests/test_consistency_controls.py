@@ -51,16 +51,24 @@ class ConsistencyControls(unittest.TestCase):
             self.assertEqual(linter.check_abbreviations([
                 f'Expanded name ({abbr}) was introduced.', f'{abbr} was used.']), [])
 
-    def test_plural_and_possessive_forms_count_as_uses(self):
+    def test_plural_forms_count_as_uses(self):
         # "CIs" is a use of CI. Reading it as nothing reported a used abbreviation as
         # "defined but never used", which is advice to delete it from the list.
-        for use in ('All 95% CIs were Wald-type.', "The CI's width was reported.",
-                    'The CI\u2019s width was reported.'):
+        self.assertEqual(linter.check_abbreviations([
+            'Confidence interval (CI) is reported.', 'All 95% CIs were Wald-type.']), [])
+        # The possessive was already a use; it must stay one.
+        for use in ("The CI's width was reported.", 'The CI\u2019s width was reported.'):
             self.assertEqual(linter.check_abbreviations([
                 'Confidence interval (CI) is reported.', use]), [], use)
-        # A plural definition, "(CIs)", defines CI.
+        # A plural definition, "(CIs)", defines CI. Two singular uses follow it, so a definition
+        # that was not read would surface as "used 2x but never defined".
         self.assertEqual(linter.check_abbreviations([
-            'Confidence intervals (CIs) are reported.', 'Each CI was Wald-type.', 'CIs were wide.']), [])
+            'Confidence intervals (CIs) are reported.', 'Each CI was Wald-type.',
+            'The CI excluded zero.']), [])
+        # Letters after the digits: the definition and the use must read the same token.
+        self.assertEqual(linter.check_abbreviations([
+            'Interleukin-2 receptors (IL2Rs) were measured.', 'Both IL2Rs were detected.',
+            'IL2R density was reported.']), [])
 
     def test_plural_handling_does_not_hide_real_findings(self):
         # A plural use of an undefined abbreviation is still an undefined use.

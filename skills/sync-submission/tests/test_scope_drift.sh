@@ -101,6 +101,19 @@ assert "Freeman-Tukey" in methods_listed, methods_listed
 PY
 
 # --------------------------------------------------------------------------
+# Case 3b: the same commitment, met in a section headed "Materials & Methods". Before the
+# heading was recognised the Methods text was empty and this reported the method as absent.
+# --------------------------------------------------------------------------
+MS3B="$TMP/case3b.md"
+{
+    printf '## Materials & Methods\n'
+    printf 'Proportions were pooled after Freeman-Tukey transformation with a DerSimonian-Laird random-effects model.\n\n'
+    printf '## Results\nPooled value 0.50.\n'
+} > "$MS3B"
+python3 "$SCRIPT" --manuscript "$MS3B" --prospero "$PR3" --out "$TMP/case3b.json" --quiet
+assert_exit "case 3b: Freeman-Tukey under 'Materials & Methods'" 0 $?
+
+# --------------------------------------------------------------------------
 # Case 4: no prospero supplied + clean manuscript = PASS.
 # --------------------------------------------------------------------------
 MS4="$TMP/case4.md"

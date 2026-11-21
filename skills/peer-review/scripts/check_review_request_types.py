@@ -65,18 +65,10 @@ ASK_RE = re.compile(r"^\s{0,3}(?:[-*+]|\d{1,2}[.)])\s+(.*\S)\s*$")
 # --- request classes -------------------------------------------------------
 # High-precision only. Bare "model" / "test" / "estimate" are excluded: they
 # appear in disclosure asks ("whether the model is released", "the index test").
-#
-# A stem is not a verb. "comput" also begins "computers", "computed tomography" and
-# "computational resources", and "deriv" begins "derivation cohort"; an ask that only
-# names one of those is a disclosure request. The second appears in nearly every
-# radiology review, so the unguarded stems turned ordinary asks into MAJOR findings.
-_COMPUT_NOUN = (r"(?!ers?\b|ed[- ]tomograph|ational\b|"
-                r"ing\s+(?:time|resources?|hardware|power|infrastructure|environment|cluster)\b)")
-_DERIV_NOUN = r"(?!ation\s+(?:cohort|set|sample|group|population|data(?:set)?)\b)"
 COMPUTE_RE = re.compile(
     r"\b(?:"
-    r"re-?comput\w*|comput" + _COMPUT_NOUN + r"\w+|re-?calculat\w*|calculat\w+|"
-    r"re-?deriv\w*|deriv" + _DERIV_NOUN + r"\w+|propagat\w+|bootstrap\w*|"
+    r"re-?comput\w*|comput\w+|re-?calculat\w*|calculat\w+|"
+    r"re-?deriv\w*|deriv\w+|propagat\w+|bootstrap\w*|"
     r"re-?run|rerun|re-?analys\w+|re-?analyz\w+|reanalys\w+|reanalyz\w+|"
     r"re-?fit\b|fit\s+(?:a|the)\b|model(?:l?ing|\s+(?:the|percentiles|these))|"
     r"simulat\w+|imput\w+|re-?weight\w*|inverse[- ]probability|"
@@ -156,6 +148,28 @@ REQUEST_CUE_RE = re.compile(
     r"I (?:would )?(?:suggest|ask|request|recommend))\b", re.I)
 
 
+# A stem is not a verb. "comput" also begins "computers", "computed tomography" and
+# "computational resources", and "deriv" begins "derivation cohort"; an ask that only names
+# one of those is a disclosure request. The imaging modality is in nearly every radiology
+# review, so the bare stems turned ordinary asks into MAJOR findings. These noun phrases are
+# blanked before COMPUTE_RE reads the ask; the verbs ("compute", "derive", "computing the ...",
+# "computing time to progression") are untouched.
+COMPUTE_NOUN_RE = re.compile(
+    r"\bcomputers?\b|\bcomputeri[sz]ed\b|\bcomputed[- ]tomograph\w*|\bcomputational\b|"
+    r"\b(?:cloud|edge|distributed|parallel|high[- ]performance|GPU)[- ]computing\b|"
+    r"\bcomputing\s+(?:resources?|hardware|power|infrastructure|environments?|clusters?|"
+    r"platforms?|costs?)\b|"
+    r"\bcomputing\s+time\b(?!\s+to\b)|"
+    r"\bderivation(?:\s+(?:and|or)\s+(?:validation|test(?:ing)?))?\s+"
+    r"(?:cohort|set|sample|group|population|dataset|data)s?\b",
+    re.IGNORECASE)
+
+
+def _without_compute_nouns(ask: str) -> str:
+    """The ask with domain noun phrases blanked, offsets kept (negators are found by position)."""
+    return COMPUTE_NOUN_RE.sub(lambda m: " " * len(m.group(0)), ask)
+
+
 def _unnegated(pat: re.Pattern, ask: str) -> bool:
     """True iff at least one match of `pat` is not preceded by a negator."""
     return any(not NEGATOR_RE.search(ask[: m.start()]) for m in pat.finditer(ask))
@@ -215,7 +229,7 @@ def audit(text: str, source: str, max_computation: int = 2) -> Report:
             continue
 
         is_new_data = _unnegated(NEW_DATA_RE, ask)
-        is_compute = _unnegated(COMPUTE_RE, ask)
+        is_compute = _unnegated(COMPUTE_RE, _without_compute_nouns(ask))
 
         if is_new_data:
             rep.new_data += 1
