@@ -76,7 +76,8 @@ ck "  both are minor, none major"                              0 "$(field e2 "d[
 ck "  summary counts them apart from extraction doubts"        2,0 "$(field e2 "str(d['summary']['in_extra_source'])+','+str(d['summary']['unresolved'])")"
 ck "  the quote names the title page"                          True "$(field e2 "[f['source'].endswith('title_page.md') for f in d['findings'] if f['verdict']=='RESPONSE_QUOTE_IN_EXTRA_SOURCE']==[True]")"
 ck "  the citation names the supplement"                       True "$(field e2 "[f['source'].endswith('supplement.md') for f in d['findings'] if f['verdict']=='RESPONSE_CITATION_IN_EXTRA_SOURCE']==[True]")"
-ck "  the file is printed for the reader"                      2 "$(grep -c "Confirm that is where the letter says" "$TMP/e2.out")"
+ck "  the title page path is printed"                          1 "$(grep -c "present word for word in .*title_page.md" "$TMP/e2.out")"
+ck "  the supplement path is printed"                          1 "$(grep -c "found in .*supplement.md" "$TMP/e2.out")"
 
 echo "==== NEGATIVE CONTROLS: an extra source excuses only what it contains ===="
 ck "title page only: exit 1" 1 \
@@ -102,6 +103,18 @@ ck "quote present in the manuscript: exit 0" 0 \
    "$(run n4 inbody.md body.md --extra-source "$TMP/supplement.md")"
 ck "  no finding at all"                                       0 "$(field n4 "len(d['findings'])")"
 
+# The same letter against a manuscript without that sentence: the claim IS extracted and fires.
+printf '## Methods\nReaders were blinded.\n' > "$TMP/body_without.md"
+ck "the same quote, absent from the manuscript: exit 1"        1 "$(run n5 inbody.md body_without.md)"
+ck "  RESPONSE_QUOTE_UNVERIFIED"  RESPONSE_QUOTE_UNVERIFIED "$(verdicts n5)"
+
+# The supplement has reference [22] under another author: the claimed citation is not there.
+printf '## Supplementary Methods\nCalibration followed Smith et al. [22].\n' > "$TMP/supp_other.md"
+printf 'We now cite Okafor et al. [22] in the Supplementary Methods.\n' > "$TMP/cite.md"
+ck "the number matches, the author does not: exit 1" 1 \
+   "$(run n6 cite.md body.md --extra-source "$TMP/supp_other.md")"
+ck "  RESPONSE_CITATION_UNVERIFIED"  RESPONSE_CITATION_UNVERIFIED "$(verdicts n6)"
+
 echo "==== input errors ===="
 ck "missing --extra-source file: exit 2" 2 \
    "$(run x1 elsewhere.md body.md --extra-source "$TMP/does_not_exist.md")"
@@ -110,6 +123,12 @@ ck "--extra-source is the response letter itself: exit 2" 2 \
 ck "--extra-source is the manuscript itself: exit 2" 2 \
    "$(run x3 nowhere.md body.md --extra-source "$TMP/body.md")"
 ck "  and no report is written for an input error"             NOJSON "$(field x2 "1")"
+# --out must not be an input: the report would overwrite the evidence it just read.
+cp "$TMP/supplement.md" "$TMP/supp_copy.md"
+python3 "$V" --response "$TMP/elsewhere.md" --manuscript "$TMP/body.md" \
+  --extra-source "$TMP/supp_copy.md" --out "$TMP/supp_copy.md" > "$TMP/x4.out" 2>&1
+ck "--out names an input file: exit 2"                         2 "$?"
+ck "  and the input file is untouched"                         same "$(cmp -s "$TMP/supplement.md" "$TMP/supp_copy.md" && echo same || echo changed)"
 
 echo "----"
 echo "test_response_claim_sources: $pass passed, $fail failed"

@@ -546,6 +546,11 @@ def build_report(response_path: Path, manuscript_path: Path, values: list | None
     response = read_text(response_path)
     body = read_text(manuscript_path)
     norm_body = normalize(body)
+    for p in (extra_sources or []):
+        # The letter quotes itself word for word, and the manuscript is already searched.
+        if p.samefile(response_path) or p.samefile(manuscript_path):
+            raise ValueError(f"extra source {p} is the response letter or the manuscript itself; "
+                             "an extra source must be a different file the revision changed")
     extras = [(p, read_text(p)) for p in (extra_sources or [])]
     findings = []
     for kind, anchor, ctx in extract_claims(response):
@@ -612,7 +617,11 @@ def build_report(response_path: Path, manuscript_path: Path, values: list | None
                     )
         elif kind == "citation":
             if not body_has_citation(body, norm_body, anchor):
-                src = next((sp for sp, st in extras if body_has_citation(st, normalize(st), anchor)), None)
+                # In the manuscript any one cited token is enough, as before. An extra source
+                # lowers a verdict, so there every token the letter names must be present: a
+                # supplement that has "[22]" under another author does not carry the claim.
+                src = next((sp for sp, st in extras
+                            if all(body_has_citation(st, normalize(st), [tok]) for tok in anchor)), None)
                 if src is not None:
                     findings.append(
                         {
@@ -678,6 +687,12 @@ def main(argv: list[str] | None = None) -> int:
             if p.samefile(other):
                 print(f"error: --extra-source {p} is the same file as {name}; an extra source "
                       "must be a different file the revision changed", file=sys.stderr)
+                return 2
+    if args.out is not None and args.out.exists():
+        for inp in (args.response, args.manuscript, *args.extra_source):
+            if args.out.samefile(inp):
+                print(f"error: --out {args.out} is an input file; the report would overwrite it",
+                      file=sys.stderr)
                 return 2
 
     values = None

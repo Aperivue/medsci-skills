@@ -4833,13 +4833,13 @@
     },
     {
       "path": "skills/revise/scripts/check_density_complaint.py",
-      "size": 12137,
-      "sha256": "6b6f6a906bba10ceb95c6e45be3156252764146b83a27693e782add5b405dbbd"
+      "size": 12402,
+      "sha256": "f170605040ba7c825f042348b6de79a5b5c5cb90551be1ffa54f73e8c6a8f14e"
     },
     {
       "path": "skills/revise/scripts/check_response_claims.py",
-      "size": 35732,
-      "sha256": "c2cadca5c680e325e5e97254ee4f1753fd0ab515349cd9848a5ea41d7aa502f5"
+      "size": 36774,
+      "sha256": "35cef7f5361cf4a719cd9ac1b9926c9dfee303e25f4b77b6c6960a1378ad84b3"
     },
     {
       "path": "skills/revise/scripts/density_complaint_challenge/fixture/decision_letter.md",

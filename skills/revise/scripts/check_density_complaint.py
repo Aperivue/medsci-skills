@@ -69,23 +69,27 @@ COMPLAINT = re.compile(
 # for the registry came from ...". Ending the body there measured only the text above it in BOTH
 # versions, so a revision that had been cut was reported as unchanged.
 _HS = r"[^\S\r\n]"          # horizontal whitespace; never crosses a line
-_END_WORD = (r"references|acknowledg\w*|funding|conflicts?|data availability|supplementary|"
+_END_WORD = (r"references|acknowledge?ments?|funding|conflicts?|data availability|supplementary|"
              r"supporting information|figure legends?")
 _END_NAME = (
     r"references?(?:" + _HS + r"+list)?|bibliography|acknowledge?ments?|"
     r"funding(?:" + _HS + r"+(?:sources?|information|statement|support))?|"
-    r"conflicts?(?:" + _HS + r"+of" + _HS + r"+interests?(?:" + _HS + r"+statement)?)?|"
-    r"competing" + _HS + r"+interests?|"
+    r"conflicts?(?:" + _HS + r"+of" + _HS + r"+interests?(?:" + _HS + r"+(?:statement|disclosures?))?)?|"
+    r"competing" + _HS + r"+interests?|disclosures?|"
     r"declarations?" + _HS + r"+of" + _HS + r"+(?:competing" + _HS + r"+|conflicting" + _HS + r"+)?interests?|"
     r"data" + _HS + r"+(?:availability|sharing)(?:" + _HS + r"+statement)?|"
-    r"supplementary(?:" + _HS + r"+(?:materials?|information|data|files?|appendix|appendices|methods|results))?|"
+    r"supplementary(?:" + _HS + r"+(?:materials?|information|data|files?|appendix|appendices|methods|"
+    r"results|tables?|figures?|text|notes?))?|"
     r"supporting" + _HS + r"+information|figure" + _HS + r"+legends?"
 )
+_NUMBERING = r"(?:\d+(?:\.\d+)*\.?" + _HS + r"+)?"
 BODY_END = re.compile(
     r"^" + _HS + r"*(?:"
-    r"#{1,6}" + _HS + r"*\**" + _HS + r"*(?:\d+(?:\.\d+)*\.?" + _HS + r"+)?(?:" + _END_WORD + r")\b.*"
-    r"|[*_]{0,3}" + _HS + r"*(?:\d+(?:\.\d+)*\.?" + _HS + r"+)?(?:" + _END_NAME + r")"
-    + _HS + r"*[*_]{0,3}" + _HS + r"*(?:[:.]" + _HS + r"*[*_]{0,3}(?:" + _HS + r".*)?)?"
+    # a markdown heading that begins with an ending word or is a section name
+    r"#{1,6}" + _HS + r"*\**" + _HS + r"*" + _NUMBERING + r"(?P<h>" + _END_WORD + r"|" + _END_NAME + r")\b.*"
+    # a line with no heading mark that IS a section name, optionally with a run-in after ":" or ". "
+    r"|[*_]{0,3}" + _HS + r"*" + _NUMBERING + r"(?P<n>" + _END_NAME + r")"
+    + _HS + r"*[*_]{0,3}" + _HS + r"*(?::.*|\.[*_]{0,3}(?:" + _HS + r".*)?)?"
     r")$",
     re.IGNORECASE | re.MULTILINE,
 )
@@ -151,7 +155,7 @@ def body_span(text: str) -> dict:
         "start_line": first,
         "end_line": last,
         "start_marker": m0.group(1).lower() if m0 else "start of file (no Introduction/Background heading)",
-        "end_marker": (re.split(r"[:.]", re.sub(r"[#*_\s]+", " ", m1.group(0)).strip())[0][:40].lower()
+        "end_marker": (re.sub(r"\s+", " ", m1.group("h") or m1.group("n")).lower()
                        if m1 else "end of file (no References-like heading)"),
     }
 

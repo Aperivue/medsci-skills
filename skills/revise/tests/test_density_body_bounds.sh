@@ -109,6 +109,12 @@ ends_body "'## Supplementary Results'"        "## Supplementary Results"
 ends_body "'## References ##' (closed)"       "## References ##"
 ends_body "bare 'Conflict' line"              "Conflict"
 ends_body "'Conflicts of interest: none'"     "Conflicts of interest: none declared."
+ends_body "bare 'Supplementary Tables'"       "Supplementary Tables"
+ends_body "'Conflict of Interest Disclosure'" "Conflict of Interest Disclosure"
+ends_body "'## Competing interests'"          "## Competing interests"
+ends_body "'## Bibliography'"                 "## Bibliography"
+ends_body "'Funding:None' (no space)"         "Funding:None declared."
+ends_body "'## Supplementary analyses by site' (heading prefix)" "## Supplementary analyses by site"
 
 is_prose() {  # is_prose <label> <line that must NOT end the body>
   printf 'Introduction\nReaders agreed.\n%s\nOne two three four five six seven eight nine ten.\n' "$2" > "$TMP/ip_prev.md"
@@ -122,6 +128,8 @@ is_prose "'Funding was allocated as follows: ...'"     "Funding was allocated as
 is_prose "'Supplementary Table 2 lists ...'"           "Supplementary Table 2 lists the search strings."
 is_prose "'References are listed below.'"              "References are listed below."
 is_prose "'Conflicting results were seen.'"            "Conflicting results were seen."
+is_prose "'Supplementary analyses ... were consistent.'" "Supplementary analyses by site were consistent."
+is_prose "'## Acknowledging limitations' (a body heading)" "## Acknowledging limitations"
 
 echo "==== the reported span is the span that was counted ===="
 printf 'Introduction\nReaders agreed.\n## References\nSynthetic A. 2020.\n' > "$TMP/sp1.md"
@@ -130,6 +138,10 @@ run sp sp1.md sp2.md >/dev/null
 ck "with an ending heading: last counted line is 2"    2 "$(field sp "d['measured_span']['previous']['end_line']")"
 ck "without one (trailing newline): last line is 2"    2 "$(field sp "d['measured_span']['revised']['end_line']")"
 ck "start line is 1"                                   1 "$(field sp "d['measured_span']['previous']['start_line']")"
+ck "the end marker is the section name"                references "$(field sp "d['measured_span']['previous']['end_marker']")"
+printf 'Introduction\nReaders agreed.\n3. References\nSynthetic A. 2020.\n' > "$TMP/sp5.md"
+run sp3 sp5.md sp2.md >/dev/null
+ck "'3. References': the marker is the name, not the number" references "$(field sp3 "d['measured_span']['previous']['end_marker']")"
 printf 'Title\n\nIntroduction\nReaders agreed.\n' > "$TMP/sp3.md"
 printf 'References\nSynthetic A. 2020.\n' > "$TMP/sp4.md"
 run sp2 sp3.md sp4.md >/dev/null
@@ -139,4 +151,4 @@ ck "  and says so"                                      1 "$(grep -c "^measured 
 
 echo "----"
 echo "test_density_body_bounds: $pass passed, $fail failed"
-[ "$fail" -eq 0 ] || { for f in short long refs runin sp sp2; do echo "--- $f"; cat "$TMP/$f.out"; done; exit 1; }
+[ "$fail" -eq 0 ] || { for f in short long refs runin sp sp2 sp3; do echo "--- $f"; cat "$TMP/$f.out"; done; exit 1; }
