@@ -206,7 +206,8 @@ Before the report, verify internal consistency:
 
 1. **Abstract vs Body**: every Abstract number matches Results and Tables.
 2. **Table vs Text**: sample sizes, primary outcomes and p-values agree between tables and narrative.
-3. **Figure vs Text**: figure legends match the data described in Results.
+3. **Figure vs Text**: figure legends match the data described in Results, and for each "Figure N" citation, the
+   cited panel, read as its legend describes it, supports the part of the sentence it is cited for (a legend can repeat a claim its figure does not show).
 4. **Percentage arithmetic**: n/N percentages are correct (23/150 = 15.3%, not 15.0%). The gate
    holds each cell to its printed precision (half a unit in the last printed place).
 5. **CI plausibility**: confidence intervals are reasonable for the sample sizes.
@@ -508,7 +509,9 @@ finding SR-02 without `--evalues`). Check by hand, or declare them.
    rasterised figure. Read each figure page visually before submission.
 
 Re-run `/sync-submission`'s `check_cross_artifact_stale.py` **after** any reframe, not just once at
-the start. For time-to-event manuscripts, apply probe **S8 (estimand provenance)** of
+the start. After any edit to the text, also re-run the whole-document gates (citation order, cross-references), not
+only the one behind the finding you fixed: removing one citation can reorder first citations elsewhere, and a gate
+that passed before the edit says nothing about the text after it. For time-to-event manuscripts, apply probe **S8 (estimand provenance)** of
 `references/domain-probes/survival_prognostic.md`. Read `references/phases/phase2_5f_claim_artifact.md`
 when a gate above fired and you need the rationale and resolution path, or there is a
 pre-registration to reconcile.
@@ -690,6 +693,13 @@ L2. ...
 
 Keep the ADD / FIX axis (Major / Minor Comments) and the SUBTRACTION axis (Editorial-Impression
 Risks) visually separate; never fold L items into the Minor Comments.
+
+**Anchor each comment that criticises a claim in the current draft.** Quote the sentence it targets, or give
+the table or panel, as found by searching the current manuscript. If the claim cannot be found, search for
+related wording before deciding (it may sit in a nearby passage); if it is still absent, drop the
+comment or mark it `[NOT IN CURRENT DRAFT]`. A comment that something is missing is the opposite case: record
+where you looked. A comment written from memory, notes or an earlier version reads as plausibly as
+one aimed at text that exists.
 
 In suggested fixes and in any text drafted in Phase 4:
 - **References** only from `/search-lit` with a confirmed DOI or PMID; mark any other reference `[UNVERIFIED - NEEDS MANUAL CHECK]` (Phase 2.5c blocks a `FABRICATED` one).

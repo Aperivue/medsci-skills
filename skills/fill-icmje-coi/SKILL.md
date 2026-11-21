@@ -48,6 +48,14 @@ Ask the user (or extract from the conversation):
 will get all-None forms and remind the user that anyone with a real disclosure must fill their own
 form in Word instead.
 
+**Item 1 is each author's own answer.** Every form is one author's disclosure (the header reads
+"Your Name:", and each item asks that author to "Name all entities with whom you have this
+relationship or indicate none"). For item 1 ("All support for the present manuscript"), do not
+assume the manuscript's funding statement gives the same entry for every author, or that it gives
+none: confirm with each author what support there was for their part of the work, paid to them or
+to an institution on their behalf. Item 1 answers may differ across co-authors; keep the
+differences the authors have confirmed.
+
 ### Phase 2 — Generate
 
 ```bash

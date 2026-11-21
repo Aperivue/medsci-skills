@@ -46,7 +46,7 @@ When `--fix` is passed:
    ```
 
    `PAREN_SPAN_ORDINAL` / `PAREN_SPAN_SENTENCE` is a Major — undo or repair that conversion before continuing.
-5. **Re-review**: Run Phase 2 (systematic check) again on the modified manuscript.
+5. **Re-review**: Run Phase 2 (systematic check) again on the modified manuscript, and re-run every whole-document gate that applies to the revised manuscript (citation order, cross-references, supplement hygiene), not only the gate behind each fixed finding. A local edit can break one of these properties elsewhere in the document, and its earlier pass predates the edit.
 6. **Iterate**: If new fixable issues emerge, apply one more round (maximum 2 total fix iterations).
 7. **Final output**: Regenerate the Phase 3 report and Phase 3c JSON with updated scores.
 
