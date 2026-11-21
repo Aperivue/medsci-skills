@@ -24,9 +24,10 @@ methodology and study design.
 
 1. **Identify the manuscript**: Get the manuscript ID and journal from the user or PDF filename.
 2. **Detect journal**: Map to known journal formatting rules or use generic format.
-3. **Check if revision**: Look for previous review files. If R1/R2, locate and read the prior review and author response.
-4. **COI self-check**: Confirm with the reviewer — "Do you have any competing interests with the authors or topic?" If yes, recommend declining or disclosing in Confidential Comments.
-5. **Set up workspace**: Create folder at `{working_dir}/review/{manuscript_id}/`.
+3. **Journal permission before an AI tool sees the manuscript**: Before the manuscript or text from it is entered into an AI tool, including the assistant running this skill, check the journal's reviewer instructions for whether that tool and that use are permitted (the journal's name, the tool and the intended use are enough to check this; do it before opening the manuscript, an earlier review or the authors' response in the tool) (the journal's file under `references/reviewer_profiles/` summarizes its public policy where one exists; confirm it against the current instructions). Journal policies on reviewer AI use range from prohibition to limited assistive use, and ICMJE asks reviewers to obtain the journal's permission before using AI to facilitate a review. If the policy is silent or unclear, do not enter the manuscript; ask the editor. Where use is allowed only if confidentiality can be assured, check the tool's terms for who besides the reviewer can see what is entered and whether the provider retains it or reuses it for model training. Proceed only if the terms and settings of the account actually in use meet the journal's conditions; if that cannot be established, keep the review material out of the tool. The reviewer remains responsible for every judgement in the report. This step does not replace the journal's policy; where they differ, the journal's policy applies. Sources: ICMJE Recommendations, section II.C.3 (updated January 2026; https://www.icmje.org/recommendations/); Park SH, *Korean J Radiol* 2026;27(5):402-405, doi:10.3348/kjr.2026.0166.
+4. **Check if revision**: Look for previous review files. If R1/R2, locate and read the prior review and author response.
+5. **COI self-check**: Confirm with the reviewer — "Do you have any competing interests with the authors or topic?" If yes, recommend declining or disclosing in Confidential Comments.
+6. **Set up workspace**: Create folder at `{working_dir}/review/{manuscript_id}/`.
 
 ### Phase 1.5: Hidden-text / prompt-injection scan (before any LLM reads the PDF)
 

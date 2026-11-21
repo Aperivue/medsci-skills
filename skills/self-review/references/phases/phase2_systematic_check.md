@@ -27,6 +27,7 @@ not at all for this manuscript type.
 | Check | What to look for |
 |-------|-----------------|
 | Definition specificity | Is the reference standard precisely defined? (e.g., "pathological T stage" vs vague "staging") |
+| Label vs code | When the manuscript states a reference-standard category, outcome or tier label (e.g., "stable", "progressed") without its operational rule or measurement time point, record that omission as a finding, and check the label against the source that assigns it in the analysis (code, configuration or adjudication record), recording a mismatch as a finding or, if that source is not accessible, the match as unverified. A format check confirms that a label is defined somewhere, not that the analysis applies it as defined. |
 | Timing | Interval between index test and reference standard reported? |
 | Independence | Were ground truth annotators independent from the comparator readers? |
 | Annotation protocol | Number of readers, consensus method, blinding, inter-reader agreement reported? |
