@@ -88,8 +88,9 @@ Single-field bounds miss contradictions *between* fields. Flag a record when:
   event in a new column, never overwrite the source `age`, and state in the Methods which time
   point the age refers to. With one row per patient this check cannot fire, so the meaning has to
   come from those sources.
-- **Sex-specific / state-specific**: pregnancy, parity, or gestational fields present for
-  `sex == male`; PSA recorded for females; menopause age > current age; pediatric-only or
+- **Sex-specific / state-specific**: a pregnancy, parity, gestational or sex-specific test value
+  that conflicts with the recorded sex as the data dictionary defines both fields (a query, not a
+  correction); menopause age > current age; pediatric-only or
   adult-only fields outside the eligible age.
 - **Mutually exclusive / dependency**: `deceased == no` with a death date populated;
   `smoking_status == never` with `pack_years > 0` (vs the structural-zero case where it is NULL —

@@ -759,7 +759,7 @@ Cohen J. Statistical Power Analysis for the Behavioral Sciences. 2nd ed. Lawrenc
 | `power` | Desired power | 0.80 |
 | `attrition_rate` | Expected dropout rate | 0.10 |
 
-**Effect size interpretation**: OR = 1.5 is a small-to-moderate effect; OR = 2.0 is moderate; OR = 3.0+ is large. The Peduzzi rule is a rule of thumb for model stability, not a guarantee; the Hsieh formula targets power for the primary predictor. A continuous predictor's OR is per 1 SD; a binary predictor's OR is exposed vs unexposed, and the two are not interchangeable.
+**Effect size interpretation**: The Peduzzi rule is a rule of thumb for model stability, not a guarantee; the Hsieh formula targets power for the primary predictor. For this calculation a continuous predictor's OR is entered per 1 SD (`or_per_sd`); a binary predictor's OR is exposed vs unexposed, and the two are not interchangeable.
 
 ### Approach A: Peduzzi Rule of Thumb (EPV >= 10)
 
@@ -1152,7 +1152,7 @@ Base R; `TOSTER` for the t-based equivalence N. Cross-checks: `TrialSize` (`TwoS
 
 ### EPV guidelines
 - EPV >= 10: minimum for stable estimates (Peduzzi et al., 1995)
-- EPV >= 20: recommended for reliable CI coverage and type I error control
+- EPV >= 20: a stricter rule of thumb (EPV alone does not determine CI coverage or type I error)
 - EPV < 5: model likely unstable — reduce predictors or use penalized methods
 
 **Effect size interpretation**: The EPV rule is a rule of thumb for model stability (it does not guarantee it), not power for a specific HR.

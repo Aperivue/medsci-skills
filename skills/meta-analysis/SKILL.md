@@ -94,7 +94,8 @@ submission, AI first-pass drafts included, cannot be made prospective afterwards
    Phases 3–4, not to `/search-lit`'s own selection and deep-read steps.
 2. **Report per PRISMA-S** (Rethlefsen et al. 2021, PMID:33499930): one section per database with
    date of search, number of results, and any limits applied.
-3. **Merge and deduplicate** into a single spreadsheet: by DOI first, then PMID. Save raw counts
+3. **Merge and deduplicate** into a single spreadsheet: by DOI first, then PMID; records the identifier match leaves unmatched (no identifier, or
+   different identifiers on each record) are checked by hand, and the rule used is recorded. Save raw counts
    for the PRISMA flow, and keep each database's exported record-ID list with them.
 4. **A missing record-ID list is not yet an unreproducible count.** If the IDs behind a PRISMA
    identification count were not kept but the executed search string was archived verbatim,

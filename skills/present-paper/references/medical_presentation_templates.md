@@ -223,7 +223,7 @@ anchors the discussion, surrounding papers add nuance.
 ### Design seed
 
 - **Visual style**: Nature/Lancet — see `slide_visual_styles/nature_lancet.md`
-- **Body language**: English only (per `~/.claude/rules/academic-lecture-style.md` §1)
+- **Body language**: English only
 - **Speaker notes**: narrative, in the user's preferred language (English by default; a Korean narrative register is supported for Korean presenters), 150–300 chars / slide
 - **Section dividers**: full-bleed `#121D36` background + coral accent strip + `{N} MIN`
   badge bottom-right
@@ -274,7 +274,6 @@ anchors the discussion, surrounding papers add nuance.
 - `critic_rubrics/slide.md` — per-slide quality scoring
 - `workflow-checklist.md` — end-to-end Phase 0 → 4 production checklist
 - `templates/slide_template/` — medsci template (`new_deck.py`, palette `mono`), the default look for a new deck (SKILL.md); Nature/Lancet (Template #5) is an alternative
-- `~/.claude/rules/pptx-mac-compatibility.md` — TIFF / sp3d / app.xml / srcRect / Inches EMU / markdown notes
-- `~/.claude/rules/multidisciplinary-presentation.md` — glossary slide + intuition box pattern
+- `skills/make-figures/scripts/validate_pptx_mac_compat.py` — Mac PowerPoint compatibility check (TIFF / sp3d / app.xml / srcRect)
 - `make-figures/SKILL.md` → *Journal AI-Image Policies* — AI-image policy (visual abstract /
   Central Illustration cases)

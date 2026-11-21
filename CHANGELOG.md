@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **A second set of guidance sentences that overstated a rule.** A two-group test is invalid when
+  it treats a subset and the cohort containing it as independent samples (the probes said any
+  subset-versus-parent P value was invalid); "two-gate sampling overestimates accuracy" and "closed
+  APIs are non-deterministic" become "can"; events-per-variable levels and the three-run floor in
+  `/mllm-eval` are labelled rules of thumb; odds-ratio size labels are removed from
+  `/calc-sample-size`; a covariate imbalanced in Table 1 is requested as an adjustment only when the
+  comment argues it is a confounder; included-study labels are matched to the reference list by
+  report, not by year string; a date known only to the month or year keeps its original value and
+  precision in `/clean-data`; records the identifier match leaves unmatched are deduplicated by
+  hand in `/meta-analysis`. Case-like numbers were removed from two probes, and references to
+  private rule paths in two shipped files were replaced by in-repository ones.
+
 ## [6.4.0] - 2026-11-21
 
 **Re-check three things if you used an earlier version:** (1) in `/clean-data`, several
