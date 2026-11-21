@@ -209,8 +209,8 @@ class SlideTemplate(unittest.TestCase):
         root = Path(cls.temp.name)
         cls.builds = []
         for k in (1, 2):
-            potx, pptx = t.build(root / f"build{k}")
-            cls.builds.append((potx, pptx))
+            template, sample = t.build(root / f"build{k}")
+            cls.builds.append((template, sample))
         cls.handouts = [h.build(root / f"handout{k}") for k in (1, 2)]
         cls.starters = {kind: new_deck.make_deck(root / f"{kind}.pptx", kind, cls.builds[0][0])
                         for kind in new_deck.STARTERS}
@@ -221,7 +221,7 @@ class SlideTemplate(unittest.TestCase):
         cls.temp.cleanup()
 
     def all_built(self):
-        return [*self.builds[0], TEMPLATE_DIR / f"{t.STEM}.potx", *self.starters.values(),
+        return [*self.builds[0], TEMPLATE_DIR / t.TEMPLATE_NAME, *self.starters.values(),
                 self.handouts[0], TEMPLATE_DIR / f"{h.STEM}.docx"]
 
     # ---------------------------------------------------------------- claim 1
@@ -233,11 +233,16 @@ class SlideTemplate(unittest.TestCase):
             self.assertEqual(tables[0], other)
         self.assertEqual(t.readme_rows(tables[0]), readme_table())
 
-    def test_shipped_potx_is_the_default_build(self):
-        shipped = TEMPLATE_DIR / f"{t.STEM}.potx"
+    def test_shipped_template_is_the_default_build_with_no_slides(self):
+        shipped = TEMPLATE_DIR / t.TEMPLATE_NAME
         self.assertTrue(shipped.exists(), "run build_slide_template.py --force")
         self.assertEqual(parts(shipped), parts(self.builds[0][0]),
-                         "the shipped .potx is not what the builder writes now; rebuild it")
+                         "the shipped template is not what the builder writes now; rebuild it")
+        with zipfile.ZipFile(shipped) as z:
+            self.assertNotIn(b"<p:sldId ", z.read("ppt/presentation.xml"))
+            self.assertIn(b"presentationml.presentation.main+xml", z.read("[Content_Types].xml"))
+        self.assertEqual(sorted(p.suffix for p in TEMPLATE_DIR.iterdir() if p.suffix in {".pptx", ".potx", ".docx"}),
+                         [".docx", ".pptx"], "ship one .pptx template and the handout, nothing else")
 
     def test_sample_deck_has_one_slide_per_layout(self):
         from pptx import Presentation
@@ -429,12 +434,12 @@ class SlideTemplate(unittest.TestCase):
     def test_outputs_are_never_replaced_without_force(self):
         out = self.root / "noclobber"
         t.build(out)
-        before = (out / f"{t.STEM}.potx").read_bytes()
+        before = (out / t.TEMPLATE_NAME).read_bytes()
         with self.assertRaises(t.OutputExists):
             t.build(out, "pine")
-        self.assertEqual((out / f"{t.STEM}.potx").read_bytes(), before)
+        self.assertEqual((out / t.TEMPLATE_NAME).read_bytes(), before)
         t.build(out, "pine", force=True)
-        self.assertNotEqual((out / f"{t.STEM}.potx").read_bytes(), before)
+        self.assertNotEqual((out / t.TEMPLATE_NAME).read_bytes(), before)
         with self.assertRaises(t.OutputExists):
             h.build(self.root / "handout1")
         deck = self.root / "talk.pptx"
@@ -551,7 +556,7 @@ class SlideTemplate(unittest.TestCase):
             new_deck.make_deck(tpl, template=tpl, force=True)           # the template itself, even with force
         self.assertEqual(tpl.read_bytes(), self.builds[0][0].read_bytes())
         with self.assertRaises(ValueError):
-            new_deck.make_deck(self.root / "talk.potx", template=tpl)
+            new_deck.make_deck(self.root / "talk.ppt", template=tpl)
         link = self.root / "link.pptx"
         link.symlink_to(tpl)
         with self.assertRaises(ValueError):
@@ -649,6 +654,14 @@ class SlideTemplate(unittest.TestCase):
                     targets = [el.get("spid") for el in s._element.iter(f"{{{NS['p']}}}spTgt")]
                     self.assertEqual(targets, [str(answer.shape_id)], kind)
                     self.assertIn("clickEffect", etree.tostring(s._element).decode())
+    def test_a_potx_is_written_when_the_output_name_asks_for_one(self):
+        potx = new_deck.make_deck(self.root / "own_template.potx", template=self.builds[0][0])
+        with zipfile.ZipFile(potx) as z:
+            self.assertIn(b"presentationml.template.main+xml", z.read("[Content_Types].xml"))
+            self.assertNotIn(b"<p:sldId ", z.read("ppt/presentation.xml"))
+        deck = new_deck.make_deck(self.root / "from_potx.pptx", "conference-oral", potx)
+        with zipfile.ZipFile(deck) as z:
+            self.assertIn(b"presentationml.presentation.main+xml", z.read("[Content_Types].xml"))
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

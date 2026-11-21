@@ -2,12 +2,14 @@
 """Start a new deck from the medsci slide template.
 
     python3 new_deck.py OUT.pptx                          empty deck (no slides), all 31 layouts
+    python3 new_deck.py OUT.potx                          the same, saved as a PowerPoint template (.potx)
     python3 new_deck.py OUT.pptx --type conference-oral   research talk, 8-12 minutes
     python3 new_deck.py OUT.pptx --type journal-club      appraisal of one paper, 20-40 minutes
     python3 new_deck.py OUT.pptx --type lecture           didactic lecture, about 30 minutes
     python3 new_deck.py OUT.pptx --type case-conference   case / imaging conference
     python3 new_deck.py OUT.pptx --type procedure         procedure or technique talk
-    --template PATH.potx                                  another build (default: medsci_slides.potx beside this file)
+    --template PATH                                       another build, .pptx or .potx, with no slides
+                                                          (default: medsci_slides.pptx beside this file)
     --force                                               replace OUT.pptx if it exists (otherwise refused)
 
 A starter is a skeleton, not a talk. Each slide carries <angle-bracket> text to overwrite, and a
@@ -32,7 +34,7 @@ from pptx.util import Emu
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from build_slide_template import (NSDECL, STEM, OutputExists, plain_table, post_process, publish,  # noqa: E402
+from build_slide_template import (NSDECL, TEMPLATE_NAME, OutputExists, plain_table, post_process, publish,  # noqa: E402
                                   put_lines, refuse_existing, set_cell, theme_fonts)
 
 NS_P = "http://schemas.openxmlformats.org/presentationml/2006/main"
@@ -223,10 +225,10 @@ def blank(src, out):
         raise ValueError(f"{src} is not a PowerPoint template") from None
     if not any(t in types for t in (b"presentationml.template.main+xml", b"presentationml.presentation.main+xml")) \
             or not pres:
-        raise ValueError(f"{src} is not a PowerPoint template (.potx)")
+        raise ValueError(f"{src} is not a PowerPoint file (.pptx or .potx)")
     n_slides = len(re.findall(rb"<p:sldId\b", pres))
     if n_slides:
-        raise ValueError(f"{src} has {n_slides} slide(s); use an empty template (.potx), not a deck")
+        raise ValueError(f"{src} has {n_slides} slide(s); use an empty template, not a deck")
     Path(out).write_bytes(data)
     post_process(out, template=False)
 
@@ -332,14 +334,14 @@ def starter(out, spec):
     post_process(out)
 
 
-def make_deck(out, kind="blank", template=HERE / f"{STEM}.potx", force=False):
-    """Write a new deck to out (.pptx). It is built under a temporary name in the same folder and moved into
+def make_deck(out, kind="blank", template=HERE / TEMPLATE_NAME, force=False):
+    """Write a new deck to out: a .pptx, or a PowerPoint template if out ends in .potx. It is built under a temporary name in the same folder and moved into
     place when complete. An existing out stops the run unless force is given; the template itself is never
     replaced. A symbolic link at out is replaced by the deck, not followed."""
     out = Path(out)
     out = out.parent.resolve() / out.name               # resolve the folder, not a link at the final name
-    if out.suffix.lower() != ".pptx":
-        raise ValueError(f"{out.name}: the output must be a .pptx file")
+    if out.suffix.lower() not in (".pptx", ".potx"):
+        raise ValueError(f"{out.name}: the output must be a .pptx (or .potx) file")
     if out.exists() and os.path.samefile(out, template):
         raise ValueError(f"{out} is the template itself; choose another output name")
     refuse_existing([out], force)
@@ -348,6 +350,8 @@ def make_deck(out, kind="blank", template=HERE / f"{STEM}.potx", force=False):
         blank(Path(template), tmp)
         if kind != "blank":
             starter(tmp, STARTERS[kind])
+        if out.suffix.lower() == ".potx":
+            post_process(tmp, template=True)
         publish(tmp, out)
     return out
 
@@ -356,7 +360,7 @@ def main():
     ap = argparse.ArgumentParser(description="Start a new deck from the medsci slide template.")
     ap.add_argument("out")
     ap.add_argument("--type", choices=["blank"] + list(STARTERS), default="blank")
-    ap.add_argument("--template", default=str(HERE / f"{STEM}.potx"))
+    ap.add_argument("--template", default=str(HERE / TEMPLATE_NAME))
     ap.add_argument("--force", action="store_true", help="replace OUT if it exists")
     a = ap.parse_args()
     try:

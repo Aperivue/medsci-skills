@@ -6,8 +6,11 @@
 
 Writes into OUT_DIR (default: this folder); an existing output is replaced only with --force:
 
-    medsci_slides.potx   the template, no slides (File > New from Template)
-    medsci_slides.pptx   the same template with one sample slide per layout (synthetic text)
+    medsci_slides.pptx          the template: 31 layouts and no slides (new_deck.py starts a deck from it)
+    medsci_slides_sample.pptx   the same with one sample slide per layout (synthetic text), for previewing
+
+The template ships as a .pptx, not a .potx: PowerPoint opens either, and the repository's content
+checks read .pptx. `new_deck.py my_template.potx` writes a .potx when one is wanted.
 
 What is in it
 
@@ -54,6 +57,8 @@ from pptx.util import Emu
 
 HERE = Path(__file__).resolve().parent
 STEM = "medsci_slides"
+TEMPLATE_NAME = f"{STEM}.pptx"           # the shipped template: no slides
+SAMPLE_NAME = f"{STEM}_sample.pptx"      # one slide per layout, not shipped
 THEME_NAME = "medsci slides"
 AUTHOR = "medsci-skills"   # neutral document author, so a saved copy carries nobody's name until its owner adds it
 SW, SH = 13.333, 7.5
@@ -292,8 +297,9 @@ def placeholder(ids, name, ph, x, y, w, h, prompt, lst="", anchor="t", shrink=Fa
 def inherited(ids, kind, prompt="Click to edit title"):
     """Title / body placeholders that take position and format from the master."""
     if kind == "title":
+        custom = ' hasCustomPrompt="1"' if prompt != "Click to edit title" else ""
         return (f'<p:sp><p:nvSpPr><p:cNvPr id="{ids()}" name="Title"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr>'
-                f'<p:nvPr><p:ph type="title"{' hasCustomPrompt="1"' if prompt != "Click to edit title" else ""}/></p:nvPr>'
+                f'<p:nvPr><p:ph type="title"{custom}/></p:nvPr>'
                 f'</p:nvSpPr><p:spPr/><p:txBody><a:bodyPr/><a:lstStyle/>'
                 f'<a:p><a:r>{rpr()}<a:t>{esc(prompt)}</a:t></a:r></a:p></p:txBody></p:sp>')
     levels = "".join(f'<a:p><a:pPr lvl="{k}"/><a:r>{rpr()}<a:t>{t}</a:t></a:r></a:p>'
@@ -1213,25 +1219,25 @@ _BUILD_LOCK = threading.Lock()   # the palette lives in the module-level C; one 
 
 
 def build(out_dir, palette=DEFAULT_PALETTE, overrides=None, force=False):
-    """Write the .potx and the sample .pptx into out_dir and return their paths.
+    """Write the template and the sample deck into out_dir and return (template path, sample path).
 
     Raises PaletteError or OutputExists before writing anything; without force an existing output stops the run
     at the start. Both files are built in a temporary folder inside out_dir and each is moved into place when
-    complete, the .potx first, then the sample .pptx."""
+    complete, the template first, then the sample."""
     out_dir = Path(out_dir)
-    pptx_path, potx_path = out_dir / f"{STEM}.pptx", out_dir / f"{STEM}.potx"
+    template_path, sample_path = out_dir / TEMPLATE_NAME, out_dir / SAMPLE_NAME
     resolve_palette(palette, overrides)
-    refuse_existing((potx_path, pptx_path), force)
+    refuse_existing((template_path, sample_path), force)
     out_dir.mkdir(parents=True, exist_ok=True)
     with _BUILD_LOCK, tempfile.TemporaryDirectory(prefix=".build.", dir=out_dir) as work:
-        work_pptx, work_potx = Path(work) / pptx_path.name, Path(work) / potx_path.name
-        _build_into(work_pptx, work_potx, palette, overrides)
-        publish(work_potx, potx_path)
-        publish(work_pptx, pptx_path)
-    return potx_path, pptx_path
+        work_template, work_sample = Path(work) / template_path.name, Path(work) / sample_path.name
+        _build_into(work_sample, work_template, palette, overrides)
+        publish(work_template, template_path)
+        publish(work_sample, sample_path)
+    return template_path, sample_path
 
 
-def _build_into(pptx_path, potx_path, palette, overrides):
+def _build_into(pptx_path, template_path, palette, overrides):
     set_palette(palette, overrides)
     prs = Presentation()
     prs.slide_width, prs.slide_height = Emu(E(SW)), Emu(E(SH))
@@ -1255,8 +1261,8 @@ def _build_into(pptx_path, potx_path, palette, overrides):
     clean_properties(prs, "Slide template")
 
     prs.save(pptx_path)                       # layouts only for now
-    potx_path.write_bytes(pptx_path.read_bytes())
-    post_process(potx_path, template=True)
+    template_path.write_bytes(pptx_path.read_bytes())
+    post_process(template_path)
 
     prs = Presentation(pptx_path)             # reopened: proxies made before the XML swap would show stale names
     names = [l.name for l in prs.slide_layouts]
@@ -1274,22 +1280,22 @@ def main():
                                            "(roles: " + ", ".join(ROLES) + ")")
     for role in ROLES:
         ap.add_argument("--" + role.replace("_", "-"), dest=role, metavar="HEX", help=f"colour for the {role} role")
-    ap.add_argument("--force", action="store_true", help="replace medsci_slides.potx / .pptx if they exist")
+    ap.add_argument("--force", action="store_true", help=f"replace {TEMPLATE_NAME} / {SAMPLE_NAME} if they exist")
     ap.add_argument("--print-table", action="store_true", help="print the README placeholder table and stop")
     a = ap.parse_args()
     if a.print_table:
-        print("\n".join(readme_rows(layout_table(Path(a.out_dir) / f"{STEM}.potx"))))
+        print("\n".join(readme_rows(layout_table(Path(a.out_dir) / TEMPLATE_NAME))))
         return
     try:
         overrides = load_palette_file(a.palette_file) if a.palette_file else {}
         overrides.update({r: getattr(a, r) for r in ROLES if getattr(a, r) is not None})
-        potx, pptx = build(a.out_dir, a.palette, overrides, a.force)
+        template, sample = build(a.out_dir, a.palette, overrides, a.force)
     except PaletteError as e:
         raise SystemExit(f"palette rejected: {e}")
     except OutputExists as e:
         raise SystemExit(str(e))
     custom = f" + {len(overrides)} custom colour(s)" if overrides else ""
-    print("built", potx.name, "+", pptx.name, f"(palette {a.palette}{custom}, {len(LAYOUTS)} layouts)")
+    print("built", template.name, "+", sample.name, f"(palette {a.palette}{custom}, {len(LAYOUTS)} layouts)")
 
 
 if __name__ == "__main__":

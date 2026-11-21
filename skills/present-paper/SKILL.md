@@ -236,7 +236,7 @@ Step 0b). Pick the mode from the Step 0b answer.
 **Mode A: Generate new slide deck**
 
 Generate a fully-editable PPTX from structured inline data using `python-pptx`. The default is
-`${CLAUDE_SKILL_DIR}/templates/slide_template/new_deck.py` (start a deck from `medsci_slides.potx`,
+`${CLAUDE_SKILL_DIR}/templates/slide_template/new_deck.py` (start a deck from `medsci_slides.pptx`,
 fill it by layout name and placeholder idx; its README has the table). Two template libraries:
 
 - `${CLAUDE_SKILL_DIR}/references/generate_pptx_templates.py` — generic T_lead / T_text / T_table /

@@ -4414,7 +4414,7 @@
     {
       "path": "skills/present-paper/SKILL.md",
       "size": 38957,
-      "sha256": "277b98f6b0ebe60d45a8ee42cda7d18bd354ced32f491df000631bb92f54c877"
+      "sha256": "d02b4475ef247141b93c74047700af84d5a11f480fa193eaf464c7fc3a351cde"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -4618,8 +4618,8 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/README.md",
-      "size": 18384,
-      "sha256": "06decf2c30211deba45c653b534b52aea3f722ebd15e0d0c4d71ae0d0efefe5d"
+      "size": 18652,
+      "sha256": "a80fd5b641c21d433561c7f3bf028bfc2f8e7a69d90e785b48d78eea9790c6a2"
     },
     {
       "path": "skills/present-paper/templates/slide_template/build_handout_template.py",
@@ -4628,8 +4628,8 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/build_slide_template.py",
-      "size": 64614,
-      "sha256": "269fe66cc7a2c7e183e965799fcfa84cfd56519c1ff56f9df1763630f8f9d8c2"
+      "size": 65093,
+      "sha256": "c0ee6bca3dd8af428d041db641adcb4f32c2e4917ece9716211a69b42a7380da"
     },
     {
       "path": "skills/present-paper/templates/slide_template/medsci_handout.docx",
@@ -4637,14 +4637,14 @@
       "sha256": "c1325024690f60bf9228da2db1fcc7b0f21386454c68e839359e86c1bc751d6d"
     },
     {
-      "path": "skills/present-paper/templates/slide_template/medsci_slides.potx",
-      "size": 54062,
-      "sha256": "32dfa3920713610afcb742aff32ec9a68f6e70c994526a089810459d0dd102d1"
+      "path": "skills/present-paper/templates/slide_template/medsci_slides.pptx",
+      "size": 54057,
+      "sha256": "da78197d1aae8e0e47d4cc255bbdea7e3ca239907bff48eb56c5bd1c0fdc8f2b"
     },
     {
       "path": "skills/present-paper/templates/slide_template/new_deck.py",
-      "size": 25563,
-      "sha256": "3cbc2591fb2336e9d2d65feabedff87da4cf2c59199eeecd3a332489c810562e"
+      "size": 25925,
+      "sha256": "72b3bc03f616f53f352ced4cff9a4612ec384f0f0291f4b0d090798e24e47f8a"
     },
     {
       "path": "skills/profile-imaging/SKILL.md",

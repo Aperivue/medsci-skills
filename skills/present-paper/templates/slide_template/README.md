@@ -9,8 +9,8 @@ supplies its own template, use that one instead.
 
 | File | Use |
 |---|---|
-| `medsci_slides.potx` | The template, no slides. PowerPoint: File > New from Template. |
-| `build_slide_template.py` | Rebuilds the `.potx` and a sample deck (`medsci_slides.pptx`, one slide per layout, synthetic text). |
+| `medsci_slides.pptx` | The template: the 31 layouts and no slides. Open it and add slides, or start from it with `new_deck.py`. |
+| `build_slide_template.py` | Rebuilds the template and a sample deck (`medsci_slides_sample.pptx`, one slide per layout, synthetic text; not shipped). |
 | `new_deck.py` | Starts a deck from the template: empty, or one of five starter skeletons. |
 | `medsci_handout.docx` | A one-page handout skeleton: title block, learning objectives, key points, one figure, note lines, references. |
 | `build_handout_template.py` | Rebuilds the handout. |
@@ -19,10 +19,11 @@ Needs `python-pptx`, `python-docx` and `lxml`. Nothing else is read at build tim
 font file.
 
 ```bash
-python3 build_slide_template.py --force               # rebuilds medsci_slides.potx (and a sample .pptx) here
+python3 build_slide_template.py --force               # rebuilds medsci_slides.pptx (and the sample deck) here
 python3 build_slide_template.py out/ --palette stone
 python3 build_slide_template.py out/ --accent 1D6A4F  # your own accent on the mono palette
 python3 new_deck.py talk.pptx --type conference-oral
+python3 new_deck.py my_template.potx                  # the template as a PowerPoint template file (File > New from Template)
 python3 build_handout_template.py out/
 ```
 
@@ -239,7 +240,8 @@ The template ships without either.
 - **Every content slide**: View > Slide Master, select the top master, and paste the logo there,
   bottom right, left of the page number, about 0.27 in (0.7 cm) high. Consider leaving it off: the
   audience knows whose talk it is, and a logo on every slide takes room from the figure.
-- **Permanently**: do either in the `.potx` and save it as your own template. Check that you may
+- **Permanently**: do either in the template and save it as your own (`new_deck.py my_template.potx`
+  gives a `.potx` to start from). Check that you may
   use the logo and the picture; this repository does not ship any for that reason.
 
 ## Fonts
@@ -262,8 +264,8 @@ yourself; nothing copies them. Generate the reference list with a reference mana
 
 ```bash
 python3 ../../tests/test_slide_template.py          # layouts, README table, palettes, contrast, no media, no names
-soffice --headless --convert-to pdf medsci_slides.pptx
-python3 ../../scripts/check_text_overflow.py medsci_slides.pptx --pdf medsci_slides.pdf
+soffice --headless --convert-to pdf medsci_slides_sample.pptx
+python3 ../../scripts/check_text_overflow.py medsci_slides_sample.pptx --pdf medsci_slides_sample.pdf
 ```
 
 Two builds from the same source give the same parts: the document dates and zip entry times are
