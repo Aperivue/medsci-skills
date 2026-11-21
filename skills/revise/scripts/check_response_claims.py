@@ -43,12 +43,23 @@ entry's anchor sentence is located in the body and its declared values are check
 Vague claims with no quote and no citation ("we clarified the Methods") are not
 verifiable and are intentionally NOT flagged. Reviewer-comment blockquotes
 (lines beginning with '>') are excluded so the reviewer's own quoted text is
-never mistaken for an author addition.
+never mistaken for an author addition. So is a comment the letter reproduces
+under a label instead of a blockquote ("Comment 3:", "Reviewer #2:"), up to the
+response label that follows it ("Response:", "Authors' response:"); when the
+letter uses no response label, only the labelled paragraph itself is skipped.
+
+Text the letter says was changed does not always live in the manuscript file: a
+new title sits on the title page, a caption in a figure source, a paragraph in
+the supplement. --extra-source (repeatable) names those files. A quote or
+citation absent from the manuscript is then looked for in each of them, and the
+report records where it was found.
 
 Usage:
     check_response_claims.py --response response.md --manuscript revised.md [--strict]
     check_response_claims.py --response r.md --manuscript revised.md --values revision_values.json
     check_response_claims.py --response r.md --manuscript revised.docx --out qc/response_claims.json
+    check_response_claims.py --response r.md --manuscript revised.md \
+        --extra-source title_page.md --extra-source supplement.md
 
 Exit 0 when every anchored claim is verified (or none exist). With --strict,
 exit 1 if any major verdict fires. Exit 2 on a missing file or an unreadable or malformed
@@ -182,9 +193,57 @@ def strip_response_blockquotes(text: str) -> str:
     return "\n".join(keep)
 
 
+# A reviewer comment reproduced under a label instead of a blockquote. The label must open the
+# line (markdown emphasis, a heading mark or a list mark may precede it) and be followed by a
+# colon or a full stop, so prose such as "Reviewer 2 asked whether ..." is not a label.
+_LABEL_LEAD = r"^[ \t]*(?:[#>*_\-]+[ \t]*)*"
+REVIEWER_LABEL = re.compile(
+    _LABEL_LEAD
+    + r"(?:(?:reviewer|referee|editor)(?:['\u2019]s)?[ \t]*#?[ \t]*\d*[ \t]*,?[ \t]*)?"
+    + r"(?:(?:major|minor|general|specific)[ \t]+)?"
+    + r"(?:comment|point|concern|query|question|remark)s?[ \t]*#?[ \t]*\d*(?:[.\-]\d+)?"
+    + r"(?:[ \t]*\([^)\n]{0,60}\))?[ \t]*[*_]*[ \t]*[:.]"
+    + r"|" + _LABEL_LEAD
+    + r"(?:reviewer|referee|editor)(?:['\u2019]s)?[ \t]*#?[ \t]*\d+[ \t]*[*_]*[ \t]*[:.]",
+    re.IGNORECASE | re.MULTILINE,
+)
+RESPONSE_LABEL = re.compile(
+    _LABEL_LEAD
+    + r"(?:(?:authors?['\u2019]?s?|our)[ \t]+)?(?:response|reply|answer)s?"
+    + r"(?:[ \t]+to[ \t]+[^:\n]{0,40})?[ \t]*#?[ \t]*\d*(?:[.\-]\d+)?[ \t]*[*_]*[ \t]*[:.]",
+    re.IGNORECASE | re.MULTILINE,
+)
+
+
+def strip_reviewer_comment_blocks(text: str) -> tuple[str, int]:
+    """Blank out reviewer comments reproduced under a label; return (text, blocks skipped).
+
+    A labelled comment runs to the next response label when one comes before the next comment
+    label. A letter that never labels its responses gives no such boundary, and guessing one
+    would hide author text from the check, so there only the labelled paragraph is skipped.
+    Offsets are preserved (characters become spaces) so quote positions stay meaningful.
+    """
+    out = list(text)
+    labels = list(REVIEWER_LABEL.finditer(text))
+    skipped = 0
+    for i, m in enumerate(labels):
+        limit = labels[i + 1].start() if i + 1 < len(labels) else len(text)
+        resp = RESPONSE_LABEL.search(text, m.end(), limit)
+        if resp:
+            end = resp.start()
+        else:
+            para = PARA_BREAK.search(text, m.end(), limit)
+            end = para.start() if para else limit
+        for j in range(m.start(), end):
+            if out[j] != "\n":
+                out[j] = " "
+        skipped += 1
+    return "".join(out), skipped
+
+
 def extract_claims(response: str):
     """Yield (kind, anchor, context) for anchored addition claims in Response prose."""
-    prose = strip_response_blockquotes(response)
+    prose, _ = strip_reviewer_comment_blocks(strip_response_blockquotes(response))
     claims = []
     seen_quotes: set[int] = set()
     for m in CLAIM_VERB.finditer(prose):
@@ -528,14 +587,27 @@ def check_values(blocks: list, entries: list) -> list:
                 })
     return findings
 
-def build_report(response_path: Path, manuscript_path: Path, values: list | None = None) -> dict:
+_GRADE_RANK = {"EXACT": 3, "INTERLEAVED": 2, "PARTIAL": 1, "ABSENT": 0}
+
+
+def build_report(response_path: Path, manuscript_path: Path, values: list | None = None,
+                 extra_sources: list[Path] | None = None) -> dict:
     response = read_text(response_path)
     body = read_text(manuscript_path)
     norm_body = normalize(body)
+    extras = [(p, read_text(p)) for p in (extra_sources or [])]
+    found_in_extra: list[dict] = []
     findings = []
     for kind, anchor, ctx in extract_claims(response):
         if kind == "quote":
             g = grade_quote(body, anchor)
+            # Not word for word in the manuscript: the text may live in a named extra source.
+            for src, src_text in extras if g["grade"] != "EXACT" else []:
+                g2 = grade_quote(src_text, anchor)
+                if _GRADE_RANK[g2["grade"]] > _GRADE_RANK[g["grade"]]:
+                    g = dict(g2, source=str(src))
+            if g.get("source") and g["grade"] == "EXACT":
+                found_in_extra.append({"kind": "quote", "claimed_text": anchor, "source": g["source"]})
             if g["grade"] == "INTERLEAVED":
                 findings.append(
                     {
@@ -580,7 +652,14 @@ def build_report(response_path: Path, manuscript_path: Path, values: list | None
                     }
                 )
         elif kind == "citation":
+            in_extra = None
             if not body_has_citation(body, norm_body, anchor):
+                in_extra = next((src for src, src_text in extras
+                                 if body_has_citation(src_text, normalize(src_text), anchor)), None)
+            if in_extra is not None:
+                found_in_extra.append({"kind": "citation", "claimed_citation": [t for _, t in anchor],
+                                       "source": str(in_extra)})
+            elif not body_has_citation(body, norm_body, anchor):
                 findings.append(
                     {
                         "verdict": "RESPONSE_CITATION_UNVERIFIED",
@@ -596,6 +675,11 @@ def build_report(response_path: Path, manuscript_path: Path, values: list | None
     return {
         "response": str(response_path),
         "manuscript": str(manuscript_path),
+        "extra_sources": [str(p) for p, _ in extras],
+        # Claims that are not in the manuscript file but are, word for word, in a named extra source.
+        "verified_in_extra_source": found_in_extra,
+        "reviewer_comment_blocks_skipped": strip_reviewer_comment_blocks(
+            strip_response_blockquotes(response))[1],
         "findings": findings,
         "summary": {"major": n_major, "unresolved": len(findings) - n_major},
         # An UNRESOLVED quote is a "look at this", not a defect: the words are demonstrably
@@ -611,12 +695,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--manuscript", required=True, type=Path, help="revised manuscript (.md/.txt/.docx)")
     ap.add_argument("--values", type=Path,
                     help="revision_values.json: declared values to check in the body (see references)")
+    ap.add_argument("--extra-source", type=Path, action="append", default=[], metavar="PATH",
+                    help="another file the revision changed (title page, supplement, figure text); "
+                         "a quote or citation absent from the manuscript is looked for here too. "
+                         "Repeatable.")
     ap.add_argument("--out", type=Path, help="write JSON report here")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any major verdict fires")
     ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args(argv)
 
-    for p in (args.response, args.manuscript):
+    for p in (args.response, args.manuscript, *args.extra_source):
         if not p.is_file():
             print(f"error: file not found: {p}", file=sys.stderr)
             return 2
@@ -631,7 +719,7 @@ def main(argv: list[str] | None = None) -> int:
         except (ValuesError, ValueError, OverflowError, RecursionError) as e:
             print(f"error: {args.values}: {e}", file=sys.stderr)
             return 2
-    report = build_report(args.response, args.manuscript, values)
+    report = build_report(args.response, args.manuscript, values, args.extra_source)
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps({"detector": "check_response_claims", **report}, indent=2, ensure_ascii=False), encoding="utf-8")

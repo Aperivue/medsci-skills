@@ -244,6 +244,15 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/check_response_claims.py \
 
 Add `--out qc/response_claims.json` to write the verdicts to `qc/response_claims.json`.
 
+When the letter quotes text that lives outside the manuscript file (a new title on the title page,
+a paragraph in the supplement, a figure caption kept in a figure source), name each such file with
+`--extra-source <path>` (repeatable). A quote or citation absent from the manuscript is then looked
+for there, and the report lists it under `verified_in_extra_source`. A reviewer comment the letter
+reproduces under a label ("Comment 3:", "Reviewer #2:") is skipped up to the next response label
+("Response:", "Authors' response:"), like a `>` blockquote; `reviewer_comment_blocks_skipped`
+reports how many. If the letter does not label its responses, only the labelled paragraph is
+skipped, so keep the reviewer's words and yours in separate paragraphs.
+
 `RESPONSE_QUOTE_UNVERIFIED` (a quoted added sentence absent from the body) and
 `RESPONSE_CITATION_UNVERIFIED` (an added citation whose token is nowhere in the body) are real
 discrepancies, since the gate ignores vague, paraphrased claims: either insert the promised edit or
@@ -286,6 +295,11 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/check_density_complaint.py \
   --previous manuscript/manuscript_R0.md \
   --revised manuscript/manuscript.md --strict
 ```
+
+The gate prints which lines it counted (`measured previous: lines A-B`, `measured revised: ...`)
+and writes them to `measured_span`. Read that line before trusting the delta: for an article with
+no Introduction heading the count starts at the top of the file, and it ends at the first
+References-like *heading*, not at a sentence that happens to begin with such a word.
 
 `DENSITY_COMPLAINT_UNADDRESSED` fires only when the decision letter contains a density/length
 complaint AND the body word count (Introduction through Discussion, citation markers excluded) did

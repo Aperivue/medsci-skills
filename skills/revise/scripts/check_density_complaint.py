@@ -65,6 +65,36 @@ BODY_START = re.compile(r"^#{0,4}\s*\**\s*(introduction|background)\b", re.IGNOR
 BODY_END = re.compile(r"^#{0,4}\s*\**\s*(references|acknowledg|funding|conflict|"
                       r"data availability|supplementary|supporting information|figure legends?)\b",
                       re.IGNORECASE | re.MULTILINE)
+# BODY_END's words also begin ordinary lines: "Supplementary Table 2 lists ...", "Funding for the
+# registry came from ...". Such a line is prose, and ending the body there measured only the
+# text above it in BOTH versions, so a revision that grew was reported as unchanged. The body
+# ends only at a line that is a heading: one carrying a heading mark, or a short line with no
+# sentence in it, or a run-in label ("Funding: ...").
+_END_WORDS = 6
+
+
+def _is_heading_line(line: str) -> bool:
+    s = line.strip()
+    if s.startswith("#"):
+        return True
+    bare = s.strip("*_ ")
+    if not bare:
+        return False
+    if re.match(r"[A-Za-z][A-Za-z '\u2019/&-]{0,60}[:.]", bare) and len(bare.split(":")[0].split()) <= _END_WORDS \
+            and (":" in bare[:70]):
+        return True          # run-in label: "Funding: ...", "Conflict of interest: ..."
+    return len(bare.split()) <= _END_WORDS and not re.search(r"[.!?;,]\s*$", bare)
+
+
+def _body_end(body: str):
+    for m in BODY_END.finditer(body):
+        # The pattern's leading whitespace can start on an earlier blank line, so take the line
+        # that holds the matched word itself.
+        bol = body.rfind("\n", 0, m.start(1)) + 1
+        eol = body.find("\n", m.start(1))
+        if _is_heading_line(body[bol: eol if eol != -1 else len(body)]):
+            return m
+    return None
 ABSTRACT = re.compile(r"^#{0,4}\s*\**\s*abstract\b", re.IGNORECASE | re.MULTILINE)
 
 CITATION = re.compile(r"\[[\d,\s–\-]+\]|\((?:[A-Z][A-Za-z'`-]+(?: et al\.?)?,?\s*\d{4}[a-z]?;?\s*)+\)")
@@ -95,12 +125,28 @@ def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
 
 
+def body_span(text: str) -> dict:
+    """Where the measured body starts and ends, as 1-based line numbers, and what bounded it."""
+    text = unicodedata.normalize("NFKC", text)
+    m0 = BODY_START.search(text)
+    start = m0.start() if m0 else 0
+    m1 = _body_end(text[start:])
+    end = start + m1.start(1) if m1 else len(text)
+    line = lambda pos: text.count("\n", 0, pos) + 1  # noqa: E731
+    return {
+        "start_line": line(start),
+        "end_line": line(end) if m1 else text.count("\n") + 1,
+        "start_marker": m0.group(1).lower() if m0 else "start of file (no Introduction/Background heading)",
+        "end_marker": m1.group(1).lower() if m1 else "end of file (no References-like heading)",
+    }
+
+
 def body_word_count(text: str) -> int:
     """Introduction..before-References, abstract excluded, citation markers removed."""
     text = unicodedata.normalize("NFKC", text)
     m0 = BODY_START.search(text)
     body = text[m0.start():] if m0 else text
-    m1 = BODY_END.search(body)
+    m1 = _body_end(body)
     if m1:
         body = body[: m1.start()]
     # if an Abstract heading is inside our slice (no Introduction found), drop it
@@ -147,8 +193,10 @@ def main(argv: list[str] | None = None) -> int:
             return 2
 
     comp = complaints(read_text(a.comments))
-    prev_wc = body_word_count(read_text(a.previous))
-    new_wc = body_word_count(read_text(a.revised))
+    prev_text, new_text = read_text(a.previous), read_text(a.revised)
+    prev_wc = body_word_count(prev_text)
+    new_wc = body_word_count(new_text)
+    spans = {"previous": body_span(prev_text), "revised": body_span(new_text)}
     delta = new_wc - prev_wc
 
     fired = bool(comp) and delta >= 0
@@ -158,6 +206,9 @@ def main(argv: list[str] | None = None) -> int:
         "previous_body_words": prev_wc,
         "revised_body_words": new_wc,
         "delta_words": delta,
+        # What was counted. A span that stops well short of the manuscript's end is the sign
+        # that the body was bounded in the wrong place; read it before trusting the delta.
+        "measured_span": spans,
         "verdict": "DENSITY_COMPLAINT_UNADDRESSED" if fired else "OK",
     }
     if a.out:
@@ -165,6 +216,10 @@ def main(argv: list[str] | None = None) -> int:
         a.out.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
     if not a.quiet:
+        for name in ("previous", "revised"):
+            s = spans[name]
+            print(f"measured {name}: lines {s['start_line']}-{s['end_line']} "
+                  f"(from {s['start_marker']} to {s['end_marker']})")
         if not comp:
             print(f"OK: no density/length complaint in the decision letter "
                   f"(body {prev_wc} -> {new_wc} words, {delta:+d}).")

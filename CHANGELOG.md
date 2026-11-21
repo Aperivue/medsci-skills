@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **`/revise`, `/peer-review`: a reviewer comment reproduced under a label is not an author claim.**
+  `check_response_claims.py` skipped reviewer text only inside `>` blockquotes. A letter that
+  reproduces each comment under "Comment 3:" or "Reviewer #2:" had the reviewer's own words
+  ("the authors added the sentence ...") reported as `RESPONSE_QUOTE_UNVERIFIED`. Such a block is
+  now skipped up to the next response label; without response labels, only the labelled
+  paragraph is skipped.
+- **`/revise`: the density gate ended the body at a sentence.** `check_density_complaint.py` stopped
+  counting at any line beginning with "Supplementary", "Funding", "Conflict" and similar words,
+  so a prose line such as "Supplementary Table 2 lists ..." hid everything after it in both
+  versions and a revision that had been cut was reported as unchanged. The body now ends only at a
+  heading or a run-in label, and the report states which lines were counted (`measured_span`).
+
+### Added
+
+- **`/revise`: `check_response_claims.py --extra-source <path>`** (repeatable) for text the revision
+  changed outside the manuscript file: a title page, a supplement, a figure source. A quote or
+  citation absent from the manuscript is looked for there and reported under
+  `verified_in_extra_source`.
+
 ### Changed
 
 - **`/find-journal` POLICY: the promotion checklist no longer forbids every `[TODO: verify at journal site]` marker.**

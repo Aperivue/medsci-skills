@@ -570,9 +570,17 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/revise/tests/test_response_claims.sh
 
+      - name: "Run revise response-claim source test (a labelled reviewer comment is not an author claim; --extra-source)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/revise/tests/test_response_claim_sources.sh
+
       - name: "Run revise density-complaint challenge (point-by-point revision that got longer must fail)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/revise/scripts/density_complaint_challenge/verify.sh
+
+      - name: "Run revise density body-bounds test (the body ends at a heading, not at a sentence)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/revise/tests/test_density_body_bounds.sh
 
       - name: Run sync-submission marked-manuscript round-trip gate test (move-aware)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
