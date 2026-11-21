@@ -140,9 +140,17 @@ DEFERRED_MITIGATION_RE = re.compile(
     re.IGNORECASE)
 
 
+# The Methods heading comes in more spellings than the others: "Materials & Methods"
+# (with pandoc's escaped "\&" too), "Patients and Methods", "Methods and Materials".
+# An unrecognised heading leaves the Methods text empty, and an empty Methods text
+# cannot contain a dual-review claim, so the check passed without having looked.
 SECTION_HEADERS = {
     "Methods": re.compile(
-        r"^#{1,3}\s*\*{0,2}(?:METHODS?|Method[s]?|Materials and Methods)\*{0,2}\s*$",
+        r"^#{1,3}[^\S\r\n]*\*{0,2}(?:Methods?"
+        r"|(?:Materials?|Patients|Subjects|Participants)"
+        r"(?:[^\S\r\n]+and[^\S\r\n]+|[^\S\r\n]*\\?&[^\S\r\n]*)Methods?"
+        r"|Methods?(?:[^\S\r\n]+and[^\S\r\n]+|[^\S\r\n]*\\?&[^\S\r\n]*)Materials?)"
+        r"\*{0,2}[^\S\r\n]*$",
         re.IGNORECASE | re.MULTILINE,
     ),
     "Discussion": re.compile(
@@ -170,6 +178,40 @@ class Report:
     single_hits: list[dict] = field(default_factory=list)
     llm_reviewer_hits: list[dict] = field(default_factory=list)
     deferred_mitigation_hits: list[dict] = field(default_factory=list)
+    # False when no Methods heading was recognised: the manuscript's dual-review
+    # claim was not checked, whatever submission_safe says.
+    methods_section_found: bool = True
+
+
+_FENCE_OPEN = re.compile(r"^ {0,3}(`{3,}|~{3,})")
+_HTML_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
+
+
+def visible_text(text: str) -> str:
+    """The manuscript without what a reader does not see as manuscript: HTML comments and
+    fenced code blocks. A fence closes on a line of the same character at least as long as the
+    one that opened it, or at the end of the file. Line count is preserved."""
+    text = _HTML_COMMENT.sub(lambda m: "\n" * m.group(0).count("\n"), text)
+    out, fence = [], None
+    for line in text.split("\n"):
+        if fence is None:
+            m = _FENCE_OPEN.match(line)
+            if m:
+                fence = m.group(1)
+                out.append("")
+            else:
+                out.append(line)
+        else:
+            s = line.strip()
+            if s and set(s) == {fence[0]} and len(s) >= len(fence):
+                fence = None
+            out.append("")
+    return "\n".join(out)
+
+
+METHODS_NOT_FOUND = ("Methods section not found: no heading was recognised as Methods, so a "
+                     "dual-review claim in the manuscript was NOT checked against the "
+                     "Limitations. Rename the heading or check this by hand.")
 
 
 def split_sections(text: str) -> dict[str, str]:
@@ -251,6 +293,8 @@ def scan_deferred_mitigation(manuscript: str) -> list[dict]:
 
 def build_report(manuscript: str, prospero: str | None,
                  extraction: Path | None = None) -> Report:
+    # A heading or a claim inside a code fence or an HTML comment is an example, not the paper.
+    manuscript = visible_text(manuscript)
     sections = split_sections(manuscript)
 
     dual_hits: list[dict] = []
@@ -282,6 +326,7 @@ def build_report(manuscript: str, prospero: str | None,
         single_hits=single_hits,
         llm_reviewer_hits=llm_reviewer_hits,
         deferred_mitigation_hits=deferred_hits,
+        methods_section_found=bool(SECTION_HEADERS["Methods"].search(manuscript)),
     )
 
 
@@ -304,6 +349,8 @@ def _render_extra(lines: list[str], report: Report) -> None:
 
 def render_markdown(report: Report) -> str:
     lines = ["# Reviewer-team consistency audit", ""]
+    if not report.methods_section_found:
+        lines += [f"**WARN** — {METHODS_NOT_FOUND}", ""]
     if report.submission_safe:
         lines.append(
             "Status: **PASS** — no conjunction of DUAL claim + SINGLE confession."
@@ -387,12 +434,16 @@ def main(argv: list[str] | None = None) -> int:
                 "single_hits": report.single_hits,
                 "llm_reviewer_hits": report.llm_reviewer_hits,
                 "deferred_mitigation_hits": report.deferred_mitigation_hits,
+                "methods_section_found": report.methods_section_found,
             },
             indent=2,
         ),
         encoding="utf-8",
     )
 
+    if not report.methods_section_found:
+        # stderr, and not silenced by --quiet: a check that did not run is not a quiet PASS.
+        print(f"WARN: {METHODS_NOT_FOUND}", file=sys.stderr)
     if not args.quiet:
         counts = (f"DUAL={len(report.dual_hits)} SINGLE={len(report.single_hits)} "
                   f"LLM={len(report.llm_reviewer_hits)} "

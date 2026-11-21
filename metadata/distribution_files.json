@@ -903,8 +903,8 @@
     },
     {
       "path": "skills/check-reporting/references/step4d_prisma_figure_audit.md",
-      "size": 7090,
-      "sha256": "b0dbbc2efccf680e1678583bbe8d24f129a0d14c8b0d24ef760106e2b6a6fa8d"
+      "size": 7489,
+      "sha256": "3a2c3464d4aeab76d21886f9b6f380d0547191a4e4924e1603ee3c64bf890029"
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_exists.py",
@@ -923,8 +923,8 @@
     },
     {
       "path": "skills/check-reporting/scripts/check_prisma_figure.py",
-      "size": 8134,
-      "sha256": "89410c2b7e230befad15b30c8fcff5d1850cad274460cddce79e4cbcafc59a97"
+      "size": 9578,
+      "sha256": "02211582587a8cfa464d3b3181abda7fd078ff70910fca85fa1d749e3522ad5b"
     },
     {
       "path": "skills/check-reporting/scripts/prisma_cascade_check.py",
@@ -3013,8 +3013,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_xref.py",
-      "size": 36287,
-      "sha256": "9ffeab9a69c0cb772e575454a77ef834953e0f0fcbe833436a71b5e7ae6a570b"
+      "size": 42292,
+      "sha256": "d36fcd2b7d6ae553d5012e761418c2ee7131585064fa142fcd17dd757405ceac"
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",
@@ -4283,8 +4283,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types.py",
-      "size": 14001,
-      "sha256": "43ad156c42ee62d63ec86a4cbb56cb107f024bf8cbd7e9bc1727cce546cf925e"
+      "size": 15831,
+      "sha256": "e80f9d8807b5fa69befc3dca4641cf8e27e20799606c310022c04bd33a81fd02"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/disciplined.txt",
@@ -4297,9 +4297,19 @@
       "sha256": "301f77498e96e71536a48afb54f82db48e3d245c8738b2ab6943b4c37f6aab08"
     },
     {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/computation_verbs.md",
+      "size": 377,
+      "sha256": "41f981b3eac71b53c3e2ee8ba5c0ac13639b5126e74988ab596a858275b1cdd2"
+    },
+    {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/disciplined.md",
       "size": 1093,
       "sha256": "b9fecdcfd79a2ba3174b9ce551f1296244d52c798a454e40579b7392d2d2e77d"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/domain_nouns.md",
+      "size": 668,
+      "sha256": "abc02da0e864a7261b0226c4201a2c13b5fb071e284782ab253623344ea45f6e"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/undisciplined.md",
@@ -4313,8 +4323,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/verify.sh",
-      "size": 2049,
-      "sha256": "ea7f2d0db6940aa0529dc32e4322531a6fa223b3102bb736c8f5084a398670c2"
+      "size": 3039,
+      "sha256": "5a2f2d084741c8baa3127dcfd93d10205ef8631194c8253d0984e5046403a237"
     },
     {
       "path": "skills/peer-review/scripts/check_self_improvement_claims.py",
@@ -4368,8 +4378,8 @@
     },
     {
       "path": "skills/polish-language/scripts/lint_consistency.py",
-      "size": 16136,
-      "sha256": "cc892d682ea4ccd648effb1facf8d404503d9c5d89b2cf954acfedd12a967857"
+      "size": 18002,
+      "sha256": "0d5e2fd423661d41b5ef3766713361a0858ccd3805e0a82a3d5ced2409daefd4"
     },
     {
       "path": "skills/polish-language/scripts/lint_figure_locale.py",
@@ -5763,8 +5773,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_reviewer_team_consistency.py",
-      "size": 15498,
-      "sha256": "9af6a41312262a05b30abebf0ce41718ff5463fe5c613e11b27db1073f66e54e"
+      "size": 18005,
+      "sha256": "9fd15d01c6a5e7a57b385f5f5e82c225e88ad40c4ea7f02650776f77aded680a"
     },
     {
       "path": "skills/self-review/scripts/check_rhetorical_density.py",
@@ -6488,8 +6498,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/scope_drift_check.py",
-      "size": 12047,
-      "sha256": "595a77b9b262b64e09e845d0635da1fc0a30f1eef8878521454a7875b3ae9db1"
+      "size": 12253,
+      "sha256": "285e023d0dbb7f10c8d43db0dc19ef052d4cdaf58c5d5ac8d4635b9a15c1542b"
     },
     {
       "path": "skills/sync-submission/scripts/sync_submission.py",
