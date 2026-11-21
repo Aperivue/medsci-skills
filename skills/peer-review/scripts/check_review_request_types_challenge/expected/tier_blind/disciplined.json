@@ -1,0 +1,11 @@
+{
+  "detector": "check_review_request_types",
+  "source": "fixture/disciplined.md",
+  "verdict": "OK",
+  "asks": 7,
+  "disclosure": 6,
+  "computation": 1,
+  "new_data": 0,
+  "descriptive": 0,
+  "findings": []
+}

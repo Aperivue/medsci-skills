@@ -1,0 +1,6 @@
+== REQUEST-TYPE VIOLATIONS ==  fixture/canonical_header.md
+asks=4 disclosure=1 computation=0 new_data=3 descriptive=0
+[MAJOR] COMPUTATION_HEAVY L0  3 computation/new-data requests (limit 2) — each is a new, unreviewed error surface produced under revision deadline
+[MAJOR] NEW_DATA_REQUESTED L8  asks for data that does not exist — cannot be satisfied within a revision: "Have a second reader independently label every examination and report agreeme…"
+[MAJOR] NEW_DATA_REQUESTED L9  asks for data that does not exist — cannot be satisfied within a revision: "Please collect an external validation cohort from a second site."
+[MAJOR] NEW_DATA_REQUESTED L10  asks for data that does not exist — cannot be satisfied within a revision: "Have a second operator repeat the segmentation on every examination."

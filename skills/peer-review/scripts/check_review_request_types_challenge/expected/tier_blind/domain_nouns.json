@@ -1,0 +1,11 @@
+{
+  "detector": "check_review_request_types",
+  "source": "fixture/domain_nouns.md",
+  "verdict": "OK",
+  "asks": 8,
+  "disclosure": 8,
+  "computation": 0,
+  "new_data": 0,
+  "descriptive": 0,
+  "findings": []
+}

@@ -67,6 +67,32 @@ gates on the **request's own verbs** and errs toward silence:
 A detector that never falsely accuses a disclosure request is worth more than one
 that catches every computation.
 
+## The recommendation tier
+
+`NEW_DATA_REQUESTED` says new data "cannot be satisfied within a revision". That
+is the reason a reject-and-resubmit decision exists: the authors are invited back
+with a new submission, and a reviewer recommending it should list the new data the
+resubmission needs. Flagging those asks there is a false alarm, and a gate that
+cries wolf on every resubmission-tier draft teaches reviewers to ignore it.
+
+The gate does not work out the tier. Journals word their decision options in too
+many ways for a script to read them safely, so the person or agent running the
+check decides and says so: `--recommendation reject-and-resubmit`, passed only when
+the journal's decision option being chosen invites a new submission (for any other
+wording, or if unsure, omit the flag). The value is one of five fixed choices
+(`reject-and-resubmit`, `reject`, `major-revision`, `minor-revision`, `accept`);
+anything else is a usage error. The draft's own Recommendation line is not read.
+
+Under `reject-and-resubmit`, exactly two finding types change, both to `INFO`
+under `exempted`: `NEW_DATA_REQUESTED`, and `COMPUTATION_HEAVY`, whose budget
+exists because of a revision deadline that a new submission does not have (the
+request counts are still shown). `COMPUTATION_UNJUSTIFIED`, `NESTED_P_REQUESTED`
+and `ESTIMATOR_UNNAMED` are raised exactly as without the flag (a nested P value
+on the same line as an exempted new-data request stays MAJOR). The flag must be spelled in full
+(`--rec` is refused, as it was an unknown option before). Every other choice, and
+no flag, gives audit output (text, JSON, exit code) byte-identical to the gate
+before the tier existed; `--help` text is not covered by that guarantee.
+
 ## Fixtures
 
 Synthetic. No real review, no manuscript, no PII — only the *shape*.
@@ -76,6 +102,18 @@ Synthetic. No real review, no manuscript, no PII — only the *shape*.
 - `fixture/disciplined.md` — the same review rewritten: disclosure asks, one
   computation carrying an explicit *"the present tables cannot answer this"*, and
   a subset table requested **without** a significance test.
+- `fixture/resubmit_mixed.md` — two new-data asks (exempted under the tier), a
+  nested P value (still MAJOR), and a header declaring "Reject & resubmit", which
+  the gate must ignore.
+- `fixture/canonical_header.md` — the header spells the tier exactly as the flag
+  does ("reject-and-resubmit"); without the flag it must still be ignored.
+- `fixture/new_data_only.md` — new-data asks, and the budget they exceed, are its
+  only violations: `--strict` exits 1 without the tier and 0 with it.
+- `fixture/same_line_nested.md` — one ask carries both a new-data request and a
+  nested P value; under the tier the first becomes INFO and the second stays MAJOR.
+- `expected/tier_blind/` — text, JSON and `--strict` exit codes of the gate as it
+  was before the tier existed, one row per fixture; every run without the exempt
+  tier must match them byte for byte, with empty stderr.
 
 ## Verify
 

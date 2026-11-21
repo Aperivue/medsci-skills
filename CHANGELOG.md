@@ -4,6 +4,14 @@
 
 ### Fixed
 
+- **`/peer-review`: the request-type check no longer flags new-data requests under a
+  reject-and-resubmit recommendation.** `check_review_request_types.py` takes
+  `--recommendation {reject-and-resubmit,reject,major-revision,minor-revision,accept}`. Under
+  `reject-and-resubmit` the new-data and heavy-computation findings are reported as informational
+  exemptions, because those two exist for a revision deadline; unjustified computation, nested-group
+  P values and unnamed estimators are flagged as before. The script does not read the tier from
+  the draft. Without the option, and for the other values, output and exit codes are unchanged.
+
 - **Guidance sentences that were wrong or overstated as general rules, in twelve skills.** A
   reproduced table shows internal consistency, not that the data are genuine (`sr_ma` P0); a P
   value comparing a subset with the cohort that contains it is invalid because the groups are

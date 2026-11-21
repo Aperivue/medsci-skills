@@ -1,0 +1,42 @@
+{
+  "detector": "check_review_request_types",
+  "source": "fixture/resubmit_mixed.md",
+  "verdict": "REQUEST-TYPE VIOLATIONS",
+  "asks": 4,
+  "disclosure": 1,
+  "computation": 1,
+  "new_data": 2,
+  "descriptive": 0,
+  "findings": [
+    {
+      "kind": "NEW_DATA_REQUESTED",
+      "severity": "MAJOR",
+      "line": 8,
+      "detail": "asks for data that does not exist — cannot be satisfied within a revision: \"Have a second reader independently label every examination and report agreeme…\""
+    },
+    {
+      "kind": "NEW_DATA_REQUESTED",
+      "severity": "MAJOR",
+      "line": 9,
+      "detail": "asks for data that does not exist — cannot be satisfied within a revision: \"Please collect an external validation cohort from a second site.\""
+    },
+    {
+      "kind": "COMPUTATION_UNJUSTIFIED",
+      "severity": "MAJOR",
+      "line": 10,
+      "detail": "computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: \"Please report a P value comparing the analysed subset with the full cohort.\""
+    },
+    {
+      "kind": "NESTED_P_REQUESTED",
+      "severity": "MAJOR",
+      "line": 10,
+      "detail": "requests a P value between a subset and the cohort containing it — nested groups, so the test is invalid; ask for the subset's characteristics instead: \"Please report a P value comparing the analysed subset with the full cohort.\""
+    },
+    {
+      "kind": "COMPUTATION_HEAVY",
+      "severity": "MAJOR",
+      "line": 0,
+      "detail": "3 computation/new-data requests (limit 2) — each is a new, unreviewed error surface produced under revision deadline"
+    }
+  ]
+}

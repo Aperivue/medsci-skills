@@ -1,0 +1,4 @@
+== REQUEST-TYPE VIOLATIONS ==  fixture/same_line_nested.md
+asks=2 disclosure=1 computation=0 new_data=1 descriptive=0
+[MAJOR] NESTED_P_REQUESTED L5  requests a P value between a subset and the cohort containing it — nested groups, so the test is invalid; ask for the subset's characteristics instead: "Have a second reader independently label every examination, and report a P va…"
+[MAJOR] NEW_DATA_REQUESTED L5  asks for data that does not exist — cannot be satisfied within a revision: "Have a second reader independently label every examination, and report a P va…"
