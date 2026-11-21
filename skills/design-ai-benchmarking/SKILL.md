@@ -59,7 +59,15 @@ Pin down, in writing:
 - every arm/system and what each receives as input (same items, same information access, same output
   format), so no arm has a hidden advantage
 - the human-expert reference: who they are, and whether they set ground truth, form a comparison arm,
-  or both
+  or both. A time-limited read measures what the reader detects under the specified study
+  conditions, not the truth the reference must define: when one such read serves as both, the comparator's own
+  answers define the truth, so its misses cannot be measured (and, where unmarked items count as
+  negative, a correct system-only finding is scored as a false positive), while correcting the
+  reference from the system's output makes it depend on the evaluated system (Phase 7). For a task scored against a case-level
+  truth (diagnostic accuracy, extraction), set each case's reference independently of that case's
+  timed read and blinded to every arm's output. Rating output quality is a different endpoint:
+  raters see the output, with arm identity masked where feasible without altering what is rated,
+  and score it on a pre-defined rubric
 - the unit of rating (item, case, output) and how many units each reviewer sees
 
 **Gate:** Present the reconstructed evaluation question, arms, and reference to the user and confirm
@@ -153,6 +161,15 @@ for the formulas, trade-offs, and a stdlib implementation.
   inflated, near-circular result and belong as labeled probes, not discoveries.
 - Verify no arm sees post-decision or outcome-derived information the others do not.
 - Confirm the reference labels were not derived from the same model output being evaluated.
+- Check what the rating tool shows raters while they rate. A running tally per category, or a
+  "category X still needs n cases" prompt, helps monitor collection, but when it is tied to the
+  judged variable it shows the rater the distribution of answers so far, and a quota or shortfall
+  prompt names the answer the collection is short of; either can move borderline cases. Raters who see the same prompt can move the same way, so agreement
+  statistics need not reveal it. When the intended measurement is an independent, unaided judgment,
+  disclosing the display afterwards does not recover it: show raters only overall progress and keep
+  per-category counts on a coordinator view. If category feedback is deliberately part of the
+  rating condition, record when and to whom it was shown, and define the estimand as judgment under
+  that condition.
 
 ### Phase 8: Lock a structured export schema
 
@@ -160,6 +177,12 @@ Write the machine-readable rating record as a JSON schema, starting from
 `${CLAUDE_SKILL_DIR}/references/benchmark_export_schema.json`: per-item ratings on every rubric
 dimension, free-text justifications, follow-up flags, the `probe_arm` flag, reviewer id and metadata,
 item order, and timing.
+
+If the tool merges records from several devices, a last-write-wins merge lets an empty record,
+created when a case is merely opened, replace a completed rating because it is newer. Within one
+rating assignment, opening a case or saving an unsubmitted draft never changes a submitted or
+withdrawn rating; only an explicit later submission, edit or withdrawal does, and explicit edits
+whose order cannot be established are resolved by a person.
 
 **Gate:** Present the final rubric, probe set, panel plan, judge strategy, and export schema together;
 collect explicit user approval before any rating begins, because changes after collection starts

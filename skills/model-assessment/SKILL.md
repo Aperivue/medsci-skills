@@ -68,7 +68,13 @@ external (different site, scanner, vendor) → multi-site external. Cross-valida
 development-time optimism corrections, **not** external validation. Flag a generalisability or
 deployment claim that outruns the design, and "external validation" where the single external set
 was used for tuning. Confirm the test set was touched **once** — no architecture search,
-hyperparameter sweep, early stopping, or threshold choice read it.
+hyperparameter sweep, early stopping, or threshold choice read it. For a comparison of
+the same frozen system across held-out cohorts, use **the same pre-specified inference
+configuration across all those cohorts** (TTA, ensemble members, threshold, post-processing), or
+the drop also carries a configuration change; a cross-validated internal estimate keeps its
+out-of-fold predictions instead, and if the external estimate uses a different fitted model its
+gap is not a pure domain-shift estimate. Tie each result to the tool version and resolved
+configuration that produced it (`references/validation_design.md` §4b).
 
 ### Phase 4 — Comparator
 Clinical-only baseline, incremental value over an existing score, or reader comparison (hand the

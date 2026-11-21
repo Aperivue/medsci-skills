@@ -120,6 +120,27 @@ Two different quantities, not interchangeable:
   60 positive test cases, is about ±0.04. For a frozen vendor or open-weights model there is no
   retraining to vary; fix and report the inference seed and the determinism caveat.
 
+## 4b. The configuration actually run
+
+What a metric table does not show:
+
+- **Departures from the reference configuration or the plan.** A tool's defaults vary by version
+  and preset, so tie each result to the tool version and resolved configuration that produced it,
+  and record where that departs from the plan. For cross-validation, report obtained versus
+  planned out-of-fold predictions by unique case (and repeat); for an internal hold-out, report
+  eligible versus evaluated cases.
+- **A different inference configuration across cohorts.** When the same frozen system is
+  evaluated on several held-out cohorts, use the same pre-specified inference configuration
+  (test-time augmentation, ensemble, threshold, post-processing, resampling) across all of them;
+  otherwise the change in
+  performance also carries the configuration difference. Holding it fixed removes that one
+  explanation; sampling variation, case mix and the reference procedure can still contribute.
+  Retain out-of-fold predictions for the cross-validated estimate; if the external estimate uses
+  a different fitted model or ensemble, the gap cannot be attributed solely to domain shift. A
+  configuration difference found after the fact is recorded (when, why, which cohort, and as a
+  deviation if it departs from the plan), and for the metrics that setting can affect the
+  cohort's performance difference is reported as confounded with configuration.
+
 ## 5. Test-set sizing
 
 Check **events per class in the test set**, not the cohort total. A metric computed on a sparse
@@ -174,6 +195,10 @@ comparison to current practice, reproducibility).
   examples of the "illegitimate features" / spectrum-bias rows, not as numeric claims.
 - **Internal vs external, optimism correction, CV ≠ external** — TRIPOD 2015 (Collins, Reitsma,
   Altman, Moons) and TRIPOD+AI (*BMJ* 2024). The tier ladder mirrors the skill's Phase 3.
+- **Configuration actually run (§4b)** — a reporting and attribution argument, not a cited
+  finding: a reported number describes the configuration that produced it, and holding the
+  inference configuration fixed removes one explanation for a difference between cohorts without
+  excluding others.
 - **Metric selection deferral** — Metrics Reloaded (Maier-Hein & Reinke et al., *Nature Methods*
   2024); detail lives in Part B.
 - **Reporting map** — CLAIM 2024 update (Tejani et al., *Radiology: AI* 2024) on base CLAIM 2020
