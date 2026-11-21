@@ -1462,6 +1462,11 @@
       "sha256": "4a6f33f8167caa195f885d76ef299dd1a9be00fda979ffd8c3595bbd88c17a62"
     },
     {
+      "path": "skills/find-journal/references/journal_profiles/Circulation.md",
+      "size": 4021,
+      "sha256": "3c202092e9876e3bd3cdc339405b9b6908e976a05ac4248354960824c3a43283"
+    },
+    {
       "path": "skills/find-journal/references/journal_profiles/Clinical_Cancer_Research.md",
       "size": 4381,
       "sha256": "44123275b0643186a63ed0bd5e184676da5f5d8d53e7fba27f791f9d885b5560"
@@ -6845,6 +6850,11 @@
       "path": "skills/write-paper/references/journal_profiles/Chest.md",
       "size": 16316,
       "sha256": "24f7de1e22a61aee85b22c0b34cbf13a237ca04065a14512102c83b9ed584808"
+    },
+    {
+      "path": "skills/write-paper/references/journal_profiles/Circulation.md",
+      "size": 10065,
+      "sha256": "00475bddea38fe3bca6afc3af40459b4bc45451eb7f64b2fefbac92533a3bae9"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Clinical_Cancer_Research.md",
