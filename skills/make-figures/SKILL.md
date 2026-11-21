@@ -52,6 +52,10 @@ Publisher pages set the floor; a journal's own guide can be stricter (JACC is an
 
 Even when AI images are allowed, experienced reviewers recognise AI-generated illustrations (small decorative icons that add no information, overly uniform layouts, generic clip-art style). For high-impact submissions, prefer Servier / BioArt / BioRender + matplotlib overlays over AI.
 
+**Assets inside a co-author's figure.** A figure that arrives assembled carries icons and illustrations whose origin nobody recorded, and a policy check on the figure as a whole never asks about them. Before it enters the package, ask the co-author for the source of every embedded raster or vector asset and record it per asset, as `CITATION.md` does below. Keep an asset whose terms you have confirmed for this use, with the attribution they require. For one of unknown origin, or under terms you cannot confirm (clip art bundled with office software, a generative tool under the policy table above), establish the source or replace it with an independently made drawing or an asset from the sources above; redrawing an unsourced picture to resemble it clears nothing. Record what was replaced, and check each embedded raster's pixel dimensions against its printed size.
+
+**When the manuscript is itself about AI.** If the paper's argument concerns the reliability, provenance, oversight or detection of AI output, use no generative-AI asset as decoration or illustration, even where the journal would accept one with disclosure: the figure would contradict the paper it sits in. A model output that is the object of study is different. Keep it unaltered, label how it was produced, and check the journal's requirements for such research images.
+
 ### Asset directory convention
 
 ```
@@ -209,7 +213,9 @@ Ask the user for (infer what the context already gives, and confirm before proce
 
 1. Load the figure style file (skeleton below).
 2. Look up journal-specific dimensions in `${CLAUDE_SKILL_DIR}/references/figure_specs.md`.
-3. Set the colorblind-safe palette (Wong palette by default).
+3. Set the colorblind-safe palette (Wong palette by default). For a figure set drawn by several
+   authors, write the palette lock first (`figure_specs.md` → *Colour that carries meaning across
+   figures*).
 4. Set font sizes per element type (title, axis label, tick label, legend, annotation) from `figure_specs.md`.
 
 ### Step 3: Generate
@@ -362,6 +368,8 @@ Before delivering the final figure, verify all items:
 - [ ] **Alignment**: All elements on a consistent grid; panels aligned
 - [ ] **Vector output**: PDF/SVG saved (not just PNG)
 - [ ] **Resolution**: ≥ 300 DPI for raster elements, ≥ 600 DPI for line art
+- [ ] **Image mode**: read each raster file's colour mode and alpha channel instead of judging by eye, and match what the target requires (greyscale, for instance). An opaque alpha channel looks identical on screen. Where flattening is needed, use `export_portal_tiff.py` (Step 5), then confirm the mode and the pixels per inch at the final printed width.
+- [ ] **No collisions**: passing the font-size, word-count and dimension checks says nothing about placement. For a script that places text and shapes at computed coordinates (a composed raster, a graphical abstract), render once with the final font and size, measure each text's bounding box, and check for overlap and canvas clipping, leaving out labels meant to sit inside a box; then read the figure at its placed size.
 - [ ] **Journal specs**: Dimensions, font, and format match the target journal (if a figure exceeds a limit, resize it and report the adjustment)
 - [ ] **No chartjunk**: No 3D effects, unnecessary gridlines, gradient fills, or decorative elements
 - [ ] **Caption**: Drafted per `figure_specs.md` (Caption Writing Guidelines) with key finding, abbreviations, statistical details, and sample size
@@ -528,7 +536,11 @@ Palettes, font sizes, panel layouts, and caption format are in `figure_specs.md`
 - Never use red-green only distinctions. Use line style (solid, dashed, dotted) in addition to color
   for line plots, and marker shape in addition to color for scatter plots.
 - Panel labels: uppercase bold letter (12 pt), top-left of each panel.
-- No figure titles in the plot itself (the title goes in the caption).
+- No figure titles in the plot itself (the title goes in the caption), and never a figure number:
+  floats are renumbered between rounds, and a text search of the manuscript can miss wording that
+  sits inside an image. When numbering or wording changes, read the title and label strings in the
+  plotting script and look at the rendered image, then update the working source and the copies the
+  current submission package uses. Leave earlier frozen submissions as they are.
 - Align multi-panel figures on a grid, with consistent axis ranges across comparable panels.
 - Significance stars (* p<0.05, ** p<0.01, *** p<0.001) go above comparison brackets; report the
   exact p-value in the figure legend or caption, not in the plot.

@@ -49,6 +49,17 @@
   instead of as a major unverified claim. A near match there changes nothing.
 ### Changed
 
+- **`/make-figures`, `/present-paper`: added figure and deck guidance.**
+  `/make-figures` now asks for the source of every asset inside a co-author's assembled figure, rules
+  out decorative generative assets in a paper that is itself about AI reliability (a model output
+  under study is kept and labelled), keeps figure numbers out of the image, checks image mode and
+  text collisions before export, and adds a palette lock for figure sets drawn by several authors;
+  the forest-plot and flow-diagram references say what to look at in the rendered file.
+  `/present-paper` now measures a reused figure before any licence work, treats an empty licence
+  lookup as a failed lookup, checks notes against the source when a figure is swapped, and checks
+  where the minutes of an outline go; its references describe four more slide and speaker-note
+  habits. Thresholds in this text are labelled as rules of thumb.
+
 - **`/find-journal` POLICY: the promotion checklist no longer forbids every `[TODO: verify at journal site]` marker.**
   `/add-journal` tells profile authors to mark a value they cannot find instead of guessing it, and
   public profiles already carry such markers. The checklist item now asks that each remaining marker

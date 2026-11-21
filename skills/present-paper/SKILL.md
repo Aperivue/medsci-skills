@@ -144,6 +144,13 @@ Create a slide-by-slide outline with time allocation:
 | N | Take-home messages | 0:30 | 3-5 key points |
 ```
 
+Before asking for approval, check where the minutes land, not only how many there are: decide from
+the talk type and the title what the talk promises, label each main slide (that core content,
+other cited work, method, framing), and show the time per label beside the title. For a talk on the
+speaker's own study, as a rule of thumb (ours, not a standard), flag an outline whose own findings
+hold under about 40% of the time; for a journal club, look at the time on the target paper's
+results and critique.
+
 **Gate: User approves outline before proceeding.**
 
 ---
@@ -307,6 +314,11 @@ footnotes. More than 1,000 characters with ≥5 stat tokens → compress. The me
 - **Every external number in the notes is checked against the source, exactly like a number in the
   body.** A benchmark typed from memory ("95% of 152 models rated high risk" where the source said
   87%, of 148 of 171) survives a correctly cited reference list — only the digits were remembered.
+- **A schematic of a paper's result, and the paper's own figure when it replaces one, are checked
+  against the source.** When the schematic is drawn and again at the swap, compare that slide's
+  notes, caption and bullets with the matching panel and result in the paper: the numbers, and also
+  the population, the direction of the comparison, the uncertainty and any negative wording ("not
+  significant" is not "no difference").
 - **When you edit generated text, the count of injection expressions must not fall.** Where a build
   script draws numbers from an artifact (`f"{N['primary']}"`), compressing the prose is where they
   get flattened into literals — the body stays gated and the notes silently disagree with it.
@@ -380,6 +392,17 @@ frames. Three rules keep slides stable:
 - **Forbidden**: TIFF (Mac PowerPoint silently drops it); JPEG for line art (artifacts on
   diagonals); raw SVG (PowerPoint Mac handles it inconsistently).
 - **Caption**: re-draft for a listener with 5–10 seconds of attention, not the journal legend.
+- **Reusing a published figure — measure before clearing rights.** If the web image is a small
+  preview, look for the publisher PDF first (ask the user when download is blocked) and check
+  whether the figure in it is vector; a vector page re-renders at the target DPI (`pdftoppm -r`).
+  For a raster, compare the pixels of the crop you will actually show with the pixels it will
+  occupy on the slide, and read its type and lines at that size, before any licence work. As a rule
+  of thumb (ours), drop a crop under about 200 dpi at its slot.
+- **Licence and open-access status are looked up per article**, by DOI or, without one, on the
+  confirmed publisher page. A search that returns nothing is a failed lookup, not "not open
+  access"; do not infer a licence from the journal or guess an identifier. Read the figure's own
+  caption and credit line as well, since a panel can carry separate rights. If you cannot confirm
+  that the planned showing and sharing are allowed, record the rights as unconfirmed.
 - **Put the claim in the slide, not in the raster.** A conclusion or headline number drawn *into*
   the PNG stops tracking the talk the moment the bullet above it is edited, and no text search can
   find it. Numbers and conclusions live in the slide's own text.
