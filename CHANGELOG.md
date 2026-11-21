@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [6.4.0] - 2026-11-21
+
+**Re-check three things if you used an earlier version:** (1) in `/clean-data`, several
+implausible-value rules listed the normal relation where they meant the violation (dates in order,
+a recomputed BMI that matches, menopause age below current age), so an agent following them could
+flag correct records; (2) `/check-reporting` told you to score a regression-based prediction model
+against TRIPOD 2015 only, and now uses TRIPOD+AI for regression and machine-learning models alike;
+(3) `/sync-submission`'s anonymization check missed names and accounts kept in some parts of a
+`.docx`, so a file it passed is worth scanning again before it goes out for anonymous review. A new
+deck from `/present-paper` now starts from the bundled mono slide template unless you ask for
+another style.
+
 ### Fixed
 
 - **`/sync-submission`: the anonymization check missed places where a `.docx` keeps a person's
