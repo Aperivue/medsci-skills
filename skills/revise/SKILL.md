@@ -246,16 +246,15 @@ Add `--out qc/response_claims.json` to write the verdicts to `qc/response_claims
 
 When the letter quotes text that lives outside the manuscript file (a new title on the title page,
 a paragraph in the supplement, a figure caption kept in a figure source), name each such file with
-`--extra-source <path>` (repeatable). A quote or citation absent from the manuscript is then looked
-for there, and the report lists it under `verified_in_extra_source`. A claim that itself places
-the edit in the main text ("... to the Methods") is checked against the manuscript only.
+`--extra-source <path>` (repeatable). Text that is absent from the manuscript and present word for
+word in one of those files is reported as `RESPONSE_QUOTE_IN_EXTRA_SOURCE` or
+`RESPONSE_CITATION_IN_EXTRA_SOURCE`: **minor**, not a failure under `--strict`, and printed with
+the file it was found in. The gate cannot tell whether that file is where the letter says the edit
+went, so read each one. A near match in an extra source changes nothing.
 
-A reviewer comment the letter reproduces under a label ("Comment 3:", "Reviewer #2:") is skipped
-from that label to the response label that follows it ("Response:", "Authors' response:"), like a
-`>` blockquote; `reviewer_comment_blocks_skipped` reports how many. The response label is what
-tells the gate where your text starts. A letter that reproduces comments without one is checked
-in full, so a reviewer's quotation can then appear as a finding: label the responses, or put the
-comments in blockquotes.
+The gate skips reviewer comments only when they are `>` blockquotes. If the letter reproduces a
+comment as plain text ("Comment 3: the authors added the sentence ..."), the reviewer's own
+quotation is checked as if it were your claim; put reviewer comments in blockquotes.
 
 `RESPONSE_QUOTE_UNVERIFIED` (a quoted added sentence absent from the body) and
 `RESPONSE_CITATION_UNVERIFIED` (an added citation whose token is nowhere in the body) are real

@@ -24,8 +24,13 @@ ck() {
     fail=$((fail + 1))
   fi
 }
-field() { python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print($2)" "$TMP/$1.json"; }
-run() {  # run <name> <previous> <revised>
+field() {  # prints NOJSON when that run wrote no report
+  [ -f "$TMP/$1.json" ] || { echo NOJSON; return; }
+  python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print($2)" "$TMP/$1.json"
+}
+n=0
+run() {  # run <name> <previous> <revised> -> exit code; each run writes its own report
+  rm -f "$TMP/$1.json"
   python3 "$DET" --comments "$TMP/letter.md" --previous "$TMP/$2" --revised "$TMP/$3" \
     --strict --out "$TMP/$1.json" > "$TMP/$1.out" 2>&1
   echo $?
@@ -90,8 +95,9 @@ ck "  end marker is funding"                                 funding "$(field ru
 ends_body() {  # ends_body <label> <ending line>
   printf 'Introduction\nReaders agreed.\n%s\nA short tail.\n' "$2" > "$TMP/eb_prev.md"
   printf 'Introduction\nReaders agreed.\n%s\nA much longer tail with a good many additional words in it.\n' "$2" > "$TMP/eb_new.md"
-  run eb eb_prev.md eb_new.md >/dev/null
-  ck "ends the body: $1" 0 "$(field eb "d['delta_words']")"
+  n=$((n + 1))
+  ck "ends the body: $1 (exit 1: not shorter)" 1 "$(run "eb$n" eb_prev.md eb_new.md)"
+  ck "  delta is 0" 0 "$(field "eb$n" "d['delta_words']")"
 }
 ends_body "bare 'References' line"            "References"
 ends_body "'References.' with a full stop"    "References."
@@ -99,17 +105,23 @@ ends_body "'**Funding**: ...' run-in"         "**Funding**: This synthetic work 
 ends_body "'Funding. ...' run-in"             "Funding. This synthetic work received no funding."
 ends_body "'## Acknowledgements'"             "## Acknowledgements"
 ends_body "'3. References' (numbered)"        "3. References"
+ends_body "'## Supplementary Results'"        "## Supplementary Results"
+ends_body "'## References ##' (closed)"       "## References ##"
+ends_body "bare 'Conflict' line"              "Conflict"
+ends_body "'Conflicts of interest: none'"     "Conflicts of interest: none declared."
 
 is_prose() {  # is_prose <label> <line that must NOT end the body>
   printf 'Introduction\nReaders agreed.\n%s\nOne two three four five six seven eight nine ten.\n' "$2" > "$TMP/ip_prev.md"
   printf 'Introduction\nReaders agreed.\n%s\nOne two three.\n' "$2" > "$TMP/ip_new.md"
-  run ip ip_prev.md ip_new.md >/dev/null
-  ck "is prose, the cut after it is measured: $1" -7 "$(field ip "d['delta_words']")"
+  n=$((n + 1))
+  ck "is prose: $1 (exit 0: the cut is seen)" 0 "$(run "ip$n" ip_prev.md ip_new.md)"
+  ck "  delta is -7" -7 "$(field "ip$n" "d['delta_words']")"
 }
 is_prose "'Funding for the registry' (wrapped line)"   "Funding for the registry"
 is_prose "'Funding was allocated as follows: ...'"     "Funding was allocated as follows: readers received a fixed fee."
 is_prose "'Supplementary Table 2 lists ...'"           "Supplementary Table 2 lists the search strings."
 is_prose "'References are listed below.'"              "References are listed below."
+is_prose "'Conflicting results were seen.'"            "Conflicting results were seen."
 
 echo "==== the reported span is the span that was counted ===="
 printf 'Introduction\nReaders agreed.\n## References\nSynthetic A. 2020.\n' > "$TMP/sp1.md"
@@ -118,7 +130,13 @@ run sp sp1.md sp2.md >/dev/null
 ck "with an ending heading: last counted line is 2"    2 "$(field sp "d['measured_span']['previous']['end_line']")"
 ck "without one (trailing newline): last line is 2"    2 "$(field sp "d['measured_span']['revised']['end_line']")"
 ck "start line is 1"                                   1 "$(field sp "d['measured_span']['previous']['start_line']")"
+printf 'Title\n\nIntroduction\nReaders agreed.\n' > "$TMP/sp3.md"
+printf 'References\nSynthetic A. 2020.\n' > "$TMP/sp4.md"
+run sp2 sp3.md sp4.md >/dev/null
+ck "the start line is the Introduction line, not the blank before it" 3 "$(field sp2 "d['measured_span']['previous']['start_line']")"
+ck "a file that ends its body on line 1 counted no lines"  None "$(field sp2 "d['measured_span']['revised']['end_line']")"
+ck "  and says so"                                      1 "$(grep -c "^measured revised: no lines" "$TMP/sp2.out")"
 
 echo "----"
 echo "test_density_body_bounds: $pass passed, $fail failed"
-[ "$fail" -eq 0 ] || { for f in short long refs runin eb ip sp; do echo "--- $f"; cat "$TMP/$f.out"; done; exit 1; }
+[ "$fail" -eq 0 ] || { for f in short long refs runin sp sp2; do echo "--- $f"; cat "$TMP/$f.out"; done; exit 1; }

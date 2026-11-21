@@ -4813,8 +4813,8 @@
     },
     {
       "path": "skills/revise/SKILL.md",
-      "size": 28024,
-      "sha256": "cb2c92b8eb254850da5e5a7297bd1518cbdb1633f4d1873c269e872991826aa8"
+      "size": 27950,
+      "sha256": "cd6ed5a3e57ac5e09e725fb7579abf5a5966b1a9c7e4de952ff0157475195608"
     },
     {
       "path": "skills/revise/references/r2r_voice.md",
@@ -4833,13 +4833,13 @@
     },
     {
       "path": "skills/revise/scripts/check_density_complaint.py",
-      "size": 11168,
-      "sha256": "de2f6e04cd0bbbcd7d231fc7aa027fe4500b97b10f51d66b2f1199347a835cf5"
+      "size": 12137,
+      "sha256": "6b6f6a906bba10ceb95c6e45be3156252764146b83a27693e782add5b405dbbd"
     },
     {
       "path": "skills/revise/scripts/check_response_claims.py",
-      "size": 38821,
-      "sha256": "ac05e5fd23e5ddcd5bb218daaf57a0e49d4e766f2a6cb225c24fbc098e427d70"
+      "size": 35732,
+      "sha256": "c2cadca5c680e325e5e97254ee4f1753fd0ab515349cd9848a5ea41d7aa502f5"
     },
     {
       "path": "skills/revise/scripts/density_complaint_challenge/fixture/decision_letter.md",

@@ -4,27 +4,21 @@
 
 ### Fixed
 
-- **`/revise`, `/peer-review`: a reviewer comment reproduced under a label is not an author claim.**
-  `check_response_claims.py` skipped reviewer text only inside `>` blockquotes. A letter that
-  reproduces each comment under "Comment 3:" or "Reviewer #2:" had the reviewer's own words
-  ("the authors added the sentence ...") reported as `RESPONSE_QUOTE_UNVERIFIED`. Such a block is
-  now skipped from its label to the response label that follows ("Response:", "Authors'
-  response:"). A labelled comment with no response label after it is not skipped, so no author
-  claim goes unchecked.
 - **`/revise`: the density gate ended the body at a sentence.** `check_density_complaint.py` stopped
   counting at any line beginning with "Supplementary", "Funding", "Conflict" and similar words,
   so a prose line such as "Supplementary Table 2 lists ..." hid everything after it in both
-  versions and a revision that had been cut was reported as unchanged. The body now ends only at a
-  line that is one of the section names (with or without heading marks, or as a run-in label such
-  as "Funding: ..."), and the report states which lines were counted (`measured_span`).
+  versions and a revision that had been cut was reported as unchanged. A line without a heading
+  mark now ends the body only when it is a section name, alone or as a run-in label such as
+  "Funding: ..."; a markdown heading ends it as before, and "## Acknowledgements" now does too.
+  The report states which lines were counted (`measured_span`).
 
 ### Added
 
 - **`/revise`: `check_response_claims.py --extra-source <path>`** (repeatable) for text the revision
-  changed outside the manuscript file: a title page, a supplement, a figure source. A quote or
-  citation absent from the manuscript is looked for there and reported under
-  `verified_in_extra_source`. A claim that places the edit in the main text is not looked for
-  elsewhere, and the response letter or the manuscript itself is refused as an extra source.
+  changed outside the manuscript file: a title page, a supplement, a figure source. Text absent
+  from the manuscript and present word for word in a named file is reported as minor
+  (`RESPONSE_QUOTE_IN_EXTRA_SOURCE`, `RESPONSE_CITATION_IN_EXTRA_SOURCE`) with the file named,
+  instead of as a major unverified claim. A near match there changes nothing.
 
 ### Changed
 

@@ -570,7 +570,7 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/revise/tests/test_response_claims.sh
 
-      - name: "Run revise response-claim source test (a labelled reviewer comment is not an author claim; --extra-source)"
+      - name: "Run revise response-claim extra-source test (found elsewhere is minor and named; a near match excuses nothing)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/revise/tests/test_response_claim_sources.sh
 
@@ -578,7 +578,7 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/revise/scripts/density_complaint_challenge/verify.sh
 
-      - name: "Run revise density body-bounds test (the body ends at a heading, not at a sentence)"
+      - name: "Run revise density body-bounds test (the body ends at a section name, not at a sentence)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/revise/tests/test_density_body_bounds.sh
 
