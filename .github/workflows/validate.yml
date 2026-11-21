@@ -754,6 +754,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/present-paper/tests/test_extract_pdf_figures.py
 
+      - name: "Run present-paper slide-template test (README idx table, palettes and contrast, no media, no names)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/present-paper/tests/test_slide_template.py
+
       - name: Run version-dataset manifest/verify test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/version-dataset/tests/test_version_dataset.sh

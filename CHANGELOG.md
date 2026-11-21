@@ -42,6 +42,13 @@
 
 ### Added
 
+- **`/present-paper`: a slide template and handout that are now the default look for a new deck.**
+  `templates/slide_template/` ships `medsci_slides.potx` (31 layouts, including ten for research
+  talks), `new_deck.py` with five starter decks, a plain Word handout, and the scripts that
+  build them. The research-talk layouts have no band, rule or box; colours are `mono` (default),
+  `stone` or `pine`, or your own through `--accent`, `--palette-file` and similar, and a colour
+  below WCAG AA contrast stops the build. The Nature / Lancet style stays available on request.
+
 - **`/revise`: `check_response_claims.py --extra-source <path>`** (repeatable) for text the revision
   changed outside the manuscript file: a title page, a supplement, a figure source. Text absent
   from the manuscript and present word for word in a named file is reported as minor
