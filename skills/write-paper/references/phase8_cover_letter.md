@@ -5,7 +5,7 @@ cover letter; never generate one automatically.
 
 **Required user inputs (MUST ask, never fabricate):**
 1. Editor name (if known; otherwise use "Dear Editor")
-2. Suggested reviewers (2-3 names with affiliations and email addresses)
+2. Suggested reviewers, as the journal requires or the user decides — see "Suggested reviewers" below
 3. Excluded reviewers (if any, with brief reason)
 4. Any specific points to emphasize for the target journal
 
@@ -18,9 +18,12 @@ cover letter; never generate one automatically.
 5. **Brief methods** (1 sentence): Study design and key numbers.
 6. **Ethical compliance**: IRB approval number, author agreement, COI statement, no dual submission.
 7. **AI disclosure** (if applicable): Specific AI tools used and human oversight statement.
-8. **Suggested reviewers**: Name, affiliation, email, expertise area (2-3 minimum).
+8. **Suggested reviewers** (only if taken in the letter): Name, affiliation, confirmed email, expertise area.
 9. **Excluded reviewers** (if any): Name and reason.
 10. **Closing**: Corresponding author name and credentials.
+
+**Suggested reviewers — the journal's rule first:**
+Follow the journal's current instructions on reviewer numbers, where they are entered and conflict criteria; suggestions taken only in the portal stay out of the letter. Omitting optional suggestions is decided with the user. Cited literature is one place to look for candidates. Check each candidate's relationships with the manuscript's authors against the journal's conflict criteria. Give an email address only when the source ties it explicitly to that person (their own corresponding-author line or an official institutional page); when an address is mandatory and cannot be confirmed, ask the user for a source or propose a candidate whose address can be.
 
 **Reviewer COI cross-check (mandatory for meta-analyses):**
 Cross-check all suggested and excluded reviewers against the included-study author list and their co-authors. Same-institution authors of included studies constitute automatic COI and must be excluded from reviewer suggestions.

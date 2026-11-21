@@ -357,6 +357,12 @@ Recommendations and COPE. It is ON by default because the ICMJE and major journa
 disclosure of AI writing assistance and omitting it risks rejection or retraction;
 `--no-llm-disclosure` turns it off for journals with no such policy or when LLM assistance was minimal.
 
+Separate AI that helped write from AI used in the conduct of the study (screening, extraction,
+reading, analysis). The second is reported in Methods from the record of what was done, whatever
+the writing disclosure says: per step the study has, how many people did it, the tool's role and
+whether readings were independent; a later human re-check is a later step, with its timing. Where
+a registration exists, compare it with the conduct; a documented amendment is not a deviation.
+
 ### Disclosure Locations
 
 Where the disclosure goes is a fact about the target journal, and journals disagree: some want

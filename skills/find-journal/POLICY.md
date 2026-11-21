@@ -54,12 +54,27 @@ marker (item 3 below).
   (`$HOME/.claude/private-journal-profiles/find-journal/`). Selectivity is expressed as a
   qualitative band, never a fabricated acceptance percentage.
 
+### Claims of absence
+
+Writing "the journal does not state X", or asking for a value to be removed because the
+cited page lacks it, needs more evidence than confirming a value that is there. An empty
+search means no match in the searchable text.
+
+1. For a numeric value, search the digits (`40`) and the number words (`forty`).
+2. For any value, search the noun (`references`, `figures`, `AI`) and read the body, tables,
+   footnotes and linked instructions for that article type.
+
+Record the result as "not found in <the documents and sections checked>", never "not
+stated"; tables that are images, collapsed sections and unopened attachments are recorded
+as not checked. Compare a sentence a contributor quotes against the page yourself.
+
 ### Proof of verification
 
 Profile authors or maintainers should keep a brief evidence note — either a 1-line
 comment at the bottom of the profile, a PR description, or a commit message — stating
 which pages were opened and on what date. This lets future audits check whether a profile
-has drifted.
+has drifted. Inside the profile text, give that date at month precision (`YYYY-MM`); the
+exact date, URL and section checked go in the PR description.
 
 ## Single entry point for profile creation
 

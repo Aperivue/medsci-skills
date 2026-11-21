@@ -183,8 +183,8 @@
     },
     {
       "path": "skills/add-journal/SKILL.md",
-      "size": 10308,
-      "sha256": "3df90500dbde0825f4d4f668405fcadeb36e8ae4c64caa2ea075b78a89a24a53"
+      "size": 10576,
+      "sha256": "d84661f4e9f0ee8237eda146c3eb63604e4af1089ae7f5bba590af219406fc73"
     },
     {
       "path": "skills/add-journal/references/write_paper_profile_template.md",
@@ -1368,13 +1368,13 @@
     },
     {
       "path": "skills/find-journal/POLICY.md",
-      "size": 5945,
-      "sha256": "ba21b5f416a7e8d858f544ea8ee1fdb1afc2c7f9e301bd031d786d861ca3a0ba"
+      "size": 6824,
+      "sha256": "c1b6aa3c6a9c9897dff2cb5cd4deb5006f47d8946d79d1559418b8f0d903c519"
     },
     {
       "path": "skills/find-journal/SKILL.md",
-      "size": 13683,
-      "sha256": "f4b4e02ee78b4d9b92cf80da53ee67e7901ce36e868fd3fd47e97e51d4931e83"
+      "size": 14144,
+      "sha256": "829b5a3780bcc7ee995b212758d605794efa83d3900ff7f562da232ffb8535ea"
     },
     {
       "path": "skills/find-journal/references/acceptance_signals_schema.md",
@@ -2803,8 +2803,8 @@
     },
     {
       "path": "skills/manage-refs/SKILL.md",
-      "size": 17277,
-      "sha256": "9facce47514f6a8c5425479055084f0392d24ff268999ce34c99c741c190c3f6"
+      "size": 17705,
+      "sha256": "4f96879829bdc025a03240df1ceb481ecd1a51b651c0992eb86881139f64aa73"
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
@@ -4613,8 +4613,8 @@
     },
     {
       "path": "skills/publish-skill/SKILL.md",
-      "size": 12914,
-      "sha256": "f05cd73ca9a1e94884ac5373142ebaadb1c7f7780effa0173ebc2c75b9c031b1"
+      "size": 13480,
+      "sha256": "603bf1489475b0d54b469a30da0061187d034c8763291c8d736ceff7eeed1688"
     },
     {
       "path": "skills/publish-skill/references/classroom-distribution.md",
@@ -4823,8 +4823,8 @@
     },
     {
       "path": "skills/revise/SKILL.md",
-      "size": 27950,
-      "sha256": "cd6ed5a3e57ac5e09e725fb7579abf5a5966b1a9c7e4de952ff0157475195608"
+      "size": 28268,
+      "sha256": "9aa9cd47f199b006e5efefc52084a2d7ec20498e79e57abfe9f165fb92f9c4b0"
     },
     {
       "path": "skills/revise/references/r2r_voice.md",
@@ -6248,8 +6248,8 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 30942,
-      "sha256": "14e9dc89e62e10fd280978fe41927d98d28864359ddc98a633ab9749e06f5e68"
+      "size": 32331,
+      "sha256": "ff7fde5f14214a0d6ef6c18a233abd8489e78cd3cc7bfce3eeb2e89773c5d819"
     },
     {
       "path": "skills/sync-submission/examples/build_synthetic_bundle.py",
@@ -6628,8 +6628,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 36198,
-      "sha256": "07dee8fece78d2026884d06e8fb4dded48d6f89b5bed305514e37955be072b94"
+      "size": 36681,
+      "sha256": "a0fcc2fbe2a0d69e452bc24b190885b2e36f14a245d1ba3e84b5b615745684be"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",
@@ -7148,8 +7148,8 @@
     },
     {
       "path": "skills/write-paper/references/phase8_cover_letter.md",
-      "size": 1999,
-      "sha256": "9aa9b78e075d5fd3a16b0db5e67dad042aefa27ab1e34acfb2f0a2c7f2baacc3"
+      "size": 2774,
+      "sha256": "1a933273e757a9dc70672d6b123ad2a54d593e22055d65d74f588ff54367be4e"
     },
     {
       "path": "skills/write-paper/references/section_guides/discussion.md",

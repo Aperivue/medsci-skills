@@ -169,6 +169,12 @@ Present all findings in a remediation table:
 - If referenced skill exists in target package: keep the reference
 - If referenced skill does NOT exist in target package: make it optional with fallback instructions
 
+### Examples and fixtures
+
+- Check: does an example, asset or fixture describe a real paper, institution or person (a journal and author list, a median, a p-value)?
+- Keep a real example only when three things are confirmed: it is accurate against the source, it does not identify a manuscript, incident or person that should not be identified, and there is a right to redistribute it publicly
+- Otherwise replace it with a synthetic example, noted as a format illustration not to be cited (in a companion file or metadata where the format is strict, such as JSON)
+
 ### Output
 
 Show a unified diff of all generalization changes for user review.
