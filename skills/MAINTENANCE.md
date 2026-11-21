@@ -95,7 +95,9 @@ When you add a detector and its test in the same PR, add the `validate.yml` step
 1. New `check_*`/`detect_*` detector → register in `gen_detectors_catalog_json.py`
    (`FAMILY_BY_ID`) + bump `catalog_counts.json` + `MEDSCI_AUDIT.md` + wire into the skill's
    `SKILL.md` + add a CI-wired test. Then run every generator in `--check` mode, enumerated
-   from the directory rather than recalled: `for g in scripts/gen_*.py; do python3 "$g" --check; done`.
+   from the directory rather than recalled:
+   `for g in scripts/gen_*.py; do python3 "$g" --check || exit 1; done` (without the `|| exit 1`
+   the loop reports only the last generator's result).
    A remembered list goes stale when a generator is added, and the ones it does name all report
    in sync.
 2. New helper → underscore/plain name (never `check_*`), import only within the same skill.

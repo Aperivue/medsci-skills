@@ -169,13 +169,13 @@ Three ways a detector, or its challenge card, stays green without checking anyth
   shipping a pattern, ask what else the token names in the target literature; where it collides,
   require a functional context near it (the verb or noun that makes it the thing you mean) and put
   the colliding sentence in the negative control. Check too that each pattern can fire at all: in a
-  raw string `\\b` is a literal backslash followed by `b`, not a word boundary, and a rule written
-  that way never matches and never errors.
+  raw string `\\b` is a literal backslash followed by `b`, not a word boundary, so a rule written
+  that way does not match the text it was meant for and raises no error.
 - **A summary that reports coverage the loop did not perform.** A gate that looks each item up in a
   curated map and moves on when there is no entry checks less every time the document gains an
   item, and running it on a package the map already covers never shows this. Print the items no
-  rule covered, by name; under `--strict` treat a non-empty skipped set as a failure rather than a
-  pass; and build the summary line from the loop's own counters, not from a separate count of what
+  rule covered, by name; under `--strict` report a non-empty skipped set as `NOT_ASSESSED` (exit 2
+  in the table above) rather than as a pass; and build the summary line from the loop's own counters, not from a separate count of what
   the document contains.
 
 A green run of `.github/workflows/validate.yml` is required before any release is
