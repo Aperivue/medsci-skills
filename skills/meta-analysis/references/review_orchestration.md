@@ -28,9 +28,9 @@
 - **Problem pattern**: During revision, a numeric value (e.g., a subgroup p-value) changes between versions with no before/after diff recorded in the Response matrix → the reviewer's re-review cannot verify the update.
 - **Rule**: For each comment row in the Response matrix, record (a) the reviewer's original text, (b) a response summary, (c) the manuscript edit locator (section/line), and (d) whether a number changed, tagged `[VERIFY-CSV]`. Remove all tags on submission day.
 
-### RO-5. Consolidate protocol deviations into a single PROSPERO amendment
+### RO-5. Track protocol deviations in one file; amend the registration when the registered protocol changes
 - **Problem pattern**: Analysis-framework deviation, subgroup deviation, and search-amendment notes split across three manuscript sections and three separate tracker files → the PROSPERO amendment loses provenance.
-- **Rule**: One file at the project root, `protocol_deviations_tracker.md`. Bundle them under one ID when submitting the PROSPERO amendment. Use a single citation in the manuscript too.
+- **Rule**: One file at the project root, `protocol_deviations_tracker.md`, recording each deviation with its date and reason. When the registered protocol itself changes, file a PROSPERO amendment as each change occurs, with its date and reason, rather than bundling changes from different stages into one amendment. Cite the registration and its amendments in the manuscript consistently with that file.
 
 ## Templates
 

@@ -75,7 +75,7 @@ methodological reference.
 - **Test 10**: NI alpha is one-sided (typically 0.025); orient the difference so > 0 favours the new
   method. Equivalence is TOST, powered jointly. The margin must be clinically justified (see
   `formulas.md` § Margin selection).
-- **Test 11**: EPV ensures model stability, not power for a specific HR. If an HR is available, also
+- **Test 11**: EPV is a rule of thumb for model stability (it does not guarantee it) and gives no power for a specific HR. If an HR is available, also
   run Test 7 (Schoenfeld) and recommend the larger N.
 - **A proportion reported per item** (per field, per question, per structure; e.g. an error rate
   for each field of an extraction task): a design that meets a precision target for the rate pooled

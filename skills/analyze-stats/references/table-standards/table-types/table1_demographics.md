@@ -25,7 +25,9 @@ for categorical variables.
 ## Rules
 - **Binary variables**: Show only one level (e.g., Male only; Female is implied)
 - **Continuous variables**: Mean (SD) if normal; Median (IQR) if skewed. State which in footnote. **Choose by skewness, not by a mean−median/SD heuristic** (see below)
-- **Categorical variables**: n (%)
+- **Categorical variables**: n (%). For a Fisher P value on a table larger than 2 × 2, some implementations
+  compute it by random resampling, so the value can change between runs; check how it was computed and
+  report an exactly computed value or the resampling settings and seed.
 
 ### Mean (SD) vs Median (IQR): choose by skewness, and couple the test
 

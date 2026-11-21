@@ -4,6 +4,23 @@
 
 ### Fixed
 
+- **Guidance sentences that were wrong or overstated as general rules, in twelve skills.** A
+  reproduced table shows internal consistency, not that the data are genuine (`sr_ma` P0); a P
+  value comparing a subset with the cohort that contains it is invalid because the groups are
+  nested (`diagnostic_accuracy` D2, `observational_confounding`); k is the number of distinct
+  studies contributing to an analysis, and a CSV row count equals it only with one row per study
+  (`/meta-analysis` DI-7); the implausible-value rules in `/clean-data` listed the normal relation
+  where they meant the violation (dates, recomputed BMI, age, eGFR, totals, menopause age);
+  TRIPOD+AI covers regression-based models as well as machine learning (`/check-reporting`);
+  events-per-variable and the n > 30 and expected-count-below-5 conventions are labelled rules of
+  thumb (`/calc-sample-size`, `/analyze-stats`); a never-smoker's years since cessation is not
+  applicable, not zero (`/define-variables`); a registration amendment is filed when the registered
+  protocol changes, not bundled (`/meta-analysis`); reader recruitment follows the target reader
+  population (`/design-study`). Several case-like examples in the probes were replaced by generic
+  wording. Three sentences state hazards no automated check covers: rater columns from different
+  occasions, sharing a whole build folder, and a Fisher P value computed by resampling on a table
+  larger than 2 × 2.
+
 - **`/revise`: the density gate ended the body at a sentence.** `check_density_complaint.py` stopped
   counting at any line beginning with "Supplementary", "Funding", "Conflict" and similar words,
   so a prose line such as "Supplementary Table 2 lists ..." hid everything after it in both

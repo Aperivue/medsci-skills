@@ -101,9 +101,9 @@ to the registered protocol in parallel with the re-build:
 - Keep revision notes within the registry's word limit (often 250 words).
 - For a field whose registered specification is unchanged, frame the amendment as application
   correction, not criteria change:
-  > "The pre-specified inclusion criteria are unchanged. The amended application excludes
-  > {N} study(ies) whose characteristics were confirmed on independent re-review to fall
-  > outside the pre-specified criteria."
+  > "The pre-specified inclusion criteria are unchanged. The amended application corrects the
+  > eligibility decision for {N} study(ies) ({excluded / restored}) after {the re-review
+  > actually performed}."
 - Submit the amendment before — or simultaneously with — re-circulation, so co-authors
   see an amendment already in flight rather than only a draft change.
 

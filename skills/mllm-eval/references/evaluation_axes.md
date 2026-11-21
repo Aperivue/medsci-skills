@@ -84,7 +84,8 @@ score.
   the **decoding settings** (temperature / top-p / seed), **≥ 3 runs** with reported variance
   (e.g., mean ± SD; ≥ 3 is the floor this skill checks, but ≥ 5 runs give a usable SD: with three
   runs its 95% CI is about 0.5-6 x the observed SD, with five about 0.6-2.9 x), and a
-  **prompt-robustness** check across **≥ 2 phrasings/formats** for the headline result.
+  **prompt-robustness** check across **≥ 2 phrasings/formats** when the headline result is claimed
+  beyond the exact prompt used.
 
 ## Answer-matching for VQA / classification (ME6 → `ANSWER_MATCHING_MISSING`)
 

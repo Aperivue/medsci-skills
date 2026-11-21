@@ -273,7 +273,7 @@ anchors the discussion, surrounding papers add nuance.
 - `templates/build_pptx_nature_lancet.py` — generic builder for Template #5
 - `critic_rubrics/slide.md` — per-slide quality scoring
 - `workflow-checklist.md` — end-to-end Phase 0 → 4 production checklist
-- `~/.claude/rules/academic-lecture-style.md` — English body + Korean notes + Nature/Lancet (global default)
+- `templates/slide_template/` — medsci template (`new_deck.py`, palette `mono`), the default look for a new deck (SKILL.md); Nature/Lancet (Template #5) is an alternative
 - `~/.claude/rules/pptx-mac-compatibility.md` — TIFF / sp3d / app.xml / srcRect / Inches EMU / markdown notes
 - `~/.claude/rules/multidisciplinary-presentation.md` — glossary slide + intuition box pattern
 - `make-figures/SKILL.md` → *Journal AI-Image Policies* — AI-image policy (visual abstract /

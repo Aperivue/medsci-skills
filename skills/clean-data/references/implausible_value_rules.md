@@ -70,12 +70,13 @@ table only to fill silence, and present every hit as a **flag for review**, neve
 
 Single-field bounds miss contradictions *between* fields. Flag a record when:
 
-- **Temporal ordering**: birth date ≤ index/event date ≤ death/last-seen date; admission ≤
-  discharge; surgery date ≤ complication date; first ≤ last visit. Any future date beyond the
+- **Temporal ordering**: dates that break any of these orders — birth date ≤ index/event date ≤
+  death/last-seen date; admission ≤ discharge; surgery date ≤ complication date; first ≤ last visit. Any future date beyond the
   extraction date (except scheduled appointments) is suspect (`cleaning_patterns.md` §4).
-- **Derived-vs-source**: recomputed BMI from height/weight matches the stored BMI (±rounding);
-  age matches (event date − DOB); eGFR consistent with creatinine/age/sex if both stored;
-  a "total" equals the sum of its parts; a subset count ≤ its superset count.
+- **Derived-vs-source**: recomputed BMI from height/weight differs from the stored BMI beyond
+  rounding; age differs from (event date − DOB) when the dictionary defines it as age at the event (next item);
+  eGFR inconsistent with creatinine/age/sex under the stated equation and units, if both stored; a
+  "total" differs from the sum of parts defined to make it up; a subset count exceeds its superset count.
 - **Age that does not move with the event date** (raise first as a query about the age definition; a
   contradiction only once the dictionary defines the column as age at each event): in an extract with several rows per patient
   (exams, visits, admissions), an `age` in completed years that stays the same across rows whose
@@ -88,7 +89,7 @@ Single-field bounds miss contradictions *between* fields. Flag a record when:
   point the age refers to. With one row per patient this check cannot fire, so the meaning has to
   come from those sources.
 - **Sex-specific / state-specific**: pregnancy, parity, or gestational fields present for
-  `sex == male`; PSA recorded for females; menopause age < current age; pediatric-only or
+  `sex == male`; PSA recorded for females; menopause age > current age; pediatric-only or
   adult-only fields outside the eligible age.
 - **Mutually exclusive / dependency**: `deceased == no` with a death date populated;
   `smoking_status == never` with `pack_years > 0` (vs the structural-zero case where it is NULL —

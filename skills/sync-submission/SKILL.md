@@ -94,6 +94,9 @@ snapshot and its available check context; it does not run preflight or approve s
 reuse permissions.
 
 **Audit-dump leak check (P0).** A `/check-reporting` or `/self-review` report is an internal working audit — auto-fix annotations, a raw JSON block (`compliance_pct`, `fixable_by_ai`, `check_reporting_version`), pipeline-log paths, "Action Items". It is not the official reporting checklist a journal expects and must never reach a reviewer, even when its filename looks official (e.g. `STROBE_checklist_v4.pdf` reused into a later package). `scripts/check_checklist_dump_leak.py --dir submission/` scans every `.md`/`.docx`/`.pdf` in the package for these tokens; any hit is a P0 `leak`. The pre-flight runs it over the journal asset directory; confirm `submission_safe: true` before freeze. Writes `qc/checklist_dump_leak.json`.
+This check looks only for audit-dump tokens in `.md`/`.docx`/`.pdf` files. Build notes, the `.bib` file
+(its `file` and `abstract` fields can carry local paths and copied text) and QC outputs can sit beside
+the upload files, so share or zip only the files to be uploaded, never the whole folder.
 
 **Disclosure & availability check (standalone).** Top medical-AI journals require, before review, an AI-use disclosure carrying four tokens (version + access channel + date/date-range + responsible party — the tool name only *triggers* the check) and Data/Code Availability statements. Run `python3 ${CLAUDE_SKILL_DIR}/scripts/check_disclosure_availability.py --manuscript <file> --journal <stem> [--ai-study] [--require data_availability ...] [--strict]` (reads `references/journal_availability_policy.json`). It blocks on a missing required statement or an AI disclosure that is present but missing a token / carrying a placeholder; "available on reasonable request" where the journal expects a repository is a P1 warning. Writes `qc/disclosure_availability_report.json`.
 

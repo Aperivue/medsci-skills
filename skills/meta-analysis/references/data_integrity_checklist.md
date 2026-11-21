@@ -37,9 +37,9 @@
 - **ID-Set Gate Rule 5**: fix the prose first → then render the diagram. If the diagram is built first, editing the prose causes drift.
 - **Automation candidate**: manage `k`, `n`, and the search numbers in a single YAML source and substitute them into the prose/diagram templates.
 
-### DI-7. Single source for k = `4_Analysis/*.csv`
+### DI-7. Single source for k (`4_Analysis/*.csv`)
 - **Problem pattern**: Included-study count `k` quoted as two different values across consecutive manuscript versions because it was hand-typed into prose rather than derived from the analysis CSV.
-- **Rule**: Derive k only from the `4_Analysis/*.csv` row count. When entering k into the manuscript / MANIFEST / PROSPERO, also state the CSV path + row count.
+- **Rule**: Derive k from the analysis data, never from prose: for a given analysis, k is the number of distinct studies contributing to it (the review-wide included-study count is a separate number). A `4_Analysis/*.csv` row count equals k only after confirming one row per study (a study can take several rows for outcomes, arms or time points). When entering k into the manuscript / MANIFEST / PROSPERO, also state the CSV path and how k was counted.
 
 **Trace every reported number, table and figure to its source.** When adding an outcome, a main or supplementary table, or a figure, record its source data and version, the script that produces it, and where the output is written; for anything edited by hand, also record which output values it was checked against. A value typed into a script, a document builder or a caption, and a file converted or edited by hand, sit outside that chain and are not refreshed when the data change. A consistency check covers only the values it is given, so an artifact outside the chain can be wrong while the check passes.
 

@@ -63,8 +63,9 @@ image-to-image generative models use `image_synthesis.md`; this is for text / VQ
 **ME5 — Prompt sensitivity, determinism, and run variance**:
 - LLM outputs move with **prompt phrasing / format, temperature, and run-to-run sampling** (closed APIs
   are non-deterministic even at temperature 0). A single-prompt single-run number overstates stability.
-  Require: the **exact prompt(s)** (MI-CLEAR-LLM transparency), temperature / seed, **≥ 3 runs** with
-  variance, and a **prompt-robustness** check (≥ 2 phrasings / formats) for the headline.
+  Require: the **exact prompt(s)** (MI-CLEAR-LLM transparency), temperature / seed, repeated runs with
+  variance (**≥ 3 runs** is a convention, not a precision guarantee), and a **prompt-robustness** check
+  (≥ 2 phrasings / formats) when the headline is claimed beyond the exact prompt used.
 - Check that the Methods say how the queries were executed: for each prediction, which cases and earlier turns the model could see, when the context was reset, and whether several cases shared one prompt. Earlier turns kept as context can make an answer depend on what was entered before it, which affects reproducibility; the 2025 MI-CLEAR-LLM update lists this "prompt execution setup" as a reporting item and encourages sharing the execution script (Park SH et al., *Korean J Radiol* 2025;26(12):1123-1132, doi:10.3348/kjr.2025.1522). An unstated execution setup → MINOR (ask for it); MAJOR when context that crossed case boundaries could have carried information bearing on the headline result.
 - Single prompt, single run, temperature / seed undisclosed → MAJOR; prompt disclosed but variance
   unreported → MINOR.
@@ -79,8 +80,9 @@ image-to-image generative models use `image_synthesis.md`; this is for text / VQ
   refusal handling unstated → MINOR.
 
 **ME7 — Reader study for generated reports**:
-- Automated metrics do not establish clinical acceptability. A report-generation deployment claim needs a
-  **blinded clinical reader study** with a pre-defined **error taxonomy** (clinically significant vs
+- Automated metrics do not establish clinical acceptability. A report-generation deployment claim needs an
+  evaluation matched to the intended use; when that evaluation is clinicians judging the reports, a
+  **clinical reader study** (state what was blinded, and to whom) with a pre-defined **error taxonomy** (clinically significant vs
   insignificant, omission vs fabrication), a severity scale, and **inter-reader agreement** (route the
   rubric / IRR to `/design-ai-benchmarking`, the ICC/κ to `/analyze-stats`, and reader / case sizing to
   `/calc-sample-size`).
