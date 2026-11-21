@@ -77,6 +77,14 @@ methodological reference.
   `formulas.md` § Margin selection).
 - **Test 11**: EPV ensures model stability, not power for a specific HR. If an HR is available, also
   run Test 7 (Schoenfeld) and recommend the larger N.
+- **A proportion reported per item** (per field, per question, per structure; e.g. an error rate
+  for each field of an extraction task): a design that meets a precision target for the rate pooled
+  across items does not thereby meet one for each item, because each item's rate rests on fewer
+  observations and may have a different expected value. Before sizing, decide which item-level
+  rates have a precision target, and whether each target is per item or simultaneous across
+  items; the two need different calculations, and each item is sized on its own evaluable
+  denominator. Several observations from one patient on the same item are not independent
+  (see the pseudoreplication section of `/analyze-stats` `agreement_reliability.md`).
 
 ## Tests 12–17 (specialised designs)
 

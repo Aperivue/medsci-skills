@@ -76,6 +76,17 @@ Single-field bounds miss contradictions *between* fields. Flag a record when:
 - **Derived-vs-source**: recomputed BMI from height/weight matches the stored BMI (±rounding);
   age matches (event date − DOB); eGFR consistent with creatinine/age/sex if both stored;
   a "total" equals the sum of its parts; a subset count ≤ its superset count.
+- **Age that does not move with the event date** (raise first as a query about the age definition; a
+  contradiction only once the dictionary defines the column as age at each event): in an extract with several rows per patient
+  (exams, visits, admissions), an `age` in completed years that stays the same across rows whose
+  dates are more than a year apart cannot be exact age at each event. It may be age at a single
+  reference date (extraction, registration) or a banded or top-coded value. Every row still passes
+  the 0–120 bound, but an age filter (≥ 18, ≥ 65) may then select on the wrong time point. Before
+  any age-based filter, confirm what the age means and its reference date (data dictionary, data
+  owner or extract metadata; record it as unconfirmed if none says). Put any age recomputed for the
+  event in a new column, never overwrite the source `age`, and state in the Methods which time
+  point the age refers to. With one row per patient this check cannot fire, so the meaning has to
+  come from those sources.
 - **Sex-specific / state-specific**: pregnancy, parity, or gestational fields present for
   `sex == male`; PSA recorded for females; menopause age < current age; pediatric-only or
   adult-only fields outside the eligible age.

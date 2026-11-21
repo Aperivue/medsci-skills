@@ -8,14 +8,23 @@
 
 ## Operationalization table
 
-| # | Variable | Role | Dict. sheet & row | Dict. verbatim | Canonical source | Definition | Cutoff | DB vars | Implementation | Ad-hoc? |
-|---|----------|------|-------------------|----------------|------------------|------------|--------|---------|----------------|---------|
-| 1 | {{var}} | exposure | `{{sheet}} r{{N}}` | `{{code→meaning verbatim from dictionary}}` | @bibkey | verbatim from guideline | value + units | `col_a, col_b` | `col_a>=X & col_b==Y` | no |
-| 2 | {{var}} | outcome | `{{sheet}} r{{N}}` | `{{verbatim}}` | @bibkey | ... | ... | ... | ... | no |
-| 3 | {{var}} | covariate | `{{sheet}} r{{N}}` | `{{verbatim}}` | @bibkey | ... | ... | ... | ... | yes |
-| 4 | {{var}} | eligibility | `{{sheet}} r{{N}}` | `{{verbatim}}` | @bibkey | ... | ... | ... | ... | no |
+| # | Variable | Role | Value source | Dict. sheet & row | Dict. verbatim | Canonical source | Definition | Cutoff | DB vars | Implementation | Ad-hoc? |
+|---|----------|------|--------------|-------------------|----------------|------------------|------------|--------|---------|----------------|---------|
+| 1 | {{var}} | exposure | registry | `{{sheet}} r{{N}}` | `{{code→meaning verbatim from dictionary}}` | @bibkey | verbatim from guideline | value + units | `col_a, col_b` | `col_a>=X & col_b==Y` | no |
+| 2 | {{var}} | outcome | study read (form {{version}}) | n/a (see Value source) | n/a (see Value source) | @bibkey | ... | ... | ... | ... | no |
+| 3 | {{var}} | covariate | abstracted ({{document type}}) | n/a (see Value source) | n/a (see Value source) | @bibkey | ... | ... | ... | ... | yes |
+| 4 | {{var}} | eligibility | derived (rows {{#}}) | `{{sheet}} r{{N}}` | `{{verbatim}}` | @bibkey | ... | ... | ... | ... | no |
 
 Roles: `exposure` / `outcome` / `covariate` / `eligibility`
+
+Value source: `registry` / `study read (form version)` / `abstracted (document type)` /
+`derived (input rows)`. Rows whose value is not a database field cite their reading form,
+document type or input rows in `Value source`. Study-read rows: see `/define-variables`, Failure
+Mode 5, "Registry value taken for a study value".
+
+**Analysis unit**: {{patient / exam / visit / episode}}. For a timing-dependent variable, name the
+field that holds the unit's index date and the key that links events to the unit, and state which
+events the estimand uses and the rule for selecting among them.
 
 **Dict. sheet & row / Dict. verbatim (mandatory for DB-backed projects)**:
 - Citation format example (categorical): sheet = `{{dictionary_sheet}}`, row = `r{{N}}`, verbatim = `0={{meaning}}, 1={{meaning}}, ...` (copied exactly from the codebook).

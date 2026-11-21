@@ -293,8 +293,8 @@
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/test_selection.md",
-      "size": 4134,
-      "sha256": "2adf2534646c8a6d918254be7256d3e6290dc47b2de1a26491e5f363a0caf1b9"
+      "size": 4900,
+      "sha256": "7f50a18c88c823be170a7352289159c71c07526a871618de3b5bbc4d2d0087db"
     },
     {
       "path": "skills/analyze-stats/references/analysis_run_workflow.md",
@@ -568,8 +568,8 @@
     },
     {
       "path": "skills/calc-sample-size/SKILL.md",
-      "size": 11713,
-      "sha256": "ee07845a609e1132a8e093b1fabd708561bedc634fccd82bfa3362e7eea93b2f"
+      "size": 12459,
+      "sha256": "660a43031d30a1f7010aa1df467009daac522c679ebc6ce024de4a9ac927cc30"
     },
     {
       "path": "skills/calc-sample-size/references/formulas.md",
@@ -943,8 +943,8 @@
     },
     {
       "path": "skills/clean-data/SKILL.md",
-      "size": 8063,
-      "sha256": "6acb2b638a089e4f703dfd2b3dfb38028e894471f99d7ed2a435a3446e1d79b0"
+      "size": 11099,
+      "sha256": "e52c40f1a2aebff2db98c5db0498ffed919d363b4cbf74a66e95856a2e863cce"
     },
     {
       "path": "skills/clean-data/references/cleaning_patterns.md",
@@ -953,8 +953,8 @@
     },
     {
       "path": "skills/clean-data/references/implausible_value_rules.md",
-      "size": 6955,
-      "sha256": "ee8a3a8e782fa69c7362066b7b1c0f5e58cbce289857efd36d5fbe39b5c94c73"
+      "size": 7996,
+      "sha256": "28860c3dfe80578335338d5b425fc185d8d57e10fd291d0fe5aacff9e5372371"
     },
     {
       "path": "skills/clean-data/references/profiling_template.py",
@@ -1033,8 +1033,8 @@
     },
     {
       "path": "skills/define-variables/SKILL.md",
-      "size": 7577,
-      "sha256": "9bf85903bf29437f41bdaaafbf46ee789262d5bf6d15989cfb3ebb9db5f62219"
+      "size": 9978,
+      "sha256": "fc0730e5a76ff81291e734f73599d8ca3e7a587e4f9f3f0553b265a2c879a5c6"
     },
     {
       "path": "skills/define-variables/references/common_definitions.md",
@@ -1048,8 +1048,8 @@
     },
     {
       "path": "skills/define-variables/templates/variable_operationalization.md",
-      "size": 3332,
-      "sha256": "3a35004ad8507ed09a64451e83a15b9018208d31815303bdc04f6cbfe688d67d"
+      "size": 4073,
+      "sha256": "63beb02bbf9d18a481d077e121ce1f444102aca1b046004de35d91f78e35578a"
     },
     {
       "path": "skills/deidentify/SKILL.md",

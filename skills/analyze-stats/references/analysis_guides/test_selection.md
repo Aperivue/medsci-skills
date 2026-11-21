@@ -80,12 +80,20 @@ test's P value.
   test is not a gate, and Mann-Whitney is not a remedy for unequal variances.
 - Practical rule: n > 30 per group → the t-test is generally robust (CLT), unless extreme skew or
   outliers.
+- **Comparing the spread of two measurements made on the same units**: the independent-samples
+  F-test and Levene's test assume two independent samples, so they do not apply to paired
+  measurements, even when the location comparison was correctly made paired. With one pair per
+  independent unit and approximately bivariate-normal data, the Pitman–Morgan test is the
+  standard paired test of equal variances. When a unit contributes several pairs (lesions,
+  repeated exams), see "Pseudoreplication comes first" in `agreement_reliability.md`. When pairs
+  are independent but the distributional assumption is doubtful, the choice of a method that
+  keeps the pairing is a question for a statistician.
 
 ---
 
 ## Common Reviewer Flags
 
-- Using independent test on paired data
+- Using independent test on paired data (including an F-test or Levene's test on paired variances)
 - Using chi-squared when expected cell count < 5 (should use Fisher's exact)
 - Not reporting assumption check results
 - Missing multiple comparison correction for 3+ groups
