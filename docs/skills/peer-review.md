@@ -53,7 +53,7 @@
 - `check_review_boxes.py`
 - `check_review_length.py`
 - `check_review_request_types.py`
-- `check_review_request_types_challenge/` (6 files)
+- `check_review_request_types_challenge/` (8 files)
 - `check_self_improvement_claims.py`
 - `scan_pdf_layers.py`
 

@@ -14,7 +14,12 @@ Outputs:
 Exit codes:
   0  audit_safe (all PRESENT)
   1  arithmetic or cross-reference MISMATCH / MISSING
-  2  invalid input (file missing, parse failure)
+  2  not assessed: a file is missing (no JSON is written), or no PRISMA number
+     could be read from the figure source or from the manuscript body. In the
+     second case the JSON carries "status": "not_assessed"; it is not evidence
+     that the figure was checked.
+     An arithmetic mismatch on the side that WAS read is still listed in
+     action_items.
 """
 from __future__ import annotations
 
@@ -149,6 +154,22 @@ def main() -> int:
     body_numbers = extract_numbers(body_text)
     figure_numbers = extract_numbers(fig_text)
 
+    # Nothing read from one side means nothing was compared. That is a different outcome from a
+    # mismatch: reported as exit 1 it left an "audit_safe: false" file that named no defect and
+    # that a later reader could not tell from a real disagreement.
+    not_assessed: list[str] = []
+    if not figure_numbers:
+        not_assessed.append(
+            f"[PRISMA-FIGURE] UNPARSEABLE_FIGURE_SOURCE: no PRISMA count was read from {fig_path} — "
+            "the figure was NOT checked. Pass a text source that states the box counts "
+            "(a manifest, the caption, a text export), or transcribe them from the image."
+        )
+    if not body_numbers:
+        not_assessed.append(
+            f"[PRISMA-FIGURE] UNPARSEABLE_BODY: no PRISMA count was read from {md_path} — "
+            "the body was NOT compared with the figure."
+        )
+
     arith_body = check_arithmetic(body_numbers)
     arith_figure = check_arithmetic(figure_numbers)
     xref = cross_reference(body_numbers, figure_numbers)
@@ -159,7 +180,7 @@ def main() -> int:
         and all(r["status"] == "PRESENT" for r in xref)
     )
 
-    action_items: list[str] = []
+    action_items: list[str] = list(not_assessed)
     for r in arith_body:
         if r["status"] == "MISMATCH":
             action_items.append(
@@ -184,7 +205,8 @@ def main() -> int:
         "arithmetic_body": arith_body,
         "arithmetic_figure": arith_figure,
         "cross_reference": xref,
-        "audit_safe": audit_safe,
+        "status": "not_assessed" if not_assessed else "assessed",
+        "audit_safe": audit_safe and not not_assessed,
         "action_items": action_items,
     }
 
@@ -199,13 +221,18 @@ def main() -> int:
     print(render_table(arith_figure, ["eq", "lhs", "rhs", "status"]))
     print("\nCross-reference (body ↔ figure):")
     print(render_table(xref, ["key", "body", "figure", "status", "note"]))
-    print(f"\naudit_safe: {audit_safe}")
+    print(f"\nstatus: {result['status']}")
+    print(f"audit_safe: {result['audit_safe']}")
     print(f"output: {out_path}")
     if action_items:
         print("\nAction items:")
         for a in action_items:
             print(f"  - {a}")
 
+    if not_assessed:
+        for a in not_assessed:
+            print(f"ERROR: {a}", file=sys.stderr)
+        return 2
     return 0 if audit_safe else 1
 
 

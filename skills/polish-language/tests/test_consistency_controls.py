@@ -51,6 +51,46 @@ class ConsistencyControls(unittest.TestCase):
             self.assertEqual(linter.check_abbreviations([
                 f'Expanded name ({abbr}) was introduced.', f'{abbr} was used.']), [])
 
+    def test_plural_forms_count_as_uses(self):
+        # "CIs" is a use of CI. Reading it as nothing reported a used abbreviation as
+        # "defined but never used", which is advice to delete it from the list.
+        self.assertEqual(linter.check_abbreviations([
+            'Confidence interval (CI) is reported.', 'All 95% CIs were Wald-type.']), [])
+        # The possessive was already a use; it must stay one.
+        for use in ("The CI's width was reported.", 'The CI\u2019s width was reported.'):
+            self.assertEqual(linter.check_abbreviations([
+                'Confidence interval (CI) is reported.', use]), [], use)
+        # A plural definition, "(CIs)", defines CI. Two singular uses follow it, so a definition
+        # that was not read would surface as "used 2x but never defined".
+        self.assertEqual(linter.check_abbreviations([
+            'Confidence intervals (CIs) are reported.', 'Each CI was Wald-type.',
+            'The CI excluded zero.']), [])
+        # After a singular definition, a plural in parentheses is a use, not a second definition.
+        self.assertEqual(linter.check_abbreviations([
+            'Confidence interval (CI) was defined above.',
+            'The table reports estimates (CIs) in column 2.']), [])
+        # A defined abbreviation is found by its own token, whatever its shape. Each of these
+        # was "defined but never used" while the use pattern required two leading capitals or
+        # stopped at the digits.
+        for abbr in ('IL2R', 'H2AX', 'T2'):
+            self.assertEqual(linter.check_abbreviations([
+                f'Expanded name ({abbr}) was measured.', f'Both {abbr}s were detected.']), [], abbr)
+        # ... and a defined one that is never used still fires.
+        self.assertEqual(linter.check_abbreviations(['Histone variant (H2AX) was measured.']),
+                         [(1, '"H2AX" defined but never used')])
+
+    def test_plural_handling_does_not_hide_real_findings(self):
+        # A plural use of an undefined abbreviation is still an undefined use.
+        found = linter.check_abbreviations(['ROIs were drawn.', 'ROIs were averaged.'])
+        self.assertTrue(any('"ROI" used 2x but never defined' in m for _, m in found), found)
+        # A definition with no use of any form still fires.
+        self.assertEqual(linter.check_abbreviations(['Confidence interval (CI) is reported.']),
+                         [(1, '"CI" defined but never used')])
+        # A lowercase tail that is not a plural is not a use: "CIsplatin" does not use CI.
+        self.assertEqual(linter.check_abbreviations(['Confidence interval (CI) is reported.',
+                                                     'CIsomething was given.']),
+                         [(1, '"CI" defined but never used')])
+
     def test_missing_definitions_are_not_hidden(self):
         found = linter.check_abbreviations(['COVID-19 was discussed.', 'COVID-19 was mentioned again.'])
         self.assertEqual(found, [(1, '"COVID-19" used 2x but never defined')])

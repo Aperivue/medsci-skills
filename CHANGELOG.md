@@ -12,6 +12,34 @@
   "Funding: ..."; a markdown heading ends it as before, and "## Acknowledgements" now does too.
   The report states which lines were counted (`measured_span`).
 
+- **`/polish-language`: a plural now counts as a use of its abbreviation.** "95% CIs" was not
+  read as a use of CI, so `lint_consistency.py` reported an abbreviation the text needed as
+  "defined but never used". A plural definition, "confidence intervals (CIs)", now defines CI, and
+  the uses of a defined abbreviation are counted by its own token, so one such as "IL2R" or "H2AX"
+  is no longer reported unused because the use pattern could not read its shape.
+- **`/self-review`, `/sync-submission`: "Materials & Methods" is the Methods section.**
+  `check_reviewer_team_consistency.py` and `scope_drift_check.py` recognised only "Methods" and
+  "Materials and Methods". Under an ampersand heading (also pandoc's `\&`), "Material and
+  Methods", "Patients and Methods" or "Methods and Materials", the Methods text was empty and the reviewer-team check passed without
+  seeing the dual-review claim. When no Methods heading is recognised at all,
+  `check_reviewer_team_consistency.py` now says so on stderr, in the report, and as
+  `methods_section_found: false` in its JSON. The exit code is unchanged.
+- **`/peer-review`: "computers", "computed tomography" and "derivation cohort" are not computation
+  requests.** `check_review_request_types.py` matched the stems `comput` and `deriv`, so an ask
+  that only named the imaging modality was flagged `COMPUTATION_UNJUSTIFIED`. A fixed list of noun
+  phrases is now set aside before the stems are read; the verbs still fire.
+- **`/manage-refs`: a table caption beside its table is a caption.** `check_xref.py` read table
+  captions only under a caption heading, so a manuscript that places each table after its first
+  citation (`**Table 1.** ...` directly above or below the table) was blocked with `MISSING_BODY`.
+  The table must be a real table block (a pipe table whose header and delimiter rows have the same
+  number of cells, a closed grid table, or an HTML table), one table defines one caption, and a
+  caption line with no table beside it is still not a definition.
+- **`/check-reporting`: an unreadable PRISMA figure source is "not assessed", not a mismatch.**
+  When `check_prisma_figure.py` read no count from the figure source (or from the body) it exited
+  `1` and wrote `audit_safe: false` without naming a defect. It now exits `2`, the code already
+  documented for unparsable input, and writes `"status": "not_assessed"`. An arithmetic mismatch
+  on the side that was read is still listed in `action_items`.
+
 ### Added
 
 - **`/revise`: `check_response_claims.py --extra-source <path>`** (repeatable) for text the revision
@@ -19,7 +47,6 @@
   from the manuscript and present word for word in a named file is reported as minor
   (`RESPONSE_QUOTE_IN_EXTRA_SOURCE`, `RESPONSE_CITATION_IN_EXTRA_SOURCE`) with the file named,
   instead of as a major unverified claim. A near match there changes nothing.
-
 ### Changed
 
 - **`/find-journal` POLICY: the promotion checklist no longer forbids every `[TODO: verify at journal site]` marker.**

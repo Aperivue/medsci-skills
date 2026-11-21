@@ -94,6 +94,7 @@ For each key in `KEYWORDS`:
   "cross_reference": [
     {"key": "screened", "body": 186, "figure": 186, "status": "PRESENT"}
   ],
+  "status": "assessed",
   "audit_safe": false,
   "action_items": [
     "[PRISMA-FIGURE] body arithmetic 'screened = identified - duplicates' fails: 186 vs 315-122=193"
@@ -103,6 +104,11 @@ For each key in `KEYWORDS`:
 
 `audit_safe: true` ⟺ all arithmetic_body, arithmetic_figure, cross_reference rows are
 `PRESENT`. Anything else → `false` and Step 5 must surface action_items.
+
+`status` is `assessed` when PRISMA counts were read from both the body and the figure source.
+When none could be read from one of them it is `not_assessed`, `audit_safe` is `false`, the
+action item names `UNPARSEABLE_FIGURE_SOURCE` or `UNPARSEABLE_BODY`, and the script exits `2`.
+A `not_assessed` file records that the comparison did not happen; do not cite it as a check.
 
 ## Edge cases
 

@@ -148,6 +148,33 @@ REQUEST_CUE_RE = re.compile(
     r"I (?:would )?(?:suggest|ask|request|recommend))\b", re.I)
 
 
+# A stem is not a verb. "comput" also begins "computers", "computed tomography" and
+# "computational resources", and "deriv" begins "derivation cohort"; an ask that only names
+# one of those is a disclosure request. The imaging modality is in nearly every radiology
+# review, so the bare stems turned ordinary asks into MAJOR findings. These noun phrases are
+# blanked before COMPUTE_RE reads the ask; the verbs ("compute", "derive", "computing the ...",
+# "computing time to progression") are untouched.
+# "computing <noun>" is a noun phrase only behind a determiner ("the computing time to train the
+# model", "the computing resources used per site"). Bare, "computing" is the verb: "consider
+# computing time to progression", "consider computing resources required per site". A bare noun
+# use ("report computing time on the validation set") therefore still reads as a computation
+# request, as it did before; that direction costs a false flag, the other hides a real request.
+_DET = r"(?:the|their|its|this|that|total|overall|mean|median|average|available|required|training|inference)"
+COMPUTE_NOUN_RE = re.compile(
+    r"\bcomputers?\b|\bcomputeri[sz]ed\b|\bcomputed[- ]tomograph\w*|\bcomputational\b|"
+    r"\b(?:cloud|edge|distributed|parallel|high[- ]performance|GPU)[- ]computing\b|"
+    r"\b" + _DET + r"\s+computing\s+(?:time|power|costs?|resources?|hardware|infrastructure|"
+    r"environments?|clusters?|platforms?)\b|"
+    r"\bderivation(?:\s*(?:and|or|/)\s*(?:validation|test(?:ing)?))?\s+"
+    r"(?:cohort|set|sample|group|population|dataset|data)s?\b",
+    re.IGNORECASE)
+
+
+def _without_compute_nouns(ask: str) -> str:
+    """The ask with domain noun phrases blanked, offsets kept (negators are found by position)."""
+    return COMPUTE_NOUN_RE.sub(lambda m: " " * len(m.group(0)), ask)
+
+
 def _unnegated(pat: re.Pattern, ask: str) -> bool:
     """True iff at least one match of `pat` is not preceded by a negator."""
     return any(not NEGATOR_RE.search(ask[: m.start()]) for m in pat.finditer(ask))
@@ -207,7 +234,7 @@ def audit(text: str, source: str, max_computation: int = 2) -> Report:
             continue
 
         is_new_data = _unnegated(NEW_DATA_RE, ask)
-        is_compute = _unnegated(COMPUTE_RE, ask)
+        is_compute = _unnegated(COMPUTE_RE, _without_compute_nouns(ask))
 
         if is_new_data:
             rep.new_data += 1
