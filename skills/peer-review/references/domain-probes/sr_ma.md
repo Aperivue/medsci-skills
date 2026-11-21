@@ -6,15 +6,16 @@
        - self-review: Anticipated Major / Minor Comments (Fatal / Fixable) mapped to category letters.
      Do NOT edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`. -->
 
-# Systematic Review / Meta-Analysis probes (P0–P20)
+# Systematic Review / Meta-Analysis probes (P0–P21)
 
-Internal-consistency-first gate (P0) plus a 20-probe checklist (P1–P20). These probes complement (do not replace) the generic Phase 2 issue checklist.
+Internal-consistency-first gate (P0) plus a 21-probe checklist (P1–P21). These probes complement (do not replace) the generic Phase 2 issue checklist.
 
 **P0 — Internal-consistency-first gate (run before P1; gates any fabrication claim)**:
 - Before alleging fabrication on a manuscript that "feels AI-generated", reproduce the headline pooled statistics, paired study counts (k), and subgroup counts directly from the extracted data table (or supplement included-studies table).
 - If paired k, pooled medians, and subgroup counts reproduce, fabrication is unlikely — **pivot the review to table-vs-source fidelity (P1), comparator definition (P1), and eligibility**, not to a fabrication framing.
 - Only if the table cannot be reproduced, or is internally inconsistent, escalate to a transparency/integrity MAJOR.
 - Rationale: an "AI-smelling" surface is not evidence of fabrication. Real references can be present and the arithmetic coherent while the substantive flaws are extraction, comparator, eligibility, and overclaiming.
+- **Estimator conventions.** When k and the P values reproduce but a non-parametric estimate (for example a paired Hodges–Lehmann estimate) does not, ask the authors which estimator, analysis set, handling of zero differences and software they used before alleging an error, because implementations differ. A value that matches only a convention other than the stated one is a methods–result discrepancy; whether it is a reporting or an analysis error is for the authors to establish, and a changed conclusion sets the severity.
 
 **P1 — Performance-MA value + comparator-existence probe**:
 - For method-comparison MAs reporting accuracy / DSC / AUC / F1 (model-vs-model, AI-vs-reader, two training paradigms) and for DTA MAs reporting sensitivity / specificity, select ≥2 outlier or headline-driving studies.
@@ -30,6 +31,7 @@ Internal-consistency-first gate (P0) plus a 20-probe checklist (P1–P20). These
 - Flag pairs sharing the same data source + overlapping enrollment period (or the same public benchmark) as "high-confidence non-independence".
 - Manuscript should acknowledge in Limitations + perform a leave-one-dataset-out sensitivity analysis and add a data-provenance column to Table 1. If absent → MAJOR.
 - **Nuance**: map provenance and *request* the provenance column + sensitivity analysis; do NOT assert that a specific study used a given benchmark from coarse supplement labels alone (e.g., a supplement labeling a study only as "Hospital" or "Public" does not confirm BraTS/FeTS use). Confirm against the source before stating it.
+- **Reading a leave-one-out (or influence) table.** Note what each deletion removes (a study or an independent dataset), compare each deletion's estimate and interval, and say what changes: the size of the estimate, or, where the paper tests a specific null contrast, its direction or significance verdict. A comment that "robustness is not supported" is easily answered when the paper's conclusion held in every deletion, so name the property that changed, and judge interval changes against a stated clinically meaningful range where one exists. Author side: "robustness was confirmed" should say what was robust.
 
 **P3 — Diagnostic subset N transparency (mixed DTA + prognostic MA)**:
 - Compute bivariate pool denominator (TP+FP+TN+FN) from Table 2 or forest plot.
@@ -65,6 +67,8 @@ Internal-consistency-first gate (P0) plus a 20-probe checklist (P1–P20). These
 
 **P9 — Non-significant finding promoted to Abstract (overclaim probe)**:
 - Flag any exploratory or non-significant result (a crossover, a trend, a post-hoc subgroup) that appears in the Abstract or Key Points framed as a finding.
+- When the Methods name a multiplicity procedure for a family of subgroup or moderator tests, check the family, the procedure and its target level, and that each result called significant survives it (from the reported adjusted P values, or from the family's raw P values when those are needed to recompute); if what the check needs is not reported, that is the request. Keep the prespecified designation: a prespecified primary result that does not meet its criterion is still the primary result, reported with its estimate and interval and described as not meeting it, and a post hoc subgroup does not become primary by being labelled "co-primary".
+- When two moderators are presented as separate findings, ask how they are distributed jointly across studies (a cross-tabulation when both are categorical) and whether their effects can be separated.
 - Sub-check: does the promoted finding depend on a study flagged or mis-extracted under P1? (A headline crossover can collapse once a mis-extracted comparator is corrected.)
 - Flag "non-inferiority" / "equivalence" asserted without a pre-specified margin. A margin cannot be pre-specified retrospectively — ask the authors to document any pre-existing protocol margin, otherwise drop the non-inferiority language or present it explicitly as a post hoc equivalence / sensitivity analysis.
 
@@ -90,6 +94,7 @@ Internal-consistency-first gate (P0) plus a 20-probe checklist (P1–P20). These
 - Deterministic check: the set of Table-1 included-study labels (First-author + Year) must be a subset of the reference-list first-authors. Flag any included study with no matching reference.
 - Place the citations as a cluster at the point the pool is first introduced ("N studies were included [c1; c2; … cN]") so a numeric CSL renumbers them in order of appearance; citations placed only inside a separately-built table file are not processed by the manuscript's citeproc pass.
 - Do not source included-study citations from hand-kept extraction notes / appraisal sheets — those carry journal and page errors. Resolve each via PubMed `efetch` (authoritative), disambiguating same-author/year papers by **technique + sample size** (e.g., a study reporting "249 tumors, 110 adjacent to the diaphragm" is identified by the n that matches the synthesis, not by a remembered journal name). Take the article DOI only from `PubmedData/ArticleIdList`, not from an ArticleId inside the article's own reference list.
+- Check the table's content as well as its citations: ask where the descriptors that bear on applicability are reported (for studies of patients, age and sex), or that the table say when the primary studies did not report them. Severity: MINOR; MAJOR only when the omission prevents assessing an applicability claim the paper makes.
 
 **P14 — Small-k DTA/proportion MA enrollment-overlap → effective independent k**:
 - Extends P2 (non-independence) for the small-k case where double-counting changes the verdict, not just the precision. Group included studies by first-author / center / source database, then pull each study's **enrollment / recruitment window** from the source and compare overlapping groups.
@@ -109,8 +114,9 @@ Internal-consistency-first gate (P0) plus a 20-probe checklist (P1–P20). These
 
 **P17 — Boundary-degenerate proportion pooled with spurious precision**:
 - When a pooled proportion (technical success, sensitivity, specificity) has **a majority of studies at the 0% or 100% boundary** (e.g., 5 of 6 studies at 100%), a GLMM / random-effects pool is near-degenerate: I²=0 is a boundary artifact, and a pooled point estimate with a tight CI (e.g., 99.5%, CI 69–100) reads as authoritative precision the data do not support.
-- Lead: count studies at the 0%/100% boundary per outcome; if ≥ (k−1) are at the boundary, flag the pooled point-estimate/CI as spurious precision.
+- Lead: count studies at the 0%/100% boundary per outcome; if ≥ (k−1) are at the boundary, flag the pooled point-estimate/CI as possible spurious precision (a signal to examine, not a verdict).
 - Recommend a descriptive tally ("5 of 6 studies reported 100%; the sixth reported X%") rather than a pooled estimate. Severity: MAJOR when the boundary pool is presented as a headline accuracy/success figure.
+- **Very small k (k ≤ 2).** The boundary-count lead above is not informative here (at k=1 it fires on any data). For k=1, report the study's own estimate and interval. For k=2, ask for both studies' events and denominators and the pooling model, and whether the conclusion changes under another reasonable model; heterogeneity is poorly estimated at k=2. Severity: MAJOR only when a comparison or claim that the row cannot support rests on it.
 
 **P18 — Train-vs-validation pool integrity: apparent estimate smuggled into the "validation" pool**:
 - A DTA / prognostic-model MA that separates a "training" pool from a "validation" pool must build the validation pool from **held-out / external / cross-validated** estimates only. The failure mode: for studies without cross-validation, the authors drop each study's **apparent (in-sample / resubstitution)** sensitivity–specificity (or "overall estimate") INTO the validation pool — so the headline "validation" performance is partly the same in-sample numbers, and the "train ≈ validation stability" the Discussion leans on is mechanical reuse.
@@ -128,6 +134,14 @@ Internal-consistency-first gate (P0) plus a 20-probe checklist (P1–P20). These
 - Heterogeneity in a DTA review is not captured by I² for each margin alone. Judge a threshold effect from what the studies actually used (the explicit thresholds, and whether the study points fall along an ROC-shaped curve in SROC space), not from a significance test. A Spearman correlation between sensitivity and false-positive rate (positive under a threshold effect; equivalently, negative between sensitivity and specificity) is descriptive: its absence does not exclude a threshold effect and its presence does not prove one.
 - Check that within-study choices were pre-specified: which threshold, reader or analysis unit was taken when a study reported several, and how indeterminate results were handled (cross-link P2, P11, `diagnostic_accuracy.md` D4).
 - Severity: first ask for the rationale and model diagnostics. MAJOR when the chosen synthesis is inappropriate for the data or the undescribed threshold or reader selection could materially change the conclusions; MINOR when an appropriate fallback or selection rule is simply unexplained.
+
+**P21 — Reporting-quality (checklist-adherence) reviews: agreement, denominators, and unreported analyses**:
+- Applies whenever adherence to a reporting checklist (CLAIM, TRIPOD+AI, STARD, PRISMA) is an outcome, including meta-research and reporting audits submitted under other labels. Other probes apply where relevant.
+- **(a) Item-level agreement.** κ is prevalence-sensitive and is undefined when both raters assign every study to one and the same category, so one κ across all items can mislead. For the items that matter, ask for the agreement counts, a measure suited to the scale and raters, and the rule used where κ is undefined.
+- **(b) Denominators.** For each headline percentage, ask for the codes, which cells are eligible (not applicable versus applicable but not reported), the numerator and denominator, and whether it pools cells or averages study-level proportions; the two can differ.
+- **(c) Coverage of dual scoring.** Ask how many studies were scored by two raters, how they were selected, whether ratings were independent before consensus, and what population the agreement estimate is meant to describe.
+- **(d) Planned analyses not reported.** Compare the reported secondary analyses with the protocol; for each material deviation, ask what changed, when and why, and ask for the estimate and its uncertainty when the analysis was run. An analysis that was run and then left out because its result was null is selective reporting; one not run because a prespecified rule stopped the sequence is not.
+- Severity: (a)–(c) are MAJOR when a headline adherence or agreement figure cannot be reproduced or interpreted without them; (d) is MINOR unless the omitted analysis was prespecified or bears on the conclusion.
 
 **Output template (P1 cell-swap example)**:
 > "I spot-checked [Author Year] (PMID [...]) against the source paper and found that the values in Figure X are swapped. The source paper reports external-test sensitivity A% / specificity B% (n=N); the manuscript forest entries place [num1/denom1] in the sensitivity slot (which is the source's specificity numerator/denominator) and [num2/denom2] in the specificity slot (which is the source's sensitivity)."

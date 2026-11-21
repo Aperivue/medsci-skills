@@ -82,9 +82,14 @@ the novelty/importance bar. If novelty/importance is ALREADY weak — your own s
 opinion, puts Originality or Reader-interest at or below mid — then the reframe *reduces* the
 contribution and makes the importance problem worse, not better. A contribution shrunk to survive a
 validity flaw is a **Reject-leaning** outcome (the contribution is the product, not
-addressable-in-revision), not an encourage-major-revision. Deterministic trigger to self-audit: if
-your confidential note calls the claim narrower or more modest than the manuscript claims AND your
-recommendation is Reject-family-adjacent, do not upgrade it to major revision on the reframe.
+addressable-in-revision), not an encourage-major-revision. Trigger the self-audit on the comments
+you have written, not on the recommendation you lean towards (a trigger that requires a Reject-leaning
+recommendation never fires on the lenient draft it exists to catch): fire it whenever a proposed
+remedy materially narrows the claim the paper can support. Then write the narrowed claim out in full
+and decide the recommendation again against the journal's stated criteria, whatever the draft says;
+a narrower claim that still meets them is not by itself grounds for Reject.
+If your scorecard ratings and the recommendation pull in different directions, explain why in the
+confidential note, or change the one whose rationale does not hold.
 
 **Review/narrative/primer escalation** *(the contribution IS the product)*: for a review article there is no
 data to re-analyze; the distinct contribution — novelty, integrative synthesis, domain-specificity — is the

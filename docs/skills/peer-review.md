@@ -39,6 +39,7 @@
 **References** (`skills/peer-review/references/`):
 
 - `aczel_2021_reviewer2_patterns.md`
+- `arithmetic_and_completeness.md`
 - `domain-probes/` (23 files)
 - `exemplar_reviews/` (9 files)
 - `narrative_review_audit.md`
