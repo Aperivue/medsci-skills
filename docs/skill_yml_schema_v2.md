@@ -10,7 +10,7 @@ Skill contract file, one per skill at `skills/<skill>/skill.yml`. Machine-readab
 
 1. **Layer-as-policy**: `layer:` classifies execution privilege. Layer A (deterministic script) forbids LLM free-form writes; Layer D (intent/decision) forbids file writes entirely.
 2. **Domain ≠ layer**: `owner_domain` routes work (see `capabilities.yml`); `layer` controls how work executes. Both required.
-3. **Deterministic steps are declarative**: `deterministic_steps:` is a list the orchestrator MUST invoke during skill execution. Failure modes are explicit.
+3. **Deterministic steps are declarative** (reserved, see [deterministic_steps](#deterministic_steps)): `deterministic_steps:` is designed as a list the orchestrator invokes during skill execution, with explicit failure modes. No skill declares it yet and nothing executes it.
 4. **Forbidden actions are enforceable**: Items in `forbidden_actions:` map to hook/policy checks. Adding one should be enforceable (pre-save hook, validator, or runtime guard).
 5. **Path templating via `${SSOT.*}`**: Paths reference the project's `SSOT.yaml` resolver. Literal paths allowed but discouraged.
 
@@ -40,7 +40,7 @@ Validator rule: `layer` is required and must be one of `A`, `B`, `C`, `D`.
 | `sequence_after` | no | list[str] | Skills expected to run first. |
 | `inputs` | yes | list[map] | See [inputs/outputs](#inputs--outputs). |
 | `outputs` | yes | list[map] | See [inputs/outputs](#inputs--outputs). |
-| `deterministic_steps` | no | list[map] | LLM-invoked checkpoints with fail semantics. |
+| `deterministic_steps` | no | list[map] | Reserved: LLM-invoked checkpoints with fail semantics. Accepted by the validator, not executed. |
 | `deterministic_scripts` | no | list[str] | Scripts bundled by the skill (inventory). |
 | `side_effects` | yes | list[str] | Free-form tags (e.g., `writes_project_artifacts`). |
 | `downstream_consumers` | yes | list[str] | Skills that read this skill's outputs. |
@@ -79,6 +79,13 @@ outputs:
 - Legacy v1 string-list form (`inputs: [project.yaml, ...]`) accepted by validator with a migration warning.
 
 ## deterministic_steps
+
+**Reserved, not in use.** No `skill.yml` in this repository declares `deterministic_steps`, and
+no orchestrator reads it: `scripts/validate_skill_contracts.py` only checks that the field, when
+present, has at least one item. Which scripts a skill runs, in what order and with what failure handling is
+stated in its `SKILL.md`, and the reachability gates read it from there. Declaring steps here
+therefore changes nothing at run time; the form below is the intended design, kept for a future
+migration.
 
 ```yaml
 deterministic_steps:
