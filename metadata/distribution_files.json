@@ -1563,8 +1563,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/JAMA_Cardiology.md",
-      "size": 3046,
-      "sha256": "9fbd51c1f001d19108143c692369679a0e6c14d75df7232c661fbf80b63baf3d"
+      "size": 2980,
+      "sha256": "9d647581e1d9d397688f088ede313b1a6efe0b062007568e3eb1dc10ad114e7a"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/JAMA_Network_Open.md",
@@ -6943,8 +6943,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JAMA_Cardiology.md",
-      "size": 16792,
-      "sha256": "7e5b24d90d666432baf2fc70d2d1673dd2e368709a346ec722088a7c999e2258"
+      "size": 16759,
+      "sha256": "b685b58fdcf049358ff7dfaba7d282d9bf5d3da5da97d341381e243a8f8eb941"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JAMA_Network_Open.md",
