@@ -40,6 +40,17 @@ entry's anchor sentence is located in the body and its declared values are check
     the value is missing from text whose numbers cannot all be read (superscripts, x10^n,
     e-notation).
 
+Text the letter says was changed does not always live in the manuscript file: a
+new title sits on the title page, a paragraph in the supplement, a caption in a
+figure source. --extra-source (repeatable) names those files:
+
+  * RESPONSE_QUOTE_IN_EXTRA_SOURCE / RESPONSE_CITATION_IN_EXTRA_SOURCE (minor) —
+    the quoted text (word for word) or the cited token is absent from the
+    manuscript and present in a named extra source. Not counted as drift, and
+    always printed with the file it was found in, because the gate cannot tell
+    whether that file is where the letter says the edit went: confirm it is.
+    Anything short of a word-for-word match in an extra source changes nothing.
+
 Vague claims with no quote and no citation ("we clarified the Methods") are not
 verifiable and are intentionally NOT flagged. Reviewer-comment blockquotes
 (lines beginning with '>') are excluded so the reviewer's own quoted text is
@@ -49,6 +60,8 @@ Usage:
     check_response_claims.py --response response.md --manuscript revised.md [--strict]
     check_response_claims.py --response r.md --manuscript revised.md --values revision_values.json
     check_response_claims.py --response r.md --manuscript revised.docx --out qc/response_claims.json
+    check_response_claims.py --response r.md --manuscript revised.md \
+        --extra-source title_page.md --extra-source supplement.md
 
 Exit 0 when every anchored claim is verified (or none exist). With --strict,
 exit 1 if any major verdict fires. Exit 2 on a missing file or an unreadable or malformed
@@ -528,10 +541,17 @@ def check_values(blocks: list, entries: list) -> list:
                 })
     return findings
 
-def build_report(response_path: Path, manuscript_path: Path, values: list | None = None) -> dict:
+def build_report(response_path: Path, manuscript_path: Path, values: list | None = None,
+                 extra_sources: list[Path] | None = None) -> dict:
     response = read_text(response_path)
     body = read_text(manuscript_path)
     norm_body = normalize(body)
+    for p in (extra_sources or []):
+        # The letter quotes itself word for word, and the manuscript is already searched.
+        if p.samefile(response_path) or p.samefile(manuscript_path):
+            raise ValueError(f"extra source {p} is the response letter or the manuscript itself; "
+                             "an extra source must be a different file the revision changed")
+    extras = [(p, read_text(p)) for p in (extra_sources or [])]
     findings = []
     for kind, anchor, ctx in extract_claims(response):
         if kind == "quote":
@@ -569,35 +589,72 @@ def build_report(response_path: Path, manuscript_path: Path, values: list | None
                     }
                 )
             elif g["grade"] == "ABSENT":
-                findings.append(
-                    {
-                        "verdict": "RESPONSE_QUOTE_UNVERIFIED",
-                        "severity": "major",
-                        "claimed_text": anchor,
-                        "context": ctx,
-                        "match": g,
-                        "message": "Response quotes added text that is absent from the revised manuscript body.",
-                    }
-                )
+                # Only a word-for-word match in a named extra source changes the verdict, and it
+                # stays a finding: the reader must confirm that file is where the edit belongs.
+                src = next((sp for sp, st in extras if grade_quote(st, anchor)["grade"] == "EXACT"), None)
+                if src is not None:
+                    findings.append(
+                        {
+                            "verdict": "RESPONSE_QUOTE_IN_EXTRA_SOURCE",
+                            "severity": "minor",
+                            "claimed_text": anchor,
+                            "context": ctx,
+                            "source": str(src),
+                            "message": (f"Absent from the manuscript; present word for word in {src}. "
+                                        "Confirm that is where the letter says this text was added."),
+                        }
+                    )
+                else:
+                    findings.append(
+                        {
+                            "verdict": "RESPONSE_QUOTE_UNVERIFIED",
+                            "severity": "major",
+                            "claimed_text": anchor,
+                            "context": ctx,
+                            "match": g,
+                            "message": "Response quotes added text that is absent from the revised manuscript body.",
+                        }
+                    )
         elif kind == "citation":
             if not body_has_citation(body, norm_body, anchor):
-                findings.append(
-                    {
-                        "verdict": "RESPONSE_CITATION_UNVERIFIED",
-                        "severity": "major",
-                        "claimed_citation": [t for _, t in anchor],
-                        "context": ctx,
-                        "message": "Response claims a citation was added but none of the cited tokens appear in the revised manuscript body.",
-                    }
-                )
+                # In the manuscript any one cited token is enough, as before. An extra source
+                # lowers a verdict, so there every token the letter names must be present: a
+                # supplement that has "[22]" under another author does not carry the claim.
+                src = next((sp for sp, st in extras
+                            if all(body_has_citation(st, normalize(st), [tok]) for tok in anchor)), None)
+                if src is not None:
+                    findings.append(
+                        {
+                            "verdict": "RESPONSE_CITATION_IN_EXTRA_SOURCE",
+                            "severity": "minor",
+                            "claimed_citation": [t for _, t in anchor],
+                            "context": ctx,
+                            "source": str(src),
+                            "message": (f"No cited token in the manuscript; found in {src}. "
+                                        "Confirm that is where the letter says the citation was added."),
+                        }
+                    )
+                else:
+                    findings.append(
+                        {
+                            "verdict": "RESPONSE_CITATION_UNVERIFIED",
+                            "severity": "major",
+                            "claimed_citation": [t for _, t in anchor],
+                            "context": ctx,
+                            "message": "Response claims a citation was added but none of the cited tokens appear in the revised manuscript body.",
+                        }
+                    )
     if values:
         findings.extend(check_values(read_blocks(manuscript_path), values))
     n_major = sum(1 for f in findings if f["severity"] == "major")
+    n_extra = sum(1 for f in findings if f["verdict"].endswith("_IN_EXTRA_SOURCE"))
     return {
         "response": str(response_path),
         "manuscript": str(manuscript_path),
+        "extra_sources": [str(sp) for sp, _ in extras],
         "findings": findings,
-        "summary": {"major": n_major, "unresolved": len(findings) - n_major},
+        "summary": {"major": n_major, "unresolved": len(findings) - n_major - n_extra,
+                    "in_extra_source": n_extra},
         # An UNRESOLVED quote is a "look at this", not a defect: the words are demonstrably
         # there and only the extraction is suspect. Safety therefore turns on MAJOR findings,
         # which is what --strict has always documented.
@@ -611,15 +668,32 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--manuscript", required=True, type=Path, help="revised manuscript (.md/.txt/.docx)")
     ap.add_argument("--values", type=Path,
                     help="revision_values.json: declared values to check in the body (see references)")
+    ap.add_argument("--extra-source", type=Path, action="append", default=[], metavar="PATH",
+                    help="another file the revision changed (title page, supplement, figure text); "
+                         "text absent from the manuscript and present here word for word is "
+                         "reported as minor with this file named. Repeatable.")
     ap.add_argument("--out", type=Path, help="write JSON report here")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any major verdict fires")
     ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args(argv)
 
-    for p in (args.response, args.manuscript):
+    for p in (args.response, args.manuscript, *args.extra_source):
         if not p.is_file():
             print(f"error: file not found: {p}", file=sys.stderr)
             return 2
+    for p in args.extra_source:
+        # The letter quotes itself word for word, and the manuscript is already searched.
+        for other, name in ((args.response, "--response"), (args.manuscript, "--manuscript")):
+            if p.samefile(other):
+                print(f"error: --extra-source {p} is the same file as {name}; an extra source "
+                      "must be a different file the revision changed", file=sys.stderr)
+                return 2
+    if args.out is not None and args.out.exists():
+        for inp in (args.response, args.manuscript, *args.extra_source):
+            if args.out.samefile(inp):
+                print(f"error: --out {args.out} is an input file; the report would overwrite it",
+                      file=sys.stderr)
+                return 2
 
     values = None
     if args.values is not None:
@@ -631,7 +705,7 @@ def main(argv: list[str] | None = None) -> int:
         except (ValuesError, ValueError, OverflowError, RecursionError) as e:
             print(f"error: {args.values}: {e}", file=sys.stderr)
             return 2
-    report = build_report(args.response, args.manuscript, values)
+    report = build_report(args.response, args.manuscript, values, args.extra_source)
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps({"detector": "check_response_claims", **report}, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -641,7 +715,8 @@ def main(argv: list[str] | None = None) -> int:
         if not report["findings"]:
             print("OK: every anchored response claim is verified against the revised manuscript.")
         else:
-            print(f"RESPONSE_CLAIM findings — {s['major']} major, {s['unresolved']} unresolved:")
+            extra = f", {s['in_extra_source']} in an extra source" if s["in_extra_source"] else ""
+            print(f"RESPONSE_CLAIM findings — {s['major']} major, {s['unresolved']} unresolved{extra}:")
             for f in report["findings"]:
                 anchor = f.get("claimed_text") or ", ".join(f.get("claimed_citation", []))
                 print(f"  [{f['verdict']}] ({f['severity']}) {anchor!r}")
@@ -650,9 +725,12 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"      near: {f['context']}")
                 if f["severity"] == "minor":
                     print(f"      {f['message']}")
-            if s["major"] == 0:
+            if s["major"] == 0 and s["unresolved"]:
                 print("\nNo major drift: the unresolved item(s) are extraction-quality doubts, "
                       "not claims of an edit that was never made.")
+            if s["in_extra_source"]:
+                print("\nText found only in an extra source is not counted as drift; check that "
+                      "each file named above is where the letter says the edit was made.")
 
     if args.strict and not report["submission_safe"]:
         if any(f["verdict"] == "RESPONSE_VALUE_MISMATCH" for f in report["findings"]):

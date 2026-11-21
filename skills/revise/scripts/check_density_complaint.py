@@ -61,10 +61,44 @@ COMPLAINT = re.compile(
 
 # Section headings, in reviewer-count order. Body = first Introduction..Introduction-like heading
 # through the end of Discussion / before References.
-BODY_START = re.compile(r"^#{0,4}\s*\**\s*(introduction|background)\b", re.IGNORECASE | re.MULTILINE)
-BODY_END = re.compile(r"^#{0,4}\s*\**\s*(references|acknowledg|funding|conflict|"
-                      r"data availability|supplementary|supporting information|figure legends?)\b",
-                      re.IGNORECASE | re.MULTILINE)
+# Where the body ends. A markdown heading ("## ...") that begins with one of the ending words
+# ends it, as it always did ("## Supplementary Results", "## References ##"). A line WITHOUT a
+# heading mark ends it only when the line is a section name: alone, or followed on the same line
+# by a colon or a full stop and run-in text ("Funding: ...", "**Funding**. This work ..."). A
+# line that merely begins with such a word is prose: "Supplementary Table 2 lists ...", "Funding
+# for the registry came from ...". Ending the body there measured only the text above it in BOTH
+# versions, so a revision that had been cut was reported as unchanged.
+_HS = r"[^\S\r\n]"          # horizontal whitespace; never crosses a line
+_END_WORD = (r"references|acknowledge?ments?|funding|conflicts?|data availability|supplementary|"
+             r"supporting information|figure legends?")
+_END_NAME = (
+    r"references?(?:" + _HS + r"+list)?|bibliography|acknowledge?ments?|"
+    r"funding(?:" + _HS + r"+(?:sources?|information|statement|support))?|"
+    r"conflicts?(?:" + _HS + r"+of" + _HS + r"+interests?(?:" + _HS + r"+(?:statement|disclosures?))?)?|"
+    r"competing" + _HS + r"+interests?|disclosures?|"
+    r"declarations?" + _HS + r"+of" + _HS + r"+(?:competing" + _HS + r"+|conflicting" + _HS + r"+)?interests?|"
+    r"data" + _HS + r"+(?:availability|sharing)(?:" + _HS + r"+statement)?|"
+    r"supplementary(?:" + _HS + r"+(?:materials?|information|data|files?|appendix|appendices|methods|"
+    r"results|tables?|figures?|text|notes?))?|"
+    r"supporting" + _HS + r"+information|figure" + _HS + r"+legends?"
+)
+_NUMBERING = r"(?:\d+(?:\.\d+)*\.?" + _HS + r"+)?"
+BODY_END = re.compile(
+    r"^" + _HS + r"*(?:"
+    # a markdown heading that begins with an ending word or is a section name
+    r"#{1,6}" + _HS + r"*\**" + _HS + r"*" + _NUMBERING + r"(?P<h>" + _END_WORD + r"|" + _END_NAME + r")\b.*"
+    # a line with no heading mark that IS a section name, optionally with a run-in after ":" or ". "
+    r"|[*_]{0,3}" + _HS + r"*" + _NUMBERING + r"(?P<n>" + _END_NAME + r")"
+    + _HS + r"*[*_]{0,3}" + _HS + r"*(?::.*|\.[*_]{0,3}(?:" + _HS + r".*)?)?"
+    r")$",
+    re.IGNORECASE | re.MULTILINE,
+)
+BODY_START = re.compile(r"^" + _HS + r"*#{0,4}" + _HS + r"*\**" + _HS + r"*(introduction|background)\b",
+                        re.IGNORECASE | re.MULTILINE)
+
+
+def _body_end(body: str):
+    return BODY_END.search(body)
 ABSTRACT = re.compile(r"^#{0,4}\s*\**\s*abstract\b", re.IGNORECASE | re.MULTILINE)
 
 CITATION = re.compile(r"\[[\d,\s–\-]+\]|\((?:[A-Z][A-Za-z'`-]+(?: et al\.?)?,?\s*\d{4}[a-z]?;?\s*)+\)")
@@ -95,14 +129,42 @@ def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
 
 
+def _bounds(text: str):
+    """(start, end, start match, end match) of the measured body in NFKC text."""
+    m0 = BODY_START.search(text)
+    start = m0.start() if m0 else 0
+    m1 = _body_end(text[start:])
+    end = start + m1.start() if m1 else len(text)
+    return start, end, m0, m1
+
+
+def body_span(text: str) -> dict:
+    """The lines that were counted (1-based, inclusive) and what bounded them.
+
+    start_line and end_line are None when nothing was counted (the file is empty, or it ends
+    its body on the first line)."""
+    text = unicodedata.normalize("NFKC", text)
+    start, end, m0, m1 = _bounds(text)
+    counted = text[start:end]
+    if counted.strip():
+        first = text.count("\n", 0, start) + 1
+        last = first + counted.rstrip().count("\n")
+    else:
+        first = last = None
+    return {
+        "start_line": first,
+        "end_line": last,
+        "start_marker": m0.group(1).lower() if m0 else "start of file (no Introduction/Background heading)",
+        "end_marker": (re.sub(r"\s+", " ", m1.group("h") or m1.group("n")).lower()
+                       if m1 else "end of file (no References-like heading)"),
+    }
+
+
 def body_word_count(text: str) -> int:
     """Introduction..before-References, abstract excluded, citation markers removed."""
     text = unicodedata.normalize("NFKC", text)
-    m0 = BODY_START.search(text)
-    body = text[m0.start():] if m0 else text
-    m1 = BODY_END.search(body)
-    if m1:
-        body = body[: m1.start()]
+    start, end, m0, _ = _bounds(text)
+    body = text[start:end]
     # if an Abstract heading is inside our slice (no Introduction found), drop it
     if not m0:
         a = ABSTRACT.search(body)
@@ -147,8 +209,10 @@ def main(argv: list[str] | None = None) -> int:
             return 2
 
     comp = complaints(read_text(a.comments))
-    prev_wc = body_word_count(read_text(a.previous))
-    new_wc = body_word_count(read_text(a.revised))
+    prev_text, new_text = read_text(a.previous), read_text(a.revised)
+    prev_wc = body_word_count(prev_text)
+    new_wc = body_word_count(new_text)
+    spans = {"previous": body_span(prev_text), "revised": body_span(new_text)}
     delta = new_wc - prev_wc
 
     fired = bool(comp) and delta >= 0
@@ -158,6 +222,9 @@ def main(argv: list[str] | None = None) -> int:
         "previous_body_words": prev_wc,
         "revised_body_words": new_wc,
         "delta_words": delta,
+        # What was counted. A span that stops well short of the manuscript's end is the sign
+        # that the body was bounded in the wrong place; read it before trusting the delta.
+        "measured_span": spans,
         "verdict": "DENSITY_COMPLAINT_UNADDRESSED" if fired else "OK",
     }
     if a.out:
@@ -165,6 +232,10 @@ def main(argv: list[str] | None = None) -> int:
         a.out.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
     if not a.quiet:
+        for name in ("previous", "revised"):
+            s = spans[name]
+            span = (f"lines {s['start_line']}-{s['end_line']}" if s["start_line"] else "no lines")
+            print(f"measured {name}: {span} (from {s['start_marker']} to {s['end_marker']})")
         if not comp:
             print(f"OK: no density/length complaint in the decision letter "
                   f"(body {prev_wc} -> {new_wc} words, {delta:+d}).")

@@ -244,6 +244,18 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/check_response_claims.py \
 
 Add `--out qc/response_claims.json` to write the verdicts to `qc/response_claims.json`.
 
+When the letter quotes text that lives outside the manuscript file (a new title on the title page,
+a paragraph in the supplement, a figure caption kept in a figure source), name each such file with
+`--extra-source <path>` (repeatable). Text that is absent from the manuscript and present word for
+word in one of those files is reported as `RESPONSE_QUOTE_IN_EXTRA_SOURCE` or
+`RESPONSE_CITATION_IN_EXTRA_SOURCE`: **minor**, not a failure under `--strict`, and printed with
+the file it was found in. The gate cannot tell whether that file is where the letter says the edit
+went, so read each one. A near match in an extra source changes nothing.
+
+The gate skips reviewer comments only when they are `>` blockquotes. If the letter reproduces a
+comment as plain text ("Comment 3: the authors added the sentence ..."), the reviewer's own
+quotation is checked as if it were your claim; put reviewer comments in blockquotes.
+
 `RESPONSE_QUOTE_UNVERIFIED` (a quoted added sentence absent from the body) and
 `RESPONSE_CITATION_UNVERIFIED` (an added citation whose token is nowhere in the body) are real
 discrepancies, since the gate ignores vague, paraphrased claims: either insert the promised edit or
@@ -286,6 +298,11 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/check_density_complaint.py \
   --previous manuscript/manuscript_R0.md \
   --revised manuscript/manuscript.md --strict
 ```
+
+The gate prints which lines it counted (`measured previous: lines A-B`, `measured revised: ...`)
+and writes them to `measured_span`. Read that line before trusting the delta: for an article with
+no Introduction heading the count starts at the top of the file, and it ends at the first
+References-like *heading*, not at a sentence that happens to begin with such a word.
 
 `DENSITY_COMPLAINT_UNADDRESSED` fires only when the decision letter contains a density/length
 complaint AND the body word count (Introduction through Discussion, citation markers excluded) did

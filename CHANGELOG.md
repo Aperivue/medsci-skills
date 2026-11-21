@@ -4,6 +4,14 @@
 
 ### Fixed
 
+- **`/revise`: the density gate ended the body at a sentence.** `check_density_complaint.py` stopped
+  counting at any line beginning with "Supplementary", "Funding", "Conflict" and similar words,
+  so a prose line such as "Supplementary Table 2 lists ..." hid everything after it in both
+  versions and a revision that had been cut was reported as unchanged. A line without a heading
+  mark now ends the body only when it is a section name, alone or as a run-in label such as
+  "Funding: ..."; a markdown heading ends it as before, and "## Acknowledgements" now does too.
+  The report states which lines were counted (`measured_span`).
+
 - **`/polish-language`: a plural now counts as a use of its abbreviation.** "95% CIs" was not
   read as a use of CI, so `lint_consistency.py` reported an abbreviation the text needed as
   "defined but never used". A plural definition, "confidence intervals (CIs)", now defines CI, and
@@ -32,6 +40,13 @@
   documented for unparsable input, and writes `"status": "not_assessed"`. An arithmetic mismatch
   on the side that was read is still listed in `action_items`.
 
+### Added
+
+- **`/revise`: `check_response_claims.py --extra-source <path>`** (repeatable) for text the revision
+  changed outside the manuscript file: a title page, a supplement, a figure source. Text absent
+  from the manuscript and present word for word in a named file is reported as minor
+  (`RESPONSE_QUOTE_IN_EXTRA_SOURCE`, `RESPONSE_CITATION_IN_EXTRA_SOURCE`) with the file named,
+  instead of as a major unverified claim. A near match there changes nothing.
 ### Changed
 
 - **`/find-journal` POLICY: the promotion checklist no longer forbids every `[TODO: verify at journal site]` marker.**
