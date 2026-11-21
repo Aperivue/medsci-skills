@@ -94,7 +94,12 @@ When you add a detector and its test in the same PR, add the `validate.yml` step
 
 1. New `check_*`/`detect_*` detector → register in `gen_detectors_catalog_json.py`
    (`FAMILY_BY_ID`) + bump `catalog_counts.json` + `MEDSCI_AUDIT.md` + wire into the skill's
-   `SKILL.md` + add a CI-wired test. Then run all three generators in `--check` mode.
+   `SKILL.md` + add a CI-wired test. Then run every generator in `--check` mode, enumerated
+   from the directory rather than recalled:
+   `for g in scripts/gen_*.py; do python3 "$g" --check || exit 1; done` (without the `|| exit 1`
+   the loop reports only the last generator's result).
+   A remembered list goes stale when a generator is added, and the ones it does name all report
+   in sync.
 2. New helper → underscore/plain name (never `check_*`), import only within the same skill.
 3. New asset/fixture file → re-run `python3 scripts/gen_distribution_manifest.py` (it tracks
    payload files and hashes; tests are excluded from the distributed payload but the manifest
@@ -107,6 +112,6 @@ When you add a detector and its test in the same PR, add the `validate.yml` step
    `scripts/check_domain_probe_sync.py` (§3c). The gate fails on undeclared duplicates.
 
 Run the full local CI-mirror before pushing (see the repo `CONTRIBUTING.md` / `validate.yml`
-gates): `validate_skills.sh`, the three `gen_*.py --check`, `validate_catalog_consistency.py`,
-`check_version_consistency.py`, `gen_skill_docs.py --check`, `check_locale_inventory.py`,
+gates): `validate_skills.sh`, every `scripts/gen_*.py --check`, `validate_catalog_consistency.py`,
+`check_version_consistency.py`, `check_locale_inventory.py`,
 `validate_routing_assets.py --strict`, and the installer tests.
