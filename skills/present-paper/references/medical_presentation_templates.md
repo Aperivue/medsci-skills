@@ -173,6 +173,9 @@ students).
 - **Figures**: Mix of textbook diagrams, original imaging, SMART Servier icons. Reusable
   asset library across lecture series (per `pptx-mac-compatibility` rule — single asset
   source).
+- **Imaging-specialty audiences**: for each imaging finding the audience is expected to
+  recognise, check that a readable example image shows it. Choose own or published cases by
+  the teaching goal, the permission to use them and the de-identification they need.
 - **Recap pattern**: At each section end, a 1-slide recap before moving on. Helps
   trainees with weaker prior knowledge.
 - **Self-assessment**: Use audience-response polling if classroom supports it; otherwise

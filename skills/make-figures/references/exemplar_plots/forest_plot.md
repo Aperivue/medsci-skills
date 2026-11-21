@@ -21,7 +21,11 @@ must show* and the errors to avoid; not an image to copy. Pairs with `analyze-st
 - **Reference line** at the null (OR/RR/HR = 1, or 0 for mean differences); a log scale for
   ratio measures so CIs are symmetric.
 - **Axis**: framed to include all CIs without wasted whitespace; label the effect measure and
-  which direction favours which arm.
+  which direction favours which arm. Confirm in the render that every CI and any prediction
+  interval is visible, and mark a cut interval with its value. The null value and favours
+  direction apply only where the measure defines them (not a single-arm proportion).
+- **Scale**: the text's unit by default; a proportion in the text with a percentage axis is
+  acceptable when the axis unit is stated and values convert exactly.
 
 ## Discipline (what the figure must not do)
 - **Do not pool when pooling is not defensible**: when heterogeneity is extreme *and
@@ -36,6 +40,9 @@ must show* and the errors to avoid; not an image to copy. Pairs with `analyze-st
   k ≥ 10**; below that, say tests are underpowered rather than over-interpreting asymmetry.
 - **Certainty**: where GRADE is used, a certainty column (or caption note) keeps a tight CI from
   being read as strong evidence when risk of bias/imprecision is high.
+- **Do not package the default render unseen**: open the rendered file once and check that the
+  heterogeneity line is clear of the axis tick labels, that the margins fit the number of rows, and
+  that the summary-measure label above the plot says what the caption says.
 
 ## Common omission
 - A **prediction interval** and an **explicit τ²**, plus an honest **no-pool / restrict

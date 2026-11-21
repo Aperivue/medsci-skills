@@ -128,7 +128,10 @@ hand). Glossary slide early if the audience is multidisciplinary
 the one archetype where a dense slide is legitimate: they will photograph it, and they will study
 from it.
 
-**Fails when:** it is a conference talk stretched to fill the hour.
+**Fails when:** it is a conference talk stretched to fill the hour — or when an organising
+framework (a pathway, a pipeline, a list of stages) is given one slide per slot whether or not the
+slot has evidence. A slot with little to show becomes one line on a neighbouring slide, not a slide
+of its own, and each slot holds only what belongs under its name.
 
 ---
 

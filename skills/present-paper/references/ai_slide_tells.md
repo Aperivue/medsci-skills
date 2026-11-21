@@ -55,6 +55,18 @@ going to do, delete it and let the next sentence do it.
 **Test:** delete the sentence. If nothing is lost, it was scaffolding. (Every pattern in the
 detector's bank passes this test — that is the admission criterion for the bank.)
 
+### Two habits to listen for in the notes
+
+Read the notes aloud; these two are easier to hear than to see. Cut one only if no claim goes
+with it:
+
+- **The correction pair** — "This is not a failure of the algorithm. It is a reminder that the
+  data matter." The first sentence denies something nobody said so that the second can arrive as a
+  turn. Say the second.
+- **The closing maxim** — a note that ends on a line built to be quoted ("Accuracy is where the
+  conversation begins"). Once in a talk it is a choice; at the end of every third slide it is a
+  rhythm the room hears. End on the fact, the number or the next step.
+
 ---
 
 ## 2. The furniture along the edges
@@ -83,6 +95,14 @@ rounded rectangle — and repeats it until the slide is full.
 If five things are genuinely parallel, say so **once**, in a table or a list. If they are not
 parallel, the shapes should differ, because the ideas differ. A row of identical boxes with
 different words in them is a list wearing a costume.
+
+### The same headline, five times, is the same tell in words
+
+Assertion headlines can be stamped from one mould as easily as boxes. An invented example: "Bus
+route A runs late", "Bus route B runs late", "Bus route C runs late". By the third, the audience
+knows the predicate of the next before the slide appears. Read the titles alone, in order, as one
+list. Where consecutive titles share a predicate, keep them if the parallel is the comparison you
+are making; otherwise give each the more specific thing it has to say, or make them one slide.
 
 ### The drop shadow under the box is part of the same tell
 
