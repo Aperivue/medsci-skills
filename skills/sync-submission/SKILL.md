@@ -79,6 +79,14 @@ It shells out to the per-check scripts (reimplementing none), writes
   `detect_copy_divergence`, `scope_drift_check`, `cover_letter_drift_check`,
   `cross_document_n_check`, `check_cross_artifact_stale`; `check_asset_anonymization` is P1 unless
   `--double-blind`.
+- In every `.docx`, `check_asset_anonymization` reads `docProps/core.xml` creator and
+  lastModifiedBy, `docProps/app.xml` Manager, `w:author` in every XML part under `word/` (tracked
+  formatting in `styles.xml`/`numbering.xml` included) and the editor names and account ids in
+  `word/people.xml`, and names the part of each finding. A marked copy for a blinded journal fails
+  if any of them still names a person; renaming the author does not remove an account id, so
+  remove that `w15:presenceInfo` element (or its `w15:person`). Company and unreadable or
+  duplicated parts are `review`: they fail only when the check itself runs with `--strict` (the
+  pre-flight gate does not pass it). Bookmark names and comment initials are not read.
 - A check whose inputs are absent (no rendered docx, no cover letter, no copies, no journal) is
   recorded `skipped`, never a blocker. A check that **ran and failed** — a traceback, an
   unexpected exit code, or a "missing input" exit while its inputs are present (malformed
