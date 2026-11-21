@@ -164,6 +164,10 @@ straight into a drafted manuscript: mark it `[TODO: verify at journal site]` ins
 approximate range (e.g., "~15-20%") only when the source supports it. Where the journal publishes no
 dedicated AI policy, cite the publisher-level policy and say so explicitly.
 
+**Provenance dates.** Any "verified" or "accessed" date written into a profile is given at month
+precision (`YYYY-MM`), in both profiles. Keep the exact access date, URL and page version in your
+own records.
+
 ### 3.3 Generate Find-Journal Profile
 
 Follow the canonical format exactly:

@@ -49,6 +49,19 @@
   instead of as a major unverified claim. A near match there changes nothing.
 ### Changed
 
+- **Writing and submission guidance in seven skills.** `/find-journal`: when a rejection asks for
+  what the data cannot supply, decide first which claim the data support; POLICY now says how to
+  search before writing that something was not found. `/add-journal`, `/find-journal` POLICY:
+  verification dates written into a profile are given at month precision. `/write-paper`: the
+  journal's own rule on suggested reviewers comes first, and omitting optional ones is decided
+  with the user; before an AI mention is reduced, the registered plan is compared with what was
+  done. `/sync-submission`: an earlier deck is only a candidate figure source, checked against the
+  approved figure; after sections are merged, check whether the journal requires the heading;
+  an edit script checks the saved file against independent expected values. `/revise`: re-check
+  every sentence whose claim or citation link changed. `/manage-refs`: judge table wrapping in the
+  final render (Word or the journal's PDF). `/publish-skill`: examples about real papers are
+  checked for accuracy and identifiability; a synthetic one is the default.
+
 - **`/find-journal` POLICY: the promotion checklist no longer forbids every `[TODO: verify at journal site]` marker.**
   `/add-journal` tells profile authors to mark a value they cannot find instead of guessing it, and
   public profiles already carry such markers. The checklist item now asks that each remaining marker

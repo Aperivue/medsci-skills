@@ -251,3 +251,8 @@ This skill defines **three submission gates** and **one user approval gate**:
   patients" as a citation. A float defined in the markdown but absent from the DOCX is still
   blocked as `MISSING_DOCX`; one that is neither defined nor rendered is not seen. Write
   "Tables 1 and 2" or "Table 1 and Table 2".
+- **Table wrapping depends on the renderer**: a DOCX table that wraps cleanly in one renderer
+  can break a token in another, so judge wrapping in the final render (Word, or the PDF the
+  journal builds). Fix a break by re-dividing column widths, abbreviating a header and defining
+  the abbreviation, or splitting the table, then check that render again. Never shorten a
+  number, inequality sign or unit.

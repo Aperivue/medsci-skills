@@ -390,6 +390,7 @@ After all responses are drafted, check:
 - [ ] Every MAJOR comment has the actual new data or analysis and a manuscript change with location, not just agreement
 - [ ] Every change the letter promises was actually made in the manuscript
 - [ ] Every REBUTTAL is backed by cited evidence or clear scientific reasoning
+- [ ] Every sentence whose claim, number, population or citation link changed in this round, however small the edit, was compared with its source again; where the source text is on disk, rerun `/verify-refs` Claim Fidelity (`check_claim_fidelity.py`), because an earlier assessment does not cover a changed sentence
 - [ ] All new statistics include 95% CI and exact p-values
 - [ ] Page/line number references match the revised manuscript (not the original)
 - [ ] Figures and tables renumbered if new items were inserted; all new figures/tables are referenced in the response letter
