@@ -158,7 +158,8 @@ whose row matches:
 
 | Manuscript type / signal | Probe module |
 |---|---|
-| Systematic Review / Meta-Analysis | `references/domain-probes/sr_ma.md` (P0–P20) |
+| Systematic Review / Meta-Analysis | `references/domain-probes/sr_ma.md` (P0–P21) |
+| Other manuscript with publication checklist adherence as an outcome (meta-research, reporting audit) | `references/domain-probes/sr_ma.md` (P21 only) |
 | Time-to-event / survival / prognostic model (Cox, Fine-Gray, DeepSurv, nomogram, risk-stratification cutoff) | `references/domain-probes/survival_prognostic.md` (S1–S9) |
 | Radiomic feature reproducibility / acquisition-parameter sweep / reliability-based feature filtering | `references/domain-probes/radiomics.md` (R1–R4) |
 | Cross-modality image synthesis (MRI→PET / MRI→CT / non-contrast→contrast / low-dose→full-dose) claiming functional/molecular information or target-modality substitution | `references/domain-probes/image_synthesis.md` (IS1–IS4) |

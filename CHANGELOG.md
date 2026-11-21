@@ -61,6 +61,21 @@
   version and configuration that produced it, and compare cohorts only under the same
   pre-specified inference configuration.
 
+- **`/peer-review` (and the domain probes `/self-review` shares): reviewer-side checks that were
+  missing.** Phase 2 gains an arithmetic-closure step for original articles on the first round,
+  as the SR/MA branch already had (`references/arithmetic_and_completeness.md`), asks what
+  acquisition parameters an imaging study leaves out, and reads an attached reporting checklist's
+  negative marks first, then verifies negative and positive marks alike. Phase 4 item 15 now covers claims
+  about the manuscript's own tables and availability statements, absence claims about the files
+  received, the provenance of criticised sentences in R1+ rounds, and estimators with two
+  conventions. The salvage-reframe self-audit triggers on the remedy a comment asks for rather than
+  on a Reject-leaning recommendation. Domain probes: `sr_ma` P21 for checklist-adherence reviews, also routed for
+  meta-research and reporting audits (item-level agreement, denominators, dual-scoring coverage, unreported planned analyses), the
+  paper's own multiplicity procedure in P9, very small k in P17, reading a leave-one-out table in P2, estimator
+  conventions in P0, demographics in the characteristics table (P13); `diagnostic_accuracy` D2 on
+  validation samples stratified on the index test and on outcome-dependent subsets;
+  `clinical_prediction_model` CP2 on discrimination metrics carrying risk claims;
+  `survival_prognostic` S2 on visit-detected event times.
 - **Writing and submission guidance in seven skills.** `/find-journal`: when a rejection asks for
   what the data cannot supply, decide first which claim the data support; POLICY now says how to
   search before writing that something was not found. `/add-journal`, `/find-journal` POLICY:
