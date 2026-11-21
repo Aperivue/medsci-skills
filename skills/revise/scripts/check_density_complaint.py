@@ -62,39 +62,30 @@ COMPLAINT = re.compile(
 # Section headings, in reviewer-count order. Body = first Introduction..Introduction-like heading
 # through the end of Discussion / before References.
 BODY_START = re.compile(r"^#{0,4}\s*\**\s*(introduction|background)\b", re.IGNORECASE | re.MULTILINE)
-BODY_END = re.compile(r"^#{0,4}\s*\**\s*(references|acknowledg|funding|conflict|"
-                      r"data availability|supplementary|supporting information|figure legends?)\b",
-                      re.IGNORECASE | re.MULTILINE)
-# BODY_END's words also begin ordinary lines: "Supplementary Table 2 lists ...", "Funding for the
-# registry came from ...". Such a line is prose, and ending the body there measured only the
-# text above it in BOTH versions, so a revision that grew was reported as unchanged. The body
-# ends only at a line that is a heading: one carrying a heading mark, or a short line with no
-# sentence in it, or a run-in label ("Funding: ...").
-_END_WORDS = 6
-
-
-def _is_heading_line(line: str) -> bool:
-    s = line.strip()
-    if s.startswith("#"):
-        return True
-    bare = s.strip("*_ ")
-    if not bare:
-        return False
-    if re.match(r"[A-Za-z][A-Za-z '\u2019/&-]{0,60}[:.]", bare) and len(bare.split(":")[0].split()) <= _END_WORDS \
-            and (":" in bare[:70]):
-        return True          # run-in label: "Funding: ...", "Conflict of interest: ..."
-    return len(bare.split()) <= _END_WORDS and not re.search(r"[.!?;,]\s*$", bare)
+# Where the body ends: the first line that IS one of these section names. The name may carry
+# heading or emphasis marks and a number, and may be followed on the same line by a colon or a
+# full stop and run-in text ("Funding: ...", "**Funding**. This work ..."). A line that merely
+# begins with such a word is prose: "Supplementary Table 2 lists ...", "Funding for the registry
+# came from ...". Ending the body there measured only the text above it in BOTH versions, so a
+# revision that had been cut was reported as unchanged.
+_END_NAME = (
+    r"references?(?:[ \t]+list)?|bibliography|acknowledge?ments?|"
+    r"funding(?:[ \t]+(?:sources?|information|statement|support))?|"
+    r"conflicts?[ \t]+of[ \t]+interests?(?:[ \t]+statement)?|competing[ \t]+interests?|"
+    r"declarations?[ \t]+of[ \t]+(?:competing[ \t]+|conflicting[ \t]+)?interests?|"
+    r"data[ \t]+(?:availability|sharing)(?:[ \t]+statement)?|"
+    r"supplementary(?:[ \t]+(?:materials?|information|data|files?|appendix|appendices|methods))?|"
+    r"supporting[ \t]+information|figure[ \t]+legends?"
+)
+BODY_END = re.compile(
+    r"^[ \t]*#{0,6}[ \t]*[*_]{0,3}[ \t]*(?:\d+(?:\.\d+)*\.?[ \t]+)?(" + _END_NAME + r")"
+    r"[ \t]*[*_]{0,3}[ \t]*(?:[:.][ \t]*[*_]{0,3}(?:[ \t].*)?)?$",
+    re.IGNORECASE | re.MULTILINE,
+)
 
 
 def _body_end(body: str):
-    for m in BODY_END.finditer(body):
-        # The pattern's leading whitespace can start on an earlier blank line, so take the line
-        # that holds the matched word itself.
-        bol = body.rfind("\n", 0, m.start(1)) + 1
-        eol = body.find("\n", m.start(1))
-        if _is_heading_line(body[bol: eol if eol != -1 else len(body)]):
-            return m
-    return None
+    return BODY_END.search(body)
 ABSTRACT = re.compile(r"^#{0,4}\s*\**\s*abstract\b", re.IGNORECASE | re.MULTILINE)
 
 CITATION = re.compile(r"\[[\d,\s–\-]+\]|\((?:[A-Z][A-Za-z'`-]+(?: et al\.?)?,?\s*\d{4}[a-z]?;?\s*)+\)")
@@ -131,11 +122,13 @@ def body_span(text: str) -> dict:
     m0 = BODY_START.search(text)
     start = m0.start() if m0 else 0
     m1 = _body_end(text[start:])
-    end = start + m1.start(1) if m1 else len(text)
     line = lambda pos: text.count("\n", 0, pos) + 1  # noqa: E731
+    # end_line is the last line that was counted: the line before the ending heading, or the
+    # last line of the file.
+    last = line(start + m1.start(1)) - 1 if m1 else len(text.splitlines())
     return {
         "start_line": line(start),
-        "end_line": line(end) if m1 else text.count("\n") + 1,
+        "end_line": max(last, line(start)),
         "start_marker": m0.group(1).lower() if m0 else "start of file (no Introduction/Background heading)",
         "end_marker": m1.group(1).lower() if m1 else "end of file (no References-like heading)",
     }

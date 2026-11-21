@@ -8,20 +8,23 @@
   `check_response_claims.py` skipped reviewer text only inside `>` blockquotes. A letter that
   reproduces each comment under "Comment 3:" or "Reviewer #2:" had the reviewer's own words
   ("the authors added the sentence ...") reported as `RESPONSE_QUOTE_UNVERIFIED`. Such a block is
-  now skipped up to the next response label; without response labels, only the labelled
-  paragraph is skipped.
+  now skipped from its label to the response label that follows ("Response:", "Authors'
+  response:"). A labelled comment with no response label after it is not skipped, so no author
+  claim goes unchecked.
 - **`/revise`: the density gate ended the body at a sentence.** `check_density_complaint.py` stopped
   counting at any line beginning with "Supplementary", "Funding", "Conflict" and similar words,
   so a prose line such as "Supplementary Table 2 lists ..." hid everything after it in both
   versions and a revision that had been cut was reported as unchanged. The body now ends only at a
-  heading or a run-in label, and the report states which lines were counted (`measured_span`).
+  line that is one of the section names (with or without heading marks, or as a run-in label such
+  as "Funding: ..."), and the report states which lines were counted (`measured_span`).
 
 ### Added
 
 - **`/revise`: `check_response_claims.py --extra-source <path>`** (repeatable) for text the revision
   changed outside the manuscript file: a title page, a supplement, a figure source. A quote or
   citation absent from the manuscript is looked for there and reported under
-  `verified_in_extra_source`.
+  `verified_in_extra_source`. A claim that places the edit in the main text is not looked for
+  elsewhere, and the response letter or the manuscript itself is refused as an extra source.
 
 ### Changed
 

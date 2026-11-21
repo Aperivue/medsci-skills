@@ -44,15 +44,18 @@ Vague claims with no quote and no citation ("we clarified the Methods") are not
 verifiable and are intentionally NOT flagged. Reviewer-comment blockquotes
 (lines beginning with '>') are excluded so the reviewer's own quoted text is
 never mistaken for an author addition. So is a comment the letter reproduces
-under a label instead of a blockquote ("Comment 3:", "Reviewer #2:"), up to the
-response label that follows it ("Response:", "Authors' response:"); when the
-letter uses no response label, only the labelled paragraph itself is skipped.
+under a label instead of a blockquote ("Comment 3:", "Reviewer #2:"), from that
+label to the response label that follows it ("Response:", "Authors' response:").
+The response label is the only evidence of where the reviewer stops and the
+authors start, so a labelled comment with no response label after it is NOT
+skipped: every word of it is still checked.
 
 Text the letter says was changed does not always live in the manuscript file: a
 new title sits on the title page, a caption in a figure source, a paragraph in
 the supplement. --extra-source (repeatable) names those files. A quote or
 citation absent from the manuscript is then looked for in each of them, and the
-report records where it was found.
+report records where it was found. A claim that itself places the edit in the
+main text ("... to the Methods") is not looked for elsewhere.
 
 Usage:
     check_response_claims.py --response response.md --manuscript revised.md [--strict]
@@ -193,24 +196,31 @@ def strip_response_blockquotes(text: str) -> str:
     return "\n".join(keep)
 
 
-# A reviewer comment reproduced under a label instead of a blockquote. The label must open the
-# line (markdown emphasis, a heading mark or a list mark may precede it) and be followed by a
-# colon or a full stop, so prose such as "Reviewer 2 asked whether ..." is not a label.
-_LABEL_LEAD = r"^[ \t]*(?:[#>*_\-]+[ \t]*)*"
+# A reviewer comment reproduced under a label instead of a blockquote. A label opens its line
+# (a short run of heading, emphasis, list or numbering marks may precede it) and ends in a colon,
+# or in a full stop that closes the token, so prose such as "Reviewer 2 asked whether ..." and
+# "Comment 2.1 prompted this change" are not labels.
+_LABEL_LEAD = r"^[ \t]*[#>*_\-\d.) \t]{0,12}"
+_LABEL_END = r"[ \t]*[*_]{0,3}[ \t]*(?::|\.(?=[ \t]|[*_]|$))"
+_NUM = r"[ \t]*#?[ \t]*\d+(?:[.\-]\d+)*"
 REVIEWER_LABEL = re.compile(
-    _LABEL_LEAD
-    + r"(?:(?:reviewer|referee|editor)(?:['\u2019]s)?[ \t]*#?[ \t]*\d*[ \t]*,?[ \t]*)?"
-    + r"(?:(?:major|minor|general|specific)[ \t]+)?"
-    + r"(?:comment|point|concern|query|question|remark)s?[ \t]*#?[ \t]*\d*(?:[.\-]\d+)?"
-    + r"(?:[ \t]*\([^)\n]{0,60}\))?[ \t]*[*_]*[ \t]*[:.]"
-    + r"|" + _LABEL_LEAD
-    + r"(?:reviewer|referee|editor)(?:['\u2019]s)?[ \t]*#?[ \t]*\d+[ \t]*[*_]*[ \t]*[:.]",
+    _LABEL_LEAD + r"(?:"
+    r"(?:(?:reviewer|referee|editor)(?:['\u2019]s)?(?:" + _NUM + r")?[ \t]*,?[ \t]*)?"
+    r"(?:(?:major|minor|general|specific)[ \t]+)?"
+    r"(?:comment|point|concern|query|question|remark)s?(?:" + _NUM + r")?"
+    r"(?:[ \t]*\([^)\n]{0,60}\))?"
+    r"|(?:reviewer|referee|editor)(?:['\u2019]s)?" + _NUM +
+    r")" + _LABEL_END,
     re.IGNORECASE | re.MULTILINE,
 )
+# A response label ends in a colon. It may open a line or follow the end of a sentence on the
+# same line ("... Please clarify. Response: We added ..."). "Response to" must name a reviewer
+# or a comment, so "Response to calibration was measured." is not a label.
 RESPONSE_LABEL = re.compile(
-    _LABEL_LEAD
-    + r"(?:(?:authors?['\u2019]?s?|our)[ \t]+)?(?:response|reply|answer)s?"
-    + r"(?:[ \t]+to[ \t]+[^:\n]{0,40})?[ \t]*#?[ \t]*\d*(?:[.\-]\d+)?[ \t]*[*_]*[ \t]*[:.]",
+    r"(?:" + _LABEL_LEAD + r"|(?<=[.!?)\]\"\u201d])[ \t]+)"
+    r"(?:(?:authors?['\u2019]?s?|our)[ \t]+)?(?:response|reply|answer)s?"
+    r"(?:[ \t]+to[ \t]+(?:the[ \t]+)?(?:reviewer|referee|editor|comment|point|concern|query|question)"
+    r"[^:\n]{0,30})?(?:" + _NUM + r")?[ \t]*[*_]{0,3}[ \t]*:",
     re.IGNORECASE | re.MULTILINE,
 )
 
@@ -218,31 +228,49 @@ RESPONSE_LABEL = re.compile(
 def strip_reviewer_comment_blocks(text: str) -> tuple[str, int]:
     """Blank out reviewer comments reproduced under a label; return (text, blocks skipped).
 
-    A labelled comment runs to the next response label when one comes before the next comment
-    label. A letter that never labels its responses gives no such boundary, and guessing one
-    would hide author text from the check, so there only the labelled paragraph is skipped.
-    Offsets are preserved (characters become spaces) so quote positions stay meaningful.
+    The letter is read as alternating territory: a reviewer label opens reviewer text, and only a
+    response label closes it. Several reviewer labels in a row ("Reviewer #2:" then "Comment 1:")
+    stay one reviewer block. A reviewer label that no response label follows opens nothing: with
+    no evidence of where the authors start, blanking would hide author claims from the check,
+    and a missed false positive is the cheaper error. Offsets are preserved.
     """
     out = list(text)
-    labels = list(REVIEWER_LABEL.finditer(text))
-    skipped = 0
-    for i, m in enumerate(labels):
-        limit = labels[i + 1].start() if i + 1 < len(labels) else len(text)
-        resp = RESPONSE_LABEL.search(text, m.end(), limit)
-        if resp:
-            end = resp.start()
-        else:
-            para = PARA_BREAK.search(text, m.end(), limit)
-            end = para.start() if para else limit
-        for j in range(m.start(), end):
-            if out[j] != "\n":
-                out[j] = " "
-        skipped += 1
+    marks = sorted([(m.start(), "rev") for m in REVIEWER_LABEL.finditer(text)]
+                   + [(m.start(), "resp") for m in RESPONSE_LABEL.finditer(text)])
+    skipped, open_at = 0, None
+    for pos, kind in marks:
+        if kind == "rev":
+            if open_at is None:
+                open_at = pos
+        elif open_at is not None:
+            for j in range(open_at, pos):
+                if out[j] != "\n":
+                    out[j] = " "
+            skipped += 1
+            open_at = None
     return "".join(out), skipped
 
 
+# Where a claim says its edit went. A claim that places the edit in the main text is checked
+# against the manuscript only; an extra source cannot stand in for the place the letter named.
+MAIN_PLACE = re.compile(
+    r"\b(?:main[ \t]+(?:text|manuscript|document|body)|abstract|introduction|methods?|results?|"
+    r"discussion|conclusions?|limitations?)\b", re.IGNORECASE)
+OTHER_PLACE = re.compile(
+    r"\b(?:supplement\w*|appendi\w+|title(?:[ \t]+page)?|running[ \t]+title|caption|legend|"
+    r"figure|fig\.|table|cover[ \t]+letter|acknowledge?ments?|data[ \t]+availability|"
+    r"online[ \t]+(?:resource|material))\b", re.IGNORECASE)
+
+
+def placed_in_main_text(where: str) -> bool:
+    return bool(MAIN_PLACE.search(where)) and not OTHER_PLACE.search(where)
+
+
 def extract_claims(response: str):
-    """Yield (kind, anchor, context) for anchored addition claims in Response prose."""
+    """Yield (kind, anchor, context, where) for anchored addition claims in Response prose.
+
+    `where` is the prose around the claim with the quoted text removed: what the letter says
+    about the place of the edit."""
     prose, _ = strip_reviewer_comment_blocks(strip_response_blockquotes(response))
     claims = []
     seen_quotes: set[int] = set()
@@ -256,7 +284,9 @@ def extract_claims(response: str):
             if at in seen_quotes or len(text) < MIN_QUOTE_CHARS or len(text.split()) < 4:
                 continue
             seen_quotes.add(at)
-            claims.append(("quote", text, ctx))
+            after = at + len(raw) + 2
+            where = prose[max(0, start - 80): at] + " " + prose[after: after + 120]
+            claims.append(("quote", text, ctx, where))
         # citation additions
         cits = []
         for cm in CIT_NUMERIC.finditer(window):
@@ -269,7 +299,7 @@ def extract_claims(response: str):
             cits.append(("author", cm.group(1)))
         # only treat a verb as a citation claim if the verb itself is citation-ish
         if cits and re.search(r"cit|reference", m.group(0), re.IGNORECASE):
-            claims.append(("citation", cits, ctx))
+            claims.append(("citation", cits, ctx, CIT_NUMERIC.sub(" ", window)))
     return claims
 
 
@@ -598,11 +628,12 @@ def build_report(response_path: Path, manuscript_path: Path, values: list | None
     extras = [(p, read_text(p)) for p in (extra_sources or [])]
     found_in_extra: list[dict] = []
     findings = []
-    for kind, anchor, ctx in extract_claims(response):
+    for kind, anchor, ctx, where in extract_claims(response):
+        usable = [] if placed_in_main_text(where) else extras
         if kind == "quote":
             g = grade_quote(body, anchor)
             # Not word for word in the manuscript: the text may live in a named extra source.
-            for src, src_text in extras if g["grade"] != "EXACT" else []:
+            for src, src_text in usable if g["grade"] != "EXACT" else []:
                 g2 = grade_quote(src_text, anchor)
                 if _GRADE_RANK[g2["grade"]] > _GRADE_RANK[g["grade"]]:
                     g = dict(g2, source=str(src))
@@ -654,7 +685,7 @@ def build_report(response_path: Path, manuscript_path: Path, values: list | None
         elif kind == "citation":
             in_extra = None
             if not body_has_citation(body, norm_body, anchor):
-                in_extra = next((src for src, src_text in extras
+                in_extra = next((src for src, src_text in usable
                                  if body_has_citation(src_text, normalize(src_text), anchor)), None)
             if in_extra is not None:
                 found_in_extra.append({"kind": "citation", "claimed_citation": [t for _, t in anchor],
@@ -708,6 +739,13 @@ def main(argv: list[str] | None = None) -> int:
         if not p.is_file():
             print(f"error: file not found: {p}", file=sys.stderr)
             return 2
+    for p in args.extra_source:
+        # The letter quotes itself word for word, and the manuscript is already searched.
+        for other, name in ((args.response, "--response"), (args.manuscript, "--manuscript")):
+            if p.samefile(other):
+                print(f"error: --extra-source {p} is the same file as {name}; an extra source "
+                      "must be a different file the revision changed", file=sys.stderr)
+                return 2
 
     values = None
     if args.values is not None:

@@ -85,6 +85,40 @@ run runin runin_prev.md runin_new.md >/dev/null
 ck "a run-in 'Funding:' label ends the body (delta 0)"       0 "$(field runin "d['delta_words']")"
 ck "  end marker is funding"                                 funding "$(field runin "d['measured_span']['revised']['end_marker']")"
 
+# Each of these ends the body: text added after it must leave the delta at 0. Each of the prose
+# lines does not: text removed after it must be measured as a cut.
+ends_body() {  # ends_body <label> <ending line>
+  printf 'Introduction\nReaders agreed.\n%s\nA short tail.\n' "$2" > "$TMP/eb_prev.md"
+  printf 'Introduction\nReaders agreed.\n%s\nA much longer tail with a good many additional words in it.\n' "$2" > "$TMP/eb_new.md"
+  run eb eb_prev.md eb_new.md >/dev/null
+  ck "ends the body: $1" 0 "$(field eb "d['delta_words']")"
+}
+ends_body "bare 'References' line"            "References"
+ends_body "'References.' with a full stop"    "References."
+ends_body "'**Funding**: ...' run-in"         "**Funding**: This synthetic work received no funding."
+ends_body "'Funding. ...' run-in"             "Funding. This synthetic work received no funding."
+ends_body "'## Acknowledgements'"             "## Acknowledgements"
+ends_body "'3. References' (numbered)"        "3. References"
+
+is_prose() {  # is_prose <label> <line that must NOT end the body>
+  printf 'Introduction\nReaders agreed.\n%s\nOne two three four five six seven eight nine ten.\n' "$2" > "$TMP/ip_prev.md"
+  printf 'Introduction\nReaders agreed.\n%s\nOne two three.\n' "$2" > "$TMP/ip_new.md"
+  run ip ip_prev.md ip_new.md >/dev/null
+  ck "is prose, the cut after it is measured: $1" -7 "$(field ip "d['delta_words']")"
+}
+is_prose "'Funding for the registry' (wrapped line)"   "Funding for the registry"
+is_prose "'Funding was allocated as follows: ...'"     "Funding was allocated as follows: readers received a fixed fee."
+is_prose "'Supplementary Table 2 lists ...'"           "Supplementary Table 2 lists the search strings."
+is_prose "'References are listed below.'"              "References are listed below."
+
+echo "==== the reported span is the span that was counted ===="
+printf 'Introduction\nReaders agreed.\n## References\nSynthetic A. 2020.\n' > "$TMP/sp1.md"
+printf 'Introduction\nReaders agreed.\n' > "$TMP/sp2.md"
+run sp sp1.md sp2.md >/dev/null
+ck "with an ending heading: last counted line is 2"    2 "$(field sp "d['measured_span']['previous']['end_line']")"
+ck "without one (trailing newline): last line is 2"    2 "$(field sp "d['measured_span']['revised']['end_line']")"
+ck "start line is 1"                                   1 "$(field sp "d['measured_span']['previous']['start_line']")"
+
 echo "----"
 echo "test_density_body_bounds: $pass passed, $fail failed"
-[ "$fail" -eq 0 ] || { for f in short long refs runin; do echo "--- $f"; cat "$TMP/$f.out"; done; exit 1; }
+[ "$fail" -eq 0 ] || { for f in short long refs runin eb ip sp; do echo "--- $f"; cat "$TMP/$f.out"; done; exit 1; }
