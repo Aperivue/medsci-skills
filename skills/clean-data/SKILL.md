@@ -30,6 +30,15 @@ code that runs on the data; it does not need to see the raw rows to write it.
    `[VERIFY: variable_name]` and ask the user to confirm it against the data dictionary.
 3. Present the summary (see Output Format). Every count and statistic comes from the executed
    script's output.
+4. **Earlier delivery of the same dataset.** If the project already holds an earlier extract from
+   the same study and source (even if its columns differ), do not assume the new file replaces it:
+   a replacement, an increment and a mix of corrections and new rows look the same by name and
+   date, and reading the type wrongly changes the denominator. Ask the user to confirm with the
+   data provider which it is, which columns identify a row, and whether both files use the same
+   ID system, and how corrections are delivered. Report counts only (no ID lists) of rows and
+   patients in the old file only, the new file only, and both, and only once the key
+   correspondence is confirmed. The choice (replace, key-based update-and-add, append, or separate
+   cohort) is the user's, after the provider has confirmed those points; do not pick one.
 
 **Gate**: The user reviews the profile. Ask whether to proceed to Stage 2 (Flagging) and whether any
 variables should be excluded or focused on.
@@ -53,6 +62,9 @@ values, mixed units, sentinel values). Flag issues in these categories:
    §2 — temporal ordering (birth ≤ event ≤ death, admission ≤ discharge), derived-vs-source (recomputed
    BMI/age; subset ≤ superset; total = sum of parts), sex-/state-specific fields, and min ≤ max /
    diastolic < systolic pairs. Name the rule that fired; a hard contradiction is High severity.
+   An age that stays constant across a patient's rows years apart is first a query about the age
+   definition and reference date (`implausible_value_rules.md` §2); it is a contradiction only
+   once the dictionary defines the column as age at each event.
 6. **Category inconsistencies**: typos and variants in categorical values ("Male", "male", "M", "MALE").
 7. **Categorical-implied zeros**: when a category defines a natural zero for a dose/duration variable
    (`smoking_status == 'never'` implies `pack_years == 0`; `alcohol_use == 'never'` implies
@@ -70,6 +82,27 @@ values, mixed units, sentinel values). Flag issues in these categories:
    reliability." Detected by `scripts/check_reverse_coding.py` (negative item-rest correlation and
    negative raw alpha, given the scale item columns); the recode itself is applied downstream by
    `/analyze-stats` `likert_summary.py --reverse-items`.
+9. **Blank and partial inputs to derived columns**: a derived status or interval column
+   (`device_status` from `device_implant_date`, pre/post exposure from an event date) can pass a
+   completeness check even when its inputs cannot support it; verify that the recorded
+   inputs support each stored value, and that rows the inputs do determine are not left blank.
+   (a) For each input, ask the data owner what a blank means (a blank start date: never happened,
+   or date unknown; a blank end date: still present, or end not recorded), record the answer in
+   the codebook, and keep "unknown" distinct from "absent". Code the derived status unknown only
+   where the recorded information allows more than one answer at the index date.
+   (b) For a date known only to the month or year, record its precision when it is parsed, before
+   any conversion to a full date. Do not report a day-level interval computed from a filled-in day as an
+   observed interval; where the possible dates leave the comparison the analysis uses undecided,
+   mark it undetermined. If the analysis needs a point date, the imputation convention is the analyst's choice: state it,
+   report how many dates were imputed, and flag records whose classification depends on the
+   imputed day.
+10. **Stored precision**: a measurement with few distinct values, or a large share at one value, may
+   have been rounded on export. Ask the data provider what precision the source system stores and
+   whether a re-export is possible; the profile alone cannot tell. A derived variable with a
+   documented formula, recomputed from the stored inputs, can show disagreements to raise with the
+   provider, but a disagreement does not identify its cause. A coarse difference of two rounded
+   quantities is not by itself a reason to switch to another variable that spreads more; first check
+   that the alternative has the same definition, unit and time point.
 
 Present the flag report as a table:
 

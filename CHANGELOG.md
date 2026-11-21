@@ -76,6 +76,16 @@
   validation samples stratified on the index test and on outcome-dependent subsets;
   `clinical_prediction_model` CP2 on discrimination metrics carrying risk claims;
   `survival_prognostic` S2 on visit-detected event times.
+- **`/clean-data`, `/define-variables`, `/analyze-stats`, `/calc-sample-size`: what to confirm and
+  record before analysis.** `/clean-data` asks what a new delivery of an existing dataset is before
+  combining it, what a blank input to a derived column means, at what precision a partial date
+  was recorded, what an age that does not move with the event date refers to, and what precision
+  the source system stores. `/define-variables` gains a `Value source` column and three failure
+  modes (a registry value taken for a study-read value, no time axis at the analysis unit, chart
+  abstraction checked only against its own source). The test-selection guide says that
+  independent-samples variance tests do not apply to paired measurements, and `/calc-sample-size`
+  that a precision target for a pooled rate does not give one per item.
+
 - **Writing and submission guidance in seven skills.** `/find-journal`: when a rejection asks for
   what the data cannot supply, decide first which claim the data support; POLICY now says how to
   search before writing that something was not found. `/add-journal`, `/find-journal` POLICY:
