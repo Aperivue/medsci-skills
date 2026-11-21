@@ -74,7 +74,7 @@ the figure types that do not yet have a generator.
   treat-all/treat-none references, justified threshold range, calibrated model curve, proposed
   operating threshold; the clinical-utility counterpart to roc_pr/calibration. Pairs the
   `analyze-stats` incremental_value table-type.
-- `nomogram.md` — prognostic nomogram (logistic, Cox, or Fine–Gray): top Points axis, per-predictor
+- `nomogram.md` — prognostic nomogram (logistic, Cox, or competing-risks): top Points axis, per-predictor
   axes with units and explicit spline/interaction encoding, Total Points, named estimand and
   horizon(s), worked synthetic walkthrough, and model provenance (N, events, shrinkage); never
   standalone proof of performance — pairs `calibration_plot.md`, `decision_curve.md`,
