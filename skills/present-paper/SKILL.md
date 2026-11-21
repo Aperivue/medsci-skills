@@ -38,6 +38,7 @@ animation discipline) plus the G1–G10 self-check the Phase 3.5 critic scores a
 |---|---|
 | `references/medical_presentation_templates.md` | the venue is one of the five medical ones — then read **that section only** |
 | `references/slide_visual_styles/CATALOG.md` → one style file | Q2 has chosen a style |
+| `references/slide_template_layouts.md` | you are building on the default template and choosing a layout per slide |
 | `references/slide_design_principles.md` | you are stuck on *why* a slide is not landing — the Reynolds / Duarte / Knaflic / Tufte theory under the rules in **C** |
 | `references/generated_illustrations.md` | you are about to generate any image for a slide, or a text-only slide keeps failing the critic; its first rule (never generate a medical image) is not optional |
 | `references/spoken_notes_and_bilingual.md` | you are drafting speaker notes, or the deck is not monolingual |
@@ -79,14 +80,15 @@ one-line preview each (recommended option first, labelled):
 
 | Option | One-line preview |
 |--------|------------------|
-| **Nature / Lancet** *(recommended for medical academic talks)* | White, navy + coral accent, hairline dividers, Inter/Pretendard — restrained editorial-academic |
+| **medsci template** *(default for new decks)* | `templates/slide_template/`: white, near-black, one accent, no bands or boxes; 31 layouts, palettes mono/stone/pine or your own colours |
+| **Nature / Lancet** | White, navy + coral accent, hairline dividers, Inter/Pretendard — restrained editorial-academic |
 | **Clinical Blue** | White/light-blue, navy-teal, calm and trustworthy, colorblind-safe — grand rounds / CME |
 | **Editorial Mono** | High-contrast black-on-white, oversized type, one accent — single big-message keynote |
 | **Dark Modern** | Deep-slate background, off-white text, electric accent — AI / method / tech talks |
 | **Other** | Describe a palette/feel, or name a journal/brand to emulate |
 
-Record the choice and pass the matching style spec to Phase 3. With no preference and a medical
-academic talk, default to **Nature / Lancet**. Style changes only Phase 3 rendering — not the
+Record the choice and pass the matching style spec to Phase 3. With no preference, default to the
+**medsci template** (`new_deck.py`, palette `mono`). Style changes only Phase 3 rendering — not the
 outline, script, or Q&A.
 
 **Q3 — conference decks only: is slide 1 a submission requirement?** Many societies require the
@@ -233,8 +235,9 @@ Step 0b). Pick the mode from the Step 0b answer.
 
 **Mode A: Generate new slide deck**
 
-Generate a fully-editable PPTX from structured inline data using `python-pptx`. Two template
-libraries:
+Generate a fully-editable PPTX from structured inline data using `python-pptx`. The default is
+`${CLAUDE_SKILL_DIR}/templates/slide_template/new_deck.py` (start a deck from `medsci_slides.pptx`,
+fill it by layout name and placeholder idx; its README has the table). Two template libraries:
 
 - `${CLAUDE_SKILL_DIR}/references/generate_pptx_templates.py` — generic T_lead / T_text / T_table /
   T_image_right / … templates (its docstring lists them; `build_demo_slides()` exercises each). Use

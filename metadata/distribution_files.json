@@ -4413,8 +4413,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 38500,
-      "sha256": "9226203a48197803e58a67da1d950ecc32f7c15c273bb17ee5b44cb9e4b94cca"
+      "size": 38957,
+      "sha256": "d02b4475ef247141b93c74047700af84d5a11f480fa193eaf464c7fc3a351cde"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -4457,9 +4457,14 @@
       "sha256": "b5bb5866e79ad262e4cf28a32e1079e26ea20742edcdd55148df9c9547ee3ad6"
     },
     {
+      "path": "skills/present-paper/references/slide_template_layouts.md",
+      "size": 3851,
+      "sha256": "29a50336affa2276c6536f9e46ef24fff9e7fe54895fe84bc2c942faca8e2b6e"
+    },
+    {
       "path": "skills/present-paper/references/slide_visual_styles/CATALOG.md",
-      "size": 3177,
-      "sha256": "78782ce6916212bcae9e1d8513197721a8ac72ed1faa33ce335b36d0c88a828f"
+      "size": 3188,
+      "sha256": "7c2000e9933773f7dcf9d46101d05c4bbcc4147d8b37c61c7613a33679c81814"
     },
     {
       "path": "skills/present-paper/references/slide_visual_styles/clinical_blue.md",
@@ -4610,6 +4615,36 @@
       "path": "skills/present-paper/templates/build_pptx_nature_lancet.py",
       "size": 32525,
       "sha256": "9e14b3845d961d3bb9ab12bffc9709414ac1b517b08c345a85556868a619afb3"
+    },
+    {
+      "path": "skills/present-paper/templates/slide_template/README.md",
+      "size": 18652,
+      "sha256": "a80fd5b641c21d433561c7f3bf028bfc2f8e7a69d90e785b48d78eea9790c6a2"
+    },
+    {
+      "path": "skills/present-paper/templates/slide_template/build_handout_template.py",
+      "size": 8322,
+      "sha256": "84f660ca688a0ddfd3aea325d9089e40699ed82fc119e1ecbfeef945611976c4"
+    },
+    {
+      "path": "skills/present-paper/templates/slide_template/build_slide_template.py",
+      "size": 65093,
+      "sha256": "c0ee6bca3dd8af428d041db641adcb4f32c2e4917ece9716211a69b42a7380da"
+    },
+    {
+      "path": "skills/present-paper/templates/slide_template/medsci_handout.docx",
+      "size": 35236,
+      "sha256": "c1325024690f60bf9228da2db1fcc7b0f21386454c68e839359e86c1bc751d6d"
+    },
+    {
+      "path": "skills/present-paper/templates/slide_template/medsci_slides.pptx",
+      "size": 54057,
+      "sha256": "da78197d1aae8e0e47d4cc255bbdea7e3ca239907bff48eb56c5bd1c0fdc8f2b"
+    },
+    {
+      "path": "skills/present-paper/templates/slide_template/new_deck.py",
+      "size": 25925,
+      "sha256": "72b3bc03f616f53f352ced4cff9a4612ec384f0f0291f4b0d090798e24e47f8a"
     },
     {
       "path": "skills/profile-imaging/SKILL.md",

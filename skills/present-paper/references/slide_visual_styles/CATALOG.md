@@ -11,14 +11,15 @@ style selection"). All styles obey `references/presentation_design_guidelines.md
 
 | Style | File | Best for | Background | Primary / accent | Feel |
 |-------|------|----------|------------|------------------|------|
-| **Nature / Lancet** | `nature_lancet.md` | Journal club, conference talk, academic lecture (default for medical academic decks) | White | Navy `#1B2A4E` / coral `#B83E3A` | Editorial-academic, restrained |
+| **Nature / Lancet** | `nature_lancet.md` | Journal club, conference talk, academic lecture | White | Navy `#1B2A4E` / coral `#B83E3A` | Editorial-academic, restrained |
 | **Clinical Blue** | `clinical_blue.md` | Grand rounds, tumor board, hospital/CME, guideline talks | White / very light blue | Navy-teal `#0B3D62` / teal `#0E7C9B` | Calm, clinical, trustworthy, CVD-safe |
 | **Editorial Mono** | `editorial_mono.md` | Single-message keynote, opinion/perspective, big-result reveals | White | Near-black `#111111` / one accent (red or blue) | High-contrast, oversized type, magazine |
 | **Dark Modern** | `dark_modern.md` | Tech/AI talks, product/method launches, low-light auditoria | Deep slate `#0E1116` | Off-white `#E8EAED` / electric accent | Sharp, contemporary, "colors pop" |
 | **Institutional Brand** | `institutional_brand.md` | When the venue/employer requires a branded master (university, hospital, society) | From the supplied `.potx`/`.pptx` | From the template theme | Matches the institution; you fill, not redesign |
 
-> **Default**: if the user expresses no preference and the deck is a medical academic
-> talk, use **Nature / Lancet** (`~/.claude/rules/academic-lecture-style.md`).
+> **Default**: if the user expresses no preference, use the **medsci template**
+> (`templates/slide_template/`, palette `mono`, built on the Editorial Mono values). The styles
+> below remain available on request.
 
 ## How styles are applied
 

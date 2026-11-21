@@ -60,6 +60,7 @@
 - `presentation_archetypes.md`
 - `presentation_design_guidelines.md`
 - `slide_design_principles.md`
+- `slide_template_layouts.md`
 - `slide_visual_styles/` (6 files)
 - `spoken_notes_and_bilingual.md`
 - `workflow-checklist.md`
@@ -86,6 +87,7 @@
 **Templates** (`skills/present-paper/templates/`):
 
 - `build_pptx_nature_lancet.py`
+- `slide_template/` (6 files)
 
 ## Source
 
