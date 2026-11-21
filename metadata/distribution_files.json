@@ -6403,8 +6403,8 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 32627,
-      "sha256": "83331bb584457e514629c000ef2f24016f41150ca68c143e8d1e8bd79c5f92a4"
+      "size": 33371,
+      "sha256": "7fea2d32c4ea21accbfa54635cc93f57dd2e72030ccc8d12bd19631252716b25"
     },
     {
       "path": "skills/sync-submission/examples/build_synthetic_bundle.py",
@@ -6463,8 +6463,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_asset_anonymization.py",
-      "size": 16518,
-      "sha256": "f02f564d08bffbd52d93120a464df0b99e3bf3af0d49be43867a68a30ab510f5"
+      "size": 27973,
+      "sha256": "4c14bcdebe1c4930ae9930462f8e75fc283fc3ef646e17a53eb66a4427735a0f"
     },
     {
       "path": "skills/sync-submission/scripts/check_checklist_dump_leak.py",

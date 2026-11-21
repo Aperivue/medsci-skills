@@ -20,12 +20,28 @@ classes of leak:
      figure carries *any* rendered text, a `visual_check` advisory is emitted
      (text scanning cannot see rasterized labels).
   3. **document metadata author** — a `.docx` `dc:creator`/`cp:lastModifiedBy`
-     or a `.pdf` Author/Creator is a real person/identifier (not empty / not a
-     known tool).
-     Tracked changes and comments carry their own author (`w:author` on
-     `w:ins`/`w:del`/`w:comment`, and `word/people.xml`), which core.xml does not
+     (`docProps/core.xml`) or `Manager` (`docProps/app.xml`), or a `.pdf`
+     Author/Creator, is a real person/identifier (not empty / not a known tool).
+     A non-empty `Company` (`docProps/app.xml`) names an organisation, not a
+     person, and is reported as `review` (fails only under --strict), like an
+     institution token.
+     Tracked changes and comments carry their own author, which core.xml does not
      show: a marked-up file whose metadata is scrubbed can still name every
-     editor on every change.
+     editor on every change. `w:author` is read in every XML part under `word/`
+     (a `.xml` name, or declared XML in `[Content_Types].xml`) —
+     body, notes, headers, comments, and also `styles.xml`/`numbering.xml`
+     (tracked formatting changes, `w:rPrChange`/`w:pPrChange`) and
+     `glossary/document.xml` — and, in `word/people.xml` only, `w15:person/@w15:author`
+     and `w15:presenceInfo/@w15:userId` (an account id or sign-in address; a
+     neutral value is accepted only under providerId exactly "None").
+     Tool/placeholder values are matched exactly on the whole value in a .docx
+     ("Author" passes, "Author (Jane Doe)" does not); a few tools may carry a
+     version number ("LibreOffice/7.6").
+     Parts are parsed as XML from bytes and matched by namespace + local name, so
+     quoting, prefixes, CDATA, entities and UTF-16 do not hide a value. A part that
+     cannot be read, or a duplicated ZIP entry name, is reported
+     (`docx_part_unreadable`, review — fails under --strict) and does not discard
+     what other parts yielded. Each finding names the part and attribute.
   4. **docx embedded absolute path** — any XML part or relationship carries
      an absolute home-dir path (Unix or Windows), including drawing descriptions
      and custom properties. Pandoc can retain local CSL/bibliography source paths
@@ -34,7 +50,13 @@ classes of leak:
 
 Severity:
   - `leak`   — metadata author present, or a --names-file name found anywhere.
-  - `review` — institution-token hit, or a figure carries rendered text.
+  - `review` — institution-token hit, a docx `Company` property, a docx part
+    that could not be read, or a figure carries rendered text.
+
+Not read: bookmark names (`w:bookmarkStart w:name`). Pandoc writes `ref-<citekey>`
+and hashed `X<hex>` ids, Word `_GoBack`/`_Toc…`/`_Ref…`/`_Hlk…`; neither has a
+documented form that carries a person or account, and a citekey is free text, so
+a pattern would mostly flag citations. Comment `w:initials` are not read either.
 
 Exit: 0 = clean, 1 = findings (any `leak`; also `review` under --strict),
 2 = usage/error. Degrades gracefully when poppler (pdftotext/pdfinfo) is absent:
@@ -60,6 +82,7 @@ import shutil
 import subprocess
 import sys
 import zipfile
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
@@ -81,6 +104,24 @@ TOOL_AUTHORS = (
     "knitr", "wps", "author",
 )
 
+# .docx-only additions: python-docx writes "python-docx" as dc:creator, this
+# repository's templates write "medsci-skills", and "Anonymous" is a neutral placeholder.
+DOCX_TOOL_VALUES = frozenset(("python-docx", "python-pptx", "medsci-skills", "anonymous"))
+# In a .docx every tool/placeholder value is matched EXACTLY on the normalised whole
+# value — never by prefix, which would pass "author.smith@example.org" or
+# "Author (Jane Doe)" as the placeholder "Author". TOOL_AUTHORS keeps its prefix
+# matching for the PDF path only.
+DOCX_TOOL_EXACT = frozenset(TOOL_AUTHORS) | DOCX_TOOL_VALUES
+# Tools that may carry a version: the tool name followed only by a version number.
+DOCX_TOOL_VERSIONED_RE = re.compile(
+    r"^(?:microsoft office word|microsoft word|word|libreoffice|openoffice|pandoc|wps"
+    r"|python-docx|quarto)[ /]v?\d+(?:\.\d+)*$")
+
+# docProps/app.xml Company values that are an install default or a neutral/tool
+# value, not an organisation. Its own list, matched exactly; the person-tool list
+# does not apply to Company ("Google" is an organisation).
+TOOL_COMPANIES = frozenset(("microsoft", "home", "personal")) | DOCX_TOOL_VALUES
+
 
 def _is_tool_author(value: str) -> bool:
     """True if a metadata author value is blank or a known tool (not a person)."""
@@ -89,13 +130,49 @@ def _is_tool_author(value: str) -> bool:
         return True
     return any(v == t or v.startswith(t) for t in TOOL_AUTHORS)
 
+
+def _norm(value: str) -> str:
+    return " ".join(value.split()).lower()
+
+
+def _is_docx_tool_value(value: str) -> bool:
+    v = _norm(value)
+    return not v or v in DOCX_TOOL_EXACT or DOCX_TOOL_VERSIONED_RE.match(v) is not None
+
 FIG_SCRIPT_GLOBS = ("*.R", "*.r", "*.py")
-DC_CREATOR_RE = re.compile(r"<dc:creator>([^<]*)</dc:creator>")
-LAST_MOD_RE = re.compile(r"<cp:lastModifiedBy>([^<]*)</cp:lastModifiedBy>")
-# Revision / comment authors: w:author on w:ins, w:del, w:comment (and friends), and
-# w15:author on the w15:person entries of word/people.xml.
-REVISION_AUTHOR_RE = re.compile(r'\bw(?:15)?:author="([^"]*)"')
-REVISION_PARTS_RE = re.compile(r"^word/(document|comments\w*|people|footnotes|endnotes|header\d*|footer\d*)\.xml$")
+
+# OOXML namespaces, transitional and strict. Values are read by namespace URI + local
+# name from parsed XML, never by regex over text: a regex misses single-quoted or
+# re-prefixed attributes, CDATA, entities and UTF-16 parts, and matches text in a
+# paragraph that merely looks like an attribute.
+NS_DC = "http://purl.org/dc/elements/1.1/"
+NS_CP = "http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+NS_EP = ("http://schemas.openxmlformats.org/officeDocument/2006/extended-properties",
+         "http://purl.oclc.org/ooxml/officeDocument/extendedProperties")
+NS_W = ("http://schemas.openxmlformats.org/wordprocessingml/2006/main",
+        "http://purl.oclc.org/ooxml/wordprocessingml/main")
+NS_W15 = "http://schemas.microsoft.com/office/word/2012/wordml"
+CORE_PERSON_TAGS = {f"{{{NS_DC}}}creator": "dc:creator",
+                    f"{{{NS_CP}}}lastModifiedBy": "cp:lastModifiedBy"}
+NS_CT = "http://schemas.openxmlformats.org/package/2006/content-types"
+# docProps/app.xml: Manager is a person (the document's supervisor); Company is an
+# organisation. Word fills Company from the installation, so it is often the employer.
+APP_MANAGER_TAGS = {f"{{{ns}}}Manager" for ns in NS_EP}
+APP_COMPANY_TAGS = {f"{{{ns}}}Company" for ns in NS_EP}
+# Revision / comment authors: w:author on w:ins, w:del, w:comment, w:rPrChange,
+# w:pPrChange and friends, in every XML part under word/ — tracked formatting changes
+# to styles and list levels live in styles.xml / numbering.xml, and building blocks in
+# glossary/document.xml, outside the body parts an earlier allow-list named.
+W_AUTHOR_ATTRS = {f"{{{ns}}}author" for ns in NS_W}
+# word/people.xml only: <w15:person w15:author="…"><w15:presenceInfo w15:providerId="AD"
+# w15:userId="S::name@org::guid"/>. The userId is the editor's account (a sign-in
+# address, a Microsoft-account id, or the display name when providerId is "None") and
+# survives renaming w15:author to a neutral value.
+W15_PERSON = f"{{{NS_W15}}}person"
+W15_PRESENCE = f"{{{NS_W15}}}presenceInfo"
+W15_AUTHOR = f"{{{NS_W15}}}author"
+W15_PROVIDER = f"{{{NS_W15}}}providerId"
+W15_USERID = f"{{{NS_W15}}}userId"
 # Absolute home-dir path leaked into an OOXML attribute (e.g. a drawing's
 # <pic:cNvPr descr="/Users/<user>/.../fig.png">). pandoc embeds the source image
 # path as the picture description when given an absolute path; it carries the
@@ -192,38 +269,156 @@ def _pdf_author(pdf: Path) -> str | None:
     return None
 
 
-def _docx_authors(docx: Path) -> list[str]:
-    try:
-        with zipfile.ZipFile(docx) as z:
-            if "docProps/core.xml" not in z.namelist():
-                return []
-            core = z.read("docProps/core.xml").decode("utf-8", errors="replace")
-    except Exception:
-        return []
-    vals = []
-    for m in (*DC_CREATOR_RE.finditer(core), *LAST_MOD_RE.finditer(core)):
-        v = m.group(1).strip()
-        if v and not _is_tool_author(v):
-            vals.append(v)
-    return vals
+@dataclass
+class DocxPeople:
+    """Person-bearing values found in one .docx, each with the 'part attribute' it came from."""
+    metadata: list[tuple[str, str]] = field(default_factory=list)   # core/app person properties
+    companies: list[tuple[str, str]] = field(default_factory=list)  # app.xml Company
+    authors: list[tuple[str, str]] = field(default_factory=list)    # w:author / w15:author
+    accounts: list[tuple[str, str]] = field(default_factory=list)   # people.xml presenceInfo userId
+    unreadable: list[str] = field(default_factory=list)             # "part: reason"
 
 
-def _docx_revision_authors(docx: Path) -> list[str]:
-    """Distinct tracked-change / comment author names that are not a tool or placeholder."""
-    seen: list[str] = []
+def _add_place(found: dict[str, list[str]], value: str, place: str) -> None:
+    places = found.setdefault(value, [])
+    if place not in places:
+        places.append(place)
+
+
+def _scan_part(z: zipfile.ZipFile, info: zipfile.ZipInfo, on_start, on_end,
+               unreadable: list[str], clear: bool = True) -> None:
+    """Stream one XML part from bytes: on_start(el) sees attributes as soon as a start
+    tag is complete (so a part truncated after it still yields it), on_end(el) sees the
+    element's text.
+
+    Values already collected are kept when the part fails part-way, and the failure is
+    recorded as unreadable (reported as `review`, which fails under --strict).
+    ElementTree does not fetch external entities or DTDs.
+    """
     try:
-        with zipfile.ZipFile(docx) as z:
-            for name in z.namelist():
-                if not REVISION_PARTS_RE.match(name):
+        with z.open(info) as fh:
+            for event, el in ET.iterparse(fh, events=("start", "end")):
+                if event == "start":
+                    if on_start:
+                        on_start(el)
                     continue
-                xml = z.read(name).decode("utf-8", errors="replace")
-                for m in REVISION_AUTHOR_RE.finditer(xml):
-                    v = m.group(1).strip()
-                    if v and not _is_tool_author(v) and v not in seen:
-                        seen.append(v)
-    except Exception:
-        return []
-    return seen
+                if on_end:
+                    on_end(el)
+                if clear:
+                    el.clear()
+    except Exception as exc:  # CRC error, malformed XML, unknown encoding, ...
+        unreadable.append(f"{info.filename}: {type(exc).__name__}: {exc}")
+
+
+def _xml_parts_by_content_type(z: zipfile.ZipFile, unreadable: list[str]) -> set[str]:
+    """Lower-cased part names that [Content_Types].xml declares as XML, so a word/ part
+    stored under another extension (e.g. comments.wml) is still read."""
+    ct = next((i for i in z.infolist() if i.filename.lower() == "[content_types].xml"), None)
+    if ct is None:
+        return set()
+    overrides: set[str] = set()
+    defaults: set[str] = set()
+
+    def is_xml(ctype: str) -> bool:
+        c = ctype.strip().lower()
+        return c.endswith("+xml") or c in ("application/xml", "text/xml")
+
+    def on_end(el):
+        if el.tag == f"{{{NS_CT}}}Override" and is_xml(el.get("ContentType", "")):
+            overrides.add(el.get("PartName", "").lstrip("/").lower())
+        elif el.tag == f"{{{NS_CT}}}Default" and is_xml(el.get("ContentType", "")):
+            defaults.add(el.get("Extension", "").lower())
+
+    _scan_part(z, ct, None, on_end, unreadable)
+    found = set(overrides)
+    for info in z.infolist():
+        low = info.filename.lower()
+        if "." in low and low.rsplit(".", 1)[1] in defaults:
+            found.add(low)
+    return found
+
+
+def _docx_people(docx: Path) -> DocxPeople:
+    out = DocxPeople()
+    authors: dict[str, list[str]] = {}
+    accounts: dict[str, list[str]] = {}
+    try:
+        z = zipfile.ZipFile(docx)
+    except Exception as exc:
+        out.unreadable.append(f"(package): {type(exc).__name__}: {exc}")
+        return out
+    with z:
+        infos = z.infolist()
+        seen: dict[str, int] = {}
+        for info in infos:
+            seen[info.filename] = seen.get(info.filename, 0) + 1
+        for name, n in seen.items():
+            if n > 1:  # Word reads one copy; the other may still carry a name
+                out.unreadable.append(f"{name}: duplicate ZIP entry name ({n} copies)")
+        xml_by_type = _xml_parts_by_content_type(z, out.unreadable)
+
+        def visit_core(name):
+            def on_end(el):
+                attr = CORE_PERSON_TAGS.get(el.tag)
+                if attr:
+                    v = "".join(el.itertext()).strip()
+                    if v and not _is_docx_tool_value(v):
+                        out.metadata.append((v, f"{name} {attr}"))
+            return on_end
+
+        def visit_app(name):
+            def on_end(el):
+                if el.tag in APP_MANAGER_TAGS:
+                    v = "".join(el.itertext()).strip()
+                    if v and not _is_docx_tool_value(v):
+                        out.metadata.append((v, f"{name} Manager"))
+                elif el.tag in APP_COMPANY_TAGS:
+                    v = "".join(el.itertext()).strip()
+                    if v and _norm(v) not in TOOL_COMPANIES:
+                        out.companies.append((v, f"{name} Company"))
+            return on_end
+
+        def visit_word(name):
+            people = name.lower() == "word/people.xml"
+
+            def on_start(el):
+                for key, raw in el.attrib.items():
+                    if key in W_AUTHOR_ATTRS:
+                        v = raw.strip()
+                        if v and not _is_docx_tool_value(v):
+                            _add_place(authors, v, f"{name} w:author")
+                if not people:
+                    return
+                if el.tag == W15_PERSON:
+                    v = el.get(W15_AUTHOR, "").strip()
+                    if v and not _is_docx_tool_value(v):
+                        _add_place(authors, v, f"{name} w15:author")
+                elif el.tag == W15_PRESENCE:
+                    v = el.get(W15_USERID, "").strip()
+                    provider = el.get(W15_PROVIDER, "")
+                    # Under providerId "None" (exactly, as Word writes it) the userId is
+                    # only a display name, so a neutral one is fine; under any other
+                    # provider (AD, Windows Live, "NONE", ...) it is treated as an account
+                    # and any non-empty value is reported.
+                    neutral = provider == "None" and _is_docx_tool_value(v)
+                    if v and not neutral:
+                        _add_place(accounts, v, f"{name} w15:userId (providerId={provider or '?'})")
+            return on_start
+
+        for info in infos:
+            name = info.filename
+            low = name.lower()
+            if low == "docprops/core.xml":
+                # Property parts are tiny: keep children so a value split across child
+                # elements is still read whole.
+                _scan_part(z, info, None, visit_core(name), out.unreadable, clear=False)
+            elif low == "docprops/app.xml":
+                _scan_part(z, info, None, visit_app(name), out.unreadable, clear=False)
+            elif low.startswith("word/") and (low.endswith(".xml") or low in xml_by_type):
+                _scan_part(z, info, visit_word(name), None, out.unreadable)
+    out.authors = [(v, "; ".join(p)) for v, p in authors.items()]
+    out.accounts = [(v, "; ".join(p)) for v, p in accounts.items()]
+    return out
 
 
 def _docx_embedded_abs_paths(docx: Path) -> list[str]:
@@ -292,15 +487,31 @@ def build_report(root: Path, names: list[str], poppler: bool) -> Report:
         # 2 + 3. docx metadata
         elif suffix == ".docx":
             docx_files += 1
-            for a in _docx_authors(p):
+            people = _docx_people(p)
+            for a, where in people.metadata:
                 rep.findings.append(Finding(
                     "docx_metadata_author", "leak", rel,
-                    f"docx author metadata: '{a}'"))
-            for a in _docx_revision_authors(p):
+                    f"docx author metadata: '{a}' ({where})"))
+            for c, where in people.companies:
+                rep.findings.append(Finding(
+                    "docx_metadata_company", "review", rel,
+                    f"docx Company property names an organisation: '{c}' ({where})"))
+            for a, where in people.authors:
                 rep.findings.append(Finding(
                     "docx_revision_author", "leak", rel,
-                    f"tracked-change/comment author: '{a}' — a blinded file needs a neutral "
-                    f"author (e.g. 'Author') or none; set it when the changes are made"))
+                    f"tracked-change/comment author: '{a}' ({where}) — a blinded file needs a "
+                    f"neutral author (e.g. 'Author') or none; set it when the changes are made"))
+            for a, where in people.accounts:
+                rep.findings.append(Finding(
+                    "docx_revision_author", "leak", rel,
+                    f"editor account id: '{a}' ({where}) — renaming the author does not remove "
+                    f"it; remove that w15:presenceInfo element (or its whole w15:person) and re-check"))
+            # A part that could not be read was not checked: never let it pass silently.
+            for msg in people.unreadable:
+                rep.skipped.append(f"docx part not readable: {rel} {msg}")
+                rep.findings.append(Finding(
+                    "docx_part_unreadable", "review", rel,
+                    f"could not be read, so its authors were not checked: {msg}"))
             # 4. absolute home-dir path embedded in word/*.xml (e.g. pic descr)
             for ap_ in _docx_embedded_abs_paths(p):
                 rep.findings.append(Finding(

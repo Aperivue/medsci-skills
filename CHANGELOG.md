@@ -4,6 +4,16 @@
 
 ### Fixed
 
+- **`/sync-submission`: the anonymization check missed places where a `.docx` keeps a person's
+  name.** `check_asset_anonymization.py` now also reads the Manager and Company properties, the
+  tracked-change author in every XML part under `word/`, and the account identifier Word stores
+  beside a tracked-change author, which survives when the author name is replaced. Parts are
+  parsed as XML, so quoting, prefixes, CDATA, entities and encoding no longer decide whether a name
+  is seen, and a part that cannot be read is reported instead of discarding the other findings. A
+  value counts as tool-written only on an exact match: a prefix match used to clear real names that
+  begin with a placeholder word, and tool values such as `python-docx` were reported as people.
+  A file that passed before can now fail if it holds a name in one of these places.
+
 - **`/peer-review`: the request-type check no longer flags new-data requests under a
   reject-and-resubmit recommendation.** `check_review_request_types.py` takes
   `--recommendation {reject-and-resubmit,reject,major-revision,minor-revision,accept}`. Under
