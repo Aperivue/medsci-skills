@@ -38,7 +38,7 @@
 **References** (`skills/find-journal/references/`):
 
 - `acceptance_signals_schema.md`
-- `journal_profiles/` (86 files)
+- `journal_profiles/` (87 files)
 
 **Scripts** (`skills/find-journal/scripts/`):
 
