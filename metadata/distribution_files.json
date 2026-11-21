@@ -618,8 +618,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 31552,
-      "sha256": "e819b2df51946a1e895b455c7c1c3a4ea6e148ecb96027941d38cf20b7db0986"
+      "size": 32041,
+      "sha256": "d349d3a819682178ab861dfb0451ac87e70b5ccc55e21699b842718b8e324b1e"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -3053,8 +3053,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 36784,
-      "sha256": "d93ba5e580101185f31aa0b114428b570ba0294217c242ba4bb1b8569cafa2b9"
+      "size": 37531,
+      "sha256": "d05fa536931aaa5e192684030e340081dd00bfd5c01cb2b50b3340ad039d5284"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -3113,8 +3113,8 @@
     },
     {
       "path": "skills/meta-analysis/references/data_integrity_checklist.md",
-      "size": 5538,
-      "sha256": "9b2dc03572cb066528e1ef19b0699ec9434ec29cbad8b84f5fbab1492ead5480"
+      "size": 6150,
+      "sha256": "c28473f0cb111850100f868eb17422a87129d62285196035711011aa7af84640"
     },
     {
       "path": "skills/meta-analysis/references/empirical_lessons.md",
@@ -3128,18 +3128,18 @@
     },
     {
       "path": "skills/meta-analysis/references/phase10_recovery.md",
-      "size": 6145,
-      "sha256": "d76a832de5f89a0c7c754290a10ad0155eaaf3d9df4824226826c10c6856d399"
+      "size": 6907,
+      "sha256": "f33e6d43531bf0ce741ffe446894f7063aeffbb1f243ef80c22619e92134f35f"
     },
     {
       "path": "skills/meta-analysis/references/phase3_screening_detail.md",
-      "size": 14377,
-      "sha256": "866946dbefe198f72dc43020f1d38feb2485776a867cd6d9f6dc416b070b9ecd"
+      "size": 15019,
+      "sha256": "a73834d18b435a65aca73b2e61a96b3b7a74bd6f1a68ca4989271d5e8031703d"
     },
     {
       "path": "skills/meta-analysis/references/phase4_extraction_detail.md",
-      "size": 11669,
-      "sha256": "c42fc32ecc07597038aa5643c27125de54ab43df0fde961ba82e253232c409e5"
+      "size": 12360,
+      "sha256": "f20e37d70b7381f7c293f095b6b3291ec3bb40acb3c9d5f09dea8bd4c052896f"
     },
     {
       "path": "skills/meta-analysis/references/phase4_km_composite.md",
@@ -6528,8 +6528,8 @@
     },
     {
       "path": "skills/verify-refs/SKILL.md",
-      "size": 12586,
-      "sha256": "282664d1cfed36b0ffb185f44f93634e9e66cf1c58921c209f87479a27b43527"
+      "size": 13114,
+      "sha256": "39d83cc1fda7b7527bbfb18311d61ddb95bfc78678bd84a1980c6e3bb966a605"
     },
     {
       "path": "skills/verify-refs/references/claim_evidence_workflow.md",

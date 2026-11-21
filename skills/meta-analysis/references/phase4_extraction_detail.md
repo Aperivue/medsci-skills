@@ -155,6 +155,15 @@ When comparing extraction results between independent reviewers (minimum 2), che
    must equal the percentage reported in the paper's Tables. If it does not match,
    investigate the analysis population definition in the Methods section.
    If denominators differ, return to the original paper's Tables/Flow diagram.
+
+   **Which statistic a summary value is.** When a study-level value such as follow-up
+   duration, sample size or a proportion is stated more than once with different numbers
+   (abstract, Methods, Results, tables), find out which statistic each one is (median, mean,
+   maximum, a range bound) and which population and time point it describes before choosing
+   one, and record the location and the statistic
+   extracted. A phrase such as "during N months of follow-up" can give the longest follow-up or
+   the time of the last event rather than a typical value, so check it against the median or
+   range reported in the Methods or Results before extracting it as the study's follow-up.
 2. **Arithmetic verification**: Back-calculate proportions from event/total counts and cross-check against original text (e.g., 78/91 = 85.7%).
 3. **Kaplan-Meier estimate distinction**: KM curve estimates differ from raw event counts. Always record the data source (Table vs KM curve vs text) during extraction.
 4. **Discrepancy resolution**: List all discrepancies → verify against original text → reach consensus → if consensus fails, use third reviewer. Log all consensus decisions in `2_Data/extraction_consensus_log.md`.

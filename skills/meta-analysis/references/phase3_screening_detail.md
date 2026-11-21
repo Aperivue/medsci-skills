@@ -45,6 +45,16 @@ Read the block you need:
 4. Resolve disagreements by consensus or third reviewer.
 5. Flag comparative studies for priority extraction.
 
+#### Agreement statistics come from the independent decisions
+
+The agreement reported in Methods (at title/abstract, full text, or extraction) describes the
+reviewers' decisions before either saw the other's. Keep a frozen copy of each reviewer's
+independent decisions as soon as both have submitted, before either sees the other's decisions
+or any consensus step begins, and point the agreement calculation at that copy.
+If a reviewer later revises a decision after discussion or feedback, re-running the calculation on
+the working record gives post-discussion agreement instead, and it can replace the reported value
+with no error raised.
+
 #### 3e. PRISMA Flow
 Track numbers at each stage for PRISMA flow diagram (R1 → R2 → R3 → R4 → final included).
 Use `/make-figures` to generate PRISMA flow diagram when numbers are finalized.

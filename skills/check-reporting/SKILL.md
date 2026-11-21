@@ -151,6 +151,11 @@ is ambiguous, ask the user to confirm before selecting a guideline.
   line at the top of the report saying which instrument fits better and the command to rerun, e.g.
   `/check-reporting STARD-AI`. Do not switch or add instruments on your own: the user maps the report
   to the checklist form the journal asked for.
+- **A guideline named because a reviewer or editor asked for it still gets that line.** A request is
+  not evidence that the guideline fits the design. When another guideline addresses the design more
+  directly (for example, a study of agreement or reliability between raters or methods, with no
+  target condition to classify, scored against STARD, where the mapping above gives GRRAS), say so in
+  the top line and name that guideline, so the user can decide how to answer the request.
 - If the study involves AI/ML, apply the AI version of the guideline. CONSORT-AI and SPIRIT-AI are scored alongside their base guideline; TRIPOD+AI, STARD-AI and TRIPOD-LLM replace theirs (below).
   - **Exception — TRIPOD**: TRIPOD+AI 2024 (Collins et al., BMJ 2024) is a complete rewrite, not an addendum to TRIPOD 2015 (Moons et al., Ann Intern Med 2015). For non-AI prediction models, use TRIPOD 2015 only. For AI/ML prediction models, use TRIPOD+AI 2024 only. Do NOT apply both simultaneously.
 - **STARD-AI** (Sounderajah et al., Nat Med 2025) extends STARD 2015 with 14 new and 4 modified items (40 total) and incorporates all STARD 2015 items. For AI diagnostic accuracy studies use STARD-AI only — do NOT apply STARD 2015 and STARD-AI simultaneously.

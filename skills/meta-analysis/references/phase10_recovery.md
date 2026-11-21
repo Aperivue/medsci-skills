@@ -90,8 +90,17 @@ This file is the external audit trail. It must be circulated with the v{N+1} man
 
 If eligibility, analysis population, or outcome definitions changed, file an amendment
 to the registered protocol in parallel with the re-build:
+- Scope the amendment against the current version of the registry record, read field by field,
+  not against a local note of what an earlier amendment already changed; a local "already
+  reflected" list can name changes the record does not contain. Also compare the record's own
+  fields with its revision notes, which can disagree with each other. Some registry pages (PROSPERO
+  among them) may need a browser rather than a plain page fetch to show the record's content.
+  Assess eligibility, analysis population and each outcome definition separately: for each, the
+  registered specification changed, it was applied wrongly, or both, and a change is recorded as
+  a change with its date and reason.
 - Keep revision notes within the registry's word limit (often 250 words).
-- Frame the amendment as application correction, not criteria change:
+- For a field whose registered specification is unchanged, frame the amendment as application
+  correction, not criteria change:
   > "The pre-specified inclusion criteria are unchanged. The amended application excludes
   > {N} study(ies) whose characteristics were confirmed on independent re-review to fall
   > outside the pre-specified criteria."

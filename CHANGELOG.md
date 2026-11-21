@@ -49,6 +49,15 @@
   instead of as a major unverified claim. A near match there changes nothing.
 ### Changed
 
+- **`/meta-analysis`, `/check-reporting`, `/verify-refs`: review-conduct guidance.** A registration
+  amendment is scoped against the current registry record, field by field; a study-level value
+  stated more than once is identified (which statistic, population, time point) before it is
+  extracted; each reviewer's independent screening decisions are frozen before agreement is
+  computed; every reported number, table and figure is traced to its source; an archived search
+  string is re-run before a count is called unreproducible. `/check-reporting` keeps its top-line
+  note when a requested guideline fits the design less well than another, and `/verify-refs`
+  treats a claim an abstract does not mention as unresolved.
+
 - **`/design-study`, `/design-ai-benchmarking`, `/model-assessment`: design-stage guidance that was
   missing.** Reader studies: decide the claim's scope for readers and for cases separately (fixed
   set or defined population) before spending budget on reader breadth; fix a dichotomy's
