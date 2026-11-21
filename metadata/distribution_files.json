@@ -1442,6 +1442,11 @@
       "sha256": "7662c66eb32bc6c40815d64ae08f923ab6ba8506725988bdb5db95a1f3a13601"
     },
     {
+      "path": "skills/find-journal/references/journal_profiles/British_Journal_of_Clinical_Pharmacology.md",
+      "size": 3441,
+      "sha256": "e9cff20d4d96993d1cf650ba25bf024fc9b8a3730266e50c424fd37d5546ba56"
+    },
+    {
       "path": "skills/find-journal/references/journal_profiles/British_Journal_of_Radiology.md",
       "size": 1808,
       "sha256": "354cc24f592eb38f787b326e3c3216539e2033ace23da982731edd2646a40d86"
@@ -6940,6 +6945,11 @@
       "path": "skills/write-paper/references/journal_profiles/Artificial_Intelligence_in_Medicine.md",
       "size": 3492,
       "sha256": "12a515fe526cb9cfcd09cabf168b9c47f2d1b6cb6918c74751bbb0f91d6558ff"
+    },
+    {
+      "path": "skills/write-paper/references/journal_profiles/British_Journal_of_Clinical_Pharmacology.md",
+      "size": 15407,
+      "sha256": "f9d848a3cd18a17842d3ea935e8be51677c34506f4a9dda4dd4f0ef5f7e0c2da"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/British_Journal_of_Radiology.md",
