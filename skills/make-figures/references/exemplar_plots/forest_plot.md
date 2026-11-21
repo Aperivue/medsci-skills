@@ -21,11 +21,11 @@ must show* and the errors to avoid; not an image to copy. Pairs with `analyze-st
 - **Reference line** at the null (OR/RR/HR = 1, or 0 for mean differences); a log scale for
   ratio measures so CIs are symmetric.
 - **Axis**: framed to include all CIs without wasted whitespace; label the effect measure and
-  which direction favours which arm. Whether the limits are automatic or set by hand (`xlim`),
-  confirm in the render that the null value, every CI and any prediction interval are visible; if
-  an extreme interval must be cut, mark the cut and give its value.
-- **Scale**: the same as the text's. A plot of proportions beside a manuscript that reports
-  percentages (or the reverse) reads as a disagreement between figure and text.
+  which direction favours which arm. Confirm in the render that every CI and any prediction
+  interval is visible, and mark a cut interval with its value. The null value and favours
+  direction apply only where the measure defines them (not a single-arm proportion).
+- **Scale**: the text's unit by default; a proportion in the text with a percentage axis is
+  acceptable when the axis unit is stated and values convert exactly.
 
 ## Discipline (what the figure must not do)
 - **Do not pool when pooling is not defensible**: when heterogeneity is extreme *and

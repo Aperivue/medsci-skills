@@ -2218,8 +2218,8 @@
     },
     {
       "path": "skills/make-figures/SKILL.md",
-      "size": 36266,
-      "sha256": "266d1968acc4068a6d2624b7a9196f1ec39cfb4ac5fa7a7e9bf33c9808a94945"
+      "size": 36278,
+      "sha256": "e494908bb87d496da1ecbf10b82a902046abe18f23ff8b2b8ebb197b362edccf"
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/data_plot.md",
@@ -2453,8 +2453,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/forest_plot.md",
-      "size": 3877,
-      "sha256": "84007116412602c2e0e258184373e78fe229336e8aebea61cc719732db17b4d6"
+      "size": 3873,
+      "sha256": "eb9ef288b5b5cebe19fde46e60b2aa3db7b9d65d59805be07da2879e5d57c4dc"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/funnel_plot.md",
@@ -2528,8 +2528,8 @@
     },
     {
       "path": "skills/make-figures/references/figure_specs.md",
-      "size": 13863,
-      "sha256": "1d186ed2f9d0c1646de5954de74349a39b1395512828fcb50e8f34ef03c5940c"
+      "size": 13847,
+      "sha256": "1e08a47940f7905dc9dbe8829b17d596129ded69265ed1a960bae4b27accb51e"
     },
     {
       "path": "skills/make-figures/references/flow_diagram_lessons.md",
@@ -4408,8 +4408,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 38565,
-      "sha256": "8644eae2f18ab337d0935fec74078f0b506752db4bf92d6f38ef5b6b8dc9de75"
+      "size": 38500,
+      "sha256": "9226203a48197803e58a67da1d950ecc32f7c15c273bb17ee5b44cb9e4b94cca"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",

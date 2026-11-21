@@ -96,10 +96,10 @@ manifest) and build every figure from it:
 
 - **Hex → meaning**: each semantic colour and the one thing it stands for in this paper.
 - **Where it applies**: the figures that use the mapping. A colour given a meaning is reserved for
-  it; an unrelated set of categories in another figure gets other colours or shapes, because the
-  visual link survives a legend that does not mention it.
-- **The ramp**: one shared ramp for a quantity several figures show; diverging only when the
-  scale has a meaningful midpoint, sequential when it runs from low to high.
+  it; unrelated categories elsewhere get other colours or shapes, since the visual link survives
+  a legend that is silent about it.
+- **The ramp**: for a quantity compared across panels, fix unit, range, colour map and any
+  diverging midpoint; where panels are normalised separately, say so in each legend.
 - **The font**: one family for the set. Confirm which font the build environment selects, and
   check the font and line breaks in the exported file.
 

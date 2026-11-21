@@ -144,12 +144,11 @@ Create a slide-by-slide outline with time allocation:
 | N | Take-home messages | 0:30 | 3-5 key points |
 ```
 
-Before asking for approval, check where the minutes land, not only how many there are: decide from
-the talk type and the title what the talk promises, label each main slide (that core content,
-other cited work, method, framing), and show the time per label beside the title. For a talk on the
-speaker's own study, as a rule of thumb (ours, not a standard), flag an outline whose own findings
-hold under about 40% of the time; for a journal club, look at the time on the target paper's
-results and critique.
+Before asking for approval, check where the minutes land, not only how many there are: for each
+block of time, mark whether it delivers what the title promises, and show the split beside the
+title. For a talk whose main purpose is reporting results, as a rule of thumb (ours, not a
+standard), flag an outline whose own findings hold under about 40% of the time; for a journal
+club, look at the time on the target paper's results and critique.
 
 **Gate: User approves outline before proceeding.**
 
@@ -394,15 +393,16 @@ frames. Three rules keep slides stable:
 - **Caption**: re-draft for a listener with 5–10 seconds of attention, not the journal legend.
 - **Reusing a published figure — measure before clearing rights.** If the web image is a small
   preview, look for the publisher PDF first (ask the user when download is blocked) and check
-  whether the figure in it is vector; a vector page re-renders at the target DPI (`pdftoppm -r`).
-  For a raster, compare the pixels of the crop you will actually show with the pixels it will
-  occupy on the slide, and read its type and lines at that size, before any licence work. As a rule
-  of thumb (ours), drop a crop under about 200 dpi at its slot.
-- **Licence and open-access status are looked up per article**, by DOI or, without one, on the
-  confirmed publisher page. A search that returns nothing is a failed lookup, not "not open
-  access"; do not infer a licence from the journal or guess an identifier. Read the figure's own
-  caption and credit line as well, since a panel can carry separate rights. If you cannot confirm
-  that the planned showing and sharing are allowed, record the rights as unconfirmed.
+  whether the figure in it is vector (`pdftoppm -r` re-renders it). For a raster panel, compare the
+  pixels that exist in the source, not those made by rendering a page at high DPI, with the pixels
+  it will occupy. Under about 200 dpi at its slot (our rule of thumb) is a signal to look
+  closer; decide by whether text, lines and detail are legible at final size.
+- **Licence and open-access status are looked up per article**, by DOI, else on the
+  publisher's article page. An empty search is a failed lookup, not "not open
+  access"; do not infer a licence from the journal or guess an identifier. Read the panel's own
+  caption and credit line too. Judge room showing and published recording or slides
+  separately; a figure whose right for a use is unconfirmed is left out of, or replaced in, that
+  final version.
 - **Put the claim in the slide, not in the raster.** A conclusion or headline number drawn *into*
   the PNG stops tracking the talk the moment the bullet above it is edited, and no text search can
   find it. Numbers and conclusions live in the slide's own text.
