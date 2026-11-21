@@ -54,13 +54,13 @@
   search before writing that something was not found. `/add-journal`, `/find-journal` POLICY:
   verification dates written into a profile are given at month precision. `/write-paper`: the
   journal's own rule on suggested reviewers comes first, and omitting optional ones is decided
-  with the user; before an AI mention is reduced, the registered plan is compared with what was
+  with the user; AI used in the conduct of the study is reported in Methods from what was
   done. `/sync-submission`: an earlier deck is only a candidate figure source, checked against the
-  approved figure; after sections are merged, check whether the journal requires the heading;
+  approved figure; after sections are merged, check what the journal requires of the section;
   an edit script checks the saved file against independent expected values. `/revise`: re-check
   every sentence whose claim or citation link changed. `/manage-refs`: judge table wrapping in the
-  final render (Word or the journal's PDF). `/publish-skill`: examples about real papers are
-  checked for accuracy and identifiability; a synthetic one is the default.
+  journal's review PDF when one exists. `/publish-skill`: a real-paper example is kept only when
+  accurate, non-identifying and redistributable; otherwise a synthetic one.
 - **`/make-figures`, `/present-paper`: added figure and deck guidance.**
   `/make-figures` now asks for the source of every asset inside a co-author's assembled figure, rules
   out decorative generative assets in a paper that is itself about AI reliability (a model output

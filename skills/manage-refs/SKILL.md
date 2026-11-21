@@ -252,7 +252,7 @@ This skill defines **three submission gates** and **one user approval gate**:
   blocked as `MISSING_DOCX`; one that is neither defined nor rendered is not seen. Write
   "Tables 1 and 2" or "Table 1 and Table 2".
 - **Table wrapping depends on the renderer**: a DOCX table that wraps cleanly in one renderer
-  can break a token in another, so judge wrapping in the final render (Word, or the PDF the
-  journal builds). Fix a break by re-dividing column widths, abbreviating a header and defining
-  the abbreviation, or splitting the table, then check that render again. Never shorten a
-  number, inequality sign or unit.
+  can break a token in another. When the journal builds a review PDF, that is the file to
+  check; before it exists, record that the check was done in Word only. Fix a break by
+  re-dividing column widths, abbreviating a header and defining the abbreviation, or splitting
+  the table. Never shorten a number, inequality sign or unit.

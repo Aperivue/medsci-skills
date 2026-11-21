@@ -18,12 +18,12 @@ cover letter; never generate one automatically.
 5. **Brief methods** (1 sentence): Study design and key numbers.
 6. **Ethical compliance**: IRB approval number, author agreement, COI statement, no dual submission.
 7. **AI disclosure** (if applicable): Specific AI tools used and human oversight statement.
-8. **Suggested reviewers** (as the journal requires or invites): Name, affiliation, confirmed email, expertise area.
+8. **Suggested reviewers** (only if taken in the letter): Name, affiliation, confirmed email, expertise area.
 9. **Excluded reviewers** (if any): Name and reason.
 10. **Closing**: Corresponding author name and credentials.
 
 **Suggested reviewers — the journal's rule first:**
-Check the journal's current instructions for how many reviewers it requires or allows, where they are entered (letter or portal) and its conflict criteria, and follow them. Only when suggestions are optional is leaving them out a decision, made with the user. The manuscript's cited literature is a starting point for finding candidates, not a requirement. Present only candidates who clear the journal's conflict criteria and the cross-check below, for the user to confirm. Give an email address only when the source ties it explicitly to that person (their own corresponding-author line or an official institutional page); if it cannot be confirmed, give none.
+Follow the journal's current instructions on reviewer numbers, where they are entered and conflict criteria; suggestions taken only in the portal stay out of the letter. Omitting optional suggestions is decided with the user. Cited literature is one place to look for candidates. Check each candidate's relationships with the manuscript's authors against the journal's conflict criteria. Give an email address only when the source ties it explicitly to that person (their own corresponding-author line or an official institutional page); when an address is mandatory and cannot be confirmed, ask the user for a source or propose a candidate whose address can be.
 
 **Reviewer COI cross-check (mandatory for meta-analyses):**
 Cross-check all suggested and excluded reviewers against the included-study author list and their co-authors. Same-institution authors of included studies constitute automatic COI and must be excluded from reviewer suggestions.

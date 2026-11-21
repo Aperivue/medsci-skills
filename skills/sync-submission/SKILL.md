@@ -133,7 +133,7 @@ reuse permissions.
       --retired-term "location-stratified benchmark" --old-value 1.72
   ```
   A `retired_framing_survivor` / `stale_old_value` finding is a P1 stale claim-site. `--aux` takes files or folders: `.docx` sidecars are read, and figure scripts (`.py`/`.R`) are swept for stale literals only. An `--aux` that holds no readable file exits 2 instead of passing, and unreadable documents (`.pdf`, `.pptx`, …) are listed as not checked. For any wording or number change, also grep the OLD string across the entire SSOT tree, never a subset, and watch for substring near-misses — an exact grep for `expertise-dependent patterns` passes while `expertise-dependent evaluation patterns` stays stale.
-- Gate 12 (target-journal metadata drift): on `build` / retarget, compare the target the manuscript is written *for* — `project.yaml` `target` (and any in-manuscript header/footer "for submission to X" string) — against the journal the package is built for, and check the structural metadata the target dictates — abstract heading structure (4- vs 5-heading), body word limit, citation style (Vancouver / AMA), required elements (Highlights / Central Illustration / Key Points). A mismatch (e.g., a header still reading the previous journal after a cascade retarget, or a 4-heading abstract for a 5-heading target) is a target-restructure trigger — branch to v_(N+1) and sync every sidecar (cover letter, title page, ICMJE COI list) — not a silent build. After a rewrite that merges or renames sections, check in the journal's current instructions whether a separate heading with that exact name is mandatory for this article type; where only the content is required, confirm it is present inside the merged section.
+- Gate 12 (target-journal metadata drift): on `build` / retarget, compare the target the manuscript is written *for* — `project.yaml` `target` (and any in-manuscript header/footer "for submission to X" string) — against the journal the package is built for, and check the structural metadata the target dictates — abstract heading structure (4- vs 5-heading), body word limit, citation style (Vancouver / AMA), required elements (Highlights / Central Illustration / Key Points). A mismatch (e.g., a header still reading the previous journal after a cascade retarget, or a 4-heading abstract for a 5-heading target) is a target-restructure trigger — branch to v_(N+1) and sync every sidecar (cover letter, title page, ICMJE COI list) — not a silent build. After a rewrite that merges or renames sections, check four things separately in the journal's current instructions for this article type: the required content, whether a separate section is required, which headings are allowed, and where it must sit.
 
   ```bash
   # header target vs project.yaml target
@@ -339,10 +339,10 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/verify_package_integrity.py" \
 Identical MD5 → exit 1. Block submission until the regeneration step is fixed.
 
 A changed docx is not yet a correct one. When v_(N+1) is produced by a script that applies a list
-of replacements, take the expected values from the approved change list or the source data, not
-from the replacement list, then reopen the saved file and check each target table, row, column
-or paragraph, exiting non-zero on a mismatch. Assert whole-document absence only for wording
-retired everywhere.
+of replacements, take expected values from the approved change list or the source data, not the
+replacement list, and check them in the reopened saved file. Also compare which cells or
+paragraphs changed, and how many, with that list, so an unintended global replacement shows; exit
+non-zero on a mismatch. Assert whole-document absence only for wording retired everywhere.
 
 ## Phase 8 — Multi-copy manuscript divergence
 

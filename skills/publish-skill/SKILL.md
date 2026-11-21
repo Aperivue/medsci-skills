@@ -171,9 +171,9 @@ Present all findings in a remediation table:
 
 ### Examples and fixtures
 
-- Check: does an example, asset or fixture describe a real paper, institution or person (a journal and author list, a median, a p-value)? Check two things separately: that each fact matches the source, and that the combination does not identify a manuscript or person who should not be public
-- Default: replace it with a synthetic example, noted as a format illustration not to be cited (in a companion file or metadata where the format is strict, such as JSON)
-- Keep a real example only when both checks pass
+- Check: does an example, asset or fixture describe a real paper, institution or person (a journal and author list, a median, a p-value)?
+- Keep a real example only when three things are confirmed: it is accurate against the source, it does not identify a manuscript, incident or person that should not be identified, and there is a right to redistribute it publicly
+- Otherwise replace it with a synthetic example, noted as a format illustration not to be cited (in a companion file or metadata where the format is strict, such as JSON)
 
 ### Output
 

@@ -280,11 +280,11 @@ When the manuscript was rejected by a specific journal:
    journal's focus.
 5. Suggest scope adjustments — or, when Phase 2.5 found a ceiling, design changes — that might
    improve feasibility for the new target.
-6. **Recognise a data ceiling.** When the rejection asks for something the dataset cannot
-   supply (an outcome never recorded, a reference standard never obtained, follow-up that does
-   not exist), first decide which claim the present data can support. If one stands, look for a
-   venue whose scope fits that claim. If none does, discuss with the user narrowing the claim,
-   collecting more data or changing the design, or stopping.
+6. **Assess a data ceiling before recommending venues** (ahead of steps 3-5). When the rejection
+   asks for something the dataset cannot supply, first decide which claim the present data can
+   support. If one stands, look for a venue whose scope fits it; if the outcome or analysis
+   changes, the manuscript states which analyses were planned and which are post hoc. If none
+   stands, discuss narrowing the claim, more data or a design change, or stopping.
 
 ### Case Report Mode
 
