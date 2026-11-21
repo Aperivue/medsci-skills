@@ -137,6 +137,18 @@ IMAGE_CAPTION_RE = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 
+# A table placed in the body carries its own caption too. Journals that want each table after the
+# paragraph that first cites it get a caption line directly above (or below) the table:
+#
+#     **Table 1.** Baseline characteristics.
+#
+#     | Characteristic | Value |
+#
+# A caption line counts as a definition only when a table row is the nearest non-blank line on
+# one side of it. Adjacency is the whole test: a paragraph that merely begins "Table 1. ..." with
+# prose around it is not a definition, so a cited table that is defined nowhere still blocks.
+TABLE_ROW_RE = re.compile(r"^\s*(?:\||\+[-=]{2,}|<table\b)", re.IGNORECASE)
+
 # Section header patterns for the manuscript body's caption sections.
 # Longer alternatives MUST come first so that "FIGURE LEGENDS" is not
 # truncated to "FIGURE" by an earlier short match.
@@ -262,9 +274,34 @@ def find_caption_section_ranges(md_text: str) -> list[tuple[int, int]]:
     return ranges
 
 
+def find_inline_table_captions(md_text: str) -> list[tuple[int, int, "re.Match[str]"]]:
+    """(start, end, match) for each table caption line that sits directly beside its table."""
+    lines = md_text.splitlines(keepends=True)
+    starts, pos = [], 0
+    for ln in lines:
+        starts.append(pos)
+        pos += len(ln)
+
+    def neighbour(i: int, step: int) -> str:
+        j = i + step
+        while 0 <= j < len(lines) and not lines[j].strip():
+            j += step
+        return lines[j] if 0 <= j < len(lines) else ""
+
+    found = []
+    for i, ln in enumerate(lines):
+        m = CAPTION_RE.match(ln.rstrip("\r\n"))
+        if not m or not m.group(2).lower().startswith("table"):
+            continue
+        if TABLE_ROW_RE.match(neighbour(i, 1)) or TABLE_ROW_RE.match(neighbour(i, -1)):
+            found.append((starts[i], starts[i] + len(ln), m))
+    return found
+
+
 def extract_body_captions(md_text: str) -> dict[str, Caption]:
     """Extract caption definitions from the manuscript body's caption sections, then from
-    embedded figures (`![Figure N. Caption](path)`) for any figure those sections do not define."""
+    embedded figures (`![Figure N. Caption](path)`) and from table caption lines that sit beside
+    their table, for any float those sections do not define."""
     ranges = find_caption_section_ranges(md_text)
     captions: dict[str, Caption] = {}
     for start, end in ranges:
@@ -277,6 +314,12 @@ def extract_body_captions(md_text: str) -> dict[str, Caption]:
                 captions[label.key] = Caption(label=label, text=text, source="body")
     # A legend section, where there is one, stays the definition compared with the DOCX.
     for m in IMAGE_CAPTION_RE.finditer(md_text):
+        label = _normalize(m.group(2), m.group(1), m.group(3))
+        if label.key not in captions:
+            text = m.group(4).strip().rstrip("*").strip()
+            captions[label.key] = Caption(label=label, text=text, source="body")
+    # Likewise for a table whose caption line sits beside it in the body.
+    for _, _, m in find_inline_table_captions(md_text):
         label = _normalize(m.group(2), m.group(1), m.group(3))
         if label.key not in captions:
             text = m.group(4).strip().rstrip("*").strip()
@@ -656,7 +699,9 @@ def main() -> int:
 
     md_text = args.md.read_text(encoding="utf-8")
     section_ranges = find_caption_section_ranges(md_text)
-    citations = extract_citations(md_text, section_ranges)
+    # An inline table caption is a definition, not a citation of its own table.
+    inline_caption_ranges = [(s, e) for s, e, _ in find_inline_table_captions(md_text)]
+    citations = extract_citations(md_text, section_ranges + inline_caption_ranges)
     body_captions = extract_body_captions(md_text)
 
     docx_captions: Optional[dict[str, Caption]] = None

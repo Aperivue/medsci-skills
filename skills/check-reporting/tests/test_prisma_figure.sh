@@ -69,4 +69,41 @@ else
   bad "clean self-check rc=$rc (expected 0 + assessed PRESENT)"
 fi
 
+# 6. A figure source the parser reads no PRISMA number from (a caption with no counts, an
+#    image placeholder). Nothing was compared, so this is "not assessed" (exit 2, the documented
+#    code for unparsable input), not a mismatch (exit 1) and not a file to cite as evidence.
+EMPTYFIG="$(mktemp -t prisma_emptyfig_XXXX).md"
+printf '# Figure 1\n\n![PRISMA flow diagram](figures/prisma.png)\n\nStudy selection.\n' > "$EMPTYFIG"
+err="$(python3 "$SCRIPT" --md "$BODY" --figure "$EMPTYFIG" --out "$OUT" 2>&1)"; rc=$?
+if [[ $rc -eq 2 && "$err" == *"UNPARSEABLE_FIGURE_SOURCE"* && "$err" != *"Traceback"* ]] \
+   && python3 -c "import json,sys; d=json.load(open('$OUT')); sys.exit(0 if (d['status']=='not_assessed' and d['audit_safe'] is False and d['figure_numbers']=={} and any('UNPARSEABLE_FIGURE_SOURCE' in a for a in d['action_items'])) else 1)"; then
+  pass "no PRISMA numbers in the figure source -> not_assessed, exit 2"
+else
+  bad "unparsable figure rc=$rc (expected 2 + status not_assessed): $err"
+fi
+rm -f "$EMPTYFIG"
+
+# 7. The same for a manuscript body with no PRISMA numbers.
+EMPTYBODY="$(mktemp -t prisma_emptybody_XXXX).md"
+printf '## Results\n\nStudy selection is summarised in Figure 1.\n' > "$EMPTYBODY"
+err="$(python3 "$SCRIPT" --md "$EMPTYBODY" --figure "$CLEAN" --out "$OUT" 2>&1)"; rc=$?
+rm -f "$EMPTYBODY"
+if [[ $rc -eq 2 && "$err" == *"UNPARSEABLE_BODY"* ]] \
+   && python3 -c "import json,sys; d=json.load(open('$OUT')); sys.exit(0 if d['status']=='not_assessed' else 1)"; then
+  pass "no PRISMA numbers in the body -> not_assessed, exit 2"
+else
+  bad "unparsable body rc=$rc (expected 2 + status not_assessed)"
+fi
+
+# 8. Assessed runs say so: clean stays exit 0 and a mismatch stays exit 1, both status "assessed".
+python3 "$SCRIPT" --md "$BODY" --figure "$CLEAN" --out "$OUT" >/dev/null 2>&1; rc0=$?
+s0="$(python3 -c "import json; print(json.load(open('$OUT'))['status'])")"
+python3 "$SCRIPT" --md "$BODY" --figure "$MM" --out "$OUT" >/dev/null 2>&1; rc1=$?
+s1="$(python3 -c "import json; print(json.load(open('$OUT'))['status'])")"
+if [[ $rc0 -eq 0 && $rc1 -eq 1 && "$s0" == "assessed" && "$s1" == "assessed" ]]; then
+  pass "assessed runs keep exit 0 / exit 1 and status assessed"
+else
+  bad "assessed status rc0=$rc0 rc1=$rc1 s0=$s0 s1=$s1"
+fi
+
 if [[ $fail -eq 0 ]]; then echo "  OK"; exit 0; else echo "  $fail check(s) failed"; exit 1; fi

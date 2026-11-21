@@ -133,6 +133,49 @@ python3 "$SCRIPT" --manuscript "$TMP/c1.md" --extraction-json "$TMP/c7_extract.j
     --out "$TMP/c7.md.audit" --quiet
 assert_exit "case 7: human reviewers in extraction JSON (PASS)" 0 $?
 
+# --------------------------------------------------------------------------
+# Case 8: the Methods heading uses an ampersand or a compound form. Before this
+# case the heading was not recognised, the Methods text was empty, the dual
+# claim was never seen and the conflict below PASSED.
+# --------------------------------------------------------------------------
+for heading in "Materials & Methods" 'Materials \& Methods' "MATERIALS AND METHODS" \
+               "Patients and Methods" "Methods and Materials"; do
+    {
+        printf '## %s\n' "$heading"
+        printf 'Two reviewers independently screened titles and abstracts and extracted data.\n\n'
+        printf '## Discussion\n\n### Limitations\n'
+        printf 'We used a single primary reviewer for data extraction.\n'
+    } > "$TMP/c8.md"
+    python3 "$SCRIPT" --manuscript "$TMP/c8.md" --out "$TMP/c8.md.audit" --quiet
+    assert_exit "case 8: '$heading' is the Methods section (FAIL)" 1 $?
+done
+
+# --------------------------------------------------------------------------
+# Case 9: no Methods heading at all. The dual-review claim cannot be checked,
+# so the run must say so instead of reporting a bare PASS.
+# --------------------------------------------------------------------------
+{
+    printf '## Study procedures\nTwo reviewers independently screened titles and abstracts.\n\n'
+    printf '## Discussion\n\n### Limitations\n'
+    printf 'We used a single primary reviewer for data extraction.\n'
+} > "$TMP/c9.md"
+out9="$(python3 "$SCRIPT" --manuscript "$TMP/c9.md" --out "$TMP/c9.md.audit" 2>&1)"
+ran=$((ran + 1))
+if printf '%s' "$out9" | grep "Methods section not found" >/dev/null \
+   && grep "Methods section not found" "$TMP/c9.md.audit" >/dev/null \
+   && grep '"methods_section_found": false' "$TMP/c9.md.audit.json" >/dev/null; then
+    echo "  PASS  case 9: missing Methods heading is reported"
+else
+    echo "  FAIL  case 9: missing Methods heading is not reported"; fail=$((fail + 1))
+fi
+ran=$((ran + 1))
+if grep '"methods_section_found": true' "$TMP/c1.md.audit.json" >/dev/null \
+   && ! grep "Methods section not found" "$TMP/c1.md.audit" >/dev/null; then
+    echo "  PASS  case 9b: a recognised Methods heading carries no warning"
+else
+    echo "  FAIL  case 9b: warning or flag wrong on a recognised heading"; fail=$((fail + 1))
+fi
+
 echo ""
 echo "ran=$ran fail=$fail"
 [[ $fail -eq 0 ]]

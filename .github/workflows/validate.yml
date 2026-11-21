@@ -766,6 +766,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_xref_inline_figures.sh
 
+      - name: "Run manage-refs inline-table test (a caption line beside its table is a caption, not MISSING_BODY)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/manage-refs/tests/test_xref_inline_tables.sh
+
       - name: "Run manage-refs citation-key boundary test (a full stop is not part of the key)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_citation_key_boundaries.sh

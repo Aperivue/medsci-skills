@@ -2,6 +2,31 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **`/polish-language`: a plural or possessive now counts as a use of its abbreviation.** "95% CIs"
+  and "the CI's width" were not read as uses of CI, so `lint_consistency.py` reported an
+  abbreviation the text needed as "defined but never used". A plural definition, "confidence
+  intervals (CIs)", now defines CI.
+- **`/self-review`, `/sync-submission`: "Materials & Methods" is the Methods section.**
+  `check_reviewer_team_consistency.py` and `scope_drift_check.py` recognised only "Methods" and
+  "Materials and Methods". Under an ampersand heading (also pandoc's `\&`), "Patients and Methods"
+  or "Methods and Materials", the Methods text was empty and the reviewer-team check passed without
+  seeing the dual-review claim. When no Methods heading is recognised at all,
+  `check_reviewer_team_consistency.py` now says so on stderr, in the report, and as
+  `methods_section_found: false` in its JSON. The exit code is unchanged.
+- **`/peer-review`: "computers", "computed tomography" and "derivation cohort" are not computation
+  requests.** `check_review_request_types.py` matched the stems `comput` and `deriv`, so an ask
+  that only named the imaging modality was flagged `COMPUTATION_UNJUSTIFIED`. The verbs still fire.
+- **`/manage-refs`: a table caption beside its table is a caption.** `check_xref.py` read table
+  captions only under a caption heading, so a manuscript that places each table after its first
+  citation (`**Table 1.** ...` directly above or below the table) was blocked with `MISSING_BODY`.
+  A caption line with no table beside it is still not a definition.
+- **`/check-reporting`: an unreadable PRISMA figure source is "not assessed", not a mismatch.**
+  When `check_prisma_figure.py` read no count from the figure source (or from the body) it exited
+  `1` and wrote `audit_safe: false` without naming a defect. It now exits `2`, the code already
+  documented for unparsable input, and writes `"status": "not_assessed"`.
+
 ### Changed
 
 - **`/find-journal` POLICY: the promotion checklist no longer forbids every `[TODO: verify at journal site]` marker.**

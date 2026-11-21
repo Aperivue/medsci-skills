@@ -105,8 +105,16 @@ UNIT_RE = re.compile(
 
 # Keep numeric/hyphenated identifiers whole: a definition of (COVID-19) must
 # match uses of COVID-19, not manufacture an undefined abbreviation "COVID".
-ABBR_DEF_RE = re.compile(r"\(([A-Z][A-Z0-9]{1,5}[0-9]*(?:-[A-Z0-9]{1,6})*)\)")
-ABBR_USE_RE = re.compile(r"(?<![A-Za-z0-9-])([A-Z]{2,6}[0-9]*(?:-[A-Z0-9]{1,6})*)(?![A-Za-z0-9-])")
+#
+# A plural or possessive is the same abbreviation: "95% CIs" and "the CI's width" use CI, and
+# "confidence intervals (CIs)" defines it. Without the optional tail, a manuscript that only ever
+# writes the plural was told its abbreviation was "defined but never used" — advice to delete an
+# entry the text needs. The tail is outside the capture group, and the lookahead still has to
+# hold after it, so a longer lowercase word that merely starts with capitals is not a use.
+ABBR_TAIL = r"(?:s|['\u2019]s)?"
+ABBR_DEF_RE = re.compile(r"\(([A-Z][A-Z0-9]{1,5}[0-9]*(?:-[A-Z0-9]{1,6})*)s?\)")
+ABBR_USE_RE = re.compile(
+    r"(?<![A-Za-z0-9-])([A-Z]{2,6}[0-9]*(?:-[A-Z0-9]{1,6})*)" + ABBR_TAIL + r"(?![A-Za-z0-9-])")
 NUM_RANGE_RE = re.compile(r"(?<![\w/.\-])(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)(?![\w/.\-])")
 PVAL_RE = re.compile(r"(?<![A-Za-z])([Pp])\s*([=<>])\s*(0?\.\d+|\d+\.\d+|\.\d+)")
 SMALL_NUM_RE = re.compile(r"(?<![\w.=<>+\-/])([1-9])\s+([a-z]{3,})")

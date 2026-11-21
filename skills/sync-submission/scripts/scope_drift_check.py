@@ -81,7 +81,9 @@ from pathlib import Path
 # (`## **METHODS**`), Title Case (`## Methods`), and Markdown subsections.
 SECTION_HEADERS: dict[str, re.Pattern[str]] = {
     "Methods": re.compile(
-        r"^#{1,3}\s*\*{0,2}(?:METHODS?|Method[s]?|Materials and Methods)\*{0,2}\s*$",
+        r"^#{1,3}\s*\*{0,2}(?:Methods?"
+        r"|(?:Materials|Patients|Subjects|Participants)\s*(?:and|\\?&)\s*Methods"
+        r"|Methods\s*(?:and|\\?&)\s*Materials)\*{0,2}\s*$",
         re.IGNORECASE | re.MULTILINE,
     ),
     "Results": re.compile(

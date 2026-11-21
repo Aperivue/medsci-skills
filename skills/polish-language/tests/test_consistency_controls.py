@@ -51,6 +51,29 @@ class ConsistencyControls(unittest.TestCase):
             self.assertEqual(linter.check_abbreviations([
                 f'Expanded name ({abbr}) was introduced.', f'{abbr} was used.']), [])
 
+    def test_plural_and_possessive_forms_count_as_uses(self):
+        # "CIs" is a use of CI. Reading it as nothing reported a used abbreviation as
+        # "defined but never used", which is advice to delete it from the list.
+        for use in ('All 95% CIs were Wald-type.', "The CI's width was reported.",
+                    'The CI\u2019s width was reported.'):
+            self.assertEqual(linter.check_abbreviations([
+                'Confidence interval (CI) is reported.', use]), [], use)
+        # A plural definition, "(CIs)", defines CI.
+        self.assertEqual(linter.check_abbreviations([
+            'Confidence intervals (CIs) are reported.', 'Each CI was Wald-type.', 'CIs were wide.']), [])
+
+    def test_plural_handling_does_not_hide_real_findings(self):
+        # A plural use of an undefined abbreviation is still an undefined use.
+        found = linter.check_abbreviations(['ROIs were drawn.', 'ROIs were averaged.'])
+        self.assertTrue(any('"ROI" used 2x but never defined' in m for _, m in found), found)
+        # A definition with no use of any form still fires.
+        self.assertEqual(linter.check_abbreviations(['Confidence interval (CI) is reported.']),
+                         [(1, '"CI" defined but never used')])
+        # A lowercase tail that is not a plural is not a use: "CIsplatin" does not use CI.
+        self.assertEqual(linter.check_abbreviations(['Confidence interval (CI) is reported.',
+                                                     'CIsomething was given.']),
+                         [(1, '"CI" defined but never used')])
+
     def test_missing_definitions_are_not_hidden(self):
         found = linter.check_abbreviations(['COVID-19 was discussed.', 'COVID-19 was mentioned again.'])
         self.assertEqual(found, [(1, '"COVID-19" used 2x but never defined')])
