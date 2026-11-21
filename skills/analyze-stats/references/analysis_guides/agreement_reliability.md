@@ -156,6 +156,10 @@ while ICC(A,1) on the lesions was 0.977 (pingouin) and 0.977 (the `lmer` model a
 - **Correlation (r) reported as agreement** for two methods — r ignores a constant/proportional bias;
   Bland–Altman is required.
 - **Kappa on ordinal labels unweighted** — treats a one-category disagreement as a full disagreement.
+- **Rater columns from different occasions** — a coefficient is computed from whatever columns it is
+  given; confirm that each rater's column refers to the same examination, target and definition, and
+  record the pairing, because a mismatched pair changes the coefficient without any error message and
+  can then read as a finding rather than an error.
 
 ---
 

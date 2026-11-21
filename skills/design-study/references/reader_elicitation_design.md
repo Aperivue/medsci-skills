@@ -102,11 +102,10 @@ of the journal you actually want):
 3. **Synthetic / index-arm denominator (survivorship).** Pre-specify how failed/low-quality
    generations are counted; report the full generation denominator rather than evaluating only the
    convincing survivors.
-4. **Reader independence and breadth.** Recruit an independent, non-author, multi-site (ideally
-   multi-national) reader cohort; collect reader characteristics; blind readers to the hypothesis
-   where feasible.
-   Define the target reader population first; multi-site recruitment as above is how to cover
-   it when the claim is meant to hold across institutions. Decide the
+4. **Reader independence and breadth.** Recruit readers independent of the model's development and the reference
+   standard, and record each reader's role; collect reader characteristics; blind readers to the hypothesis where feasible.
+   Define the target reader population first; recruit across sites (or countries) when the claim
+   is meant to hold across institutions. Decide the
    claim's scope for readers and for cases separately: a fixed set (this named panel, this
    benchmark case set) or a defined population. The analysis reflects sampling variation only on
    the axes being generalised, a result on a fixed axis is reported as conditional on that set,
@@ -115,10 +114,10 @@ of the journal you actually want):
    does not reveal a bias the whole panel shares.
 5. **Estimand and power (match decision 4).** Define the primary endpoint and contrast on the
    reader and case scope set in decision 4, and size the study for it (power for a test, interval
-   width for an estimate); when the scope is the reader-AND-case generalization, make it the **primary** estimand from the start, so the two-way interval — not a pool-conditional number —
+   width for an estimate); when the scope is the reader-AND-case generalization, make it the **primary** estimand from the start, so the two-way interval — not a number conditional on the fixed reader pool —
    supports the headline claim. Fix the analysis model at the same time, once the outcome type, link,
-   reader/case sampling, estimand (conditional or population-average) and any weights are defined:
-   for a conditional reader-and-case estimand, a mixed model with crossed reader and case random
+   reader/case sampling, estimand (conditional on the random effects, or population-average) and any
+   weights are defined: for a reader-and-case estimand conditional on the random effects, a mixed model with crossed reader and case random
    effects (a GLMM for a binary outcome) is the natural primary analysis. A GEE (or a marginalized
    mixed model) estimates a population-average quantity — the primary model when that is the
    pre-specified estimand. Whether it matches the conditional effect depends on the link and the

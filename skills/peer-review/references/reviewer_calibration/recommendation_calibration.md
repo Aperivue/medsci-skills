@@ -79,10 +79,10 @@ to (1) or (2).
 for a construct/validity flaw is to *narrow the claim* (a clinical claim reframed as a weaker technical
 signal, a full study reframed as a proof-of-concept), check whether that narrower framing survives
 the novelty/importance bar. If novelty/importance is ALREADY weak — your own scorecard, or a second
-opinion, puts Originality or Reader-interest at or below mid — then the reframe *reduces* the
-contribution and makes the importance problem worse, not better. A contribution shrunk to survive a
-validity flaw is a **Reject-leaning** outcome (the contribution is the product, not
-addressable-in-revision), not an encourage-major-revision. Trigger the self-audit on the comments
+opinion, puts Originality or Reader-interest at or below mid — then the reframe can *reduce* the
+contribution further and make the importance problem worse, not better. A contribution shrunk to survive a
+validity flaw can be a **Reject-leaning** outcome (the contribution is the product, not
+addressable-in-revision); whether it is depends on the reassessment below, not on the narrowing itself. Trigger the self-audit on the comments
 you have written, not on the recommendation you lean towards (a trigger that requires a Reject-leaning
 recommendation never fires on the lenient draft it exists to catch): fire it whenever a proposed
 remedy materially narrows the claim the paper can support. Then write the narrowed claim out in full

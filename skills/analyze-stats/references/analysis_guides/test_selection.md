@@ -43,7 +43,7 @@ Reference: Petrie & Sabin flowchart, Kirkwood Summary Guide.
 |--------|---------|-----------|------|--------------------|
 | 1 | - | - | Binomial / z-test for proportion | Group Comparison |
 | 2 | Independent | Expected >= 5 | Chi-squared | Group Comparison |
-| 2 | Independent | Expected < 5 | Fisher's exact | Group Comparison |
+| 2 | Independent | Expected < 5 (rule of thumb) | Fisher's exact | Group Comparison |
 | 2 | Paired | - | McNemar's test | Group Comparison |
 | 2+ | Independent | Ordered | Chi-squared trend | Group Comparison |
 | 3+ | Independent | - | Chi-squared | Group Comparison |
@@ -78,8 +78,8 @@ test's P value.
 - Two independent groups, mean-type summary: **Welch's t-test** by default (no equal-variance
   assumption; Delacre, Lakens & Leys 2017, doi:10.5334/irsp.82). 3+ groups: Welch ANOVA. Levene's
   test is not a gate, and Mann-Whitney is not a remedy for unequal variances.
-- Practical rule: n > 30 per group → the t-test is generally robust (CLT), unless extreme skew or
-  outliers.
+- Rule of thumb, not a threshold: n > 30 per group → the t-test is often adequate (CLT); extreme
+  skew or outliers can still undermine it.
 - **Comparing the spread of two measurements made on the same units**: the independent-samples
   F-test and Levene's test assume two independent samples, so they do not apply to paired
   measurements, even when the location comparison was correctly made paired. With one pair per
@@ -94,7 +94,9 @@ test's P value.
 ## Common Reviewer Flags
 
 - Using independent test on paired data (including an F-test or Levene's test on paired variances)
-- Using chi-squared when expected cell count < 5 (should use Fisher's exact)
+- Using the asymptotic chi-squared test on an independent table with small expected counts (the
+  "expected < 5" convention is a rule of thumb; an exact test avoids the approximation)
 - Not reporting assumption check results
-- Missing multiple comparison correction for 3+ groups
+- Missing multiplicity handling when several confirmatory contrasts are interpreted together (e.g.,
+  pairwise contrasts among 3+ groups)
 - Not specifying the test selection rationale in Methods
