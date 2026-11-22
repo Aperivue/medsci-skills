@@ -5,31 +5,31 @@
 - **Publisher:** BMJ Publishing Group / Society of NeuroInterventional Surgery (SNIS)
 - **ISSN:** 1759-8478 (print) / 1759-8486 (online)
 - **Homepage:** https://jnis.bmj.com
-- **Author guidelines:** https://jnis.bmj.com/pages/authors/
+- **Author guidelines:** https://jnis.bmj.com/pages/authors
 
 ## Scope
-JNIS publishes original research, reviews, and case material on endovascular and surgical neurointervention — acute ischemic stroke thrombectomy, intracranial aneurysm coiling and flow diversion, AVM and dAVF embolization, carotid and intracranial stenting, spine interventions, and emerging neurointerventional devices and techniques. The journal is the official journal of the Society of NeuroInterventional Surgery (SNIS) and partners with several international neurointerventional societies.
+JNIS addresses neurointerventional techniques for the treatment of a range of neurological and vascular problems, including stroke, aneurysms, brain tumors, and spinal disorders.
 
 ## Scope Keywords
-mechanical thrombectomy, intracranial aneurysm, flow diverter, coil embolization, arteriovenous malformation, dural arteriovenous fistula, carotid stenting, acute ischemic stroke intervention, endovascular treatment, neurointerventional device, stroke imaging, clot analysis, angiography, intracranial atherosclerosis
+mechanical thrombectomy, intracranial aneurysm, flow diverter, coil embolization, arteriovenous malformation, dural arteriovenous fistula, carotid stenting, acute ischemic stroke intervention, endovascular treatment, neurointerventional device, brain tumor embolization, spinal intervention, stroke imaging, clot analysis, angiography, intracranial atherosclerosis
+
+_Search terms chosen by this skill for matching, not the journal's stated scope; the journal's own scope is the Scope paragraph above (neurointerventional treatment of stroke, aneurysms, brain tumors, spinal disorders, and other neurological and vascular problems)._
 
 ## Article Types Accepted
-- Original Research
+- Original research
+- Systematic review
 - Review
-- Case Series
-- Brief Report
-- Short Report
-- Case Report (brief format)
-- Technical Note / New Device
-- Socioeconomics
-- Editorial / Commentary
-- Letter to the Editor / e-Letter
-- Video Report
+- Case report
+- Case series
+- Commentary
+- Technical video
+- Images
+- Letters
 
 ## Classification
-- **Tier:** Q1
-- **Open Access:** Hybrid (optional Gold OA with APC; standard subscription route free to authors)
+- **Tier:** Q1 (skill classification; the author page shows an impact factor of 4.5, not a quartile)
+- **Open Access:** Hybrid — optional open access under CC BY or CC BY-NC for an APC of 5,990 USD (exclusive of VAT for UK and EU authors), or an exclusive licence at no cost to authors (non-exclusive licence for UK Crown and US Federal Government employees)
 - **Field:** Neurointervention / endovascular neurosurgery / interventional neuroradiology
 
 ## Special Notes
-Official journal of SNIS. Peer review is double-anonymised — author identities removed from the manuscript file. ORCID iD is mandatory for the submitting author. Original Research requires a structured 250-word abstract and a "Key messages" summary box with three bullets (What is already known / What this study adds / How this study might affect research, practice or policy). Follows BMJ Tier 3 data-sharing policy: a Data Availability Statement is mandatory for all research articles. Reporting guideline adherence is required (STROBE/CONSORT/PRISMA/STARD/ARRIVE as applicable) and the completed checklist must be uploaded. Acceptance rate approximately 18% with a median first decision around 24 days (BMJ metrics, verify at submission). AI policy follows BMJ/ICMJE: generative AI cannot be listed as an author; any substantive use must be disclosed in Methods and/or Acknowledgments; AI-generated or -manipulated images are not permitted.
+Peer review is double-anonymised: an anonymous Version 1 manuscript file plus a Version 2 supplemental file carrying author details, acknowledgements, competing interests, and ethics statements. ORCID iD is mandatory for the submitting author. Original research allows 3,500 words, a structured abstract of up to 250 words, 4 tables/illustrations, and 30 references, and asks for key messages after the abstract (What is already known on this topic / What this study adds / How this study might affect research, practice or policy; no more than 3-5 sentences). Systematic reviews and meta-analyses are submitted as Systematic reviews. Case reports use the JNIS template, cover 1-3 cases, need a signed BMJ consent form from every patient (or guardian), and are not accepted if previously submitted to a preprint server. BMJ Tier 3 data policy: every research article needs a Data Availability Statement. The author page shows a median time to first decision with review of 24 days, an acceptance rate of 18%, and an impact factor of 4.5 (November 2026). AI policy (the JNIS author page refers authors to the BMJ Author Hub policies page; the publisher's AI-use policy there states): AI cannot be an author; AI use is acknowledged in the contributor section, with a fuller description in Methods when AI was used in the research, stating what was used, why, and how; authors are responsible for AI-produced content.

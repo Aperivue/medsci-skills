@@ -274,6 +274,13 @@ When called during manuscript writing, extract the manuscript's inline citations
 the search results, and report specific gaps: key papers not cited, outdated references with newer
 versions, and missing methodological references (statistical methods, reporting guidelines).
 
+Before the manuscript states that no study has addressed a question, read the Discussion of the
+closest prior studies the search found, in full text, and check the work they cite on the claim's
+key condition or comparison, whatever words it is described in. A keyword search misses papers
+that describe the same thing in other terms, and the closest studies' citations can reach some
+of them. Until those Discussions are read, mark the gap statement unverified, and word it for the
+search actually done.
+
 ---
 
 ## Specialized Search Modes

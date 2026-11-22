@@ -137,6 +137,19 @@ arithmetic checks (Phase 2.5f); see also `estimand-provenance-lock`.
 
 ## Operational rules
 
+- **Censoring date.** For a participant with no recorded event, establish from the data provider
+  up to what date the event-free status is known, and censor no later than that date; the date
+  the data were extracted is not necessarily that date.
+- **Weights for loss to follow-up** (inverse probability of censoring weights): before the
+  manuscript describes what the weighting achieved, report the distribution of the weights and
+  agree with the statistician what diagnostic supports that description (the balance step for
+  treatment weights is in `propensity_score.md`); a balance table from before weighting cannot
+  support a sentence about the weighted analysis, and balance on measured covariates does not show
+  that censoring is unrelated to unmeasured factors.
+- **Before turning a time-to-event outcome into yes/no at a fixed time**, check, at the
+  time point chosen for that outcome, how long each participant without an event was followed. A participant who
+  left follow-up before that time without an event has an unknown outcome at it, so agree with the
+  statistician how the analysis will handle those participants.
 - **Events-per-variable (EPV) gate**: check `events / n_covariates >= 10` before fitting Cox
   (the mirror of the logistic EPV rule). If violated, reduce the covariates or use a Firth-
   penalised Cox with profile-likelihood CIs (R `coxphf`); do not report Wald CIs from a

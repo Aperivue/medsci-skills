@@ -147,6 +147,10 @@ When the dataset already exists, formal power analysis is often impractical. Off
 - **Fixed extract**: read `${CLAUDE_SKILL_DIR}/references/observational_cohort.md` and report
   event budget / confidence-interval precision instead of forcing a prospective recruitment-style
   power calculation.
+- **Requests for more data** (binary or time-to-event outcome): for each proposed request,
+  state how many additional outcome events it is expected to add, writing 0 when it adds only
+  participants without the outcome, because a request that enlarges the total N can add few or no
+  events.
 - **Experience-based justification** (acceptable for IRB and many journals):
   - *Institution volume*: `total exams in period × prevalence × (1 − exclusion rate) = expected N`.
     Ask for the annual exam volume for the modality, study period, prevalence and exclusion rate. This

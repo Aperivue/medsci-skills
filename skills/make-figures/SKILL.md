@@ -129,6 +129,18 @@ Design: one page, landscape (16:9) or per the journal template; three sections (
 key method → main result); the study's actual figures rather than generic graphics; minimal text;
 no decorative clip-art.
 
+When the abstract reuses manuscript material, also check before export:
+- **Text inside a reused figure.** If the journal sets a minimum text size or a typeface for text
+  in the graphical abstract, check each label of the figure at the scale it is placed, not at its
+  original size. If labels fall short, place the graphic without its text and set the labels
+  again as required; a figure that fills the frame can still carry labels below the minimum.
+- **Notation, not only values.** Beside each number, compare the statistic it is (median, mean),
+  what its row and column headings say it compares, which stage or condition it belongs to when
+  the manuscript reports several, and any footnote that defines it. Every number can match the
+  manuscript tables while a heading or a dropped qualifier or footnote changes what it means.
+- **Table orientation.** If transposing a manuscript table would put metrics with different units
+  or decimal places into one column, keeping the manuscript table's orientation avoids that.
+
 ### Available Templates
 
 | Template | File | Use When |

@@ -66,6 +66,13 @@ table only to fill silence, and present every hit as a **flag for review**, neve
 
 (Extend per dataset from the codebook; keep the table version-controlled with the project.)
 
+**Self-reported quantities** (alcohol intake, smoking amount, physical activity, sleep and similar
+questionnaire answers) have no row above, and removing sentinel codes does not catch a mistyped
+amount. At profiling, where the questionnaire's instructions or the data owner give a defensible
+plausibility bound, record the bound and its source and report the values beyond it as flags for
+review; where none can be justified, record that. Such a value can sit outside the main analytic subset and only
+cause trouble later, when a different subset of the same data is analysed.
+
 ## 2. Cross-field logical-consistency rules
 
 Single-field bounds miss contradictions *between* fields. Flag a record when:

@@ -75,6 +75,15 @@ access and timing like level (2). Seeing how a defect could be fixed is not the 
 authors being able to fix it in a revision; when feasibility is unknown, say "unclear" rather than default
 to (1) or (2).
 
+**Check the data a proposed re-analysis would run on.** When the recommendation is softened because an
+analysis of data the authors already hold would repair a defect (level 1), first identify what that
+analysis requires and check those prerequisites in the Methods and supplement (for example, whether
+eligibility for the groups compared is conditioned on events after baseline, and whether the outcome's
+operational definition matches the standard the manuscript names, when they bear on the estimand). If a
+necessary prerequisite is undocumented, record that remedy's fixability as unclear and put the question
+to the authors rather than counting it as level (1). The grading weighs only the defects the review has
+already found, so a problem in data the review has not examined does not lower it.
+
 **Salvage-reframe that shrinks the contribution is NOT a fixable major revision.** When your proposed fix
 for a construct/validity flaw is to *narrow the claim* (a clinical claim reframed as a weaker technical
 signal, a full study reframed as a proof-of-concept), check whether that narrower framing survives

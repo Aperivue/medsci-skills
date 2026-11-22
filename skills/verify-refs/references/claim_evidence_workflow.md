@@ -65,6 +65,15 @@ percentage for a subgroup that the manuscript attributes to the whole sample.
 The equal number does not support the manuscript's population claim. A direction
 reversal also needs a source-level judgment despite matching terms and numbers.
 
+When the manuscript cites a prior null result, as support or as a threat to its
+own design, record as the source `denominator` the numbers the comparison
+actually used, not the cohort total, and judge the sentence's wording against
+the reported estimate and its interval as well as those numbers. The numbers are
+sometimes given only in a participant-flow figure; text extraction may omit
+figure labels or lose which branch a number belongs to, so check them against
+the rendered page. Where the estimate, its interval or the group sizes are
+not reported, record each as not reported.
+
 Do not fill pages or excerpts from memory. The tool does not check that an
 excerpt appears on the declared PDF page, authenticate an assessor, or adjudicate
 the meaning of a comparison. Complete fields allow a **recorded judgment**, not
