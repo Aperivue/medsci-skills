@@ -4,6 +4,13 @@
 
 ### Fixed
 
+- **Shipped files no longer point at paths on the maintainer's machine.** Files in ten skills cited the maintainer's personal rule files, by a home-directory path or
+  by bare file name; those files are not part of this package, so the pointer led nowhere for
+  anyone else. The pointers are removed; where one stood
+  in for a checklist, the text now names the shipped file instead. Two printed messages
+  (`check_reverse_coding.py`, the `likert_summary.py` template) lose a trailing "see ..."
+  clause; what they flag is unchanged.
+
 - **`/find-journal`, `/write-paper`: the AJNR and JNIS profiles had drifted from the journals'
   author pages.** AJNR: Original Research is 4000 words counted with references and tables, a
   350-word abstract, 50 references, 5 tables and 7 figures in 15 parts; the "What This Adds" box

@@ -197,8 +197,6 @@ If two or more boxes are unchecked, return to Phase 0 outline before continuing.
 - `workflow-checklist.md` — end-to-end Phase 0 → 4 production checklist
 - `make-figures/references/design_principles.md` — figure-level design (this skill is the
   slide-level companion; both share Reynolds/Knaflic/Tufte foundations)
-- `~/.claude/rules/pptx-mac-compatibility.md` — TIFF, sp3d, app.xml, srcRect defects
+- `make-figures/scripts/validate_pptx_mac_compat.py` — TIFF, sp3d, app.xml, srcRect defects
 - `make-figures/SKILL.md` → *Journal AI-Image Policies* — AI-image policy (JACC prohibits, Radiology
   allows with disclosure)
-- `~/.claude/rules/manuscript-style-classical.md` — heading style for slides paired with
-  manuscript submission

@@ -27,8 +27,7 @@ Mac PowerPoint compatibility — verify before delivery:
      match actual slide count
   4. `<a:srcRect>` values are 1/1000-percent (cap 100000) — never EMU
 
-See `references/workflow-checklist.md` and the user-level rule
-`~/.claude/rules/pptx-mac-compatibility.md` for the full checklist.
+See `references/workflow-checklist.md` for the full checklist.
 """
 
 import os

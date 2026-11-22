@@ -49,8 +49,7 @@ brew install --cask font-pretendard font-inter
 ```
 
 EastAsia attribute **must** be set on every run that may contain Korean text — Mac
-PowerPoint falls back to Times New Roman otherwise. See
-`~/.claude/rules/pptx-mac-compatibility.md` §6.
+PowerPoint falls back to Times New Roman otherwise.
 
 The font checker reports known platform-specific faces; a pass does not establish
 that Inter/Pretendard is installed or used by the renderer. To choose installed
@@ -137,8 +136,7 @@ legitimate override — record it, and move on.
   - Sub (lines prefixed with 2 spaces): native `–` muted paragraph bullet + 20pt text
   - Hanging indents keep wrapped lines aligned with the text. Markers are not typed
     into text runs; bold/italic text remains editable.
-- Inline `**bold**` and `*italic*` markdown is parsed into per-run styling (see
-  `pptx-mac-compatibility.md` §4 for the parser pattern)
+- Inline `**bold**` and `*italic*` markdown is parsed into per-run styling
 
 ### 4e. TOC / outline slide
 - Eyebrow "OUTLINE"
@@ -155,7 +153,6 @@ legitimate override — record it, and move on.
 - Both tiers use 20pt text. Excess entries raise `ValueError` before adding a slide.
   Maximum capacity is not a density target: split a crowded glossary even when it
   fits on the canvas. Wrapped definitions need a rendered review.
-- See `~/.claude/rules/multidisciplinary-presentation.md` §1
 
 ### 4g. Closing slide
 - Title "Take-home messages" or "Conclusions"
@@ -172,14 +169,13 @@ legitimate override — record it, and move on.
 
 **EMU pitfall**: compute width/height in **inches** before wrapping in
 `Inches()`. Never `Inches(fig_w / aspect_ratio)` when `fig_w` is already a pixel
-value — see `pptx-mac-compatibility.md` §7.
+value.
 
 ## 6. Speaker notes density
 
-- Narrative speaker notes in the user's preferred language (a Korean narrative register is supported for Korean presenters, per `~/.claude/rules/academic-lecture-style.md` §1)
+- Narrative speaker notes in the user's preferred language (a Korean narrative register is supported for Korean presenters)
 - About 150–300 characters per slide (30–60 seconds spoken)
-- Run-level markdown parser for `**bold**` / `*italic*` (see
-  `pptx-mac-compatibility.md` §4)
+- Run-level markdown parser for `**bold**` / `*italic*`
 - 13pt Pretendard
 
 ## 7. Mac compatibility checklist (run before delivery)
@@ -192,8 +188,7 @@ value — see `pptx-mac-compatibility.md` §7.
 | Raw markdown in notes | `unzip -p out.pptx ppt/notesSlides/notesSlide3.xml \| grep -oE '\*\*[^<*]+\*\*' \| wc -l` → 0 |
 | Korean glyph in notes | `unzip -p out.pptx ppt/notesSlides/notesSlide3.xml \| grep -oE '[가-힣]+' \| head -5` → renders |
 
-Always validate on **Mac PowerPoint** + PDF export. PDF alone misses some defects
-(see `pptx-mac-compatibility.md` §1–§3).
+Always validate on **Mac PowerPoint** + PDF export. PDF alone misses some defects.
 
 ## 8. Reference implementation
 
@@ -204,8 +199,5 @@ lighthouse papers + supporting references), Mac PowerPoint verified.
 
 ## Cross-references
 
-- `~/.claude/rules/academic-lecture-style.md` — global style rule (English body + Korean notes + this design)
-- `~/.claude/rules/pptx-mac-compatibility.md` — Mac compatibility (TIFF / sp3d / app.xml / Inches EMU / markdown notes)
-- `~/.claude/rules/multidisciplinary-presentation.md` — glossary slide + intuition box pattern
 - `references/medical_presentation_templates.md` Template #5 — Academic lecture (multi-paper)
 - `references/slide_design_principles.md` — Reynolds / Duarte / Knaflic / Tufte foundations

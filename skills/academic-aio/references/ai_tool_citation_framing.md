@@ -48,6 +48,4 @@ classifier of *which use-class* a given sentence describes — the latter is hig
 positive without context the grep cannot see. The reliable, low-FP part (a tool named in
 a Software/Code-availability statement) is already the recommended state, so there is
 nothing to flag. If a bounded, allowlist-driven placement check proves worthwhile on real
-manuscripts, it can be added later; until then this stays advisory. (See
-`~/.claude/rules/manuscript-style-classical.md` §7/§15 for AI-disclosure placement and the
-self-applicability rule.)
+manuscripts, it can be added later; until then this stays advisory.

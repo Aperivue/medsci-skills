@@ -52,8 +52,7 @@ Motivation: a screening cohort binned age with
 `cut(bl_age, breaks=c(-Inf,44,49,59,Inf), right=TRUE)` in the threshold sensitivity
 script. Fractional ages (e.g. 44.5 y) fell into different bands, shifting ~353
 participants and producing a spurious "reached" stratum in the sensitivity table
-that vanished once the binning was harmonized. See
-~/.claude/rules/cross-script-categorical-consistency.md.
+that vanished once the binning was harmonized.
 
 INPUTS
   --root PATH        directory to scan recursively for *.R/*.r/*.py (repeatable;

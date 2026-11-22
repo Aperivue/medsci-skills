@@ -3,7 +3,7 @@
 
 A senior meta-analysis reviewer reads several surface signals as "AI wrote this"
 or as a policy violation. They are all deterministic greps, so they belong in a
-gate rather than a prose checklist (manuscript-style-classical.md §5/§6/§7/§8):
+gate rather than a prose checklist:
 
   SECTION_SYMBOL        (Major) the § symbol anywhere in the body — the canonical
                         AI tell; also catches "see Methods §2" self-references.

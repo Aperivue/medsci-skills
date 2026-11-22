@@ -160,8 +160,7 @@ def analyze(data_path: Path, items: list[str], scale_min: float,
         "verdict": verdict,
         "recode_hint": (
             None if verdict == "OK"
-            else "Recode suspect items as (min+max)-x, then recompute alpha "
-                 "(see ~/.claude/rules/survey-scale-reliability.md)."
+            else "Recode suspect items as (min+max)-x, then recompute alpha."
         ),
     }
 

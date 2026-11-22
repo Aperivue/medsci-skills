@@ -3,8 +3,7 @@
 
 Two overclaim patterns where the conclusion's action exceeds what the design or
 endpoint can support. Both are deterministic when a design/endpoint signal and a
-conclusion action verb co-occur, and both are documented anti-patterns
-(scope-coherence-gate.md):
+conclusion action verb co-occur, and both are documented anti-patterns:
 
   CROSS_SECTIONAL_PROGNOSTIC  the design is cross-sectional / single-visit /
                               prevalence, yet the conclusion makes a prognostic or

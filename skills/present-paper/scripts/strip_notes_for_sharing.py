@@ -158,7 +158,7 @@ def fix_app_xml(pptx_path: Path) -> dict:
     """Re-write docProps/app.xml so Slides/Notes counts match reality.
 
     python-pptx leaves Slides=0 on save, which PowerPoint Mac flags as a
-    repair condition. Match canonical pattern in pptx-mac-compatibility.md §5.
+    repair condition.
     """
     prs = Presentation(pptx_path)
     n_slides = len(prs.slides)

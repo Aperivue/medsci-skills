@@ -13,8 +13,6 @@ alone does not catch:
 4. <a:srcRect> values exceeding 100000 (1/1000-percent) — image is
    over-cropped (sometimes 99 % cut off) only on Mac.
 
-Reference rule: ~/.claude/rules/pptx-mac-compatibility.md.
-
 Usage:
     python validate_pptx_mac_compat.py path/to/deck.pptx
     python validate_pptx_mac_compat.py deck.pptx --json out.json

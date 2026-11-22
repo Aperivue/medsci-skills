@@ -8,8 +8,7 @@ register is also supported for Korean presenters); slide body in English.
 Color palette + typography + layout grid per:
   references/slide_visual_styles/nature_lancet.md
 
-Mac PowerPoint compatibility per:
-  ~/.claude/rules/pptx-mac-compatibility.md
+Mac PowerPoint compatibility:
   → run fix_app_xml() after final save (function included below)
 
 Usage (illustrative):
@@ -571,8 +570,6 @@ def add_glossary_slide(prs: Presentation, *,
 
     tier1: [(abbreviation, one-line context), ...]   — disease/concept (4–7 items)
     tier2: [(abbreviation, short definition), ...]   — method/statistics (8–12 items, rendered 2-column)
-
-    See ~/.claude/rules/multidisciplinary-presentation.md §1.
     """
     if len(tier1) > 7 or len(tier2) > 12:
         raise ValueError("Glossary supports at most seven main and twelve secondary entries; split it across slides")
@@ -692,7 +689,7 @@ def fix_app_xml(pptx_path: str | Path) -> None:
     """Patch docProps/app.xml so Mac PowerPoint stops showing the repair dialog.
 
     Run after Presentation.save(). Updates <Slides>, <Notes>, HeadingPairs counts,
-    and TitlesOfParts vector. See ~/.claude/rules/pptx-mac-compatibility.md §5.
+    and TitlesOfParts vector.
     """
     pptx_path = Path(pptx_path)
     prs = Presentation(pptx_path)

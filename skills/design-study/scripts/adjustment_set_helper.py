@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Confounder-adjustment-set helper for DAG-based covariate selection.
 
-design-study (and `~/.claude/rules` confounding-completeness) tells authors to
+design-study tells authors to
 "pre-specify the adjustment set from a DAG, not a Table-1 p<0.05 rule" — but shipped
 no scaffold to do it. This is that scaffold. Given a causal DAG, an exposure, an
 outcome, and a *proposed* adjustment set, it deterministically classifies each

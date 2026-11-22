@@ -106,7 +106,7 @@ not installed.
    A `RESPONSE_QUOTE_UNVERIFIED` / `RESPONSE_CITATION_UNVERIFIED` verdict means the response asserts a
    specific added sentence or citation that is not in the revised body — verify it by hand, and if
    confirmed, raise it (the author-side `/revise` skill runs the same gate, and `--values` checks the
-   authors' numerical audit table; see `~/.claude/rules/peer-review-response-verification.md`). If the whole round already had one
+   authors' numerical audit table). If the whole round already had one
    response-vs-body mismatch, re-verify **every** prior comment, not a sample.
 
    `RESPONSE_QUOTE_UNRESOLVED` (minor) is the opposite verdict — never write it up. The words ARE
@@ -452,11 +452,3 @@ If a journal has no profile yet, use the generic format from Phase 3. A new prof
 - **Never invent journal scoring criteria.** If uncertain about a journal's format, ask the user or use the generic format.
 - **Never generate references from memory.** Use `/search-lit` if citations are needed for reviewer comments.
 - If a reporting guideline item is uncertain, flag it as `[CHECK]` rather than asserting compliance.
-
-## Global-rule references
-
-Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
-maintainer's personal global rules, kept outside this repository. They are **not shipped with
-this skill** and will not exist on your machine; they appear only as provenance for where a
-convention came from. If one of them looks like it is standing in for an instruction you actually
-need, that is a bug — please open an issue, because the instruction belongs here.
