@@ -20,6 +20,7 @@ English | [简体中文](https://github.com/Aperivue/medsci-skills/blob/v6.4.0/R
 
 <a id="what-is-medsci-skills"></a>
 MedSci Skills is a set of [Agent Skills](https://agentskills.io) for clinical research: literature and references, study design, statistics, figures, manuscript drafting, reporting-guideline checks and journal submission, plus a lane for building and validating medical-imaging AI models.
+`/check-reporting` covers 49 reporting guidelines and risk-of-bias tools, `/verify-refs` looks references up in PubMed, CrossRef and OpenAlex, and 93 deterministic detectors recompute or cross-check specific things (reference metadata, arithmetic, checklist items, data leakage).
 It is for physicians and biomedical or medical-engineering researchers who work in Claude Code, Codex, Cursor or GitHub Copilot.
 The skills draft and check, bundled scripts recompute what can be recomputed, and every output still needs review by a qualified researcher; it is not a diagnostic tool or an autonomous author.
 
@@ -178,4 +179,4 @@ Optional dependency: `pdf_to_md.py` uses [pymupdf4llm](https://pymupdf.readthedo
 - [Adoption](https://github.com/Aperivue/medsci-skills/blob/v6.4.0/IMPACT.md) (stars, forks, downloads) and [citations](https://github.com/Aperivue/medsci-skills/blob/v6.4.0/docs/citations.md).
 - Governance: [ROADMAP](https://github.com/Aperivue/medsci-skills/blob/v6.4.0/ROADMAP.md), [MAINTAINERS](https://github.com/Aperivue/medsci-skills/blob/v6.4.0/MAINTAINERS.md), [SECURITY](https://github.com/Aperivue/medsci-skills/blob/v6.4.0/SECURITY.md), [CONTRIBUTORS](https://github.com/Aperivue/medsci-skills/blob/v6.4.0/CONTRIBUTORS.md).
 
-Built by [Aperivue](https://aperivue.com).
+Built by [Aperivue](https://aperivue.com). Project page: [aperivue.com/skills](https://aperivue.com/skills).
