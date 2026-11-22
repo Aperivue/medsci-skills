@@ -21,6 +21,7 @@
 ## 무엇이고, 누구를 위한 것인가
 
 MedSci Skills는 임상 연구를 위한 [Agent Skills](https://agentskills.io) 모음입니다. 문헌과 참고문헌, 연구 설계, 통계 분석, figure, 원고 작성, reporting guideline 점검, 저널 투고를 다루고, 의료영상 AI 모델을 만들고 검증하는 작업도 함께 다룹니다.
+`/check-reporting`은 49개 reporting guideline과 risk-of-bias 도구를 다루고, `/verify-refs`는 참고문헌을 PubMed, CrossRef, OpenAlex에서 조회하며, 93개의 deterministic detector는 정해진 항목(참고문헌 메타데이터, 산술, 체크리스트 항목, data leakage)을 다시 계산하거나 교차 확인합니다.
 Claude Code, Codex, Cursor, GitHub Copilot에서 일하는 의사와 의생명·의공학 연구자를 위해 만들었습니다.
 스킬은 초안을 쓰고 점검하며, 함께 들어 있는 스크립트는 다시 계산할 수 있는 것을 직접 다시 계산합니다. 그래도 모든 결과물은 자격을 갖춘 연구자가 검토해야 합니다. 진단 도구가 아니며, 스스로 논문을 쓰는 저자도 아닙니다.
 
@@ -99,4 +100,4 @@ MIT License입니다. [LICENSE](https://github.com/Aperivue/medsci-skills/blob/v
 reporting guideline 체크리스트는 원 출처의 조건을 유지합니다. 그중 몇 개는 공개 라이선스가 없어 원문 대신 직접 다시 쓴 요약으로만 넣었고, 항목별 기록은 [check-reporting의 LICENSES.md](https://github.com/Aperivue/medsci-skills/blob/v6.4.0/skills/check-reporting/references/LICENSES.md)에 있습니다.
 선택 의존성: `pdf_to_md.py`는 [pymupdf4llm](https://pymupdf.readthedocs.io)(AGPL-3.0)을 씁니다. 함께 배포하지 않으며, 필요하면 `pip install pymupdf4llm`으로 직접 설치합니다.
 
-Built by [Aperivue](https://aperivue.com).
+Built by [Aperivue](https://aperivue.com). Project page: [aperivue.com/skills](https://aperivue.com/skills).

@@ -21,6 +21,7 @@
 ## 这是什么，适合谁
 
 MedSci Skills 是一套面向临床研究的 [Agent Skills](https://agentskills.io)：涵盖文献与参考文献、研究设计、统计分析、图表、论文撰写、报告规范核查和期刊投稿，另有一条用于构建和验证医学影像 AI 模型的工作线。
+`/check-reporting` 涵盖 49 项报告规范和偏倚风险工具，`/verify-refs` 在 PubMed、CrossRef 和 OpenAlex 中查找参考文献，93 个确定性检测器会重新计算或交叉核对特定内容（参考文献元数据、算术、清单条目、数据泄漏）。
 它面向在 Claude Code、Codex、Cursor 或 GitHub Copilot 中工作的医生，以及生物医学和医学工程研究人员。
 技能负责起草和核查，随附的脚本会重新计算能够重新计算的内容；所有输出仍须由合格的研究人员审阅。它不是诊断工具，也不是自主撰写论文的作者。
 
@@ -99,4 +100,4 @@ MIT 许可证，见 [LICENSE](https://github.com/Aperivue/medsci-skills/blob/v6.
 报告规范清单保留其来源的条款；其中几项没有开放许可，因此只以我们自己的话写成摘要收录，逐项记录见 [check-reporting 的 LICENSES.md](https://github.com/Aperivue/medsci-skills/blob/v6.4.0/skills/check-reporting/references/LICENSES.md)。
 可选依赖：`pdf_to_md.py` 使用 [pymupdf4llm](https://pymupdf.readthedocs.io)（AGPL-3.0），不随附，需要时由用户自行 `pip install pymupdf4llm`。
 
-Built by [Aperivue](https://aperivue.com).
+Built by [Aperivue](https://aperivue.com). Project page: [aperivue.com/skills](https://aperivue.com/skills).

@@ -49,7 +49,9 @@
     "peer-review",
     "claude-code",
     "agent-skills",
-    "research-pipeline"
+    "research-pipeline",
+    "academic-writing",
+    "scientific-writing"
   ],
   "scripts": {
     "prepack": "find skills installers -name __pycache__ -type d -prune -exec rm -rf {} + 2>/dev/null; true",
