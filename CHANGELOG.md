@@ -4,6 +4,15 @@
 
 ### Fixed
 
+- **`/find-journal`, `/write-paper`: the AJNR and JNIS profiles had drifted from the journals'
+  author pages.** AJNR: Original Research is 4000 words counted with references and tables, a
+  350-word abstract, 50 references, 5 tables and 7 figures in 15 parts; the "What This Adds" box
+  is replaced by a three-cell summary section after acceptance; supplemental material is one PDF
+  cited as "Supplemental Data"; case reports are not an article type. JNIS: article types and
+  limits follow the page, double-anonymised review needs two files, key messages are three to
+  five sentences under three headings, and the AI section follows the publisher's policy. A value
+  the page does not state is marked as not found instead of filled in.
+
 - **A second set of guidance sentences that overstated a rule.** A two-group test is invalid when
   it treats a subset and the cohort containing it as independent samples (the probes said any
   subset-versus-parent P value was invalid); "two-gate sampling overestimates accuracy" and "closed
@@ -15,6 +24,21 @@
   precision in `/clean-data`; records the identifier match leaves unmatched are deduplicated by
   hand in `/meta-analysis`. Case-like numbers were removed from two probes, and references to
   private rule paths in two shipped files were replaced by in-repository ones.
+
+### Changed
+
+- **Guidance from candidates that had been waiting for a second occurrence, in thirteen skills.**
+  `/peer-review`: what to do when the authors' response or previous version is missing, anchoring
+  comments without readable line numbers, naming the remedy when a statistic cannot support a
+  claim, what an external dataset can provide before proposing it, re-reading a heading after
+  softening a comment, and checking the data a proposed re-analysis would run on. `/deidentify`:
+  a self-run check on a file that may hold identifiers prints only counts and true/false
+  results. `/analyze-stats`: score point tables are compared with the defining publication,
+  hand-written estimators are checked against a worked example, and the survival guide covers the
+  censoring date, weights for loss to follow-up and fixed-time outcomes. Also `/present-paper`
+  (stable slide keys, counting what a safety pass replaced, confirming a correction),
+  `/verify-refs`, `/calc-sample-size`, `/design-study`, `/clean-data`, `/imaging-data`,
+  `/search-lit`, `/find-journal` and `/make-figures`.
 
 ## [6.4.0] - 2026-11-21
 

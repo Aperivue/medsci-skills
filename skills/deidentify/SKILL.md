@@ -25,6 +25,13 @@ PHI data.
    English for technical terms (PHI, HIPAA, Safe Harbor, etc.).
 5. **The researcher runs the script in their own terminal**, not through you (no `!` prefix,
    no Bash tool call): the review prints sample values of every column.
+6. **Before you run your own check on a file that may still hold identifiers** (a header
+   check, a structure look, a duplicate search), decide what the command will print and keep
+   it to counts and true/false results, for every sheet of a workbook. Compare headers with an
+   expected list without printing the ones not on it, because a header, or a first data row read
+   as a header, can itself be an identifier. A search for an identifier's
+   label (a word such as "MRN" or "name") that prints the matching lines can print the values on
+   those lines, so the intent to only check structure does not keep them off the screen.
 
 ## Reference Files
 

@@ -252,6 +252,18 @@ say so and recommend biostatistician review before the results are reported.
    (`estimate, ci_lower, ci_upper`) or as one text column in `est (lo–hi)` form; never a point
    estimate with no interval beside it. Round ORs/HRs/sHRs to 2 decimals and AUC/C-statistic
    to 3.
+10. **Named clinical scores**: when the code assigns the points of a published score, copy the
+    point table of the score version the analysis uses, from the publication that defines that
+    version, into a comment beside the code with its DOI or PMID, and compare the coded points
+    with it item by item. Rerunning the same code does not independently check the points.
+11. **Estimators written by hand**: when a statistic, test or model is coded directly instead of
+    taken from an established package (for example because the package does not run in this
+    environment), check the implementation before reporting its results, against a published
+    worked example or an independent implementation run on the current data. A package that does
+    not run here can usually be run in a separate environment, so it is not a reason to skip the
+    check. If the Methods say a result was reproduced in another implementation, record the date
+    and the dataset version that reproduction used, and rerun it when the data, the code or its
+    options change.
 
 ### Effect-Size Real-World Translation
 

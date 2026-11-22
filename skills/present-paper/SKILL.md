@@ -363,6 +363,11 @@ and they travel further. Before any of them goes out:
   while the review sheet the speaker would answer questions from still said 54.1%. Whenever the
   deck's numbers move, sweep the sibling `.md` files for the superseded values. Fence a deliberately
   quoted old figure (`<!-- superseded-quotation -->`) rather than exempting the file.
+- **Confirm a correction by its new value.** A claim on a slide can also appear in the speaker
+  notes, the source line and any figure that draws it. After a correction, check the corrected
+  claim, label and value together wherever it is shown, and regenerate each figure that draws it
+  from its script and data: a search for the old value
+  comes back empty from the place you edited, and finds nothing inside a picture.
 - **Operator material in an audience document.** A brief written to prepare *you* ("the point they
   will push back on", "the fallback position", a minute-by-minute plan) reads, handed to the person
   it describes, as a strategy for managing them. Make it two documents: an internal one with the
@@ -494,6 +499,14 @@ A from-scratch generation script must:
 - Copy `<a:srcRect>` from another deck verbatim — values are 1/1000-percent (cap 100000), never EMU.
   A unit-conversion bug here crops 99% of the image off-slide.
 - Print slide count, notes count, file size, and editability check at the end.
+- **Find slides by a stable key** (a slide id or a tag the script sets), not by title text; if a
+  step still finds slides by title, finish all such lookups before running the rename pass once.
+  After a rename, a title lookup can fail, or
+  quietly match fewer slides than before.
+- **Count what a safety pass did.** A pass that replaces material that must not ship (unpublished
+  screenshots, superseded numbers) compares the items replaced in the saved file with the items expected
+  (which ones, not only how many) and stops the build when they differ, because a pass that matches fewer slides still
+  finishes without error.
 
 ### Patch over Rebuild — editing an existing PPTX
 

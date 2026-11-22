@@ -195,6 +195,11 @@ Ask whether the comparator and endpoint support the stated claim:
   endpoint (present/absent, >0, dichotomized) is risk stratification, not a patient-care directive
   (defer/withhold/initiate therapy). At review time `/self-review` §D + `check_scope_coherence.py` flag
   `CROSS_SECTIONAL_PROGNOSTIC` / `SURROGATE_CARE_DIRECTIVE` against the conclusion.
+- **expected direction of the primary**: before the primary estimand is locked, write down, for
+  each primary claim, the result that would support it (the direction of the contrast, or the
+  range for an equivalence claim) and, for a composite or joint outcome, which way each component
+  moves under that claim. If that expected result could not show what the study claims, raise it with the
+  user as a design issue before locking: arithmetic and consistency checks pass such a primary.
 
 ### Phase 4: Reporting fit
 

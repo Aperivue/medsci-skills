@@ -4,78 +4,68 @@
 
 - **Publisher:** BMJ Publishing Group
 - **Society:** Society of NeuroInterventional Surgery (SNIS)
-- **Frequency:** Monthly (12 issues/year)
-- **Scope:** Endovascular and surgical neurointervention — acute ischemic stroke thrombectomy, intracranial aneurysm treatment, AVM/dAVF embolization, carotid and intracranial stenting, spine intervention, neurointerventional devices
-- **Open Access:** Hybrid (optional Gold OA with APC; subscription route free to authors)
-- **Language:** British English
-- **Peer Review:** Double-anonymised (author identifiers must be removed from the manuscript file)
-- **ORCID:** Mandatory for submitting author
-- **Acceptance / Timing (BMJ metrics — verify at submission):** approximately 18% acceptance; median first decision approximately 24 days
+- **Scope:** Neurointerventional techniques for the treatment of a range of neurological and vascular problems, including stroke, aneurysms, brain tumors, and spinal disorders
+- **Open Access / licence:** Authors choose one of three licences — an exclusive licence granted to BMJ (authors retain copyright; non-exclusive for UK Crown and US Federal Government employees), CC BY-NC, or CC BY. The Creative Commons open-access licences require an article processing charge of 5,990 USD (exclusive of VAT for UK and EU authors); authors can always publish at no cost, with the article made available to subscribers. No submission, page, or colour figure charges. Complies with funder mandates, including Plan S.
+- **Submission portal:** ScholarOne
+- **Peer Review:** Double-anonymised — two manuscript versions are required (see Peer Review Model below)
+- **ORCID:** Mandatory for the submitting author at the time of submission
+- **Metrics shown on the journal's author page (November 2026):** time to first decision with review 24 days (median); acceptance rate 18%; impact factor 4.5
 
 ---
 
 ## Scope — Covered Topics
 
-- Acute ischemic stroke — mechanical thrombectomy, stentriever/aspiration, imaging selection
-- Intracranial aneurysm — coiling, stent-assisted coiling, flow diversion, intrasaccular devices
-- Arteriovenous malformation and dural arteriovenous fistula embolization
-- Carotid artery stenting, intracranial atherosclerotic disease stenting
-- Spine interventions (vertebroplasty, kyphoplasty, spinal angiography, embolization)
-- Neurointerventional device evaluation (first-in-human, post-market, registry)
-- Clot and plaque histology from endovascular retrieval
-- Socioeconomics, workforce, and systems of neurointerventional care
+The journal's scope statement: JNIS "addresses the growing professional interest in neurointerventional techniques for the treatment of a range of neurological and vascular problems including stroke, aneurysms, brain tumors, and spinal disorders."
 
 ---
 
 ## Manuscript Types and Word Limits
 
-| Type | Body Word Limit | Abstract | Figures/Tables | References |
-|------|----------------|----------|----------------|------------|
-| Original Research | 3,500 | 250 (structured) | 4 | ≤30 |
-| Review | 4,000 | 250 (unstructured) | 4 | ≤60 |
-| Case Series | 2,500 | 250 (structured) | 4 | ≤20 |
-| Brief / Short Report | 2,000 | 200 (structured) | 2 | ≤15 |
-| Case Report | 800 | 150 (brief) | 2 | ≤10 |
-| Technical Note / New Device | 2,000 | 200 | 3 | ≤15 |
-| Editorial (invited) | 1,500 | None | 2 | ≤15 |
-| Letter / e-Letter | 600 | None | 1 | ≤5 |
-| Video Report | 500 + video | 150 | n/a | ≤10 |
+The word count excludes the title page, abstract, tables, acknowledgements, contributions and references.
 
-*Verify exact current limits on the author guidelines page before submission — BMJ periodically revises its limits.*
+| Type | Word Limit | Abstract | Tables/Illustrations | References |
+|------|-----------|----------|----------------------|------------|
+| Original research | Up to 3,500 | Structured, up to 250 | Up to 4 | Up to 30 |
+| Systematic review | Not separately stated; see Original research guidance | Not separately stated; see Original research guidance | Not separately stated; see Original research guidance | Not separately stated; see Original research guidance |
+| Review | Up to 3,000 | Brief summary, up to 250 | Up to 4 | Up to 30 |
+| Case report | Up to 800 | Brief summary, up to 150 | Not stated | Up to 8 |
+| Case series | Up to 3,000 | Structured, up to 250 | Up to 4 figures and/or tables | Up to 30 |
+| Commentary | Up to 2,000 | None | 1 | Up to 20 |
+| Technical video | Not found on the author page | 150 words, unstructured single paragraph | Not found on the author page | Up to 10, in the final slide of the video |
+| Images | Up to 250 | Not found on the author page | Up to 2 | Up to 2 |
+| Letters | Not found on the author page | Not found on the author page | Not found on the author page | Not found on the author page |
+
+- **Systematic review:** all research reviews that systematically synthesise evidence (systematic reviews, meta-analyses, scoping reviews, mixed methods reviews, etc) are submitted as Systematic reviews, not Original research; include the research type in the title; "Please see Original research for more guidance on article requirements" (no separate limits are stated for this type).
+- **Case report:** must be submitted on the JNIS case report Word template; examines 1 to 3 individual cases (4 or more cases is a Case series); requires a signed BMJ consent form from every patient (or guardian) — other consent forms (eg, from the institution) or verbal consent are not accepted.
+- **Technical video:** a 3-7 minute video illustrating one or two cases; minimum 720p; maximum file size 350MB.
+- **Images:** up to 3 authors.
+- **Letters:** at the Editor's discretion, selected Rapid Responses are published as a fully indexed Letter article.
 
 ---
 
 ## Abstract Requirements
 
-**Structured 250-word abstract for Original Research:**
+**Original research and Case series: structured abstract, up to 250 words.** Systematic review: not separately stated; see the Original research guidance. The abstract headings are not stated on the author page read (checked 2026-11).
 
-```
-Background: [Clinical question; rationale]
-Methods: [Study design, population, interventions, outcomes, statistical approach]
-Results: [Key numerical results with effect sizes and 95% CI]
-Conclusions: [Main conclusion; clinical implication]
-```
+Review: brief summary up to 250 words. Case report: brief summary up to 150 words. Technical video: 150 words, unstructured, single paragraph.
 
 ---
 
-## Key Messages Box (Mandatory for Original Research)
+## Key Messages Box (Original Research)
 
-A three-bullet summary box is required:
+Include the key messages after the abstract, under these headings, in no more than 3-5 sentences in total, distinct from the abstract, succinct, specific, and accurate. It is published as a summary box after the abstract.
 
 ```
-WHAT IS ALREADY KNOWN ON THIS TOPIC
-• [1–2 sentences on current knowledge]
-
-WHAT THIS STUDY ADDS
-• [1–2 sentences on the novel contribution]
-
-HOW THIS STUDY MIGHT AFFECT RESEARCH, PRACTICE OR POLICY
-• [1–2 sentences on implications]
+What is already known on this topic
+What this study adds
+How this study might affect research, practice or policy
 ```
 
 ---
 
 ## Domain-Specific Outcome Measures
+
+Guidance (not JNIS requirements; the author page does not specify outcome measures):
 
 ### For Acute Ischemic Stroke Thrombectomy
 
@@ -109,122 +99,113 @@ HOW THIS STUDY MIGHT AFFECT RESEARCH, PRACTICE OR POLICY
 
 ## Required Sections
 
-1. **Introduction** — Background; knowledge gap; specific aim
-2. **Methods**
-   - Ethics: IRB/ethics committee approval + informed consent statement (or waiver rationale)
-   - Study design, setting, participants, timeframe
-   - Exposures, interventions, and outcomes with explicit definitions
-   - Statistical analysis
-   - Reporting-guideline citation (STROBE/CONSORT/PRISMA/STARD/ARRIVE/TRIPOD)
-   - **Data Availability Statement — mandatory (BMJ Tier 3 policy)**
-3. **Results**
-   - Participant flow / baseline characteristics
-   - Primary and secondary outcomes with effect sizes and 95% CI
-   - Subgroup and sensitivity analyses
-4. **Discussion** — include Limitations subsection
-5. **Conclusion**
+The author page does not prescribe a section order. Stated requirements:
+
+- **Key messages** after the abstract (Original research).
+- **Data Availability Statement** — all research articles (BMJ Tier 3 data policy).
+- **Reporting guideline:** reports of randomized controlled trials should follow the revised CONSORT statement as closely as possible. Other reporting guidelines are not named on the author page read (checked 2026-11); guidance: cite the applicable one (STROBE/PRISMA/STARD/TRIPOD).
+- **Acknowledgements and Competing interests** (listed as "none declared" if not applicable) — omitted from Version 1 and included in Version 2; **ethics approval statements** — included in full in Version 2, and omitted from Version 1 when they refer to the authors' institution (see Peer Review Model).
+
+Guidance (not JNIS rules): Introduction ending with the specific aim; Methods with study design, participants, outcome definitions, and statistical analysis; Discussion with limitations; Conclusion.
 
 ---
 
-## Data Sharing Statement (BMJ Tier 3 — Mandatory)
+## Data Sharing Statement (BMJ Tier 3)
 
-Every Original Research article must include a Data Availability Statement. Acceptable forms include (examples):
-- "Data are available in a public, open access repository at [URL/DOI]."
-- "Data are available upon reasonable request to the corresponding author."
-- "No data are available." (only when legally or ethically restricted — must justify)
+JNIS adheres to BMJ's Tier 3 data policy. All research articles must contain a Data Availability Statement. Acceptable wordings are not quoted on the author page read (checked 2026-11).
 
 ---
 
 ## Reference Style
 
-- **Vancouver numbered system**
-- Superscript reference numbers in the text
-- List first 6 authors followed by "et al." when there are more than 6 authors (verify on BMJ reference style page)
-- Journal abbreviations per Index Medicus / NLM
-- Include DOI or PMID when available
+Not found on the author page read (reference style and the number of authors before "et al." are not stated there; checked 2026-11).
 
 ---
 
 ## Statistical Reporting Expectations
 
+The author page states no statistical-reporting format beyond asking that reports of randomized controlled trials follow the revised CONSORT statement as closely as possible. General guidance (not JNIS requirements):
+
 - Effect sizes with 95% CI — not p-values alone
 - State statistical software (name, version, key packages)
 - Time-to-event: Kaplan-Meier with log-rank; Cox regression with PH assumption check
-- Diagnostic accuracy: AUC with 95% CI (DeLong); sensitivity/specificity with Clopper-Pearson CI
-- Missing data: describe amount and handling (complete-case, multiple imputation, IPW)
-- Propensity-score and IPW methods: report covariates, balance diagnostics (standardized mean difference)
+- Diagnostic accuracy: AUC with 95% CI; sensitivity/specificity with exact CI
+- Missing data: describe amount and handling
+- Propensity-score and IPW methods: report covariates and balance diagnostics
 
 ---
 
 ## Figures
 
-- High-resolution TIFF, EPS, or PDF (≥300 dpi for halftone; ≥600 dpi for line art)
-- Label panels with capital letters (A, B, C, ...)
-- Scale bars for radiographs/histology; anatomical orientation labels for angiograms
-- Figure legends separate from figures in the manuscript file
-- Video files supported for endovascular case material
+- **Format:** TIFF, GIF, EPS, PowerPoint, or high quality JPEG.
+- **Resolution:** black and white images at a minimum of 300 dpi; color images at a minimum of 600 dpi.
+- **Maximum:** per article type (tables and illustrations counted together; see the table above).
+- **Color:** no colour figure charges.
+- **Data supplement:** additional figures and tables, methodology, references, video clips, raw data, etc, may be published online; if the paper exceeds the word count, consider moving material to a data supplement. Supplement files are not copyedited or typeset.
 
 ---
 
 ## Peer Review Model — Double-Anonymised
 
-Authors must prepare the main manuscript file without:
-- Author names, affiliations, emails on the title page (submitted separately)
-- Acknowledgments, funding statements, or any wording that identifies the institution
-- Self-citations that reveal the group ("as we previously reported in reference X")
+Submit two versions of the manuscript file:
 
-Submit a separate title-page file with full authorship metadata.
+- **Version 1 (uploaded as the Manuscript File):** anonymous; must NOT include any author names, author institution details, author contact details, Acknowledgements, Competing interests (if declared), or ethics approval statements that refer to the authors' institution. It is converted to PDF on upload to ScholarOne and made available to reviewers.
+- **Version 2 (uploaded as a Supplemental File):** the manuscript text plus all information omitted from Version 1 — full author and institution details for all authors, Acknowledgements, Competing Interests ("none declared" if not applicable), and ethics approval statements. Accessed only by the Editor and the Editorial Staff.
+
+---
+
+## Preprints
+
+BMJ supports archiving preprints in any recognised, not-for-profit server such as medRxiv and does not consider posting in a dedicated preprint repository to be prior publication. Exception: the policy does not extend to case reports — BMJ will not accept case reports previously submitted to a preprint server.
 
 ---
 
 ## Common Rejection Reasons
 
-1. **Scope mismatch** — non-neurointerventional work; stroke medical therapy without endovascular component belongs in a stroke journal
-2. **Low sample size for single-center retrospective series** without external validation
-3. **Missing reporting-guideline checklist**
-4. **Vague outcome definitions** — mTICI, mRS cutoff, sICH, RROC/OKM all must be pre-specified and cited
-5. **Failure to strip identifying information** — returned for double-anonymization non-compliance
-6. **Missing or inadequate Data Availability Statement** (BMJ Tier 3 non-compliance)
-7. **Weak comparison to prior literature** — incremental reports of well-established techniques need a clear reason for publication
+JNIS's author page does not list rejection reasons. The checks below are requirements stated on the author page:
+
+1. Double-anonymisation not followed — identifying details in Version 1, or Version 2 not supplied.
+2. Missing Data Availability Statement in a research article.
+3. A systematic review or meta-analysis submitted as Original research.
+4. A case report not on the JNIS template, with 4 or more cases, without a signed BMJ consent form from every patient (or guardian), or previously submitted to a preprint server.
+5. Over the word, table/illustration, or reference limits for the article type.
+
+Journal-fit guidance (the skill's judgement, not a stated JNIS rule): work without a neurointerventional treatment component sits outside the journal's stated scope (see Positioning).
 
 ---
 
 ## Author Guidelines URL
 
-https://jnis.bmj.com/pages/authors/
+https://jnis.bmj.com/pages/authors
 
 ---
 
 ## AI Writing Disclosure Policy
 
-JNIS follows BMJ's generative-AI policy and ICMJE recommendations:
+The JNIS author page has no AI section of its own; it refers authors to the BMJ Author Hub policies page ("To view all BMJ Journal policies please refer to the BMJ Author Hub policies page"). The entries below are the publisher's AI-use policy on the BMJ Author Hub (checked 2026-11).
 
-1. **AI cannot be an author** (ICMJE) — AI tools cannot take responsibility for the work.
-2. **Disclose substantive AI use** in Methods (when used in research design, analysis, or drafting specific text) and in the Acknowledgments.
-3. **AI-generated references are prohibited** — the corresponding author is responsible for all citation accuracy.
-4. **Basic grammar / spell-check tools** (e.g., Grammarly, word-processor spell-check) do not require disclosure.
-5. **Generative-AI image creation or manipulation is prohibited** in scientific figures (angiograms, histology, MRI, CT).
-6. **Prompt transparency:** when AI is used in data analysis or figure generation, provide sufficient detail (prompts, tool version) for reproducibility.
+- **Requirement level:** Required — BMJ's approach is transparency: where AI technology has been used, it should be clearly described, and editors consider the suitability of the use. The policy covers all content types and formats (text, audio, video, abstracts, data, tables, diagrams, images), any other work by the authors that underpins or is otherwise connected with the submitted content, and, to the authors' knowledge, any key sources cited. Content may be rejected or changed after publication on the basis of inadequate declaration or the circumstances of use.
+- **Permitted scope:** BMJ will consider content where AI technologies are used. AI technologies are not accepted as authors; BMJ recognises only humans as capable of authorship. Authors and contributors are responsible for content produced by AI in their work, including accuracy, suitable attribution of sources, and absence of plagiarism. BMJ may use screening tools before publication to identify AI-generated content.
+- **Disclosure location:** An acknowledgement of AI use in the "contributor" section of written material; if the AI was used in the course of research, a fuller description in the Methods section. The declaration describes what AI technology was used (its name), why it was used, and how it was used (its task). Authors may consider adding a summary of the input, the output, and how the authors reviewed the AI output, as supplementary files or additional information for the editor.
+- **AI-generated images:** Not found in the BMJ AI-use policy (no ban on AI-generated images or references, no exemption for grammar tools, and no prompt-disclosure requirement are stated; checked 2026-11). Images fall within the policy's disclosure scope.
+- **Peer reviewers:** Reviewers who use AI to improve word processing and language declare this when submitting their reports, and do not put unpublished manuscripts under review for BMJ Journals (or information about them) into publicly available AI tools where the security of the confidential information cannot be guaranteed.
+- **Policy URL:** https://authors.bmj.com/policies/ai-use/ (the publisher's AI-use policy on the BMJ Author Hub; the JNIS author page refers to the BMJ Author Hub policies page)
 
-Always re-check the BMJ and JNIS author pages at submission for updates.
+- **AI-use disclosure placement**: Contributors section, plus Methods when AI was used in the research (body)
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: BMJ AI-use policy, "Include an acknowledgement of AI use in the 'contributor' section of written material. If the AI use was in the course of research, a fuller description should be included in the methods section." -->
 
 ---
 
 ## Positioning
 
-JNIS is appropriate when:
-- The study is primarily endovascular or surgical neurointerventional in nature
-- The endpoint includes procedural success (mTICI, RROC, OKM), device performance, or technical complication rates
-- Target audience includes interventional neuroradiologists, endovascular neurosurgeons, and interventional neurologists
-- First-in-human device studies, registry reports, and technical notes are welcome
+Guidance, based on the two journals' own scope statements:
 
-JNIS is less appropriate for: medical (non-endovascular) stroke management (consider Stroke or Journal of Stroke), purely imaging-diagnostic work without intervention (consider AJNR, Neuroradiology), or basic cerebrovascular biology (consider Stroke basic/translational track or ATVB).
+JNIS fits when the study is about neurointerventional treatment of stroke, aneurysms, brain tumors, spinal disorders, or other neurological and vascular problems, and the audience is neurointerventionalists.
+
+JNIS is less appropriate for purely diagnostic imaging work without a neurointerventional treatment component; AJNR's scope covers clinical imaging of the central and peripheral nervous system.
 
 ---
 
 ## Verification note
 
-Profile built 2026-04 from the JNIS author guidelines PDF (https://jnis.bmj.com/pages/authors/). BMJ Tier 3 data-sharing policy, double-anonymised review model, ORCID mandate, and Key Messages box requirement are transcribed from the same source. Acceptance-rate and first-decision timing figures are the BMJ-reported values on the authors page; re-verify at submission.
-
-- **AI-use disclosure placement**: Methods
-  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "Disclose substantive AI use in Methods (when used in research design, analysis, or drafting)" -->
+Checked 2026-11 against the JNIS Authors page (https://jnis.bmj.com/pages/authors). The JNIS page refers authors to the BMJ Author Hub policies page; the AI-use policy section is from the publisher's AI-use policy there (https://authors.bmj.com/policies/ai-use/, checked 2026-11). Reference style and abstract headings are not on the JNIS page and were not verified.

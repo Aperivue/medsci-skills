@@ -84,6 +84,12 @@ and `/write-paper` inherit them instead of re-deriving them:
 4. **Where the held-out set comes from** — especially when the shipped "test" directory is unlabelled.
 5. **What the cohort cannot support** — n, single-source acquisition, absent subgroups: the seed of
    the Limitations paragraph, written before results can bias it.
+6. **What was acquired** — a statement about the acquisition protocol is checked against the protocol
+   record, and a statement that an examination lacks a series, image type or orientation against
+   the source's series and instance list; with only the export checked, write that it was not
+   observed in this export. A partial export
+   can omit whole series or some images within a series, which looks the same as a protocol
+   without them.
 
 ### Phase 4 — Inventory the preparation steps and fix fit scope
 Collect the modality, the data manifest (one row per image/slice with a `patient_id`), the resample
