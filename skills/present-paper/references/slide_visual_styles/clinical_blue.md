@@ -37,8 +37,7 @@ and always with a label (never color alone).
 | Eyebrow | Inter | Pretendard | 11–13 pt | Bold, letter-spaced 300 |
 | Footer | Inter | Pretendard | 9 pt | Regular |
 
-Set the EastAsia attribute on every run (Mac falls back to Times otherwise —
-`~/.claude/rules/pptx-mac-compatibility.md` §6).
+Set the EastAsia attribute on every run (Mac falls back to Times otherwise).
 
 ## 3. Layout
 
@@ -67,4 +66,3 @@ Run the checklist in `nature_lancet.md` §7 (TIFF / sp3d / app.xml / markdown-in
 ## Cross-references
 - `references/presentation_design_guidelines.md` — §4 color/accessibility
 - `references/generate_pptx_templates.py` — generic builder (swap tokens)
-- `~/.claude/rules/pptx-mac-compatibility.md`, `~/.claude/rules/academic-lecture-style.md`

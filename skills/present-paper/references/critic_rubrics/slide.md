@@ -8,7 +8,8 @@ After scoring, produce a list of concrete edits that would resolve every FAIL or
 item. Return the scored rubric + edit list to the user.
 
 > **Sources** for these rules: `slide_design_principles.md` (Reynolds, Duarte, Knaflic,
-> Tufte) and `~/.claude/rules/pptx-mac-compatibility.md`. Items marked **medical** are
+> Tufte) and the Mac-compatibility checklist
+> (`references/slide_visual_styles/nature_lancet.md` §7). Items marked **medical** are
 > drawn from RadioGraphics 2025 ("Winning at the Radiology Podium") and RSNA refresher
 > course conventions.
 

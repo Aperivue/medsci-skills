@@ -325,7 +325,7 @@ def main():
 
     # ── Reverse-coding guard (run BEFORE any scoring/reliability) ──────────────
     # A reverse-worded item must be recoded or it sinks Cronbach's alpha (often
-    # negative). See ~/.claude/rules/survey-scale-reliability.md.
+    # negative).
     if args.reverse_items:
         print("\n── Reverse-coding applied ──────────────────")
         df = apply_reverse_coding(df, args.items, args.reverse_items, args.scale)
@@ -362,7 +362,7 @@ def main():
                 print("   ⚠ NEGATIVE alpha — almost always a reverse-coding bug, "
                       "not a 'multidimensional' construct.")
                 print("     Recode reverse-worded items (--reverse-items) and rerun "
-                      "BEFORE interpreting. See survey-scale-reliability.md.")
+                      "BEFORE interpreting.")
             else:
                 interp = ("excellent" if alpha >= 0.9 else
                           "good" if alpha >= 0.8 else

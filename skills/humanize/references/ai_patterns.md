@@ -452,8 +452,7 @@ prose, including response letters.
 
 **Legitimate italics — never strip these:** statistical symbols (*P*, *t*, *n*, *F*, *r*),
 Latin (*in vivo*, *et al.*, *post hoc*), gene and species names (*BRCA1*, *E. coli*), journal
-titles. A **bold run-in subheading** at line start is correct Nature/npj style
-(`manuscript-style-classical.md` §1.2) and is not counted.
+titles. A **bold run-in subheading** at line start is correct Nature/npj style and is not counted.
 
 **Detection:** `python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_emphasis_density.py" --manuscript manuscript.md`
 → `EMPHASIS_OVERUSE` (Minor). Counts non-allowlisted *italic* spans per 1,000 body words;

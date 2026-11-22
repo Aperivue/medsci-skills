@@ -90,13 +90,12 @@ Phase 3.5 slide critic scores against them.
 ## 8. Delivery-facing rules (carried by other skill assets)
 
 - **Body language = English; speaker notes = the presenter's language** for non-native
-  English presenters (`~/.claude/rules/academic-lecture-style.md`). Notes 150–300
+  English presenters. Notes 150–300
   characters/slide (30–60 s).
 - **Mac PowerPoint compatibility** is mandatory before delivery — TIFF→PNG, no `sp3d`,
   app.xml count sync, no raw `**markdown**` leaking into notes
-  (`~/.claude/rules/pptx-mac-compatibility.md`; checklist in each visual-style spec).
-- For a multidisciplinary audience, add a glossary slide
-  (`~/.claude/rules/multidisciplinary-presentation.md`).
+  (checklist: `references/slide_visual_styles/nature_lancet.md` §7).
+- For a multidisciplinary audience, add a glossary slide.
 
 ---
 

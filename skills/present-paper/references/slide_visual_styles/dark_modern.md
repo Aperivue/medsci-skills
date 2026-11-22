@@ -63,4 +63,3 @@ PowerPoint + PDF export.
 
 ## Cross-references
 - `references/presentation_design_guidelines.md`; `references/generate_pptx_templates.py`
-- `~/.claude/rules/pptx-mac-compatibility.md`, `~/.claude/rules/academic-lecture-style.md`

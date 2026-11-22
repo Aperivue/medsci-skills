@@ -59,7 +59,7 @@ Verdicts:
 Fix: renumber the series by first-citation order (and reorder the float/supplement
 document + remap ALL cross-references, expanding ranges like "S12–S15" by hand and
 leaving non-float "S1–S6" sensitivity-spec labels untouched), or rephrase to remove
-the early out-of-order citation. See ~/.claude/rules/journal-technical-check-gate.md.
+the early out-of-order citation.
 
 INPUT
   --manuscript  manuscript markdown/text (required).

@@ -234,9 +234,9 @@ anchors the discussion, surrounding papers add nuance.
 ### Pre-presentation checklist
 
 - [ ] All `--` em-dashes verified rendering correctly on Mac PowerPoint
-- [ ] TIFF images converted to PNG (per `pptx-mac-compatibility.md` §1)
-- [ ] `<a:sp3d>` 3D bevel = 0 (per `pptx-mac-compatibility.md`)
-- [ ] `app.xml` Slides/Notes counts patched (per `pptx-mac-compatibility.md` §5)
+- [ ] TIFF images converted to PNG
+- [ ] `<a:sp3d>` 3D bevel = 0
+- [ ] `app.xml` Slides/Notes counts patched
 - [ ] Speaker notes parsed for `**bold**` / `*italic*` markdown (per §4)
 - [ ] 40-min timing rehearsal completed (longest section flagged)
 - [ ] Glossary slide present if audience is multidisciplinary

@@ -30,7 +30,7 @@ An 8-probe checklist for **cross-sectional / observational clinical prediction m
 
 **CP4 — Net benefit is a model comparison, not a policy endorsement**:
 - A decision curve showing the model exceeds treat-all / treat-none across a threshold range is a **model-vs-default** statement about ranking, not evidence that the underlying **imaging / test / screening strategy** should be adopted in practice. Net benefit is computed on the same outcomes and says nothing about cost, downstream harm, or whether the test should be ordered.
-- A conclusion that reads decision-curve superiority as an endorsement of the clinical strategy ("supports using X for screening / triage") → MAJOR (scope; cross-link `scope-coherence-gate.md`). Reframe to the model-comparison claim the DCA actually supports.
+- A conclusion that reads decision-curve superiority as an endorsement of the clinical strategy ("supports using X for screening / triage") → MAJOR (scope). Reframe to the model-comparison claim the DCA actually supports.
 
 **CP5 — Intended-use horizon leakage (claim-timepoint vs feature availability)**:
 - Read the intended-use horizon off the title / abstract / aim — the adjectives **preoperative, pretreatment, baseline, screening, triage, pre-procedure** assert a decision made *before* some event X. Then check each predictor's **availability timepoint**: any feature that exists only *after* X (post-procedure pathology, treatment-response variables, post-contrast-only measures in a "pre-contrast screening" claim, follow-up-derived labels) is leakage relative to the claimed use, even if it is not train/test leakage.

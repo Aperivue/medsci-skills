@@ -35,7 +35,6 @@ Optional: PyYAML for --config mode (`pip install pyyaml`).
 Cross-references:
   - /present-paper Phase 3 (Slides & Notes)
   - references/slide_visual_styles/nature_lancet.md §5 (figure handling)
-  - ~/.claude/rules/pptx-mac-compatibility.md §7 (Inches EMU pitfall)
 """
 from __future__ import annotations
 
