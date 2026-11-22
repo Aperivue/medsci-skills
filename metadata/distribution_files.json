@@ -1542,6 +1542,11 @@
       "sha256": "c218b4e764a070a3297802076c1e6c68e514160cc1efa038552cc271b01af9ce"
     },
     {
+      "path": "skills/find-journal/references/journal_profiles/JACC.md",
+      "size": 4430,
+      "sha256": "7d1fc66d9af73ab12cf9d6c230c67419e47a30cf3dcb9ecc02d713563c2558e0"
+    },
+    {
       "path": "skills/find-journal/references/journal_profiles/JACC_Advances.md",
       "size": 3660,
       "sha256": "6e9ec7b55e1661b8f7e467721bef1cec713cb0b7e2882e8ce49e0304763e1209"
@@ -7030,6 +7035,11 @@
       "path": "skills/write-paper/references/journal_profiles/Investigative_Radiology.md",
       "size": 3723,
       "sha256": "f4e95b3b0d6c9024bbab92bf464ef1c0d2caa6123c410cdaf7aee04376952a79"
+    },
+    {
+      "path": "skills/write-paper/references/journal_profiles/JACC.md",
+      "size": 22097,
+      "sha256": "70657986127a58cbf9ae5e4db4526c4b07d1f79eef6cd4e5060ee08a8425a847"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JACC_Advances.md",
