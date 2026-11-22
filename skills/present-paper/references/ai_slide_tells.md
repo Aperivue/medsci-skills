@@ -74,7 +74,7 @@ with it:
 The little words at the top and bottom of every slide: the all-caps eyebrow label, the
 `2026 · NEUROGENETICS` brand footer, the section tag, the running theme.
 
-**This project used to mandate them.** `academic-lecture-style.md` required an eyebrow on *every*
+**This project used to mandate them.** An earlier house style required an eyebrow on *every*
 slide and a brand footer on *every* slide, and `nature_lancet.md` gave them fixed coordinates. We
 were manufacturing the single most-cited visual tell and calling it house style.
 

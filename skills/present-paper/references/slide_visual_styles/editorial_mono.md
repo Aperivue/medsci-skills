@@ -63,4 +63,4 @@ are installed or substitute Inter Bold to avoid Mac font fallback.
 
 ## Cross-references
 - `references/presentation_design_guidelines.md` (§1 assertion headline, §2 24-pt floor)
-- `references/generate_pptx_templates.py`; `~/.claude/rules/pptx-mac-compatibility.md`
+- `references/generate_pptx_templates.py`

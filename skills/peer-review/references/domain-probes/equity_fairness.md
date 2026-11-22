@@ -82,7 +82,7 @@ eyeballed "similar across groups" statement, presented as evidence that a model 
   deployment endorsement or a recommendation-grade equity claim.
 - Recommendation-grade equity language ("equitable", "fair across groups", "ready for diverse
   populations") that the evidence does not support, or a conclusion that silently generalises past
-  the evaluated subgroups → MAJOR. Cross-link `~/.claude/rules/scope-coherence-gate.md`: an aggregate
+  the evaluated subgroups → MAJOR. An aggregate
   or single-population claim cannot stand on subgroup-silent data.
 
 ---

@@ -3,8 +3,7 @@
 Use when the venue or employer **requires a branded master** — a university, hospital,
 or society `.pptx` / `.potx` with a fixed logo, color theme, and slide layouts. Here you
 do **not** design a deck; you **fill** the supplied template, preserving its master,
-theme, and logo placement. This is SKILL.md **Mode C** and follows *patch-over-rebuild*
-(`~/.claude/rules/pptx-mac-compatibility.md` §2): never regenerate from scratch — that
+theme, and logo placement. This is SKILL.md **Mode C** and follows *patch-over-rebuild*: never regenerate from scratch — that
 destroys the institution's master/layout/theme.
 
 > **Triggered from**: SKILL.md Step 0b when the user answers "yes, I have a template".
@@ -52,7 +51,7 @@ def add(layout_idx, title, body_lines):
 - Let the template's theme carry color/font. Add an accent only if the template defines
   one; otherwise leave the institutional defaults.
 - Delete any example/sample slides shipped in the template that you are not using, then
-  sync `docProps/app.xml` (`~/.claude/rules/pptx-mac-compatibility.md` §5–5.1).
+  sync `docProps/app.xml`.
 
 ### 4. Speaker notes
 Inject notes the same way as for generated decks (`scripts/inject_speaker_notes.py`) —
@@ -75,6 +74,5 @@ usually still carries the master logo).
 
 ## Cross-references
 - `scripts/inspect_pptx_template.py` — layout/placeholder/theme inspector
-- `~/.claude/rules/pptx-mac-compatibility.md` §2 (patch-over-rebuild), §5–5.1 (app.xml)
 - `references/presentation_design_guidelines.md` — content rules still apply inside the brand
 - SKILL.md "Mode C: Fill an institutional template"

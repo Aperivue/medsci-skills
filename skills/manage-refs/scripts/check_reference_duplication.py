@@ -28,8 +28,7 @@ author), never a Major on its own.
 
 Motivation: a built submission docx rendered the 15-entry hand-typed reference list
 and then a second 15-entry citeproc bibliography after the legends; a co-author
-flagged "a reference is repeated twice." See
-~/.claude/rules/manuscript-references.md (Hybrid hand-list + citeproc section).
+flagged "a reference is repeated twice."
 
 INPUTS  (one of)
   --docx PATH    built .docx (read via stdlib zipfile; word/document.xml)

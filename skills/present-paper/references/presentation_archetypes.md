@@ -121,8 +121,7 @@ mode.
 **The job:** transfer a mental model, not a set of facts.
 
 **Structure:** in blocks of 10–15 minutes, each ending in a question they answer (aloud, or by
-hand). Glossary slide early if the audience is multidisciplinary
-(`multidisciplinary-presentation.md`).
+hand). Glossary slide early if the audience is multidisciplinary.
 
 **Slides:** fewer than one per minute — a slide should *survive* several minutes of talking. This is
 the one archetype where a dense slide is legitimate: they will photograph it, and they will study
