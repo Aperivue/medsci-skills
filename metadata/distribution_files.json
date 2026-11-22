@@ -1502,6 +1502,11 @@
       "sha256": "1c9b96c312e569641017d6106664680e4a1891b8d86244d00f452dd48ce77678"
     },
     {
+      "path": "skills/find-journal/references/journal_profiles/European_Heart_Journal.md",
+      "size": 3290,
+      "sha256": "c8a54bb910ad380ee8c7606e559d8e73c411111e05da6ffb4972b8ca1f8c3f53"
+    },
+    {
       "path": "skills/find-journal/references/journal_profiles/European_Journal_of_Preventive_Cardiology.md",
       "size": 3026,
       "sha256": "ed773df2411d56a781430e1539df2e9781a6f3320cc9ade23080f1586d1dea6c"
@@ -6995,6 +7000,11 @@
       "path": "skills/write-paper/references/journal_profiles/Endocrinology_and_Metabolism.md",
       "size": 7164,
       "sha256": "ada055c0c3fd382e0bb134ec21951a459097dab3c7927b64ff867a4123443ae1"
+    },
+    {
+      "path": "skills/write-paper/references/journal_profiles/European_Heart_Journal.md",
+      "size": 21375,
+      "sha256": "cdd7b62e9a6e488b96d044f6b529744552dc0d621f02fd6957c2da2101bba6ac"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/European_Journal_of_Preventive_Cardiology.md",
