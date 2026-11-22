@@ -4,6 +4,15 @@
 
 ### Fixed
 
+- **`/sync-submission`: the anonymization check now reports a Zotero library id left in a
+  `.docx`.** Citations inserted with the Zotero plugin from a synced library store the library's
+  numeric user or group id in the citation data, and documents written from the
+  same library can be linked by it. `check_asset_anonymization.py` reads it from the citation fields
+  under `word/` and, in bookmark mode, from the citation properties in `docProps/custom.xml`, and reports it as `review`
+  (`docx_reference_manager_id`): it fails only when the check runs with `--strict`. A local,
+  unsynced library carries no such id and is not reported. A `docProps/custom.xml` that cannot
+  be parsed is now reported as an unreadable part.
+
 - **`/find-journal`, `/write-paper`: the AJNR and JNIS profiles had drifted from the journals'
   author pages.** AJNR: Original Research is 4000 words counted with references and tables, a
   350-word abstract, 50 references, 5 tables and 7 figures in 15 parts; the "What This Adds" box

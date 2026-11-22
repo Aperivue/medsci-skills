@@ -37,6 +37,15 @@ classes of leak:
      Tool/placeholder values are matched exactly on the whole value in a .docx
      ("Author" passes, "Author (Jane Doe)" does not); a few tools may carry a
      version number ("LibreOffice/7.6").
+     Citations inserted with the Zotero word-processor plugin from a synced library
+     store the library's numeric id in the citation data
+     (`zotero.org/users/<id>/items/...`, or `groups/<id>`), in field codes
+     (a `ZOTERO_ITEM` field, complex or simple) under `word/` and, in bookmark mode,
+     in `ZOTERO_BREF_*` properties of `docProps/custom.xml`. Only the citation's own
+     `uris` are read, not a Zotero link elsewhere in the file. The id is an account or group number, not a name, and
+     documents written from the same library can be linked by it: it is
+     reported as `review` (`docx_reference_manager_id`). A local, unsynced library
+     (`users/local/...`) carries no account id and is not reported.
      Parts are parsed as XML from bytes and matched by namespace + local name, so
      quoting, prefixes, CDATA, entities and UTF-16 do not hide a value. A part that
      cannot be read, or a duplicated ZIP entry name, is reported
@@ -50,8 +59,9 @@ classes of leak:
 
 Severity:
   - `leak`   — metadata author present, or a --names-file name found anywhere.
-  - `review` — institution-token hit, a docx `Company` property, a docx part
-    that could not be read, or a figure carries rendered text.
+  - `review` — institution-token hit, a docx `Company` property, a Zotero library
+    id in citation data, a docx part that could not be read, or a figure carries
+    rendered text.
 
 Not read: bookmark names (`w:bookmarkStart w:name`). Pandoc writes `ref-<citekey>`
 and hashed `X<hex>` ids, Word `_GoBack`/`_Toc…`/`_Ref…`/`_Hlk…`; neither has a
@@ -82,6 +92,7 @@ import shutil
 import subprocess
 import sys
 import zipfile
+from urllib.parse import urlsplit
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
@@ -173,6 +184,105 @@ W15_PRESENCE = f"{{{NS_W15}}}presenceInfo"
 W15_AUTHOR = f"{{{NS_W15}}}author"
 W15_PROVIDER = f"{{{NS_W15}}}providerId"
 W15_USERID = f"{{{NS_W15}}}userId"
+# Field codes. A complex field runs from <w:fldChar w:fldCharType="begin"> to "end", its
+# instruction split over <w:instrText> runs (<w:delInstrText> inside a tracked deletion);
+# a simple field keeps the whole instruction in <w:fldSimple w:instr="…">. Pieces are
+# joined per field, never across fields.
+W_INSTR_TAGS = {f"{{{ns}}}{n}" for ns in NS_W for n in ("instrText", "delInstrText")}
+W_FLDCHAR_TAGS = {f"{{{ns}}}fldChar" for ns in NS_W}
+W_FLDCHAR_TYPE = {f"{{{ns}}}fldCharType" for ns in NS_W}
+W_FLDSIMPLE_TAGS = {f"{{{ns}}}fldSimple" for ns in NS_W}
+W_INSTR_ATTRS = {f"{{{ns}}}instr" for ns in NS_W}
+# Zotero citation data, in a ZOTERO_ITEM field or (bookmark mode) a ZOTERO_BREF_* custom
+# property: `[ADDIN ]ZOTERO_ITEM CSL_CITATION {json}`, where each entry of "citationItems"
+# has "uris":["http://zotero.org/users/1234567/items/ABCD2345"] (a personal synced
+# library) or .../groups/7654321/items/... (a group library); older documents write "uri".
+# Only those keys of the citation items are read: a Zotero link elsewhere (an item's URL
+# field, a hyperlink, another reference manager's field) is somebody's web address, not
+# this document's library. "users/local/<key>" (never synced) has no account id.
+ZOTERO_ITEM_CODE = re.compile(r"^\s*(?:ADDIN\s+)?ZOTERO_ITEM\b")
+ZOTERO_ITEM_PATH = re.compile(r"^/(users|groups)/([0-9]+)/items/[A-Za-z0-9]+/?$", re.ASCII)
+ZOTERO_URIS_TEXT = re.compile(r'"uris?"\s*:\s*(\[[^\]]*\]|"[^"]*")')
+ZOTERO_URL_TEXT = re.compile(r'https?:[^"\s\]]+')
+ZOTERO_BREF = re.compile(r"^(ZOTERO_BREF_.+)_([0-9]+)$", re.ASCII)
+NS_CUSTOM_PROPS = ("http://schemas.openxmlformats.org/officeDocument/2006/custom-properties",
+                   "http://purl.oclc.org/ooxml/officeDocument/customProperties")
+CUSTOM_PROPERTY_TAGS = {f"{{{ns}}}property" for ns in NS_CUSTOM_PROPS}
+
+
+def _zotero_library_ids(code: str) -> list[str]:
+    """Library ids ("user 123", "group 456") in the citation items of one ZOTERO_ITEM code."""
+    if not ZOTERO_ITEM_CODE.match(code):
+        return []
+    urls: list[str] = []
+    start = code.find("{")
+    try:
+        data, _ = json.JSONDecoder().raw_decode(code[start:]) if start >= 0 else ({}, 0)
+        items = data.get("citationItems") if isinstance(data, dict) else None
+        for item in items if isinstance(items, list) else []:
+            for key in ("uris", "uri"):
+                v = item.get(key) if isinstance(item, dict) else None
+                urls += [u for u in (v if isinstance(v, list) else [v]) if isinstance(u, str)]
+    except ValueError:
+        # Not valid JSON (cut off, or hand-edited): read the uris keys from the text so
+        # that a damaged field is not passed as clean.
+        text = re.sub(r"\\u002f", "/", code, flags=re.IGNORECASE).replace("\\/", "/")
+        for m in ZOTERO_URIS_TEXT.finditer(text):
+            urls += ZOTERO_URL_TEXT.findall(m.group(1))
+    out: list[str] = []
+    for u in urls:
+        try:
+            parts = urlsplit(u.strip())
+        except ValueError:
+            continue
+        m = ZOTERO_ITEM_PATH.match(parts.path)
+        if m and (parts.hostname or "").lower() in ("zotero.org", "www.zotero.org"):
+            v = f"{'user' if m.group(1) == 'users' else 'group'} {m.group(2)}"
+            if v not in out:
+                out.append(v)
+    return out
+
+
+class _FieldCodes:
+    """Collects each field's instruction text from one part's start/end events.
+
+    A nested field has its own buffer. Within one field, current text (`w:instrText`)
+    and tracked-deleted text (`w:delInstrText`) are kept apart, so an edit inside a code
+    is not read as one string that was never there.
+    """
+
+    def __init__(self) -> None:
+        self.stack: list[tuple[list[str], list[str]]] = []
+        self.fields: list[str] = []
+
+    def on_start(self, el) -> None:
+        if el.tag in W_FLDSIMPLE_TAGS:
+            for key in W_INSTR_ATTRS:
+                if el.get(key):
+                    self.fields.append(el.get(key))
+        elif el.tag in W_FLDCHAR_TAGS:
+            kind = next((el.get(k) for k in W_FLDCHAR_TYPE if el.get(k)), "")
+            if kind == "begin":
+                self.stack.append(([], []))
+            elif kind == "end" and self.stack:
+                self._close()
+
+    def on_end(self, el) -> None:
+        if el.tag in W_INSTR_TAGS and el.text and self.stack:
+            current, deleted = self.stack[-1]
+            (deleted if el.tag.endswith("delInstrText") else current).append(el.text)
+
+    def _close(self) -> None:
+        for pieces in self.stack.pop():
+            if pieces:
+                self.fields.append("".join(pieces))
+
+    def flush(self) -> None:
+        """A part cut off inside a field still yields what the open fields held."""
+        while self.stack:
+            self._close()
+
+
 # Absolute home-dir path leaked into an OOXML attribute (e.g. a drawing's
 # <pic:cNvPr descr="/Users/<user>/.../fig.png">). pandoc embeds the source image
 # path as the picture description when given an absolute path; it carries the
@@ -276,6 +386,7 @@ class DocxPeople:
     companies: list[tuple[str, str]] = field(default_factory=list)  # app.xml Company
     authors: list[tuple[str, str]] = field(default_factory=list)    # w:author / w15:author
     accounts: list[tuple[str, str]] = field(default_factory=list)   # people.xml presenceInfo userId
+    ref_ids: list[tuple[str, str]] = field(default_factory=list)    # Zotero library ids ("user 123", places)
     unreadable: list[str] = field(default_factory=list)             # "part: reason"
 
 
@@ -342,6 +453,12 @@ def _docx_people(docx: Path) -> DocxPeople:
     out = DocxPeople()
     authors: dict[str, list[str]] = {}
     accounts: dict[str, list[str]] = {}
+    ref_ids: dict[str, list[str]] = {}
+
+    def note_library_ids(data: str, place: str) -> None:
+        for v in _zotero_library_ids(data):
+            _add_place(ref_ids, v, place)
+
     try:
         z = zipfile.ZipFile(docx)
     except Exception as exc:
@@ -405,6 +522,18 @@ def _docx_people(docx: Path) -> DocxPeople:
                         _add_place(accounts, v, f"{name} w15:userId (providerId={provider or '?'})")
             return on_start
 
+        def visit_custom(chunks):
+            # Bookmark-mode citations: ZOTERO_BREF_<id>_<n> properties hold one citation's
+            # data in numbered chunks. Other properties are not citation data.
+            def on_end(el):
+                if el.tag not in CUSTOM_PROPERTY_TAGS:
+                    return
+                m = ZOTERO_BREF.match(el.get("name", ""))
+                if m:
+                    value = "".join("".join(child.itertext()) for child in el)
+                    chunks.setdefault(m.group(1), []).append((int(m.group(2)), value))
+            return on_end
+
         for info in infos:
             name = info.filename
             low = name.lower()
@@ -414,10 +543,30 @@ def _docx_people(docx: Path) -> DocxPeople:
                 _scan_part(z, info, None, visit_core(name), out.unreadable, clear=False)
             elif low == "docprops/app.xml":
                 _scan_part(z, info, None, visit_app(name), out.unreadable, clear=False)
+            elif low == "docprops/custom.xml":
+                chunks: dict[str, list[tuple[int, str]]] = {}
+                _scan_part(z, info, None, visit_custom(chunks), out.unreadable, clear=False)
+                for parts in chunks.values():
+                    parts.sort()
+                    # Chunks are numbered 1..n; with one missing or repeated the value
+                    # cannot be rebuilt, and joining the rest could invent an id.
+                    if [n for n, _ in parts] == list(range(1, len(parts) + 1)):
+                        note_library_ids("".join(v for _, v in parts), f"{name} custom property")
             elif low.startswith("word/") and (low.endswith(".xml") or low in xml_by_type):
-                _scan_part(z, info, visit_word(name), None, out.unreadable)
+                fields = _FieldCodes()
+                word_start = visit_word(name)
+
+                def on_start(el, word_start=word_start, fields=fields):
+                    word_start(el)
+                    fields.on_start(el)
+
+                _scan_part(z, info, on_start, fields.on_end, out.unreadable)
+                fields.flush()
+                for code in fields.fields:
+                    note_library_ids(code, f"{name} field code")
     out.authors = [(v, "; ".join(p)) for v, p in authors.items()]
     out.accounts = [(v, "; ".join(p)) for v, p in accounts.items()]
+    out.ref_ids = [(v, "; ".join(p)) for v, p in ref_ids.items()]
     return out
 
 
@@ -506,6 +655,13 @@ def build_report(root: Path, names: list[str], poppler: bool) -> Report:
                     "docx_revision_author", "leak", rel,
                     f"editor account id: '{a}' ({where}) — renaming the author does not remove "
                     f"it; remove that w15:presenceInfo element (or its whole w15:person) and re-check"))
+            for a, where in people.ref_ids:
+                rep.findings.append(Finding(
+                    "docx_reference_manager_id", "review", rel,
+                    f"Zotero library id in citation data: '{a}' ({where}) — an account or group "
+                    f"number that links documents written from the same library; for a blinded copy, "
+                    f"unlink the citations (Zotero: Unlink Citations) in that copy, keeping the "
+                    f"linked original"))
             # A part that could not be read was not checked: never let it pass silently.
             for msg in people.unreadable:
                 rep.skipped.append(f"docx part not readable: {rel} {msg}")

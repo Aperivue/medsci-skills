@@ -84,7 +84,8 @@ It shells out to the per-check scripts (reimplementing none), writes
   formatting in `styles.xml`/`numbering.xml` included) and the editor names and account ids in
   `word/people.xml`, and names the part of each finding. A marked copy for a blinded journal fails
   if any of them still names a person; renaming the author does not remove an account id, so
-  remove that `w15:presenceInfo` element (or its `w15:person`). Company and unreadable or
+  remove that `w15:presenceInfo` element (or its `w15:person`). Company, a Zotero library id in
+  citation data (field codes, or custom properties in bookmark mode) and unreadable or
   duplicated parts are `review`: they fail only when the check itself runs with `--strict` (the
   pre-flight gate does not pass it). Bookmark names and comment initials are not read.
 - A check whose inputs are absent (no rendered docx, no cover letter, no copies, no journal) is
