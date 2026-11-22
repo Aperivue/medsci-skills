@@ -186,6 +186,20 @@ def doc(inner):
     return f'<w:document xmlns:w="{W}"><w:body><w:p>{inner}</w:p></w:body></w:document>'
 def ins(author):
     return f'<w:ins w:id="1" w:author="{author}"><w:r><w:t>a</w:t></w:r></w:ins>'
+ZITEM = "ADDIN ZOTERO_ITEM CSL_CITATION "
+def field(*pieces, tag="instrText"):
+    """A complex field as Word writes it: begin, instruction runs, separate, result, end."""
+    return ('<w:r><w:fldChar w:fldCharType="begin"/></w:r>'
+            + "".join(f'<w:r><w:{tag} xml:space="preserve">{p}</w:{tag}></w:r>' for p in pieces)
+            + '<w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>(1)</w:t></w:r>'
+            + '<w:r><w:fldChar w:fldCharType="end"/></w:r>')
+def custom(inner):
+    return ('<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties" '
+            f'xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">\n  {inner}</Properties>')
+def prop(pid, name, value):
+    value = value.replace("&", "&amp;").replace("<", "&lt;")
+    return (f'<property fmtid="{{D5CDD505-2E9C-101B-9397-08002B2CF9AE}}" pid="{pid}" name="{name}">\n'
+            f'    <vt:lpwstr>{value}</vt:lpwstr>\n  </property>\n  ')
 def people(provider, userid, author="Author"):
     return (f'<w15:people xmlns:w15="{W15}"><w15:person w15:author="{author}"><w15:presenceInfo '
             f'w15:providerId="{provider}" w15:userId="{userid}"/></w15:person></w15:people>')
@@ -320,6 +334,55 @@ POSITIVE = [
       ("docx_revision_author", "leak", T, ["word/document.xml w:author"]),
       ("docx_part_unreadable", "review", "", ["docProps/app.xml"]),
       ("docx_part_unreadable", "review", "", ["word/charts/chart1.xml"])], 1),
+    # Zotero citation data carries the numeric id of the synced library: review. Word splits a
+    # field instruction over runs, so the pieces of one field are joined; a tracked-deleted
+    # field counts; the same id in two parts is one finding naming both.
+    ("zotero_user_id_split_runs", [("word/document.xml", doc(ins("Author")
+        + field(ZITEM + '{"citationItems":[{"id":7,"uris":["http://zotero.org/us', 'ers/1234567/items/ABCD2345"]}]}'))),
+        ("word/footnotes.xml", f'<w:footnotes xmlns:w="{W}"><w:footnote w:id="1"><w:p><w:del w:id="5" w:author="Author">'
+            + field(ZITEM + '{"citationItems":[{"uris":["http:\\/\\/zotero.org\\/users\\/1234567\\/items\\/EFGH2345"]}]}', tag="delInstrText")
+            + '</w:del></w:p></w:footnote></w:footnotes>')],
+     [("docx_reference_manager_id", "review", "user 1234567", ["word/document.xml field code", "word/footnotes.xml field code"])], 0),
+    # A group library, an older "uri" key, a simple field and a /-escaped slash.
+    ("zotero_group_id_simple_field", [("word/document.xml", doc(ins("Author")
+        + '<w:fldSimple w:instr="' + (ZITEM + '{"citationItems":[{"uri":["http:\\u002f\\u002fzotero.org\\u002fgroups\\u002f7654321\\u002fitems\\u002fABCD2345"]}]}').replace('"', "&quot;")
+        + '"><w:r><w:t>(1)</w:t></w:r></w:fldSimple>'))],
+     [("docx_reference_manager_id", "review", "group 7654321", ["word/document.xml field code"])], 0),
+    # Only the uris of the citation name the library of the document: a Zotero link in the
+    # URL field of the cited item (another library) is not reported, the uris id is.
+    ("zotero_uris_not_item_url", [("word/document.xml", doc(ins("Author")
+        + field(ZITEM + '{"citationItems":[{"uris":["http://zotero.org/users/1234567/items/ABCD2345"],'
+                        '"itemData":{"URL":"https://www.zotero.org/users/2222222/items/ZZZZ2345"}}]}')))],
+     [("docx_reference_manager_id", "review", "user 1234567", ["word/document.xml field code"])], 0),
+    # Bookmark mode: the data of one citation in numbered ZOTERO_BREF chunks, joined by number
+    # whatever their order and layout in the file; other properties are not citation data.
+    ("zotero_bookmark_mode", [("docProps/custom.xml", custom(
+        prop(3, "ZOTERO_BREF_aBcD_2", '34567/items/ABCD2345"]}]}')
+        + prop(4, "ProjectURL", '{"uris":["http://zotero.org/users/3333333/items/ABCD2345"]}')
+        + prop(5, "ZOTERO_BREF_eFgH_1", 'ZOTERO_ITEM CSL_CITATION {"citationItems":[{"uri":"https://www.zotero.org/groups/76')
+        + prop(2, "ZOTERO_BREF_aBcD_1", 'ZOTERO_ITEM CSL_CITATION {"citationItems":[{"uris":["http://zotero.org/users/12')
+        + prop(6, "ZOTERO_BREF_eFgH_2", '54321/items/ABCD2345"}]}')
+        # a citation with chunk 2 missing cannot be rebuilt, so no id is made up from 1 + 3
+        + prop(7, "ZOTERO_BREF_iJkL_1", 'ZOTERO_ITEM CSL_CITATION {"citationItems":[{"uris":["http://zotero.org/users/31')
+        + prop(8, "ZOTERO_BREF_iJkL_3", '31313/items/ABCD2345"]}]}')))],
+     [("docx_reference_manager_id", "review", "user 1234567", ["docProps/custom.xml custom property"]),
+      ("docx_reference_manager_id", "review", "group 7654321", ["docProps/custom.xml custom property"])], 0),
+    # A citation field nested in the result of another field keeps its own code; an edit
+    # tracked inside a code is read as the current text and the deleted text, not as both.
+    ("zotero_nested_and_edited", [("word/document.xml", doc(ins("Author")
+        + '<w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText>IF 1 = 1 </w:instrText></w:r>'
+        + field(ZITEM + '{"citationItems":[{"uris":["http://zotero.org/users/1234567/items/ABCD2345"]}]}')
+        + '<w:r><w:fldChar w:fldCharType="end"/></w:r>'
+        + '<w:r><w:fldChar w:fldCharType="begin"/></w:r>'
+        + '<w:r><w:instrText>' + ZITEM + '{"citationItems":[{"uris":["http://zotero.org/users/20</w:instrText></w:r>'
+        + '<w:r><w:delInstrText>99</w:delInstrText></w:r>'
+        + '<w:r><w:instrText>20202/items/ABCD2345"]}]}</w:instrText></w:r>'
+        + '<w:r><w:fldChar w:fldCharType="end"/></w:r>'))],
+     [("docx_reference_manager_id", "review", "user 1234567", ["word/document.xml field code"]),
+      ("docx_reference_manager_id", "review", "user 2020202", ["word/document.xml field code"])], 0),
+    # A custom.xml that cannot be parsed is reported, by name, as not checked.
+    ("custom_xml_unreadable", [("docProps/custom.xml", '<Properties xmlns="urn:x"><property name="ZOTERO_BREF_a_1">')],
+     [("docx_part_unreadable", "review", "", ["docProps/custom.xml"])], 0),
     # Company is an organisation, not a person: review, so default exit 0 and --strict exit 1.
     ("company", [("docProps/app.xml", app("<Company>Example General Hospital</Company>"))],
      [("docx_metadata_company", "review", "Example General Hospital", ["docProps/app.xml Company"])], 0),
@@ -348,6 +411,23 @@ NEGATIVE = [
     ]),
     ("other_tool_values", [("docProps/core.xml",
         core("<dc:creator>python-pptx</dc:creator><cp:lastModifiedBy>LibreOffice/7.6</cp:lastModifiedBy>"))]),
+    # Not the id of a synced library: a local (never synced) library; a full Zotero item URI in
+    # the field of another reference manager, in a hyperlink field or in body text; pieces of
+    # two separate fields that would only form an id if joined; a look-alike host; a
+    # library URL that is not an item; a Zotero field with no uris.
+    ("zotero_local_and_lookalikes", [("word/document.xml", doc(ins("Author")
+        + field(ZITEM + '{"citationItems":[{"uris":["http://zotero.org/users/local/AbCd1234/items/ABCD2345"]}]}')
+        + field('ADDIN EN.CITE {"uris":["http://zotero.org/users/4444444/items/ABCD2345"]}')
+        + field('HYPERLINK "http://zotero.org/users/5555555/items/ABCD2345"')
+        + field(ZITEM + '{"citationItems":[{"uris":["http://zotero.org/users/66')
+        + field('66666/items/ABCD2345"]}]}')
+        + field(ZITEM + '{"citationItems":[{"uris":["http://notzotero.org/users/7777777/items/ABCD2345",'
+                        '"http://zotero.org/users/8888888/settings"]}]}')
+        + field('ADDIN ZOTERO_BIBL {"uncited":[],"custom":[]} CSL_BIBLIOGRAPHY')
+        + field('ADDIN EN.CITE {"title":"ZOTERO_ITEM","citationItems":[{"uris":["http://zotero.org/users/1010101/items/ABCD2345"]}]}')
+        + field(ZITEM + '{"citationItems":[{"itemData":{"uris":["http://zotero.org/users/1212121/items/ABCD2345"]},'
+                        '"uris":["https://example.org/zotero.org/users/1313131/items/ABCD2345","http://zotero.org/users/1414141/items/"]}]}')
+        + '<w:r><w:t>{"uris":["http://zotero.org/users/9999999/items/ABCD2345"]}</w:t></w:r>'))]),
     ("company_neutral_values", [("docProps/app.xml", app("<Company>Anonymous</Company><Company> python-docx </Company>"))]),
     ("templatedefault", [("docProps/core.xml",
         core("<dc:creator>medsci-skills</dc:creator><cp:lastModifiedBy>medsci-skills</cp:lastModifiedBy>"))]),

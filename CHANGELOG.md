@@ -4,6 +4,14 @@
 
 ### Fixed
 
+- **`/sync-submission`: the anonymization check now reports a Zotero library id left in a
+  `.docx`.** Citations inserted with the Zotero plugin from a synced library store the library's
+  numeric user or group id in the citation data, and documents written from the
+  same library can be linked by it. `check_asset_anonymization.py` reads it from the citation fields
+  under `word/` and, in bookmark mode, from the citation properties in `docProps/custom.xml`, and reports it as `review`
+  (`docx_reference_manager_id`): it fails only when the check runs with `--strict`. A local,
+  unsynced library carries no such id and is not reported. A `docProps/custom.xml` that cannot
+  be parsed is now reported as an unreadable part.
 - **Shipped files no longer point at paths on the maintainer's machine.** Files in ten skills cited the maintainer's personal rule files, by a home-directory path or
   by bare file name; those files are not part of this package, so the pointer led nowhere for
   anyone else. The pointers are removed; where one stood
