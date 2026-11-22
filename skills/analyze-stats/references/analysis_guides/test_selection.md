@@ -46,7 +46,7 @@ Reference: Petrie & Sabin flowchart, Kirkwood Summary Guide.
 | 2 | Independent | Expected < 5 (rule of thumb) | Fisher's exact | Group Comparison |
 | 2 | Paired | - | McNemar's test | Group Comparison |
 | 2+ | Independent | Ordered | Chi-squared trend | Group Comparison |
-| 3+ | Independent | - | Chi-squared | Group Comparison |
+| 3+ | Independent | Expected cell counts >= 5 (rule of thumb) | Chi-squared | Group Comparison |
 | 3+ | Paired | - | Cochran's Q | Group Comparison |
 | - | Regression | Binary outcome | Logistic regression | **Logistic Regression** |
 

@@ -77,13 +77,12 @@ score.
 - **Outputs move with the prompt and the sampler.** Phrasing, format, the system prompt,
   temperature, top-p/top-k, and run-to-run sampling all shift results. A single-prompt
   single-run number overstates stability.
-- **Closed APIs are non-deterministic even at temperature 0** — identical inputs can yield
+- **Closed APIs can be non-deterministic even at temperature 0** — identical inputs can yield
   different outputs across calls. Treat any single-run figure as a point estimate of a
   distribution, not a fixed value.
 - **Disclose (MI-CLEAR-LLM transparency):** the **exact prompt(s)** including the system prompt,
   the **decoding settings** (temperature / top-p / seed), **≥ 3 runs** with reported variance
-  (e.g., mean ± SD; ≥ 3 is the floor this skill checks, but ≥ 5 runs give a usable SD: with three
-  runs its 95% CI is about 0.5-6 x the observed SD, with five about 0.6-2.9 x), and a
+  (e.g., mean ± SD; ≥ 3 is the floor this skill checks, not a precision guarantee), and a
   **prompt-robustness** check across **≥ 2 phrasings/formats** when the headline result is claimed
   beyond the exact prompt used.
 

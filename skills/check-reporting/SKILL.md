@@ -103,8 +103,8 @@ is ambiguous, ask the user to confirm before selecting a guideline.
 | Randomized controlled trial | CONSORT 2025 | CONSORT-AI |
 | Diagnostic accuracy study | STARD 2015 | STARD-AI |
 | Prediction model (development/validation) | TRIPOD+AI (regression or ML; TRIPOD 2015 when named) | -- |
-| Polygenic (risk) score prediction study | PGS-RS (with TRIPOD / TRIPOD+AI) | -- |
-| Prognostic tumor-marker / biomarker study (single or multiple markers; e.g., ctDNA / molecular residual disease) | REMARK (pair with STROBE for the observational-design items; TRIPOD / TRIPOD+AI if a prognostic model is developed) | -- |
+| Polygenic (risk) score prediction study | PGS-RS (with TRIPOD+AI; TRIPOD 2015 when the request or the journal specifies that version) | -- |
+| Prognostic tumor-marker / biomarker study (single or multiple markers; e.g., ctDNA / molecular residual disease) | REMARK (pair with STROBE for the observational-design items; TRIPOD+AI if a prognostic model is developed, TRIPOD 2015 when the request or the journal specifies that version) | -- |
 | Causal / comparative-effectiveness question emulated on observational data (treatment vs treatment, screening vs none, drug A vs B on registry / EHR / claims data) | TARGET (pair with the /design-study target-trial-emulation module for design; RECORD / STROBE for the routinely-collected-data items) | -- |
 | Health-estimate / burden-of-disease modeling study (GBD or GBD-satellite, comparative-risk / population-attributable-fraction, cause-of-death or prevalence/incidence estimation, with or without forecasts) | GATHER (pair with `/analyze-stats` burden-decomposition-forecasting guide for the analytic layer) | -- |
 | Systematic review / meta-analysis | PRISMA 2020 | PRISMA 2020 for Abstracts (run on the abstract, scored separately) |

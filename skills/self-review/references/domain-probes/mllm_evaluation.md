@@ -62,7 +62,7 @@ image-to-image generative models use `image_synthesis.md`; this is for text / VQ
 
 **ME5 — Prompt sensitivity, determinism, and run variance**:
 - LLM outputs move with **prompt phrasing / format, temperature, and run-to-run sampling** (closed APIs
-  are non-deterministic even at temperature 0). A single-prompt single-run number overstates stability.
+  can be non-deterministic even at temperature 0). A single-prompt single-run number overstates stability.
   Require: the **exact prompt(s)** (MI-CLEAR-LLM transparency), temperature / seed, repeated runs with
   variance (**≥ 3 runs** is a convention, not a precision guarantee), and a **prompt-robustness** check
   (≥ 2 phrasings / formats) when the headline is claimed beyond the exact prompt used.

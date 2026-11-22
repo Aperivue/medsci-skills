@@ -203,8 +203,8 @@
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/agreement_reliability.md",
-      "size": 9029,
-      "sha256": "de1f1949e0836fad4c5a9f917735097a6ca9f19c64439a3ca28ae705356e2850"
+      "size": 9159,
+      "sha256": "6220f6f675730dbd8d40fe02756a2df03f4709b287022a0afdf18f0cef1a643e"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/burden_decomposition_forecasting.md",
@@ -293,8 +293,8 @@
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/test_selection.md",
-      "size": 5136,
-      "sha256": "d2704f528e37e39390d62745566e579601e47d41839c090aa523c453cac64188"
+      "size": 5176,
+      "sha256": "e461c14fe624ee00c37ddfcffeafa26dc0575987bdac17c40ba09972e76dd190"
     },
     {
       "path": "skills/analyze-stats/references/analysis_run_workflow.md",
@@ -568,13 +568,13 @@
     },
     {
       "path": "skills/calc-sample-size/SKILL.md",
-      "size": 12509,
-      "sha256": "298790065524954e692b63cad32494e80f58fd2a9651899d884d771d3e8e66a0"
+      "size": 12543,
+      "sha256": "a977c4d54f760e7c528d7f7a897f8378a18328d86a30d224072db23108a3a490"
     },
     {
       "path": "skills/calc-sample-size/references/formulas.md",
-      "size": 56152,
-      "sha256": "f27967a07897fc1704f2ae5dd8ea7640ab9ae74c1b90b0ccb6103cc7001807ac"
+      "size": 56135,
+      "sha256": "c255c6db3af492c821aedb9df7ebaf1a701d7bb4d4fceb6f71d0649d0e25c0f6"
     },
     {
       "path": "skills/calc-sample-size/references/justification_examples.md",
@@ -618,8 +618,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 33281,
-      "sha256": "f10b358315a448d8cdace0e1732614a82a9dd4725c9cde7ebdd4be7d738803bf"
+      "size": 33399,
+      "sha256": "6642ac7a48f34eb4626ead241b900b27cac0d2a660b1c842adfec55e0752d548"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -948,13 +948,13 @@
     },
     {
       "path": "skills/clean-data/references/cleaning_patterns.md",
-      "size": 11864,
-      "sha256": "e39f89d2b3ef3dbe7010fed1e1a41c498259746d96561319441779ccb484f983"
+      "size": 12002,
+      "sha256": "da9b36ab54bd0fbde30221b768a3dc6a271b37dabad19a700c11d3c99625767f"
     },
     {
       "path": "skills/clean-data/references/implausible_value_rules.md",
-      "size": 8182,
-      "sha256": "0a08c728c12049a858cb52b2235644e57158323515a832e37c680926a574f8b1"
+      "size": 8259,
+      "sha256": "fb2e14a52bcb18778d7d974b9ec90e9516020f4fe90c8a8c79d782a053c04f2a"
     },
     {
       "path": "skills/clean-data/references/profiling_template.py",
@@ -3053,8 +3053,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 37531,
-      "sha256": "d05fa536931aaa5e192684030e340081dd00bfd5c01cb2b50b3340ad039d5284"
+      "size": 37689,
+      "sha256": "e7307e4ce6222692f9c1419adc01b3f1d503e7e23181803e5399711d539bdc0c"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -3343,8 +3343,8 @@
     },
     {
       "path": "skills/mllm-eval/references/evaluation_axes.md",
-      "size": 12395,
-      "sha256": "bbd71c1c89ba0b492d002ee48efc4e9fa913faee2b795a506d8bfa450bb1afa5"
+      "size": 12302,
+      "sha256": "5a93e2c1bb6459a26ecd15fada76f0af915a3a8b58818a5c49eb4d604cf5ed18"
     },
     {
       "path": "skills/mllm-eval/scripts/check_mllm_eval_completeness.py",
@@ -3943,8 +3943,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 57099,
-      "sha256": "b2b26b061ddd6b86df0dd921e86e0d7554eead82c77d5a58bbf2ac89735af126"
+      "size": 57365,
+      "sha256": "99720bb82f9fd2f16fedafc7dfe9cc2184523228d28da60565501bbbc9c3bdfd"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3968,13 +3968,13 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 14998,
-      "sha256": "59ca6b17a163a923821d4f0bc30001a832526ba9b4b1de2a25b88103b6ae3949"
+      "size": 14957,
+      "sha256": "58daee6d528d15843fed72a0f023b89a131e04dc4774a1a7dd0f732f075cc787"
     },
     {
       "path": "skills/peer-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 25089,
-      "sha256": "3d9f4a46e047e81f56fab297be684a2af5fb298595994af56437a6154a58a3c9"
+      "size": 25124,
+      "sha256": "c9be8243757006bc9b495e57db01ca9d3aa03fd6853b5be566703a98b4743804"
     },
     {
       "path": "skills/peer-review/references/domain-probes/equity_fairness.md",
@@ -3998,8 +3998,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/mllm_evaluation.md",
-      "size": 8719,
-      "sha256": "1a785cb8574102c4f1c8959b7b49d66de8e87e47e65be76b956cea580a63ca16"
+      "size": 8722,
+      "sha256": "40057ab62e53588fc2871521a2dfb65d8b126cb93541a38467406ab3550ff6f0"
     },
     {
       "path": "skills/peer-review/references/domain-probes/model_development.md",
@@ -4018,8 +4018,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/observational_confounding.md",
-      "size": 38509,
-      "sha256": "d67b1fbc426b4146e82fb8746571151fd87ae2275fa8cf6d0fd952aa8808dcb4"
+      "size": 38481,
+      "sha256": "a2b182e64e691487c94549c181e89da86384a5170747302549906ade3a03fc71"
     },
     {
       "path": "skills/peer-review/references/domain-probes/polygenic_risk_score.md",
@@ -4058,8 +4058,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/sr_ma.md",
-      "size": 28749,
-      "sha256": "e10c6ae02965421274f4c46a3e7eb689e1dad68d78d0d64fa9ba162e28b7cdf6"
+      "size": 28994,
+      "sha256": "cda18771d581410abe2d5665b6b6076ebb8f5376dacc0de54002e74c303d26b3"
     },
     {
       "path": "skills/peer-review/references/domain-probes/survey_research.md",
@@ -4553,8 +4553,8 @@
     },
     {
       "path": "skills/present-paper/references/medical_presentation_templates.md",
-      "size": 15343,
-      "sha256": "4eccc68e617a200df94bce3fb80d293bf10c573ac15b377bed2fcc1c3bae4e7a"
+      "size": 15213,
+      "sha256": "7196b6380cf05ceeacc3900320964fe19fb7904420f7f76a9d9482d7010790f2"
     },
     {
       "path": "skills/present-paper/references/presentation_archetypes.md",
@@ -5188,13 +5188,13 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/clinical_prediction_model.md",
-      "size": 14998,
-      "sha256": "59ca6b17a163a923821d4f0bc30001a832526ba9b4b1de2a25b88103b6ae3949"
+      "size": 14957,
+      "sha256": "58daee6d528d15843fed72a0f023b89a131e04dc4774a1a7dd0f732f075cc787"
     },
     {
       "path": "skills/self-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 25089,
-      "sha256": "3d9f4a46e047e81f56fab297be684a2af5fb298595994af56437a6154a58a3c9"
+      "size": 25124,
+      "sha256": "c9be8243757006bc9b495e57db01ca9d3aa03fd6853b5be566703a98b4743804"
     },
     {
       "path": "skills/self-review/references/domain-probes/equity_fairness.md",
@@ -5218,8 +5218,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/mllm_evaluation.md",
-      "size": 8719,
-      "sha256": "1a785cb8574102c4f1c8959b7b49d66de8e87e47e65be76b956cea580a63ca16"
+      "size": 8722,
+      "sha256": "40057ab62e53588fc2871521a2dfb65d8b126cb93541a38467406ab3550ff6f0"
     },
     {
       "path": "skills/self-review/references/domain-probes/model_development.md",
@@ -5238,8 +5238,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/observational_confounding.md",
-      "size": 38509,
-      "sha256": "d67b1fbc426b4146e82fb8746571151fd87ae2275fa8cf6d0fd952aa8808dcb4"
+      "size": 38481,
+      "sha256": "a2b182e64e691487c94549c181e89da86384a5170747302549906ade3a03fc71"
     },
     {
       "path": "skills/self-review/references/domain-probes/polygenic_risk_score.md",
@@ -5278,8 +5278,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/sr_ma.md",
-      "size": 28749,
-      "sha256": "e10c6ae02965421274f4c46a3e7eb689e1dad68d78d0d64fa9ba162e28b7cdf6"
+      "size": 28994,
+      "sha256": "cda18771d581410abe2d5665b6b6076ebb8f5376dacc0de54002e74c303d26b3"
     },
     {
       "path": "skills/self-review/references/domain-probes/survey_research.md",
@@ -5323,8 +5323,8 @@
     },
     {
       "path": "skills/self-review/references/exemplar_findings/prediction_two_null_conflation.md",
-      "size": 2711,
-      "sha256": "f626c46ea6d58053d4b5ed5513715e5ed4bca4690f7345f9a98afec8a8a0defd"
+      "size": 2721,
+      "sha256": "dbdcba293fedb1805044f7e0a5412eabdd22fdc501a2e14f598e3ab9f9c973b9"
     },
     {
       "path": "skills/self-review/references/exemplar_findings/scope_overreach_cross_sectional.md",

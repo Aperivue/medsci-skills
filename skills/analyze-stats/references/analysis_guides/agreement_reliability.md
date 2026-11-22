@@ -154,7 +154,7 @@ while ICC(A,1) on the lesions was 0.977 (pingouin) and 0.977 (the `lmer` model a
 - **Reliability coefficient used to claim agreement** (or vice versa) — a high consistency ICC does
   not establish that the two methods are interchangeable.
 - **Correlation (r) reported as agreement** for two methods — r ignores a constant/proportional bias;
-  Bland–Altman is required.
+  report an agreement measure (Bland–Altman limits of agreement when the question is the within-subject difference between paired quantitative measurements).
 - **Kappa on ordinal labels unweighted** — treats a one-category disagreement as a full disagreement.
 - **Rater columns from different occasions** — a coefficient is computed from whatever columns it is
   given; confirm that each rater's column refers to the same examination, target and definition, and

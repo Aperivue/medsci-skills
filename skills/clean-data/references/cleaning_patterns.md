@@ -146,7 +146,9 @@ sensitivity).
 
 ### Standardization
 
-1. Parse all date columns to datetime using `pd.to_datetime(col, format=..., errors='coerce')`.
+1. Parse all date columns to datetime using `pd.to_datetime(col, format=..., errors='coerce')`;
+   keep the original value and its precision for a date known only to the month or year, and do
+   not treat a filled-in day as observed.
 2. Check for NaT (failed parses) and investigate.
 3. Standardize to ISO 8601 (YYYY-MM-DD) for storage.
 4. Calculate derived variables (age at event, follow-up duration) from standardized dates.
