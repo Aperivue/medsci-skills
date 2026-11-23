@@ -272,7 +272,8 @@ Two builds from the same source give the same parts: the document dates and zip 
 fixed. A LibreOffice render hides defects PowerPoint shows. Open the built file in PowerPoint once
 before relying on a changed build.
 
-The skill's deck checkers (`check_slide_tells.py`, `check_deck_budget.py`) read positions and
-type sizes written on the slide. Text in a placeholder inherits both from the layout, so on a
-deck filled through this template those checkers see the tables and little else; a clean result
-from them on such a deck is not evidence about its text.
+The skill's deck checkers (`check_slide_tells.py`, `check_deck_budget.py`) read a placeholder's
+position, size and type size from the slide, then from its layout, then from the master, so a
+deck filled through this template is measured like any other. Two things they do not read: a
+shrink-to-fit scale PowerPoint applies when text overflows a slot (use `check_text_overflow.py`
+on a render for that), and the default size of a free text box with no size set on its runs.

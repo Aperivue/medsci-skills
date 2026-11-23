@@ -311,7 +311,7 @@ def inherited(ids, kind, prompt="Click to edit title"):
 def section_label(ids, color=None):
     """The section name above the title: plain grey text, no band. Left empty, it does not show."""
     return placeholder(ids, "Section name", 'type="body" sz="quarter" idx="20"', MARGIN, SECTION_Y, 8.0, SECTION_H,
-                       "Section name (optional)", lvl1("l", 16, color or C["muted"]), anchor="b")
+                       "Section name (optional)", lvl1("l", 20, color or C["muted"]), anchor="b")
 
 
 def sp_tree(shapes):
@@ -395,8 +395,8 @@ def txstyles():
              f'<a:defRPr sz="2800" b="1" kern="1200">{tx1()}'
              '<a:latin typeface="+mj-lt"/><a:ea typeface="+mj-ea"/><a:cs typeface="+mj-cs"/></a:defRPr></a:lvl1pPr></p:titleStyle>')
     body = ("<p:bodyStyle>" + lv(1, 0.30, -0.30, 22, "•", 1200, False) + lv(2, 0.64, -0.28, 20, "–", 600, True)
-            + lv(3, 0.98, -0.26, 18, "·", 400, True) + lv(4, 1.28, -0.24, 18, "·", 400, True)
-            + lv(5, 1.58, -0.24, 18, "·", 400, True) + "</p:bodyStyle>")
+            + lv(3, 0.98, -0.26, 20, "·", 400, True) + lv(4, 1.28, -0.24, 20, "·", 400, True)
+            + lv(5, 1.58, -0.24, 20, "·", 400, True) + "</p:bodyStyle>")
     other = ('<p:otherStyle><a:defPPr><a:defRPr lang="en-US"/></a:defPPr>'
              '<a:lvl1pPr marL="0" algn="l" defTabSz="914400" rtl="0" eaLnBrk="1" latinLnBrk="0" hangingPunct="1">'
              f'<a:defRPr sz="1800" kern="1200">{tx1()}'
@@ -446,13 +446,13 @@ def cover_layout(ids):
                "Cover picture (optional)", C["muted"]),
         pic_ph(ids, "Logo (optional)", 15, x, 0.6, 2.2, 0.62, "Logo (optional)", C["muted"]),
         placeholder(ids, "Event", 'type="body" sz="quarter" idx="13"', x, 1.55, w, 0.45, "Meeting · Session",
-                    lvl1("l", 18, C["muted"]), anchor="b"),
+                    lvl1("l", 20, C["muted"]), anchor="b"),
         placeholder(ids, "Title", 'type="ctrTitle"', x, 2.16, w, 2.5, "Presentation title",
                     lvl1("l", 36, C["ink"], True, font="+mj", lnspc=95), anchor="t", shrink=True),
         placeholder(ids, "Presenter", 'type="subTitle" idx="1"', x, 4.85, w, 0.6, "Presenter",
                     lvl1("l", 22, C["ink"], True), anchor="b"),
         placeholder(ids, "Affiliation", 'type="body" sz="quarter" idx="14"', x, 5.55, w, 1.1, "Affiliation",
-                    lvl1("l", 18, C["muted"])),
+                    lvl1("l", 20, C["muted"])),
     ]
     return layout_xml("Cover", "title", shapes, show_master=False, bg=C["white"])
 
@@ -599,7 +599,7 @@ def references_qr_layout(ids):
         text_ph(ids, "References", 1, MARGIN, BODY_TOP, qx - MARGIN - 0.6, BODY_H,
                 "The few references the talk rests on", 20, before=8, numbered=True),
         pic_ph(ids, "QR code", 30, qx, BODY_TOP, q, q, "QR code", C["muted"]),
-        text_ph(ids, "QR caption", 13, qx, BODY_TOP + q + 0.15, q, 0.9, "Where the code leads", 18, C["muted"]),
+        text_ph(ids, "QR caption", 13, qx, BODY_TOP + q + 0.15, q, 0.9, "Where the code leads", 20, C["muted"]),
     ], "References")
 
 

@@ -257,8 +257,9 @@ def audit(deck: Path, archetype: str, minutes: float,
         for s in shapes:
             if s.is_chrome or is_page_number(s.text) or not s.text or not s.max_pt:
                 continue
-            if s.max_pt < b.min_pt:
-                small.append(f"slide {i}: {s.max_pt:g} pt — {s.text[:44]!r}")
+            smallest = getattr(s, "min_pt", 0.0) or s.max_pt   # the smallest run is what must be read
+            if smallest < b.min_pt:
+                small.append(f"slide {i}: {smallest:g} pt — {s.text[:44]!r}")
     if small:
         out.append(Finding(
             DETECTOR, "TYPE_TOO_SMALL", None,

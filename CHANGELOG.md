@@ -4,6 +4,28 @@
 
 ### Fixed
 
+- **`/present-paper`: the deck checks now measure text in template placeholders.** A slide filled
+  through a layout's placeholders usually carries neither a position nor a type size of its own;
+  both come from the layout and the master. `check_slide_tells.py` and `check_deck_budget.py` read
+  the slide alone and dropped such text, so a deck built on the bundled template passed with
+  almost nothing measured. The reader now resolves position and size through the layout and the
+  master, and the type size of each run through the list styles of the slide, the layout
+  placeholder, the master placeholder and the master's title and body text styles. A placeholder
+  left empty is not counted; a partial position written on the slide still reports
+  `ZERO_AREA_TEXT`, and so now does placeholder text whose layout or master cannot be found. The
+  type floor is applied to the smallest run in a block, so a 9-pt run no longer passes beside a
+  larger one; a hidden shape is not read. Not read: a shrink-to-fit scale, and the default size of
+  a free text box. Expect new findings on decks that passed only because their text was not seen.
+- **`/present-paper`: `TOPIC_TITLE` reads the slide's title placeholder.** The headline was taken to
+  be the largest type in the upper half of the slide, which picked a large number under a sentence
+  title, or a small label when the title's size was inherited. A title placeholder with text in it is
+  now the headline; without one the earlier rule applies. A divider's number, the page number and
+  edge labels no longer count as the body that turns a label title into a finding.
+- **`/present-paper`: the bundled slide template has no text under 20 pt outside the source line.**
+  The section name (16 pt), the cover's event and affiliation lines, the QR caption and body
+  levels 3 to 5 (18 pt) are now 20 pt, the floor the deck check applies to a lecture or a
+  conference talk. `medsci_slides.pptx` is rebuilt.
+
 - **`/sync-submission`: the anonymization check now reports a Zotero library id left in a
   `.docx`.** Citations inserted with the Zotero plugin from a synced library store the library's
   numeric user or group id in the citation data, and documents written from the
