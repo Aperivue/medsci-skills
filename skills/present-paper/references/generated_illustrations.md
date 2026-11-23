@@ -92,6 +92,7 @@ as you add images, not at submission.
 | `nnunet_*.png` | Upstream repo `documentation/assets` | Apache-2.0, cited on slide |
 | product screenshots | Public product site | Domain shown on slide; developer notified |
 | paper figures | Author's own | Own work |
+| `fig2b_*.png` | Fig. 2b, p. 5 of the cited article; page rendered at 300 dpi, cropped to panel b, legend kept; slide 7 | CC BY 4.0, read on the article page; credited on slide |
 
 This is what makes the deck safe to hand to a society office, and it is the file you will want when
 someone asks about one image four months later.
