@@ -564,9 +564,9 @@ class SlideTemplate(unittest.TestCase):
         self.assertEqual(runs(body), [("DRB1*04:02", "1", None, 0), (" and DRB1*07:01 carriers", None, None, 0),
                                       ("held ", None, None, 1), ("without review", "1", "accent1", 1),
                                       ("a * b * c", None, None, 0)])
-        new_deck.put_rich(body, "one **two**\n한글 [[셋]]", emphasis=False)
+        new_deck.put_rich(body, "one **two**\n\ud55c\uae00 [[\uc14b]]", emphasis=False)
         self.assertEqual([(x[0], x[1], x[2]) for x in runs(body)],
-                         [("one ", None, None), ("two", None, None), ("한글 ", None, None), ("셋", None, None)])
+                         [("one ", None, None), ("two", None, None), ("\ud55c\uae00 ", None, None), ("\uc14b", None, None)])
         self.assertEqual(len(body.text_frame.paragraphs), 2)
         self.assertEqual(body.text_frame.paragraphs[1].runs[0]._r.find(f"{A}rPr").get("lang"), "ko-KR")
         box = new_deck.credit(s, "Source: synthetic")
