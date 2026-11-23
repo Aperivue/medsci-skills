@@ -684,6 +684,20 @@ class SlideTemplate(unittest.TestCase):
             self.assertLessEqual(pic.top + pic.height, box[1] + box[3] + 1)
             self.assertAlmostEqual(pic.width / pic.height, w / hgt, places=2)
             self.assertTrue(pic.width >= box[2] - 2 or pic.height >= box[3] - 2, "not scaled to the slot")
+        from PIL import Image
+        wide = Image.new("RGB", (1200, 600), "white")
+        wide.paste(Image.new("RGB", (200, 400), "black"), (500, 100))             # a tall figure in a wide margin
+        wide.save(self.root / "margin.png")
+        s = prs.slides.add_slide(lay["Result · Figure"])
+        slot = {p.placeholder_format.idx: p for p in s.placeholders}[30]
+        pic = new_deck.fit_picture(slot, self.root / "margin.png", trim=True)
+        self.assertLess(pic.width / pic.height, 0.7)                             # the margin went, the figure stayed
+        self.assertGreater(pic.width / pic.height, 0.45)
+        out = new_deck.trimmed(self.root / "margin.png", self.root / "t.png", pad=0)
+        self.assertEqual(Image.open(out).size, (200, 400))
+        blank_png = self.root / "blank.png"
+        Image.new("RGB", (50, 30), "white").save(blank_png)
+        self.assertEqual(Image.open(new_deck.trimmed(blank_png, self.root / "t2.png")).size, (50, 30))
 
     def test_appear_on_click_refuses_a_second_call_and_keeps_schema_order(self):
         from pptx import Presentation

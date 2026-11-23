@@ -33,6 +33,13 @@
 
 ### Changed
 
+- **Demos 2 to 5: the talks are rebuilt on the medsci slide template.** Each
+  `demo/*/presentation/` now starts from `new_deck.py` and shows a different choice: Demo 2 `mono`
+  and plain, Demo 3 `stone` with the section band, Demo 4 `pine` and plain, Demo 5 a set worked out
+  from one main colour, with the band. Every number is still read from the demo's files. Each
+  folder gains a contact sheet rendered through PowerPoint.
+- **`/present-paper`: `fit_picture(..., trim=True)` cuts a figure's own plain margin before fitting
+  it**, so a plot saved with wide margins fills its slot instead of sitting small in it.
 - **`/present-paper`: guidance that disagreed with itself is reconciled.** Found by having a fresh
   session build a deck from the skill alone. Notes are sized to each slide's time (130–150 words
   or about 300 Korean characters a minute) instead of three different per-slide lengths; the

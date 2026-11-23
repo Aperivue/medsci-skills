@@ -4733,8 +4733,8 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/README.md",
-      "size": 23694,
-      "sha256": "e6ddef9c38ff950add35d668f7bc1f7dce502914102ca1b6c69eabe381e380de"
+      "size": 23722,
+      "sha256": "2b10faaa2efc02a784435ef681077a047a5a1e3ecdedf227fd83c528ad8c8d0e"
     },
     {
       "path": "skills/present-paper/templates/slide_template/build_handout_template.py",
@@ -4758,8 +4758,8 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/new_deck.py",
-      "size": 34960,
-      "sha256": "b05b265782f6d28907b25b51c89d9012fdc7a92ec7151b2f1204233aa58bf3a0"
+      "size": 36286,
+      "sha256": "86000c8e306385e81fba157518019a38d84803f071dfa60ff2a5b80b3d9842fb"
     },
     {
       "path": "skills/profile-imaging/SKILL.md",

@@ -182,7 +182,7 @@ lay = {l.name: l for l in prs.slide_layouts}
 s = prs.slides.add_slide(lay["Result · Figure"])
 slot = {p.placeholder_format.idx: p for p in s.placeholders}
 slot[0].text_frame.text = "Accuracy held in the external set"
-new_deck.fit_picture(slot[30], "roc.png")            # whole figure, not cropped
+new_deck.fit_picture(slot[30], "roc.png")            # whole figure, not cropped (trim=True cuts its margin)
 prs.save("talk.pptx")
 t.post_process(Path("talk.pptx"))                    # after the last save
 ```
