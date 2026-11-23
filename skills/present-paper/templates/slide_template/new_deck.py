@@ -369,15 +369,41 @@ def drop_empty_bands(prs):
     return n
 
 
-def fit_picture(placeholder, image_path, align="l"):
+def trimmed(image_path, out_path, pad=0.02, tolerance=10):
+    """Write a copy of an image with its plain border cut away, and return out_path.
+
+    A plot saved with wide margins comes out small in its slot, because the margin is scaled with it. The
+    border is whatever matches the top-left pixel within tolerance (0-255 per channel); pad (a share of the
+    longer side) is left around what remains. Nothing inside the figure is touched."""
+    from PIL import Image, ImageChops
+    im = Image.open(image_path).convert("RGB")
+    ground = Image.new("RGB", im.size, im.getpixel((0, 0)))
+    box = ImageChops.difference(im, ground).point(lambda v: 255 if v > tolerance else 0).getbbox()
+    if box:
+        p = int(max(im.size) * pad)
+        box = (max(0, box[0] - p), max(0, box[1] - p), min(im.width, box[2] + p), min(im.height, box[3] + p))
+        im = im.crop(box)
+    im.save(out_path)
+    return out_path
+
+
+def fit_picture(placeholder, image_path, align="l", trim=False):
     """Insert a picture into a picture placeholder WITHOUT cropping it.
 
     A picture placeholder crops to fill its slot, which is right for a CT slice and wrong for a plot, a flow
     diagram or a QR code. This inserts, removes the crop, and scales the whole image into the slot, at the
-    left (align="l") or centred (align="ctr").
+    left (align="l") or centred (align="ctr"). trim=True first cuts away the figure's own plain margin
+    (trimmed), so the figure and not its margin fills the slot.
     """
     x, y, w, h = placeholder.left, placeholder.top, placeholder.width, placeholder.height
-    pic = placeholder.insert_picture(str(image_path))
+    if trim:
+        with tempfile.TemporaryDirectory() as work:
+            return _fit(placeholder.insert_picture(str(trimmed(image_path, Path(work) / "trimmed.png"))),
+                        x, y, w, h, align)
+    return _fit(placeholder.insert_picture(str(image_path)), x, y, w, h, align)
+
+
+def _fit(pic, x, y, w, h, align):
     pic.crop_left = pic.crop_right = pic.crop_top = pic.crop_bottom = 0
     iw, ih = pic.image.size
     scale = min(w / iw, h / ih)
