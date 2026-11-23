@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [6.5.0] - 2026-11-23
+
+**Re-check two things if you used an earlier version:** (1) `/present-paper`'s deck checks used to
+skip text that sat in template placeholders, so a deck built on the bundled slide template could
+pass with almost nothing measured; run `check_slide_tells.py` and `check_deck_budget.py` on such a
+deck again, and expect findings that were not reported before; (2) the bundled slide template was
+rebuilt: its small type is now 20 pt, the left column of Limitations is narrower, and theme accents
+4 and 5 are the second emphasis colour, so a deck that used those two theme colours for something
+else will change colour if it is moved onto the new template. New in this release: colours and an
+optional section band chosen when a deck is started, two accent colours, a one-page set of slide
+rules for use without a coding agent, and a sixth demo, an example lecture deck.
+
 ### Added
 
 - **A one-page set of slide rules, in English and Korean** (`docs/slide_guide_en.md`,
