@@ -23,7 +23,7 @@
   limitation is short, so the left column is 3.9 in (was 4.9 in) and the text on what it does to
   the result gains the difference. `medsci_slides.pptx` is rebuilt. Demo 1's talk now marks
   emphasis in the accent colour, keeps each take-home line on one line and opens the question
-  slide with the study's four numbers drawn as one strip.
+  slide with a table of the measurements by class.
 - **`/present-paper`: guidance for borrowed figures, small edits and terms.** The design guidelines
   now list what a cropped panel must keep (axes, legend, scale bar, panel letter, side and
   sequence labels on an image), the form of the source line on a slide and what a shared copy adds to it, and what the row for
