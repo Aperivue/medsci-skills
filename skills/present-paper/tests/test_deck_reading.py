@@ -172,9 +172,160 @@ try:
 except KeyError:
     pass
 
+# ---------------------------------------------------------------------------------------------
+# Placeholders filled through a template: position and type size come from the layout and master
+# ---------------------------------------------------------------------------------------------
+# A slide built by filling a layout's placeholders writes neither <a:xfrm> nor a run size. The
+# reader used to drop such shapes, so a template-built deck was measured as nearly empty.
+
+def by_text(shapes, text):
+    return next((sh for sh in shapes if sh.text == text), None)
+
+
+prs = new_deck()
+s = prs.slides.add_slide(prs.slide_layouts[1])            # Title and Content
+s.shapes.title.text = "Ablation halved local recurrence"
+s.placeholders[1].text_frame.text = "Twelve percent against twenty-six"
+inherited_deck = TMP / "inherited.pptx"
+prs.save(str(inherited_deck))
+
+prs = new_deck()
+s = prs.slides.add_slide(prs.slide_layouts[1])
+s.shapes.title.text = "Ablation halved local recurrence"
+body = s.placeholders[1]
+body.text_frame.text = "Twelve percent against twenty-six"
+for ph in (s.shapes.title, body):                         # the same values, written on the slide
+    ph.left, ph.top, ph.width, ph.height = ph.left, ph.top, ph.width, ph.height
+explicit_deck = TMP / "explicit.pptx"
+prs.save(str(explicit_deck))
+
+inh, _n, _w, _h = tells.read_deck(inherited_deck)
+exp, _n, _w, _h = tells.read_deck(explicit_deck)
+for text in ("Ablation halved local recurrence", "Twelve percent against twenty-six"):
+    a, b = by_text(inh[0], text), by_text(exp[0], text)
+    if a is None:
+        fails.append(f"a placeholder that inherits its position was dropped: {text!r}")
+        continue
+    if b is None or (a.x, a.y, a.cx, a.cy) != (b.x, b.y, b.cx, b.cy):
+        fails.append(f"inherited geometry of {text!r} differs from the same geometry written on the slide")
+    if not a.max_pt or a.max_pt != b.max_pt:
+        fails.append(f"inherited type size of {text!r} read as {a.max_pt} (explicit geometry copy: "
+                     f"{b.max_pt if b else None})")
+title = by_text(inh[0], "Ablation halved local recurrence")
+body_shape = by_text(inh[0], "Twelve percent against twenty-six")
+if title is not None and title.ph_type not in tells.TITLE_TYPES:
+    fails.append(f"the title placeholder was typed {title.ph_type!r}")
+if title is not None and body_shape is not None and not title.max_pt > body_shape.max_pt:
+    fails.append("the master's title size did not come out larger than its body size "
+                 f"({title.max_pt} vs {body_shape.max_pt})")
+
+# A run with its own size keeps it; the run beside it without one takes the inherited size.
+prs = new_deck()
+s = prs.slides.add_slide(prs.slide_layouts[1])
+s.shapes.title.text = "Ablation halved local recurrence"
+tf = s.placeholders[1].text_frame
+tf.text = "inherited size"
+run = tf.paragraphs[0].add_run()
+run.text = " and nine point"
+run.font.size = Pt(9)
+mixed = TMP / "mixed_runs.pptx"
+prs.save(str(mixed))
+shapes, _n, _w, _h = tells.read_deck(mixed)
+mixed_body = next((sh for sh in shapes[0] if sh.text.startswith("inherited size")), None)
+if mixed_body is None or mixed_body.max_pt != body_shape.max_pt:
+    fails.append("a placeholder with one explicit small run lost the inherited size of its other run")
+
+# An unfilled placeholder is not on the slide: it must not become a shape.
+prs = new_deck()
+s = prs.slides.add_slide(prs.slide_layouts[1])
+s.shapes.title.text = "Ablation halved local recurrence"
+unfilled = TMP / "unfilled.pptx"
+prs.save(str(unfilled))
+shapes, _n, _w, _h = tells.read_deck(unfilled)
+if len(shapes[0]) != 1:
+    fails.append(f"an empty body placeholder was read as a shape ({len(shapes[0])} shapes, expected 1)")
+
+# A partial <a:xfrm> on the slide is still the half-finished assignment ZERO_AREA_TEXT reports.
+prs = new_deck()
+s = prs.slides.add_slide(prs.slide_layouts[1])
+s.shapes.title.text = "Ablation halved local recurrence"
+s.shapes.title.width = Inches(11.5)                        # one of four: the others are written as absent
+partial = TMP / "partial.pptx"
+prs.save(str(partial))
+if "ZERO_AREA_TEXT" not in verdicts(partial):
+    fails.append("a title with a partial <a:xfrm> no longer reports ZERO_AREA_TEXT")
+
+# Type below the floor in a template-filled placeholder is now seen.
+prs = new_deck()
+for _ in range(2):
+    s = prs.slides.add_slide(prs.slide_layouts[1])
+    s.shapes.title.text = "Ablation halved local recurrence"
+    tf = s.placeholders[1].text_frame
+    tf.text = "Twelve percent against twenty-six"
+    tf.paragraphs[0].runs[0].font.size = Pt(9)
+small_ph = TMP / "small_placeholder.pptx"
+prs.save(str(small_ph))
+if "TYPE_TOO_SMALL" not in verdicts(small_ph):
+    fails.append("9-pt text in a placeholder with inherited geometry was not measured")
+
+
+# ---------------------------------------------------------------------------------------------
+# TOPIC_TITLE reads the title placeholder
+# ---------------------------------------------------------------------------------------------
+
+def topic_fired(path):
+    return [f.slide for f in tells.audit(path) if f.verdict == "TOPIC_TITLE"]
+
+
+def titled_slide(prs, title, extra):
+    s = prs.slides.add_slide(prs.slide_layouts[1])
+    s.shapes.title.text = title
+    s.placeholders[1].text_frame.text = "Twelve percent against twenty-six"
+    extra(s)
+    return s
+
+
+# A sentence title with a larger filing word elsewhere in the upper half: the title is the title.
+prs = new_deck()
+titled_slide(prs, "Ablation halved local recurrence", lambda s: textbox(s, "Results", 2.2, 96))
+path = TMP / "title_wins_over_size.pptx"
+prs.save(str(path))
+if topic_fired(path):
+    fails.append("a slide whose title placeholder states a finding fired TOPIC_TITLE because of larger text")
+
+# A filing label in the title placeholder still fires when the slide has a body.
+prs = new_deck()
+titled_slide(prs, "Results", lambda s: textbox(s, "Local recurrence 12% against 26%", 5.5, 24))
+path = TMP / "label_title.pptx"
+prs.save(str(path))
+if topic_fired(path) != [1]:
+    fails.append("'Results' in the title placeholder of a content slide did not fire TOPIC_TITLE")
+
+# An empty title placeholder does not hide a filing label typed in a text box.
+prs = new_deck()
+s = prs.slides.add_slide(prs.slide_layouts[1])
+s.placeholders[1].text_frame.text = "Twelve percent against twenty-six"
+textbox(s, "Results", 0.4, 40)
+textbox(s, "Local recurrence 12% against 26%", 5.5, 24)
+path = TMP / "empty_title_placeholder.pptx"
+prs.save(str(path))
+if topic_fired(path) != [1]:
+    fails.append("a filing label in a text box passed because the title placeholder was left empty")
+
+# A divider: a label title with its number and nothing else is allowed to be a label.
+prs = new_deck()
+s = prs.slides.add_slide(prs.slide_layouts[1])
+s.shapes.title.text = "Results"
+s.placeholders[1].text_frame.text = "02"
+path = TMP / "divider.pptx"
+prs.save(str(path))
+if topic_fired(path):
+    fails.append("a divider slide (label and its number) fired TOPIC_TITLE")
+
 if fails:
     print("FAIL — deck reading")
     for f in fails:
         print("  ·", f)
     sys.exit(1)
-print("PASS — tables are measured, slides and notes follow presentation order")
+print("PASS — tables are measured, slides and notes follow presentation order, "
+      "template placeholders are measured, the title placeholder is the title")
