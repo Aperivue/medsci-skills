@@ -26,7 +26,9 @@ Phase 3.5 slide critic scores against them.
 ## 2. Text — the 24-point floor
 
 - **If a font is smaller than 24 pt, treat it as invisible.** Body text ≥ 24 pt for a
-  large room; titles larger (28–40 pt). Footnotes/captions may go to ~14–18 pt but
+  large room is the target; titles larger (28–40 pt). The hard floor is 20 pt: that is what
+  `check_deck_budget.py` enforces for a conference talk or a lecture, and what the medsci
+  template's smallest body slots use. Between 20 and 24 pt is allowed, not aimed for. Footnotes/captions may go to ~14–18 pt but
   carry nothing the audience must read in real time.
 - **≤ 6 lines of body text per slide**; ≤ ~10–12 words per line. Prefer phrases to
   sentences in bullets.
@@ -51,6 +53,9 @@ Phase 3.5 slide critic scores against them.
 - **Emphasise with colour before weight.** A phrase in the accent colour is found at a glance; a
   bold phrase in the text colour is found only by reading. Mark a phrase, not a sentence, and not
   more than one or two phrases a slide: when half the slide is coloured, nothing is.
+- **A figure sits on the slide's own ground.** Draw it on pure white (or transparent) for a white
+  slide and on black for a black one. A plot saved on an off-white or grey panel shows on the
+  slide as a tinted rectangle; set the figure and axes face colour, and look at the render.
 - **A slide of text alone gets one thing to look at, taken from the study.** A small table of the
   actual values, the paper's own panel, a plot drawn from the data. Not a row of three or four
   oversized numbers with captions, which reads as a dashboard and as generated (see
@@ -128,8 +133,11 @@ Phase 3.5 slide critic scores against them.
 ## 8. Delivery-facing rules (carried by other skill assets)
 
 - **Body language = English; speaker notes = the presenter's language** for non-native
-  English presenters. Notes 150–300
-  characters/slide (30–60 s).
+  English presenters. Size each slide's notes to the time that slide gets, at
+  speaking pace: about 130–150 words a minute in English, about 300 characters a minute in
+  Korean. The notes of the presented slides together fill the slot; a 10-minute talk is about
+  1,300–1,500 English words or about 3,000 Korean characters, not 300 characters times the
+  number of slides.
 - **Mac PowerPoint compatibility** is mandatory before delivery — TIFF→PNG, no `sp3d`,
   app.xml count sync, no raw `**markdown**` leaking into notes
   (checklist: `references/slide_visual_styles/nature_lancet.md` §7).

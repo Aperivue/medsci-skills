@@ -50,8 +50,9 @@ item. Return the scored rubric + edit list to the user.
 14. **Font count ≤ 2** throughout the deck (typically 1 for title, 1 for body).
 15. **Font size ≥ 18 pt body** for slides; ≥ 24 pt for posters; ≥ 28 pt for room sizes
     > 100 seats.
-16. **Single Korean font** when the deck mixes Korean + English (`Apple SD Gothic Neo`
-    or `Pretendard`); avoid system Times-fallback for CJK text.
+16. **Single Korean font** when the deck mixes Korean + English (the template's own, e.g.
+    `Malgun Gothic` on the medsci template; else `Apple SD Gothic Neo` or `Pretendard`); avoid
+    system Times-fallback for CJK text.
 17. **Capitalization consistency** — sentence case OR title case throughout, not mixed.
 
 ## E. Native objects (editability)

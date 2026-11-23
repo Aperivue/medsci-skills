@@ -109,7 +109,8 @@ n_stat = len(re.findall(r"\b(?:OR|p|CI)\s*[=<>]?\s*\d|\d+\.\d+|\d+%|×10", text)
 needs_compression = n_char > 1000 and n_stat >= 5
 ```
 
-Rule of thumb: 700–1,000 chars + 0–2 stat tokens is fine (30–60-second narrative). >1,000 chars +
+Rule of thumb: up to 700–1,000 chars + 0–2 stat tokens is fine for a slide that gets two to three
+minutes (Korean runs at about 300 characters a minute; size every note to its slide's time). >1,000 chars +
 ≥5 stat tokens → compress to narrative tone and point at the slide body. Exact numbers belong in the
 slide body and footnotes (SSOT), not the notes.
 

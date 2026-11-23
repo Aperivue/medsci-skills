@@ -219,7 +219,8 @@ Draft a complete speaker script:
    suppresses fluid signal to highlight edema").
 3. **Pronunciation guide** in the user's language for drug names and abbreviations
    ("lecanemab (leh-KAN-eh-mab)").
-4. **Timing markers** per slide. Script length must match the allocated time (roughly 130–150
+4. **Timing markers** per slide. Script length must match the allocated time (about 300 characters
+   a minute in Korean; in English roughly 130–150
    words per minute for academic talks).
 5. **Transition phrases** connecting each slide to the narrative arc.
 
@@ -651,7 +652,9 @@ again; treat the first run's silence on everything else as unread, not as passed
 half the Mac-compatibility check and the portable fallback) and measure it:
 
 ```bash
-soffice --headless --convert-to pdf output/presentation.pptx
+# Export through PowerPoint when it is installed (File > Export, or the scripted export in the
+# slide template README): LibreOffice wraps and substitutes differently and hides some faults.
+soffice --headless --convert-to pdf output/presentation.pptx      # where PowerPoint is not available
 python3 scripts/check_text_overflow.py output/presentation.pptx --pdf output/presentation.pdf \
         --json qc/text_overflow.json
 ```
