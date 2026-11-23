@@ -4733,8 +4733,8 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/README.md",
-      "size": 23677,
-      "sha256": "ec79214d181eb17954bf2d26fd74888f6a48c7e4d6d815e720623716ea629e81"
+      "size": 23694,
+      "sha256": "e6ddef9c38ff950add35d668f7bc1f7dce502914102ca1b6c69eabe381e380de"
     },
     {
       "path": "skills/present-paper/templates/slide_template/build_handout_template.py",
@@ -4743,8 +4743,8 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/build_slide_template.py",
-      "size": 75665,
-      "sha256": "a3aebbfbba35a435303e2f9f107b3e8f8a26998c6cb5e4b848beac8a02e5c387"
+      "size": 76196,
+      "sha256": "5342551f3ba3b2b79f125e5d7ea79d6c5e0fbfe8f86a0592ab79b8fb28b64282"
     },
     {
       "path": "skills/present-paper/templates/slide_template/medsci_handout.docx",

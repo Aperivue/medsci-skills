@@ -382,6 +382,9 @@ class SlideTemplate(unittest.TestCase):
         self.assertEqual(t.derive_palette("0050C8")["accent"], "0050C8")           # readable as given: kept
         self.assertNotEqual(t.derive_palette("FFD400")["accent"], "FFD400")        # too light on white: darkened
         self.assertEqual(t.derive_palette("0050C8"), t.derive_palette("#0050c8"))
+        for blue in ("005EB8", "0050C8", "1F4E9C", "2A7AB8"):                      # the chosen second is no red
+            deg = t._hls(t.derive_palette(blue)["accent_alt"])[0] * 360
+            self.assertTrue(25 <= deg <= 50, (blue, deg))
         for orange in ("B84B14", "E65E19", "997766", "FF6600"):                    # the chosen second is no green
             pal = t.derive_palette(orange)
             self.assertEqual(t.accent_pair_problems(pal), ([], []), orange)

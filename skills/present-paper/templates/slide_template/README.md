@@ -265,7 +265,7 @@ python3 new_deck.py talk.pptx --main 5B2C83 --second 00A3AD --band             #
 
 The first colour becomes the first accent and gives its hue to the text, the section ground, the
 grey and the paper; the second becomes the second accent, or is chosen well round the colour wheel
-from the first when left out (never a green against a red or an orange). A colour too light to
+from the first when left out (never a red, and never a green against a red or an orange). A colour too light to
 read on white is darkened, by lightness alone, and each accent gets a lighter, somewhat less
 saturated partner for the black layouts. Two colours too alike to tell apart are refused; a red or
 orange given with a green is accepted with a note, because an institution's colours are what they

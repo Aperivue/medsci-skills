@@ -235,7 +235,7 @@ def derive_palette(main, second=None):
 
     main becomes the first accent and gives its hue to the near-black text, the section ground, the grey and
     the light paper. second becomes the second accent; left out, it is a hue well round the wheel from main
-    (150 degrees, or further when that would pair a red with a green).
+    (150 degrees, or further when that would pair a red with a green; never a red, amber is taken instead).
     A colour too light to read on white is darkened, by lightness alone; each accent gets a lighter and
     somewhat less saturated partner for the black layouts. Two colours too alike to tell apart are refused.
     The result is checked like any palette (resolve_palette) before use."""
@@ -243,9 +243,15 @@ def derive_palette(main, second=None):
     h, _, sat = _hls(main)
     if second is None:
         for turn in (150, 210, 240):                      # judged on the colour made, after rounding to hex
-            second = _hex(h + turn / 360, 0.36, min(max(sat, 0.35), 0.60))
-            if not _red_green(h, _hls(second)[0]):
+            h2 = (h + turn / 360) % 1.0
+            if h2 >= 335 / 360 or h2 <= 20 / 360:         # a red reads as an error mark, and blue with red as a
+                h2 = 38 / 360                             # stock look: take amber in its place
+            second = _hex(h2, 0.36, min(max(sat, 0.35), 0.60))
+            far = min(abs(h - h2), 1 - abs(h - h2)) * 360 >= 60
+            if far and not _red_green(h, _hls(second)[0]):
                 break
+        else:                                             # a warm or green main at an edge: blue is far from both
+            second = _hex(215 / 360, 0.36, min(max(sat, 0.35), 0.60))
     else:
         second = norm_hex(second, "second")
     k, w = FIXED["black"], FIXED["white"]
