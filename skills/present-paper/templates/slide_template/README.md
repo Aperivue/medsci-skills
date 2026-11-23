@@ -40,9 +40,10 @@ Which layout to use for which slide, and what the research-talk set is for:
 
 The research-talk layouts have no band, no rule, no panel and no outlined box. Space and type size
 separate the parts of a slide. Tables carry three rules only: above the header, under it, and
-under the last row. Emphasis is weight or the palette's one accent, never a second colour. The
-template spends the accent in one place among the research-talk layouts, the number on Key
-Finding; elsewhere it is yours to spend, once per slide. On black, the Quiz answer uses the
+under the last row. Emphasis is one of the palette's two accents, or weight. The template spends
+the first accent in one place among the research-talk layouts, the number on Key Finding;
+elsewhere both are yours. Give each one meaning for the whole deck: the first for the point of the
+slide, the second for what it is set against. On black, the Quiz answer uses the
 dark-ground accent.
 
 The teaching layouts (Content, Title Only, Table, Lessons and the Imaging layouts except Blank,
@@ -196,11 +197,12 @@ t.post_process(Path("talk.pptx"))                    # after the last save
 - `new_deck.put_rich(slot, lines)` fills a slot like `fill` and turns `**words**` into bold and
   `[[words]]` into bold in the accent colour (accent 1 on white slides, accent 2 on black ones,
   written as theme colours so they follow the palette). A lone asterisk, as in `DRB1*07:01`, is
-  left alone. Marks do not nest. Spend the accent once per slide.
+  left alone. `[[2|words]]` is the second accent (accent 4 on white, accent 5 on black). Marks do not
+  nest. One or two accented phrases a slide.
 - `new_deck.credit(slide, text)` writes a source line at the foot of the slide: into the layout's
   source slot where there is one, otherwise into a text box at the same place and size.
 - `build_slide_template.set_cell(tbl, r, c, text, accent=True)` sets the one cell to read in bold
-  accent colour.
+  accent colour; `accent=2` uses the second accent, for the cell it is compared with.
 - `new_deck.drop_empty_bands(prs)` removes empty section-name boxes from a deck made with `--band`
   (see above). Call it last, before saving.
 - A run that contains Hangul needs `lang="ko-KR"` (`new_deck.set_lang`), or PowerPoint breaks
@@ -238,18 +240,39 @@ that variant on the spot, so no second template file is needed). None uses navy 
 |---|---|---|---|
 | Text (ink) | `111111` | `1C1B19` | `15191A` |
 | Section divider ground (section) | `111111` | `2B2925` | `1E2B27` |
-| Emphasis on white (accent) | `0050C8` | `7A4E00` | `1D6A4F` |
-| Emphasis on black (accent_dk) | `4DA3FF` | `E0B25A` | `7FD1AE` |
+| First emphasis on white (accent) | `0050C8` | `7A4E00` | `1D6A4F` |
+| First emphasis on black (accent_dk) | `4DA3FF` | `E0B25A` | `7FD1AE` |
+| Second emphasis on white (accent_alt) | `8F5600` | `1F6470` | `7A3E65` |
+| Second emphasis on black (accent_alt_dk) | `FFB84D` | `7CCAD8` | `E6A8CC` |
 | Captions, labels, bullets, page number (muted) | `6E6E6E` | `66615A` | `5B6763` |
 | Light ground in the colour picker (paper) | `FAFAF7` | `F7F5F0` | `F4F7F5` |
 
 `mono` takes its values from `references/slide_visual_styles/editorial_mono.md`: near-black, grey
-and one blue. `stone` is warm greys with a dark ochre accent; `pine` is cool greys with a deep
-green accent. All three print legibly in greyscale. Fixed in every palette: white, black, a grey
+and blue, with amber as the second accent. `stone` is warm greys with dark ochre and teal; `pine`
+is cool greys with deep green and plum. No pair sets a red or an orange against a green, the
+commonest confusion; that does not make a pair safe for every reader, and the two accents of a set
+are close in lightness, so in a greyscale print they look alike. Do not let colour alone carry the
+meaning. Text in all three is legible in greyscale. Fixed in every palette: white, black, a grey
 `A3A3A3` for the page number and section name on black, and annotation yellow `FFD400` for labels
 laid over an image.
 
-Your own colours: any role, as a CLI option or a JSON file, applied over the chosen palette.
+Your own colours, the short way: give one or two main colours and the set is worked out.
+
+```bash
+python3 build_slide_template.py --main 5B2C83 --second 00A3AD --show-palette   # print the eight roles
+python3 new_deck.py talk.pptx --main 5B2C83 --second 00A3AD --band             # start a deck in them
+```
+
+The first colour becomes the first accent and gives its hue to the text, the section ground, the
+grey and the paper; the second becomes the second accent, or is chosen well round the colour wheel
+from the first when left out (never a red, and never a green against a red or an orange). A colour too light to
+read on white is darkened, by lightness alone, and each accent gets a lighter, somewhat less
+saturated partner for the black layouts. Two colours too alike to tell apart are refused; a red or
+orange given with a green is accepted with a note, because an institution's colours are what they
+are. Look at the printed values before building: an institution's yellow comes out as a dark
+gold.
+
+Your own colours, role by role: as a CLI option or a JSON file, applied over the chosen palette.
 
 ```bash
 python3 build_slide_template.py out/ --accent "#1D6A4F" --section 1E2B27
@@ -257,12 +280,12 @@ python3 build_slide_template.py out/ --palette-file colours.json   # {"accent": 
 ```
 
 Each value must be six hex digits, with or without `#`. Before anything is written, every text
-role is checked against the ground it is set on (ink, muted and accent on white; white on the
-section colour; the dark accent on black; ink and muted on paper) and the build stops if any pair
-is below 4.5:1, the WCAG AA level for body text, naming the pairs that failed. Keep to one accent.
+role is checked against the ground it is set on (ink, muted and both accents on white; white on
+the section colour; both dark accents on black; ink and muted on paper) and the build stops if any
+pair is below 4.5:1, the WCAG AA level for body text, naming the pairs that failed.
 
-In the colour picker the first two theme accents are the two emphasis colours: accent 1 on white
-slides, accent 2 on black slides.
+In the colour picker: accent 1 and accent 4 are the first and second emphasis on white slides,
+accent 2 and accent 5 the same on black slides; accent 3 and accent 6 are the greys.
 
 ## Adding your own logo and cover picture
 

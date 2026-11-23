@@ -104,6 +104,15 @@ knows the predicate of the next before the slide appears. Read the titles alone,
 list. Where consecutive titles share a predicate, keep them if the parallel is the comparison you
 are making; otherwise give each the more specific thing it has to say, or make them one slide.
 
+### A row of oversized numbers is the same tell without the boxes
+
+Three or four large figures side by side, each over a small grey caption ("569 aspirates · 30
+measurements · 3 classifiers"), is the dashboard tile with its border taken off. It is what a
+generator reaches for when a slide of text looks empty, and a reader recognises it at once. One
+number that is the finding, alone on its slide, is a different thing (the Key Finding layout).
+If the slide needs something to look at, show the data: a few rows of the real table, or the
+figure.
+
 ### The drop shadow under the box is part of the same tell
 
 A card with a soft shadow under it is the default look of generated UI, and on an academic slide it

@@ -4528,18 +4528,18 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 40880,
-      "sha256": "2dd35dec909b3409dd306a05fecaf9243dd43ec9c0a7869ea7ae615c87682f16"
+      "size": 41753,
+      "sha256": "9fa5b0f5813cde58e5ec0031880c3f5abfb8568bd8838c1c9cd11857cc92b2e7"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
-      "size": 12091,
-      "sha256": "db7e4ddb7d44d7c7be3cba5f1bcb618314b76f0f00808e8fe02a259e7eaa2105"
+      "size": 12641,
+      "sha256": "53b28d1266457af1e4f15cc830b93d205579caa085fbd4cc91d8f19f56450622"
     },
     {
       "path": "skills/present-paper/references/critic_rubrics/slide.md",
-      "size": 10160,
-      "sha256": "f83af274b67b07c84fce6a7dbde01e3c840422f1f998a3386d8040ffb8166f4d"
+      "size": 10208,
+      "sha256": "632aae13ad0f9e7ed9e39916ef0b906dd1e59d413651e03c1aac29eb510a25da"
     },
     {
       "path": "skills/present-paper/references/generate_pptx_templates.py",
@@ -4563,13 +4563,13 @@
     },
     {
       "path": "skills/present-paper/references/presentation_design_guidelines.md",
-      "size": 9601,
-      "sha256": "3b30235c981c596e8e7062c1d38b7c52f12434925da2e1df4f330d5b0e1a0726"
+      "size": 10940,
+      "sha256": "f3bcf7663401d29ee13d04bf11e244fbbbd3a32242e68ceaecc18da72499f7a0"
     },
     {
       "path": "skills/present-paper/references/slide_design_principles.md",
-      "size": 10581,
-      "sha256": "3cf84bf08f80835d4f3aa26b3c86d6e0f287ba83d8a21c248bde28df5d1664e7"
+      "size": 10613,
+      "sha256": "811cbe2c4e862d2ae0bebaa8920742dae7c7f9530efc56bd25564a076cd7e27b"
     },
     {
       "path": "skills/present-paper/references/slide_template_layouts.md",
@@ -4733,8 +4733,8 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/README.md",
-      "size": 21949,
-      "sha256": "6dfc1593d6fc50f0f4bd85685dee501d5f0501f1d596ec917d5e078dd05d9adb"
+      "size": 23694,
+      "sha256": "e6ddef9c38ff950add35d668f7bc1f7dce502914102ca1b6c69eabe381e380de"
     },
     {
       "path": "skills/present-paper/templates/slide_template/build_handout_template.py",
@@ -4743,8 +4743,8 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/build_slide_template.py",
-      "size": 68909,
-      "sha256": "07848cc6cc58c7648abb908de316a131b895971a161cc66f9ccdafa4aaeb31aa"
+      "size": 76053,
+      "sha256": "596743fa23ad74d06e76170439e9da35049947df0273fc5b762a558b804eccb7"
     },
     {
       "path": "skills/present-paper/templates/slide_template/medsci_handout.docx",
@@ -4753,13 +4753,13 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/medsci_slides.pptx",
-      "size": 54042,
-      "sha256": "b36bb8053e36a775fe49a2f1d287a1262025806a9697ae1b4a8b69ebe41ac584"
+      "size": 54052,
+      "sha256": "7283566b73a0aa2625b288196195a1651e54d68be65ec130c53b14420233c9dd"
     },
     {
       "path": "skills/present-paper/templates/slide_template/new_deck.py",
-      "size": 33551,
-      "sha256": "7eec50ddd6af76f9b67fbb3a5fa747b047d6cedf81d8bf48942c71028274806e"
+      "size": 34960,
+      "sha256": "b05b265782f6d28907b25b51c89d9012fdc7a92ec7151b2f1204233aa58bf3a0"
     },
     {
       "path": "skills/profile-imaging/SKILL.md",

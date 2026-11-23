@@ -2,6 +2,7 @@
 """Build the medsci slide template: one master, 31 layouts, no pictures.
 
     python3 build_slide_template.py [OUT_DIR] [--palette mono|stone|pine] [--band]
+                                    [--main HEX [--second HEX]]
                                     [--palette-file colours.json] [--ink HEX] [--accent HEX] ... [--force]
 
 Writes into OUT_DIR (default: this folder); an existing output is replaced only with --force:
@@ -14,7 +15,7 @@ checks read .pptx. `new_deck.py my_template.potx` writes a .potx when one is wan
 
 What is in it
 
-  * White ground, near-black text, one accent colour. No band, no rule and no panel on the
+  * White ground, near-black text, two accent colours. No band, no rule and no panel on the
     research-talk layouts: space and type size separate the parts of a slide. The page number sits
     bottom right. The master carries no logo and the file embeds no picture.
   * Cover and Closing stand on their own. Each has an optional picture placeholder and an optional
@@ -31,7 +32,8 @@ What is in it
   * Black "Imaging" layouts for image-heavy talks. They flip the colour map (clrMapOvr), so text
     typed on them comes out white.
 
-Colours: three palettes (PALETTES), or your own through --palette-file and the per-role options.
+Colours: three palettes (PALETTES); a set worked out from one or two main colours (--main, --second);
+or your own, role by role, through --palette-file and the per-role options. Each has two accents.
 Every palette is checked for contrast before anything is written (WCAG AA, 4.5:1, for each text
 role against the ground it is set on); a palette that fails stops the build with the pairs that
 failed.
@@ -69,19 +71,27 @@ SW, SH = 13.333, 7.5
 
 # role -> hex.
 #   ink        text on white                 section     ground of the Section divider (white text on it)
-#   accent     the one emphasis on white      accent_dk   the one emphasis on black
-#   muted      captions, sources, labels,     paper       a light ground, offered in the colour picker
+#   accent     the first emphasis on white    accent_dk       the first emphasis on black
+#   accent_alt the second emphasis on white   accent_alt_dk   the second emphasis on black
+#   muted      captions, sources, labels,     paper           a light ground, offered in the colour picker
 #              bullets, page number
-# None of them is navy or red. The accent is spent by the template in one place (the number on Key
-# Finding); elsewhere it is the speaker's, once per slide.
-ROLES = ("ink", "section", "accent", "accent_dk", "muted", "paper")
+# None of them is navy or red. The first accent is spent by the template in one place (the number on Key
+# Finding); elsewhere both are the speaker's. Give each one meaning and keep it through the deck: the first
+# for the point of the slide, the second for what it is set against. The two are far apart in hue and are
+# not a red-or-orange against a green, the commonest pair to be confused. That is not a guarantee for every
+# reader, and the two are close in lightness (they look alike in greyscale): never let colour alone carry the
+# meaning; the position, a label or the wording says it too.
+ROLES = ("ink", "section", "accent", "accent_dk", "accent_alt", "accent_alt_dk", "muted", "paper")
 PALETTES = {
-    "mono": dict(        # editorial_mono.md: near-black ink, grey, one blue accent
-        ink="111111", section="111111", accent="0050C8", accent_dk="4DA3FF", muted="6E6E6E", paper="FAFAF7"),
-    "stone": dict(       # warm greys, a dark ochre accent; prints well in greyscale
-        ink="1C1B19", section="2B2925", accent="7A4E00", accent_dk="E0B25A", muted="66615A", paper="F7F5F0"),
-    "pine": dict(        # cool greys, a deep green accent
-        ink="15191A", section="1E2B27", accent="1D6A4F", accent_dk="7FD1AE", muted="5B6763", paper="F4F7F5"),
+    "mono": dict(        # editorial_mono.md: near-black ink, grey; blue, and amber as the second accent
+        ink="111111", section="111111", accent="0050C8", accent_dk="4DA3FF", accent_alt="8F5600",
+        accent_alt_dk="FFB84D", muted="6E6E6E", paper="FAFAF7"),
+    "stone": dict(       # warm greys; dark ochre, and teal as the second accent; prints well in greyscale
+        ink="1C1B19", section="2B2925", accent="7A4E00", accent_dk="E0B25A", accent_alt="1F6470",
+        accent_alt_dk="7CCAD8", muted="66615A", paper="F7F5F0"),
+    "pine": dict(        # cool greys; deep green, and plum as the second accent
+        ink="15191A", section="1E2B27", accent="1D6A4F", accent_dk="7FD1AE", accent_alt="7A3E65",
+        accent_alt_dk="E6A8CC", muted="5B6763", paper="F4F7F5"),
 }
 DEFAULT_PALETTE = "mono"
 FIXED = dict(white="FFFFFF", black="000000",
@@ -159,12 +169,104 @@ def contrast_failures(pal):
     Imaging layouts."""
     w, k = FIXED["white"], FIXED["black"]
     pairs = [("ink on white", pal["ink"], w, AA), ("muted on white", pal["muted"], w, AA),
-             ("accent on white", pal["accent"], w, AA), ("lower text levels on white", lightened(pal["ink"]), w, AA),
+             ("accent on white", pal["accent"], w, AA), ("accent_alt on white", pal["accent_alt"], w, AA),
+             ("accent_alt_dk on black", pal["accent_alt_dk"], k, AA),
+             ("lower text levels on white", lightened(pal["ink"]), w, AA),
              ("white on section", w, pal["section"], AA),
              ("page and section number on section", FIXED["num_dark"], pal["section"], AA),
              ("accent_dk on black", pal["accent_dk"], k, AA), ("ink on paper", pal["ink"], pal["paper"], AA),
              ("muted on paper", pal["muted"], pal["paper"], AA), ("bullets (muted) on black", pal["muted"], k, NON_TEXT)]
     return [(name, contrast(a, b), need) for name, a, b, need in pairs if contrast(a, b) < need]
+
+
+def _hls(hexv):
+    r, g, b = (int(hexv[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    return colorsys.rgb_to_hls(r, g, b)
+
+
+def _hex(h, lum, sat):
+    r, g, b = colorsys.hls_to_rgb(h % 1.0, min(1.0, max(0.0, lum)), min(1.0, max(0.0, sat)))
+    return "".join(f"{round(v * 255):02X}" for v in (r, g, b))
+
+
+def _toward(hexv, ground, need=AA, margin=0.3):
+    """hexv with only its lightness moved, as little as it takes, until it stands against ground at the
+    contrast needed (darker for a white ground, lighter for a black one). Hue and saturation are kept."""
+    h, lum, sat = _hls(hexv)
+    step = -0.01 if luminance(ground) > 0.5 else 0.01
+    out = hexv
+    while contrast(out, ground) < need + margin and 0.0 <= lum + step <= 1.0:
+        lum += step
+        out = _hex(h, lum, sat)
+    return out
+
+
+def accent_pair_problems(pal):
+    """What is wrong with a palette's two accents as a pair: ([errors], [warnings]).
+
+    An error is a pair that cannot do its job, two accents that are the same colour or nearly so. A warning is
+    a pair that works for most readers and fails for some: a red or orange against a green."""
+    a, b = pal["accent"], pal["accent_alt"]
+    (h1, l1, s1), (h2, l2, s2) = _hls(a), _hls(b)
+    gap = min(abs(h1 - h2), 1 - abs(h1 - h2)) * 360
+    grey1, grey2 = s1 < 0.12, s2 < 0.12
+    errors, warnings = [], []
+    if a == b or (grey1 and grey2 and abs(l1 - l2) < 0.25) or (not grey1 and not grey2 and gap < 40 and abs(l1 - l2) < 0.25):
+        errors.append(f"the two accents ({a} and {b}) are too alike to mean two things; choose a second colour "
+                      "further from the first, or leave it out and one is chosen")
+    elif _red_green(h1, h2) and not grey1 and not grey2:
+        warnings.append(f"the two accents ({a} and {b}) are a red or orange against a green, the pair a "
+                        "red-green colour-blind reader confuses; if these are the colours you must use, make "
+                        "sure a label or the position carries the meaning as well")
+    return errors, warnings
+
+
+def _red_green(h1, h2):
+    """True when two hues (0-1) are a red or orange against a green: the pair a red-green colour-blind reader
+    cannot tell apart."""
+    def kind(h):
+        deg = (h % 1.0) * 360
+        return "warm" if (deg >= 340 or deg <= 50) else "green" if 75 <= deg <= 185 else None
+    return {kind(h1), kind(h2)} == {"warm", "green"}
+
+
+def derive_palette(main, second=None):
+    """A full set of roles from one or two main colours, for a speaker who knows their colour and not eight.
+
+    main becomes the first accent and gives its hue to the near-black text, the section ground, the grey and
+    the light paper. second becomes the second accent; left out, it is a hue well round the wheel from main
+    (150 degrees, or further when that would pair a red with a green; never a red, amber is taken instead).
+    A colour too light to read on white is darkened, by lightness alone; each accent gets a lighter and
+    somewhat less saturated partner for the black layouts. Two colours too alike to tell apart are refused.
+    The result is checked like any palette (resolve_palette) before use."""
+    main = norm_hex(main, "main")
+    h, _, sat = _hls(main)
+    k, w = FIXED["black"], FIXED["white"]
+
+    def on_black(hexv):
+        hh, _, ss = _hls(hexv)
+        return _toward(_hex(hh, 0.66, min(ss, 0.75)), k, margin=2.5)
+
+    def made(second_hex):
+        return dict(ink=_hex(h, 0.09, min(sat, 0.10)), section=_hex(h, 0.14, min(sat, 0.30)),
+                    accent=_toward(main, w), accent_dk=on_black(main), accent_alt=_toward(second_hex, w),
+                    accent_alt_dk=on_black(second_hex), muted=_hex(h, 0.40, min(sat, 0.06)),
+                    paper=_hex(h, 0.965, min(sat, 0.25)))
+
+    if second is not None:
+        pal = made(norm_hex(second, "second"))
+        errors, _ = accent_pair_problems(pal)
+        if errors:
+            raise PaletteError("; ".join(errors))
+        return pal
+    pal = None
+    for hue in ((h + 150 / 360) % 1.0, (h + 210 / 360) % 1.0, (h + 240 / 360) % 1.0, 215 / 360, 38 / 360, 285 / 360):
+        if hue >= 335 / 360 or hue <= 20 / 360:          # a red reads as an error mark, and blue with red as a
+            hue = 38 / 360                                # stock look: take amber in its place
+        pal = made(_hex(hue, 0.36, min(max(sat, 0.35), 0.60)))
+        if accent_pair_problems(pal) == ([], []):         # judged on the colours made, after rounding
+            break
+    return pal
 
 
 def resolve_palette(name=DEFAULT_PALETTE, overrides=None):
@@ -372,9 +474,10 @@ def theme_xml(base_blob):
     root.set("name", THEME_NAME)
     cs = root.find(".//a:clrScheme", ns)
     cs.set("name", THEME_NAME)
-    # accent1 = emphasis on white, accent2 = emphasis on black: the first two swatches in the colour picker.
+    # accent1 / accent2 = the first emphasis on white / on black, accent4 / accent5 = the second emphasis on
+    # white / on black; accent3 and accent6 are the greys.
     scheme = dict(dk1=C["ink"], lt1=C["white"], dk2=C["section"], lt2=C["paper"], accent1=C["accent"],
-                  accent2=C["accent_dk"], accent3=C["muted"], accent4=C["section"], accent5=C["muted"],
+                  accent2=C["accent_dk"], accent3=C["muted"], accent4=C["accent_alt"], accent5=C["accent_alt_dk"],
                   accent6=C["num_dark"], hlink=C["accent"], folHlink=C["muted"])
     for child in list(cs):
         cs.remove(child)
@@ -527,8 +630,8 @@ def blank_layout(ids):
 
 # ---------------------------------------------------------------- research-talk layouts
 # Each is a title that states the point, then one arrangement that suits what the slide carries. No panels, no
-# boxes, no icons: only text and one figure or table. The accent colour appears on Key Finding alone; elsewhere it
-# is the speaker's to spend, once per slide.
+# boxes, no icons: only text and one figure or table. The template spends the first accent on Key Finding alone;
+# elsewhere the two accents are the speaker's, a phrase or two a slide.
 def disclosure_layout(ids):
     w = 9.0
     return research_layout(ids, "Disclosure", [
@@ -968,17 +1071,22 @@ def on_dark(part):
     return el.find(f"{{{NS_P}}}clrMapOvr/{{{NS_A}}}overrideClrMapping") is not None
 
 
-def accent_name(part):
-    """The theme colour that is the accent where this part draws: accent1 on white, accent2 on black. Written
-    as a theme colour, not as a hex value, so the deck follows a change of palette or theme."""
-    return "accent2" if on_dark(part) else "accent1"
+def accent_name(part, which=1):
+    """The theme colour that is the first (which=1) or second (which=2) accent where this part draws: accent1
+    and accent4 on white, accent2 and accent5 on black. Written as a theme colour, not as a hex value, so the
+    deck follows a change of palette or theme."""
+    if which not in (1, 2):
+        raise ValueError("an accent is 1 (first) or 2 (second)")
+    return (("accent2", "accent5") if on_dark(part) else ("accent1", "accent4"))[which - 1]
 
 
 def set_cell(tbl, r, c, text, size=20, bold=False, accent=False):
-    """Text into a table cell. accent=True sets it bold in the deck's accent colour: the one cell to read."""
+    """Text into a table cell. accent=True (or 1) sets it bold in the deck's first accent colour, accent=2 in
+    the second: the cell to read, and the one it is set against."""
     cell = tbl.cell(r, c)
     cell.text = text
-    set_cell_font(cell, size, bold or accent, accent_name(tbl._graphic_frame.part) if accent else "tx1")
+    which = 1 if accent is True else accent
+    set_cell_font(cell, size, bold or bool(accent), accent_name(tbl._graphic_frame.part, which) if accent else "tx1")
 
 
 FIXED_DATE = (2026, 1, 1, 0, 0, 0)   # zip entry time, so two builds of the same source are the same bytes
@@ -1194,7 +1302,7 @@ SAMPLES = [
     ("Section", {13: "01", 0: "Section title", 14: "One line on what this part covers"}),
     ("Content", {20: "Section", 0: "A title that states the point of the slide",
                  1: ["The section name sits above the title, or stays empty", (1, "An empty slot does not show in the slide show"),
-                     "Emphasis: bold, or the accent colour, once per slide",
+                     "Emphasis: one of the two accent colours, on a phrase or two",
                      "Image-heavy slides: use the black Imaging layouts"]}),
     ("Title Only", {20: "Section", 0: "A title over a figure you place yourself"}),
     ("Blank", {}),
@@ -1327,11 +1435,14 @@ def _write_template(pptx_path, template_path):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("out_dir", nargs="?", default=str(HERE))
-    ap.add_argument("--palette", choices=sorted(PALETTES), default=DEFAULT_PALETTE)
+    ap.add_argument("--palette", choices=sorted(PALETTES), help=f"a ready set (default {DEFAULT_PALETTE})")
     ap.add_argument("--palette-file", help="JSON object of role: hex, applied over --palette "
                                            "(roles: " + ", ".join(ROLES) + ")")
     for role in ROLES:
         ap.add_argument("--" + role.replace("_", "-"), dest=role, metavar="HEX", help=f"colour for the {role} role")
+    ap.add_argument("--main", metavar="HEX", help="work the whole set out from this main colour (and --second)")
+    ap.add_argument("--second", metavar="HEX", help="the second accent, with --main (default: chosen from --main)")
+    ap.add_argument("--show-palette", action="store_true", help="print the resolved colours, role by role, and stop")
     ap.add_argument("--band", action="store_true",
                     help="section name as a band across the top of the white layouts (off by default)")
     ap.add_argument("--force", action="store_true", help=f"replace {TEMPLATE_NAME} / {SAMPLE_NAME} if they exist")
@@ -1341,8 +1452,21 @@ def main():
         print("\n".join(readme_rows(layout_table(Path(a.out_dir) / TEMPLATE_NAME))))
         return
     try:
-        overrides = load_palette_file(a.palette_file) if a.palette_file else {}
+        if a.second and not a.main:
+            raise PaletteError("--second is the second accent of a set made with --main; give --main too, "
+                               "or use --accent-alt to change one role")
+        if a.main and a.palette:
+            raise PaletteError("give --palette or --main, not both")
+        a.palette = a.palette or DEFAULT_PALETTE
+        overrides = derive_palette(a.main, a.second) if a.main else {}
+        overrides.update(load_palette_file(a.palette_file) if a.palette_file else {})
         overrides.update({r: getattr(a, r) for r in ROLES if getattr(a, r) is not None})
+        if a.show_palette:
+            pal = resolve_palette(a.palette, overrides)
+            print("\n".join(f"{role:14s} #{pal[role]}" for role in ROLES))
+            for note in accent_pair_problems(pal)[1]:
+                print("note:", note)
+            return
         template, sample = build(a.out_dir, a.palette, overrides, a.force, a.band)
     except PaletteError as e:
         raise SystemExit(f"palette rejected: {e}")

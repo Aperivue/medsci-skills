@@ -11,7 +11,7 @@ metadata:
 
 ### Step 0a — Load design references (read before drafting outline)
 
-Read three files **now**, in full. Read the rest only **when the answer to Q0/Q2 tells you which one
+Read three files **now**, in full. Read the rest only **when the answer to Q0/Q1/Q2 tells you which one
 you need** — a talk has one venue and one style, and reading the others teaches nothing you will use.
 
 **Read now (always):**
@@ -29,15 +29,15 @@ brief (Minto's pyramid, action titles, Kawasaki's 10/20/30). The *archetype* (wh
 preference; the skeleton is not.** Its mechanical half is `scripts/check_deck_budget.py`.
 
 **C. `references/presentation_design_guidelines.md`** — the enforceable rules (assertion headlines,
-24-pt floor, negative space, ≤3 colours, colourblind-safe palettes, redraw-don't-screenshot,
+24-pt floor, negative space, at most two accents, colourblind-safe palettes, redraw-don't-screenshot,
 animation discipline) plus the G1–G10 self-check the Phase 3.5 critic scores against.
 
-**Read on demand — after Q0/Q2 tell you which one:**
+**Read on demand — after Q0–Q2 tell you which one:**
 
 | File | Read it when |
 |---|---|
 | `references/medical_presentation_templates.md` | the venue is one of the five medical ones — then read **that section only** |
-| `references/slide_visual_styles/CATALOG.md` → one style file | Q2 has chosen a style |
+| `references/slide_visual_styles/CATALOG.md` → one style file | the user named one of the older fixed styles |
 | `references/slide_template_layouts.md` | you are building on the default template and choosing a layout per slide |
 | `references/slide_design_principles.md` | you are stuck on *why* a slide is not landing — the Reynolds / Duarte / Knaflic / Tufte theory under the rules in **C** |
 | `references/generated_illustrations.md` | you are about to generate any image for a slide, or a text-only slide keeps failing the critic; its first rule (never generate a medical image) is not optional |
@@ -72,26 +72,46 @@ room comes out generic in exactly the way every reviewer can see.
 
 **Q1 — "Do you have an institutional or branded template to use?"**
 - **Yes** → the user supplies a `.pptx`/`.potx`. Switch to **Mode C** (Phase 3, "Fill an
-  institutional template"). Do **not** also ask Q2 — the template's theme *is* the style.
-- **No / none** → ask Q2.
+  institutional template"). Do **not** also ask Q2 or Q3 — the template's theme *is* the style.
+- **No / none** → the deck is built on the medsci template (`templates/slide_template/`); ask Q2
+  and Q3, which set its colours and whether it carries a band.
 
-**Q2 — "Which visual style should I generate in?"** Offer the `CATALOG.md` menu with a
-one-line preview each (recommended option first, labelled):
+**Q2 — "What are your main colours, one or two?"** Offer, in this order:
 
-| Option | One-line preview |
-|--------|------------------|
-| **medsci template** *(default for new decks)* | `templates/slide_template/`: white, near-black, one accent, no bands or boxes; 31 layouts, palettes mono/stone/pine or your own colours (`new_deck.py --palette`); `--band` adds a section band for a speaker who finds the plain look bare |
-| **Nature / Lancet** | White, navy + coral accent, hairline dividers, Inter/Pretendard — restrained editorial-academic |
-| **Clinical Blue** | White/light-blue, navy-teal, calm and trustworthy, colorblind-safe — grand rounds / CME |
-| **Editorial Mono** | High-contrast black-on-white, oversized type, one accent — single big-message keynote |
-| **Dark Modern** | Deep-slate background, off-white text, electric accent — AI / method / tech talks |
-| **Other** | Describe a palette/feel, or name a journal/brand to emulate |
+- **Their own**: one or two colours, as hex values or named after the institution or society whose
+  colours they are (look the hex up; do not guess a brand colour). Work the set out and show it
+  before building:
 
-Record the choice and pass the matching style spec to Phase 3. With no preference, default to the
-**medsci template** (`new_deck.py`, palette `mono`). Style changes only Phase 3 rendering — not the
-outline, script, or Q&A.
+  ```bash
+  python3 "${CLAUDE_SKILL_DIR}/templates/slide_template/build_slide_template.py" \
+    --main 5B2C83 --second 00A3AD --show-palette       # --second is optional
+  ```
 
-**Q3 — conference decks only: is slide 1 a submission requirement?** Many societies require the
+  The first colour becomes the first accent and tints the text, the section ground and the greys;
+  the second becomes the second accent (left out, one is chosen well away in hue). A colour too
+  light to read on white is darkened, and the printout says what each role became. Show the user
+  the eight values, say which were adjusted, pass on any `note:` line (a red against a green), and
+  get a yes. A pair refused as too alike needs another second colour.
+- **A ready set**: `mono` (blue, with amber), `stone` (ochre, with teal), `pine` (green, with plum).
+- **No preference** → `mono`.
+
+**Q3 — "A section band across the top, or plain?"** Plain is the default: white, no band. The band
+(`--band`) puts the section name in a slim strip of the section colour on every white slide; some
+speakers and rooms find the plain look bare, and a repeated band is ordinary slide design. Ask;
+do not decide for them.
+
+Then start the deck with what they chose, and carry the two answers to Phase 3:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/templates/slide_template/new_deck.py" talk.pptx --type conference-oral \
+  --main 5B2C83 --second 00A3AD --band                 # or --palette pine; --band only if they said yes
+```
+
+A user who names one of the older fixed looks (Nature/Lancet, Clinical Blue, Editorial Mono, Dark
+Modern; `references/slide_visual_styles/CATALOG.md`) gets it; do not offer them unasked. Colours
+and band change only Phase 3 rendering — not the outline, script, or Q&A.
+
+**Q4 — conference decks only: is slide 1 a submission requirement?** Many societies require the
 title slide to carry the title, authors, affiliations and country **exactly as entered in the
 abstract submission**. Do not shorten them to satisfy the density check — **the requirement wins**.
 Copy the fields from the submission portal, and record `SLIDE_TOO_DENSE` on slide 1 as consciously

@@ -42,6 +42,7 @@ p_lo, p_hi = min(float(r["DeLong_p"]) for r in delong), max(float(r["DeLong_p"])
 assert all(float(r["DeLong_p"]) > 0.05 for r in delong), "the 'no difference' slides assume every DeLong p > 0.05"
 best_brier = min(acc.values(), key=lambda r: float(r["Brier"]))
 assert best_brier is lr, "the calibration line names logistic regression"
+worst_brier = max(acc.values(), key=lambda r: float(r["Brier"]))
 
 
 def f3(value):
@@ -98,11 +99,12 @@ SLIDES = [
                 "다만 이 벤치마크는 정제된 자료여서, 이 숫자를 임상 성능으로 읽으면 안 됩니다.")),
     ("Result · Table", "Results",
      {0: "Same AUC; logistic regression was best calibrated",
-      13: f"Pairwise DeLong p from {p_lo:.2f} to {p_hi:.2f}. Read the Brier column.",
+      13: f"Pairwise DeLong p from {p_lo:.2f} to {p_hi:.2f}. Brier: [[lowest]] against [[2|highest]].",
       14: "Sensitivity and specificity at threshold 0.5, with 95% CI. Lower Brier score is better."},
      dict(table=[["Model", "AUC (95% CI)", "Sensitivity", "Specificity", "Brier"]]
           + [[m, ci(r, "AUC"), f3(r["Thr0.5_Sens"]), f3(r["Thr0.5_Spec"]), f3(r["Brier"])] for m, r in acc.items()],
-          accent=(1 + list(acc).index("Logistic Regression"), 4),
+          accent={(1 + list(acc).index("Logistic Regression"), 4): 1,      # the best-calibrated model
+                  (1 + list(acc).index(worst_brier["Model"]), 4): 2},     # and the one it is set against
           notes="세 모형을 한 표에 놓았습니다. 쌍별 DeLong 검정에서 차이가 없었습니다. 구별되는 것은 마지막 열입니다. "
                 "Brier 점수가 가장 낮은 것이 로지스틱 회귀이고, 확률을 그대로 쓰려면 이 열이 중요합니다.")),
     ("Limitations", "Limits",
@@ -114,8 +116,8 @@ SLIDES = [
                 "임계값을 사후에 고르면 낙관 편향이 생기므로 여기서는 고르지 않았습니다.")),
     ("Take-home", "Summary",
      {0: "What to take from this",
-      1: ["Discrimination: [[no difference]] between the models",
-          "Calibration, not AUC, separated them",
+      1: ["Discrimination: [[2|no difference]] between the models",
+          "[[Calibration]], not AUC, separated them",
           "Every number here is read from the tables"]},
      dict(notes="정리합니다. 판별력은 세 모형이 같았고, 갈린 것은 보정이었습니다. 그리고 이 슬라이드의 숫자는 모두 "
                 "분석 표에서 읽어 온 것이라, 결과가 바뀌면 덱도 같이 바뀝니다. 감사합니다.")),
@@ -143,7 +145,7 @@ def build(out, band=True):
                 col.width = Inches(width)
             for r, row in enumerate(rows[1:], start=1):
                 for c, text in enumerate(row):
-                    t.set_cell(tbl, r, c, text, accent=(r, c) == opt.get("accent"))
+                    t.set_cell(tbl, r, c, text, accent=opt.get("accent", {}).get((r, c), False))
         tf = s.notes_slide.notes_text_frame
         tf.text = opt["notes"]
         nd.set_lang(tf)

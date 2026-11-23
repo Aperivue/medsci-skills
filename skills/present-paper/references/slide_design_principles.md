@@ -88,7 +88,7 @@ under that ceiling.
 | Element | Slide ceiling | Reason |
 |---|---|---|
 | Body text lines | ≤ 6 | Beyond 6, audience reads instead of listening |
-| Distinct colors | ≤ 3 + 1 accent | More colors fragment attention |
+| Distinct colors | ≤ 3 + 2 accents | More colors fragment attention |
 | Fonts | ≤ 2 (title + body) | Mixed fonts break institutional brand and look unfinished |
 | Bullet levels | ≤ 2 | Deep nesting (3 indents) signals reading-document |
 | Chart types per slide | 1 | Two charts compete for attention |
@@ -177,7 +177,7 @@ Before exporting to PPTX, walk every slide:
 - [ ] One-sentence key message stated at slide top (sentence-headline).
 - [ ] Body text ≤ 6 lines.
 - [ ] Glance test ≤ 3 seconds.
-- [ ] Colors ≤ 3 + 1 accent; carry meaning, not decoration.
+- [ ] Colors ≤ 3 + 2 accents, each accent with one meaning; carry meaning, not decoration.
 - [ ] Fonts ≤ 2 throughout deck; ≥ 18 pt body for slides; ≥ 24 pt for posters.
 - [ ] Tables are native objects; charts and diagrams drawn as code, not autoshapes.
 - [ ] No 3-D / drop-shadow / gradient unless data-driven.
