@@ -378,7 +378,7 @@ class SlideTemplate(unittest.TestCase):
             self.assertAlmostEqual(t._hls(pal["accent"])[0], t._hls(t.norm_hex(main))[0], places=2)   # hue kept
             if second:
                 self.assertAlmostEqual(t._hls(pal["accent_alt"])[0], t._hls(t.norm_hex(second))[0], places=2)
-            self.assertFalse(t._red_green(t._hls(pal["accent"])[0], t._hls(pal["accent_alt"])[0]), main)
+            self.assertEqual(t.accent_pair_problems(pal), ([], []), main)     # a grey has no hue to confuse
         self.assertEqual(t.derive_palette("0050C8")["accent"], "0050C8")           # readable as given: kept
         self.assertNotEqual(t.derive_palette("FFD400")["accent"], "FFD400")        # too light on white: darkened
         self.assertEqual(t.derive_palette("0050C8"), t.derive_palette("#0050c8"))
