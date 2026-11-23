@@ -31,8 +31,11 @@ PALETTE = "pine"
 acc = {r["Model"]: r for r in csv.DictReader((TABLES / "diagnostic_accuracy.csv").open())}
 delong = list(csv.DictReader((TABLES / "auc_comparison_delong.csv").open()))
 lr = acc["Logistic Regression"]
+table1 = list(csv.DictReader((TABLES / "table1_features_by_class.csv").open()))
 diagnosis = [r["diagnosis"] for r in csv.DictReader((DEMO / "data" / "wisconsin_breast_cancer.csv").open())]
 n_all, n_mal = len(diagnosis), diagnosis.count("malignant")
+with (DEMO / "data" / "wisconsin_breast_cancer.csv").open() as fh:
+    n_feat = len(next(csv.reader(fh))) - 2          # every column but target and diagnosis
 n_test = sum(int(lr[k]) for k in ("TP", "FP", "FN", "TN"))
 test_mal, test_ben = int(lr["TP"]) + int(lr["FN"]), int(lr["FP"]) + int(lr["TN"])
 p_lo, p_hi = min(float(r["DeLong_p"]) for r in delong), max(float(r["DeLong_p"]) for r in delong)
@@ -63,14 +66,15 @@ SLIDES = [
                 "자랑거리가 아니고, 보실 것은 보고 방식입니다. 참조표준, 흐름도, 구간, 그리고 모형 사이의 비교입니다.")),
     ("Disclosure", None, {0: "Disclosures", 1: "None", 13: "None"},
      dict(notes="이해관계와 연구비는 없습니다.")),
-    ("Content", "Question",
+    ("Result · Table", "Question",
      {0: "Do three routine classifiers differ on the same aspirates?",
-      1: [f"{n_all} fine-needle aspirates, 30 nuclear and cell-shape measurements each",
-          "Reference standard: **histopathology**, malignant or benign",
-          "Logistic regression, random forest, support-vector machine",
-          "Reported to STARD 2015: flow, intervals, and [[a test of the difference]]"]},
-     dict(notes="질문은 하나입니다. 같은 측정값을 넣었을 때 흔히 쓰는 세 모형이 서로 다른가. 점추정치를 나란히 놓는 것으로는 "
-                "답이 안 되고, 차이를 검정해야 합니다.")),
+      13: f"{n_feat} such measurements per aspirate. Reference standard: [[histopathology]].",
+      14: f"Mean (SD) over all {n_all} aspirates. analysis/tables/table1_features_by_class.csv"},
+     dict(table=[["Measurement", f"Malignant (n = {n_mal})", f"Benign (n = {n_all - n_mal})"]]
+          + [[r["Feature"].capitalize(), r["Malignant_mean_SD"], r["Benign_mean_SD"]] for r in table1[:3]],
+          widths=[4.2, 4.0, 4.03],
+          notes="질문은 하나입니다. 같은 측정값을 넣었을 때 흔히 쓰는 세 모형이 서로 다른가. 표는 넣는 값의 예입니다. "
+                "핵의 크기와 질감 같은 측정값이 악성과 양성에서 이만큼 다릅니다. 참조표준은 조직 진단입니다.")),
     ("Study Design", "Methods",
      {0: f"One aspirate is the unit; {n_test} were held out before fitting",
       13: f"{n_all} aspirates, {n_mal} malignant; public Wisconsin dataset",
@@ -110,9 +114,9 @@ SLIDES = [
                 "임계값을 사후에 고르면 낙관 편향이 생기므로 여기서는 고르지 않았습니다.")),
     ("Take-home", "Summary",
      {0: "What to take from this",
-      1: ["The three models were **indistinguishable** in discrimination",
+      1: ["Discrimination: [[no difference]] between the models",
           "Calibration, not AUC, separated them",
-          "Every number on these slides is read from the analysis tables"]},
+          "Every number here is read from the tables"]},
      dict(notes="정리합니다. 판별력은 세 모형이 같았고, 갈린 것은 보정이었습니다. 그리고 이 슬라이드의 숫자는 모두 "
                 "분석 표에서 읽어 온 것이라, 결과가 바뀌면 덱도 같이 바뀝니다. 감사합니다.")),
 ]
@@ -135,7 +139,7 @@ def build(out, band=True):
         if "table" in opt:
             rows = opt["table"]
             tbl = t.plain_table(slot[21], len(rows), len(rows[0]), rows[0])
-            for col, width in zip(tbl.columns, COL_W):
+            for col, width in zip(tbl.columns, opt.get("widths", COL_W)):
                 col.width = Inches(width)
             for r, row in enumerate(rows[1:], start=1):
                 for c, text in enumerate(row):
