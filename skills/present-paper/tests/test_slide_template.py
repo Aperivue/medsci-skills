@@ -484,6 +484,124 @@ class SlideTemplate(unittest.TestCase):
                 expected = [str(slots[i].shape_id) for i in opt.get("appear", [])]
                 self.assertEqual(targets, expected, where)
 
+    def test_band_variant_and_default_stays_plain(self):
+        from pptx import Presentation
+        from pptx.util import Inches
+        deck = new_deck.make_deck(self.root / "band.pptx", "conference-oral", palette="pine", band=True)
+        plain = new_deck.make_deck(self.root / "pine.pptx", "lecture", palette="pine")
+        prs = Presentation(deck)
+        self.assertEqual(len(prs.slide_layouts), len(t.LAYOUTS))
+        def band(layout):
+            for p in layout.placeholders:
+                if p.placeholder_format.idx == 20:
+                    return p
+        for lay in prs.slide_layouts:
+            b, dark = band(lay), t.on_dark(lay.part)
+            if lay.name in ("Cover", "Section", "Closing", "Blank") or "Blank" in lay.name \
+                    or lay.name.startswith(("Imaging · Full", "Imaging · Overlay")):
+                self.assertIsNone(b, lay.name)
+                continue
+            self.assertIsNotNone(b, lay.name)                       # research layouts gain the slot
+            filled = b._element.spPr.find(f"{{{t.NS_A}}}solidFill") is not None
+            self.assertEqual(filled, not dark, lay.name)             # band on white, plain text on black
+            if filled:
+                self.assertEqual((b.left, b.top, b.width), (0, 0, prs.slide_width), lay.name)
+                title = [p for p in lay.placeholders if p.placeholder_format.type is not None
+                         and "TITLE" in str(p.placeholder_format.type)]
+                self.assertTrue(title)
+        master_title = prs.slide_master.placeholders[0]
+        self.assertGreaterEqual(master_title.top, band(prs.slide_layouts.get_by_name("Content")).height + Inches(0.2))
+        self.assertEqual(master_title.top + master_title.height, Inches(t.BAND_TITLE_Y + t.BAND_TITLE_H))
+        self.assertLess(t.BAND_TITLE_Y + t.BAND_TITLE_H, t.BODY_TOP)
+        theme = parts(deck)["ppt/theme/theme1.xml"].decode()
+        self.assertIn(t.PALETTES["pine"]["accent"], theme)
+        # empty section names keep their band until the box is removed
+        s3 = prs.slides[2]
+        new_deck.fill({p.placeholder_format.idx: p for p in s3.placeholders}[20], "Background")
+        white = [p for s in prs.slides for p in s.placeholders if p.placeholder_format.idx == 20]
+        self.assertEqual({p.text_frame.text for p in white}, {"<Section>", "Background"})   # no bare band in a starter
+        for p in [p for p in white if p.text_frame.text == "<Section>"][:4]:
+            p.text_frame.text = ""
+        self.assertEqual(new_deck.drop_empty_bands(prs), 4)
+        self.assertEqual(new_deck.drop_empty_bands(prs), 0)
+        self.assertEqual([p.text_frame.text for p in s3.placeholders if p.placeholder_format.idx == 20], ["Background"])
+        # a palette alone adds no band, and drop_empty_bands leaves a plain deck's empty section names alone
+        prs2 = Presentation(plain)
+        for lay in prs2.slide_layouts:
+            b = band(lay)
+            if b is not None:
+                self.assertIsNone(b._element.spPr.find(f"{{{t.NS_A}}}solidFill"), lay.name)
+        self.assertIsNone(band(prs2.slide_layouts.get_by_name("Key Finding")))
+        self.assertEqual(new_deck.drop_empty_bands(prs2), 0)
+        # the option leaves the default build as it was: a later plain build still equals the first
+        again, _ = t.build(self.root / "after_band")
+        self.assertEqual(again.read_bytes(), self.builds[0][0].read_bytes())
+        with self.assertRaises(ValueError):
+            new_deck.make_deck(self.root / "x.pptx", template=self.builds[0][0], band=True)
+        with self.assertRaises(ValueError):
+            new_deck.make_deck(self.root / "x.pptx", palette="navy")
+        self.assertFalse((self.root / "x.pptx").exists())
+
+    def test_put_rich_credit_and_accent_cell(self):
+        from pptx import Presentation
+        deck = new_deck.make_deck(self.root / "rich.pptx", template=self.builds[0][0])
+        prs = Presentation(deck)
+        lay = {l.name: l for l in prs.slide_layouts}
+        A = "{%s}" % t.NS_A
+
+        def runs(shape):
+            out = []
+            for p in shape.text_frame.paragraphs:
+                for r in p.runs:
+                    clr = r._r.find(f"{A}rPr/{A}solidFill/{A}schemeClr")
+                    out.append((r.text, r._r.find(f"{A}rPr").get("b") if r._r.find(f"{A}rPr") is not None else None,
+                                clr.get("val") if clr is not None else None, p.level))
+            return out
+
+        s = prs.slides.add_slide(lay["Content"])
+        body = {p.placeholder_format.idx: p for p in s.placeholders}[1]
+        new_deck.put_rich(body, ["**DRB1*04:02** and DRB1*07:01 carriers", (1, "held [[without review]]"), "a * b * c"])
+        self.assertEqual(runs(body), [("DRB1*04:02", "1", None, 0), (" and DRB1*07:01 carriers", None, None, 0),
+                                      ("held ", None, None, 1), ("without review", "1", "accent1", 1),
+                                      ("a * b * c", None, None, 0)])
+        new_deck.put_rich(body, "one **two**\n한글 [[셋]]", emphasis=False)
+        self.assertEqual([(x[0], x[1], x[2]) for x in runs(body)],
+                         [("one ", None, None), ("two", None, None), ("한글 ", None, None), ("셋", None, None)])
+        self.assertEqual(len(body.text_frame.paragraphs), 2)
+        self.assertEqual(body.text_frame.paragraphs[1].runs[0]._r.find(f"{A}rPr").get("lang"), "ko-KR")
+        box = new_deck.credit(s, "Source: synthetic")
+        self.assertFalse(box.is_placeholder)
+        self.assertEqual(runs(box), [("Source: synthetic", None, "accent3", 0)])
+
+        d = prs.slides.add_slide(lay["Imaging · Content"])
+        dbody = {p.placeholder_format.idx: p for p in d.placeholders}[1]
+        new_deck.put_rich(dbody, "[[answer]]")
+        self.assertEqual(runs(dbody), [("answer", "1", "accent2", 0)])
+        self.assertEqual(runs(new_deck.credit(d, "x"))[0][2], "accent6")
+        sec = prs.slides.add_slide(lay["Section"])
+        self.assertEqual(runs(new_deck.credit(sec, "x"))[0][2], "accent6")     # grey checked against the section ground
+        again = new_deck.credit(s, "Source: second call")
+        self.assertEqual(again._element, box._element)
+        self.assertEqual(len([sh for sh in s.shapes if sh.name == "Source"]), 1)
+        new_deck.put_rich(body, "first\vsecond **b\vc**")
+        para = body.text_frame.paragraphs[0]
+        self.assertEqual(len(para._p.findall(f"{A}br")), 2)
+        self.assertEqual([r.text for r in para.runs], ["first", "second ", "b", "c"])
+        self.assertFalse(t.OPT["band"])
+
+        k = prs.slides.add_slide(lay["Key Finding"])
+        slot = new_deck.credit(k, "Table 2")
+        self.assertTrue(slot.is_placeholder)
+        self.assertEqual(slot.placeholder_format.idx, 16)
+        self.assertEqual(len([sh for sh in k.shapes if not sh.is_placeholder]), 0)
+
+        ts = prs.slides.add_slide(lay["Result · Table"])
+        tbl = t.plain_table({p.placeholder_format.idx: p for p in ts.placeholders}[21], 2, 2, ["a", "b"])
+        t.set_cell(tbl, 1, 0, "0.91", accent=True)
+        t.set_cell(tbl, 1, 1, "0.80")
+        self.assertEqual([x[:3] for x in runs(tbl.cell(1, 0))], [("0.91", "1", "accent1")])
+        self.assertEqual([x[:3] for x in runs(tbl.cell(1, 1))], [("0.80", "0", "tx1")])
+
     def test_fit_picture_keeps_the_whole_picture_inside_the_slot(self):
         from pptx import Presentation
         deck = new_deck.make_deck(self.root / "fit.pptx", template=self.builds[0][0])

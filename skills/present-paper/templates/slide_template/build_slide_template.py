@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build the medsci slide template: one master, 31 layouts, no pictures.
 
-    python3 build_slide_template.py [OUT_DIR] [--palette mono|stone|pine]
+    python3 build_slide_template.py [OUT_DIR] [--palette mono|stone|pine] [--band]
                                     [--palette-file colours.json] [--ink HEX] [--accent HEX] ... [--force]
 
 Writes into OUT_DIR (default: this folder); an existing output is replaced only with --force:
@@ -24,6 +24,10 @@ What is in it
     be filled by layout name and placeholder idx (README, "Filling a deck from a script").
   * Teaching layouts carry an optional section name above the title, in small grey type; left
     empty, it does not show.
+  * --band (off by default) turns the section name on the white layouts into a slim band across the
+    top, in the section colour, and gives the research-talk layouts a section name too. The band is
+    the fill of the section-name placeholder itself, so a slide without that placeholder has no
+    band: delete the empty box, or call new_deck.drop_empty_bands(prs) before saving.
   * Black "Imaging" layouts for image-heavy talks. They flip the colour map (clrMapOvr), so text
     typed on them comes out white.
 
@@ -99,6 +103,9 @@ EDGE = 0.25            # page number distance from the slide edge
 NUM_W = 0.45
 CW = SW - 2 * MARGIN   # content width
 BODY_TOP, BODY_H = 1.68, 5.1
+BAND_H = 0.42                            # --band: the section name as a band across the top of the white layouts
+BAND_TITLE_Y, BAND_TITLE_H = 0.70, 0.88  # ... and the title a little lower, so it does not sit against the band
+OPT = {"band": False}                    # set per build, under the build lock, like the palette in C
 SOURCE_Y = 6.93        # one small source line, level with the page number
 
 
@@ -308,8 +315,28 @@ def inherited(ids, kind, prompt="Click to edit title"):
             f'<p:nvPr><p:ph idx="1"/></p:nvPr></p:nvSpPr><p:spPr/><p:txBody><a:bodyPr/><a:lstStyle/>{levels}</p:txBody></p:sp>')
 
 
+def section_band(ids):
+    """--band: the section name in white on a band of the section colour, across the top of the slide.
+
+    The band is the placeholder's own fill, not a separate shape, so it is slide design that lives in the
+    layout and a slide can go without it. PowerPoint still draws the fill of an EMPTY placeholder (checked in
+    PowerPoint for Mac), so a slide with no section name must lose the placeholder itself: delete the box by
+    hand, or new_deck.drop_empty_bands(prs)."""
+    lst = lvl1("l", 20, C["white"])
+    return (f'<p:sp><p:nvSpPr><p:cNvPr id="{ids()}" name="Section name"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr>'
+            f'<p:nvPr><p:ph type="body" sz="quarter" idx="20" hasCustomPrompt="1"/></p:nvPr></p:nvSpPr>'
+            f'<p:spPr>{xfrm(0, 0, SW, BAND_H)}<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>{fill(C["section"])}'
+            f'<a:ln><a:noFill/></a:ln></p:spPr>'
+            f'<p:txBody><a:bodyPr wrap="square" lIns="{E(MARGIN)}" tIns="0" rIns="{E(MARGIN)}" bIns="0" rtlCol="0" '
+            f'anchor="ctr"><a:noAutofit/></a:bodyPr><a:lstStyle>{lst}</a:lstStyle>'
+            f'<a:p><a:r>{rpr()}<a:t>Section name (delete this box for no band)</a:t></a:r></a:p></p:txBody></p:sp>')
+
+
 def section_label(ids, color=None):
-    """The section name above the title: plain grey text, no band. Left empty, it does not show."""
+    """The section name above the title: plain grey text, no band. Left empty, it does not show.
+    With --band, on the white layouts, it is the band instead (the black layouts keep the grey text)."""
+    if OPT["band"] and color is None:
+        return section_band(ids)
     return placeholder(ids, "Section name", 'type="body" sz="quarter" idx="20"', MARGIN, SECTION_Y, 8.0, SECTION_H,
                        "Section name (optional)", lvl1("l", 20, color or C["muted"]), anchor="b")
 
@@ -432,7 +459,8 @@ def source_ph(ids, idx):
 def research_layout(ids, name, shapes, title_prompt, ltype="cust"):
     """White ground, the master's page number and an inherited title. No section name: a ten-minute talk has no
     sections to name, and a label above every title is the first thing that makes a deck look generated."""
-    return layout_xml(name, ltype, [inherited(ids, "title", title_prompt)] + shapes)
+    head = [section_label(ids)] if OPT["band"] else []   # with --band they carry a section name like the rest
+    return layout_xml(name, ltype, head + [inherited(ids, "title", title_prompt)] + shapes)
 
 
 # ---------------------------------------------------------------- general layouts
@@ -832,11 +860,12 @@ def add_layout_part(prs, src):
 
 def master_shapes(ids):
     shapes = [page_number(ids, C["muted"])]
+    title_y, title_h = (BAND_TITLE_Y, BAND_TITLE_H) if OPT["band"] else (TITLE_Y, TITLE_H)
     levels = "".join(f'<a:p><a:pPr lvl="{k}"/><a:r>{rpr()}<a:t>{t} level</a:t></a:r></a:p>'
                      for k, t in enumerate(["First", "Second", "Third", "Fourth", "Fifth"]))
     shapes += [
         f'<p:sp><p:nvSpPr><p:cNvPr id="{ids()}" name="Title"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr>'
-        f'<p:nvPr><p:ph type="title"/></p:nvPr></p:nvSpPr><p:spPr>{xfrm(MARGIN, TITLE_Y, CW, TITLE_H)}</p:spPr>'
+        f'<p:nvPr><p:ph type="title"/></p:nvPr></p:nvSpPr><p:spPr>{xfrm(MARGIN, title_y, CW, title_h)}</p:spPr>'
         f'<p:txBody>{body_pr("ctr")}<a:lstStyle/><a:p><a:r>{rpr()}<a:t>Click to edit title</a:t></a:r></a:p></p:txBody></p:sp>',
         f'<p:sp><p:nvSpPr><p:cNvPr id="{ids()}" name="Text"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr>'
         f'<p:nvPr><p:ph type="body" idx="1"/></p:nvPr></p:nvSpPr><p:spPr>{xfrm(MARGIN, BODY_TOP, CW, BODY_H)}</p:spPr>'
@@ -911,30 +940,45 @@ def plain_table(placeholder_shape, rows, cols, header=None, size=20, row_h=0.6):
     return tbl
 
 
-def set_cell_font(cell, size=20, bold=False):
-    """Size, weight and the slide's text colour (tx1) on every run, set explicitly: without a table style a
-    header row can otherwise take a light text colour from the presentation's default table style."""
+def set_cell_font(cell, size=20, bold=False, colour="tx1"):
+    """Size, weight and a theme colour (the slide's text colour, tx1, unless told otherwise) on every run, set
+    explicitly: without a table style a header row can otherwise take a light text colour from the
+    presentation's default table style."""
     for p in cell.text_frame.paragraphs:
         for run in p.runs:
             run.font.size = Emu(int(size * 12700))
             run.font.bold = bold
-            _text_colour(run._r.get_or_add_rPr())
+            _text_colour(run._r.get_or_add_rPr(), colour)
         end = p._p.get_or_add_endParaRPr()
         end.set("sz", str(int(size * 100)))
-        _text_colour(end)
+        _text_colour(end, colour)
 
 
-def _text_colour(rpr):
+def _text_colour(rpr, colour="tx1"):
     for old in rpr.findall(f"{{{NS_A}}}solidFill"):
         rpr.remove(old)
-    fill_el = etree.fromstring(f'<a:solidFill xmlns:a="{NS_A}"><a:schemeClr val="tx1"/></a:solidFill>')
+    fill_el = etree.fromstring(f'<a:solidFill xmlns:a="{NS_A}"><a:schemeClr val="{colour}"/></a:solidFill>')
     rpr.insert(0, fill_el)
 
 
-def set_cell(tbl, r, c, text, size=20, bold=False):
+def on_dark(part):
+    """True when a slide (or layout) part draws on one of the black layouts, where the colour map is flipped."""
+    layout = getattr(part, "slide_layout", None)
+    el = layout._element if layout is not None else part._element
+    return el.find(f"{{{NS_P}}}clrMapOvr/{{{NS_A}}}overrideClrMapping") is not None
+
+
+def accent_name(part):
+    """The theme colour that is the accent where this part draws: accent1 on white, accent2 on black. Written
+    as a theme colour, not as a hex value, so the deck follows a change of palette or theme."""
+    return "accent2" if on_dark(part) else "accent1"
+
+
+def set_cell(tbl, r, c, text, size=20, bold=False, accent=False):
+    """Text into a table cell. accent=True sets it bold in the deck's accent colour: the one cell to read."""
     cell = tbl.cell(r, c)
     cell.text = text
-    set_cell_font(cell, size, bold)
+    set_cell_font(cell, size, bold or accent, accent_name(tbl._graphic_frame.part) if accent else "tx1")
 
 
 FIXED_DATE = (2026, 1, 1, 0, 0, 0)   # zip entry time, so two builds of the same source are the same bytes
@@ -1218,7 +1262,7 @@ def add_samples(prs):
 _BUILD_LOCK = threading.Lock()   # the palette lives in the module-level C; one build at a time per process
 
 
-def build(out_dir, palette=DEFAULT_PALETTE, overrides=None, force=False):
+def build(out_dir, palette=DEFAULT_PALETTE, overrides=None, force=False, band=False):
     """Write the template and the sample deck into out_dir and return (template path, sample path).
 
     Raises PaletteError or OutputExists before writing anything; without force an existing output stops the run
@@ -1231,14 +1275,22 @@ def build(out_dir, palette=DEFAULT_PALETTE, overrides=None, force=False):
     out_dir.mkdir(parents=True, exist_ok=True)
     with _BUILD_LOCK, tempfile.TemporaryDirectory(prefix=".build.", dir=out_dir) as work:
         work_template, work_sample = Path(work) / template_path.name, Path(work) / sample_path.name
-        _build_into(work_sample, work_template, palette, overrides)
+        _build_into(work_sample, work_template, palette, overrides, band)
         publish(work_template, template_path)
         publish(work_sample, sample_path)
     return template_path, sample_path
 
 
-def _build_into(pptx_path, template_path, palette, overrides):
+def _build_into(pptx_path, template_path, palette, overrides, band=False):
     set_palette(palette, overrides)
+    OPT["band"] = bool(band)
+    try:
+        _write_template(pptx_path, template_path)
+    finally:
+        OPT["band"] = False                   # the option belongs to this build, not to the process
+
+
+def _write_template(pptx_path, template_path):
     prs = Presentation()
     prs.slide_width, prs.slide_height = Emu(E(SW)), Emu(E(SH))
     master = prs.slide_master
@@ -1280,6 +1332,8 @@ def main():
                                            "(roles: " + ", ".join(ROLES) + ")")
     for role in ROLES:
         ap.add_argument("--" + role.replace("_", "-"), dest=role, metavar="HEX", help=f"colour for the {role} role")
+    ap.add_argument("--band", action="store_true",
+                    help="section name as a band across the top of the white layouts (off by default)")
     ap.add_argument("--force", action="store_true", help=f"replace {TEMPLATE_NAME} / {SAMPLE_NAME} if they exist")
     ap.add_argument("--print-table", action="store_true", help="print the README placeholder table and stop")
     a = ap.parse_args()
@@ -1289,13 +1343,14 @@ def main():
     try:
         overrides = load_palette_file(a.palette_file) if a.palette_file else {}
         overrides.update({r: getattr(a, r) for r in ROLES if getattr(a, r) is not None})
-        template, sample = build(a.out_dir, a.palette, overrides, a.force)
+        template, sample = build(a.out_dir, a.palette, overrides, a.force, a.band)
     except PaletteError as e:
         raise SystemExit(f"palette rejected: {e}")
     except OutputExists as e:
         raise SystemExit(str(e))
     custom = f" + {len(overrides)} custom colour(s)" if overrides else ""
-    print("built", template.name, "+", sample.name, f"(palette {a.palette}{custom}, {len(LAYOUTS)} layouts)")
+    print("built", template.name, "+", sample.name,
+          f"(palette {a.palette}{custom}{', band' if a.band else ''}, {len(LAYOUTS)} layouts)")
 
 
 if __name__ == "__main__":

@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`/present-paper`: choose the palette and an optional section band when a deck is started.**
+  `new_deck.py OUT.pptx --palette pine --band` builds that variant of the slide template on the
+  spot. `--band` (also on `build_slide_template.py`) turns the section name on the white layouts
+  into a slim band across the top and gives the research-talk layouts a section name; the plain
+  look stays the default and `medsci_slides.pptx` is unchanged. PowerPoint draws the band on a
+  slide whose section name is empty, so such a slide has to lose the box
+  (`new_deck.drop_empty_bands`). New helpers for deck scripts: `put_rich` (`**bold**` and
+  `[[accent]]` spans, in theme colours), `credit` (a source line, in the layout's source slot
+  where there is one) and `set_cell(..., accent=True)`. The layout guide now says that the black
+  layouts are for radiological images, that the cover carries no content figure, and what
+  lectures that hold a room have in common; the design guidelines allow a talk about your own
+  paper to show its panels when they are legible.
+
 ### Fixed
 
 - **`/present-paper`: the deck checks now measure text in template placeholders.** A slide filled

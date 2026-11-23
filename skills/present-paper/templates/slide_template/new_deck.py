@@ -8,14 +8,24 @@
     python3 new_deck.py OUT.pptx --type lecture           didactic lecture, about 30 minutes
     python3 new_deck.py OUT.pptx --type case-conference   case / imaging conference
     python3 new_deck.py OUT.pptx --type procedure         procedure or technique talk
+    --palette mono|stone|pine                             colours (default mono, the shipped template)
+    --band                                                section name as a slim band across the top of the
+                                                          white slides (default: no band); a starter
+                                                          writes <Section> where it has no name. Give
+                                                          each slide its section name, or delete the box
+                                                          for a slide without a band
     --template PATH                                       another build, .pptx or .potx, with no slides
-                                                          (default: medsci_slides.pptx beside this file)
+                                                          (default: medsci_slides.pptx beside this file);
+                                                          not together with --palette or --band
     --force                                               replace OUT.pptx if it exists (otherwise refused)
 
 A starter is a skeleton, not a talk. Each slide carries <angle-bracket> text to overwrite, and a
 speaker note that says what the slide is for; write your own notes over it. Picture placeholders are
 left empty. Findings and quiz answers on the imaging slides appear on click (image first, words
 after). Fill by hand, or with python-pptx by layout name and placeholder idx (README).
+
+Helpers for a deck script (import new_deck): fill, put_rich (**bold** and [[accent]] spans), credit (a source
+line), drop_empty_bands, fit_picture, appear_on_click; plain_table and set_cell(..., accent=True) come from build_slide_template.
 """
 import argparse
 import io
@@ -30,12 +40,14 @@ from pathlib import Path
 from pptx import Presentation
 from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml import parse_xml
-from pptx.util import Emu
+from pptx.util import Emu, Inches, Pt
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from build_slide_template import (NSDECL, TEMPLATE_NAME, OutputExists, plain_table, post_process, publish,  # noqa: E402
-                                  put_lines, refuse_existing, set_cell, theme_fonts)
+from build_slide_template import (DEFAULT_PALETTE, MARGIN, NS_A, NSDECL, PALETTES, SOURCE_Y, TEMPLATE_NAME,  # noqa: E402
+                                  OutputExists, PaletteError, _text_colour, accent_name, build, luminance, on_dark,
+                                  plain_table, post_process, publish, put_lines, refuse_existing, set_cell,
+                                  theme_fonts)
 
 NS_P = "http://schemas.openxmlformats.org/presentationml/2006/main"
 
@@ -246,6 +258,109 @@ def fill(shape, value):
     set_lang(shape.text_frame)
 
 
+# **bold** and [[accent]]. Bold needs both asterisks on each side, so a lone asterisk in an allele name
+# (DRB1*07:01) or a footnote mark is left alone, and **DRB1*04:02** is one bold span.
+EMPHASIS = re.compile(r"(\*\*(?:(?!\*\*).)+?\*\*|\[\[(?:(?!\]\]).)+?\]\])")
+
+
+def put_rich(shape, lines, emphasis=True):
+    """Text into a placeholder, like fill(), with two marks turned into runs:
+
+        **words**     bold
+        [[words]]     bold, in the deck's accent colour (accent 1 on white slides, accent 2 on black ones)
+
+    The colour is written as a theme colour, so it follows the palette. Unmarked text keeps whatever weight the
+    placeholder gives it. emphasis=False drops the marks and writes plain text, for a build without emphasis.
+    Spend the accent once per slide: two accented phrases on a slide compete.
+
+    lines is a string or a list of "text" / (level, "text"), as for fill(); a newline starts a paragraph and a
+    vertical tab a line break. Marks do not nest, and an unclosed mark stays as typed. Written for decks on
+    the medsci template, whose theme puts the two accents in accent 1 and accent 2."""
+    tf = shape.text_frame
+    tf.clear()
+    accent = accent_name(shape.part)
+    items = [lines] if isinstance(lines, str) else list(lines)
+    k = 0
+    for item in items:
+        lvl, text = item if isinstance(item, tuple) else (0, item)
+        for line in text.split("\n"):
+            p = tf.paragraphs[0] if k == 0 else tf.add_paragraph()
+            p.level = lvl
+            k += 1
+            for n, part in enumerate(EMPHASIS.split(line)):
+                marked = n % 2 == 1                    # re.split with one group: the matches are the odd items
+                for m, piece in enumerate((part[2:-2] if marked else part).split("\v")):
+                    if m:
+                        p.add_line_break()
+                    if not piece:
+                        continue
+                    run = p.add_run()
+                    run.text = piece
+                    if marked and emphasis:
+                        run.font.bold = True
+                        if part.startswith("[["):
+                            _text_colour(run._r.get_or_add_rPr(), accent)
+    set_lang(tf)
+
+
+def _dark_ground(slide):
+    """A black Imaging layout, or a layout with a dark solid background of its own (the Section divider)."""
+    if on_dark(slide.part):
+        return True
+    bg = slide.slide_layout._element.find(f".//{{{NS_P}}}bgPr/{{{NS_A}}}solidFill/{{{NS_A}}}srgbClr")
+    return bg is not None and luminance(bg.get("val")) < 0.18
+
+
+def credit(slide, text):
+    """A source or credit line at the foot of a slide, level with the page number.
+
+    Where the layout has a source slot (Key Finding, Result · Figure, Result · Table) the text goes into it.
+    Elsewhere a text box named "Source" is added at the same place, in the same size and the template's muted
+    colour, so the line looks the same on every slide; a second call rewrites that box. Returns the shape.
+    Position and colour are the medsci template's (16:9, accent 3 and accent 6 as the muted greys)."""
+    slots = {p.placeholder_format.idx for p in slide.slide_layout.placeholders if p.name == "Source"}
+    for p in slide.placeholders:
+        if p.placeholder_format.idx in slots:
+            fill(p, text)
+            return p
+    old = [sh for sh in slide.shapes if sh.name == "Source" and not sh.is_placeholder and sh.has_text_frame]
+    box = old[0] if old else slide.shapes.add_textbox(Inches(MARGIN), Inches(SOURCE_Y), Inches(10.8), Inches(0.32))
+    box.name = "Source"
+    tf = box.text_frame
+    tf.word_wrap = True
+    body = tf._txBody.find(f"{{{NS_A}}}bodyPr")
+    for side in ("lIns", "tIns", "rIns", "bIns"):
+        body.set(side, "0")
+    body.set("anchor", "ctr")
+    tf.text = text
+    for p in tf.paragraphs:
+        for r in p.runs:
+            r.font.size = Pt(14)
+            _text_colour(r._r.get_or_add_rPr(), "accent6" if _dark_ground(slide) else "accent3")
+    set_lang(tf)
+    return box
+
+
+def _banded(slide, idx):
+    """True when the layout's placeholder idx is a section band (a section name with a fill)."""
+    return any(p.placeholder_format.idx == idx and p.name == "Section name"
+               and p._element.spPr.find(f"{{{NS_A}}}solidFill") is not None for p in slide.slide_layout.placeholders)
+
+
+def drop_empty_bands(prs):
+    """On a deck built with --band, remove every section-name placeholder that was left empty, and return how
+    many were removed. PowerPoint draws the band (the placeholder's fill) even when the placeholder holds no
+    text; without the placeholder the slide has no band. Call it last, before saving. A deck without the
+    band is left as it is: there an empty section name does not show."""
+    n = 0
+    for slide in prs.slides:
+        for p in list(slide.placeholders):
+            if _banded(slide, p.placeholder_format.idx) and not p.text_frame.text.strip():
+                p._element.getparent().remove(p._element)
+                n += 1
+    return n
+
+
 def fit_picture(placeholder, image_path, align="l"):
     """Insert a picture into a picture placeholder WITHOUT cropping it.
 
@@ -311,6 +426,8 @@ def starter(out, spec):
         phs = {p.placeholder_format.idx: p for p in s.placeholders}
         for idx, value in content.items():
             fill(phs[idx], value)
+        if 20 in phs and 20 not in content and phs[20].text_frame.text == "" and _banded(s, 20):
+            fill(phs[20], "<Section>")                  # --band: an empty section name would show a bare band
         if "table" in opt:
             rows, cols, header = opt["table"]
             tbl = plain_table(phs[21], rows, cols, header)
@@ -334,11 +451,21 @@ def starter(out, spec):
     post_process(out)
 
 
-def make_deck(out, kind="blank", template=HERE / TEMPLATE_NAME, force=False):
+def make_deck(out, kind="blank", template=None, force=False, palette=None, band=False):
     """Write a new deck to out: a .pptx, or a PowerPoint template if out ends in .potx. It is built under a temporary name in the same folder and moved into
     place when complete. An existing out stops the run unless force is given; the template itself is never
-    replaced. A symbolic link at out is replaced by the deck, not followed."""
+    replaced. A symbolic link at out is replaced by the deck, not followed.
+
+    palette (mono, stone, pine) and band choose a variant of the medsci template, built on the spot; with
+    neither, the deck starts from the shipped file. They cannot be combined with another template."""
     out = Path(out)
+    variant = band or (palette is not None and palette != DEFAULT_PALETTE)
+    if template is not None and (band or palette is not None):
+        raise ValueError("--palette and --band build a variant of the medsci template; they cannot be combined "
+                         "with --template")
+    if palette is not None and palette not in PALETTES:
+        raise ValueError(f"unknown palette {palette!r}; choose one of {', '.join(sorted(PALETTES))}")
+    template = Path(template) if template is not None else HERE / TEMPLATE_NAME
     out = out.parent.resolve() / out.name               # resolve the folder, not a link at the final name
     if out.suffix.lower() not in (".pptx", ".potx"):
         raise ValueError(f"{out.name}: the output must be a .pptx (or .potx) file")
@@ -347,6 +474,9 @@ def make_deck(out, kind="blank", template=HERE / TEMPLATE_NAME, force=False):
     refuse_existing([out], force)
     with tempfile.TemporaryDirectory(prefix=".new_deck.", dir=out.parent) as work:
         tmp = Path(work) / out.name
+        if variant:
+            vdir = Path(work) / "variant"
+            template, _ = build(vdir, palette or DEFAULT_PALETTE, force=True, band=band)
         blank(Path(template), tmp)
         if kind != "blank":
             starter(tmp, STARTERS[kind])
@@ -360,12 +490,15 @@ def main():
     ap = argparse.ArgumentParser(description="Start a new deck from the medsci slide template.")
     ap.add_argument("out")
     ap.add_argument("--type", choices=["blank"] + list(STARTERS), default="blank")
-    ap.add_argument("--template", default=str(HERE / TEMPLATE_NAME))
+    ap.add_argument("--palette", choices=sorted(PALETTES), help=f"colours (default {DEFAULT_PALETTE})")
+    ap.add_argument("--band", action="store_true",
+                    help="section name as a band across the top of the white slides (default: no band)")
+    ap.add_argument("--template", help=f"another empty template (default: {TEMPLATE_NAME} beside this file)")
     ap.add_argument("--force", action="store_true", help="replace OUT if it exists")
     a = ap.parse_args()
     try:
-        print(make_deck(a.out, a.type, a.template, a.force))
-    except (OutputExists, ValueError) as e:
+        print(make_deck(a.out, a.type, a.template, a.force, a.palette, a.band))
+    except (OutputExists, ValueError, PaletteError) as e:
         raise SystemExit(str(e))
 
 
