@@ -35,12 +35,16 @@ Limitations, Take-home and References · QR are the slides a conference oral or 
 built from. `new_deck.py --type conference-oral` and `journal-club` each use a subset, in the order
 listed in the template README's starter table. They share three choices:
 
-- **No section name and no band.** A short talk has no sections, and a label above every title is
-  chrome (`ai_slide_tells.md` §2).
+- **No section name and no band, unless the speaker asked for the band.** By default a short talk
+  names no sections. With `--band` these layouts carry a section name too: use the part of the
+  talk (Background, Methods, Results, Limits, Summary), never the slide's own title. Where the
+  band would only repeat the title (Disclosures; a backup slide whose title starts "Backup"),
+  delete the section-name box on that slide or change the title, so the word is said once.
 - **No line under the title.** The title already states the point; where to look is said aloud.
   Result · Table keeps one line under the table, naming the row to read.
-- **The accent is spent once.** The template uses it on the Key Finding number only. A deck with
-  Key Finding on four slides has no key finding.
+- **The template spends the first accent once**, on the Key Finding number. A deck with Key
+  Finding on four slides has no key finding. The two accents are otherwise the speaker's, on a
+  phrase, not a whole line (`presentation_design_guidelines.md` §4).
 
 Not every talk needs every one. Agenda belongs in a talk of more than three parts; Comparison only
 when a contrast carries the claim; References · QR goes after the last slide, off the clock.

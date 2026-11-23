@@ -33,6 +33,13 @@
 
 ### Changed
 
+- **`/present-paper`: guidance that disagreed with itself is reconciled.** Found by having a fresh
+  session build a deck from the skill alone. Notes are sized to each slide's time (130–150 words
+  or about 300 Korean characters a minute) instead of three different per-slide lengths; the
+  24-pt target and the 20-pt floor the deck check enforces are stated together; the archetype
+  table names the medsci template as the skin for clinical talks; the layout guide says how a
+  research talk names its sections when the speaker chose the band, and not to repeat the title
+  in it; the render step prefers PowerPoint; a figure is drawn on the slide's own ground.
 - **`/present-paper`: the Limitations layout gives its left column less room.** The name of a
   limitation is short, so the left column is 3.9 in (was 4.9 in) and the text on what it does to
   the result gains the difference. `medsci_slides.pptx` is rebuilt. Demo 1's talk now marks

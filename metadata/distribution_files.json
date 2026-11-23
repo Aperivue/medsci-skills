@@ -4528,8 +4528,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 41753,
-      "sha256": "9fa5b0f5813cde58e5ec0031880c3f5abfb8568bd8838c1c9cd11857cc92b2e7"
+      "size": 42039,
+      "sha256": "46d2115cd7b62c491523dfc0e2246f96da41e4530221d1051bb947a8acfaf6c3"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -4538,8 +4538,8 @@
     },
     {
       "path": "skills/present-paper/references/critic_rubrics/slide.md",
-      "size": 10208,
-      "sha256": "632aae13ad0f9e7ed9e39916ef0b906dd1e59d413651e03c1aac29eb510a25da"
+      "size": 10282,
+      "sha256": "a04fefff703a98a4856d7e381c00bb57e7b53ad1163023fb2fc4542338470131"
     },
     {
       "path": "skills/present-paper/references/generate_pptx_templates.py",
@@ -4558,13 +4558,13 @@
     },
     {
       "path": "skills/present-paper/references/presentation_archetypes.md",
-      "size": 12796,
-      "sha256": "ea68e43cc04434b961cf71933f27240ff29b81a079309435e5f5aacebd720bad"
+      "size": 12797,
+      "sha256": "9271070dc8ec57eca571d8b94920522f304696be4bf44ca67f5f76ea77298dd5"
     },
     {
       "path": "skills/present-paper/references/presentation_design_guidelines.md",
-      "size": 10940,
-      "sha256": "f3bcf7663401d29ee13d04bf11e244fbbbd3a32242e68ceaecc18da72499f7a0"
+      "size": 11760,
+      "sha256": "c8725e3d76a76698dd3d39f71293f02645843cb91d85c91152915554613537fb"
     },
     {
       "path": "skills/present-paper/references/slide_design_principles.md",
@@ -4573,8 +4573,8 @@
     },
     {
       "path": "skills/present-paper/references/slide_template_layouts.md",
-      "size": 5306,
-      "sha256": "ba2c31548b13e458ee034781b0f3e8e8e40d5678c68e48cc0ea5e48f0deed326"
+      "size": 5756,
+      "sha256": "64d1dfb0ae6fe29b11916e2ecfa20386f54babad092399edc32454b2a6de93d8"
     },
     {
       "path": "skills/present-paper/references/slide_visual_styles/CATALOG.md",
@@ -4608,8 +4608,8 @@
     },
     {
       "path": "skills/present-paper/references/spoken_notes_and_bilingual.md",
-      "size": 8977,
-      "sha256": "f488b43cde59b2a654d44460ec5f7cd82ff820e00223334fabff8820d56c6586"
+      "size": 9083,
+      "sha256": "523ee0f79e38586af698ddcfa0dbf300d8aa0602abbac41ea184d0c68843403c"
     },
     {
       "path": "skills/present-paper/references/workflow-checklist.md",

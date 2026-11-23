@@ -26,11 +26,11 @@ no venue where an unlabelled arrow is fine.
 
 | Where you are standing | Archetype | Minutes | Slides | Words / slide | Skin |
 |---|---|---|---|---|---|
-| Society meeting, oral abstract (RSNA/ECR/KCR) | **A. Conference oral** | 8–12 | ≈ minutes | ≤ 40 | Nature/Lancet |
-| Journal club | **B. Critique** | 20–40 | ≈ minutes | ≤ 50 | Nature/Lancet |
-| Grand rounds, tumour board | **C. Case-anchored** | 30–50 | ≈ minutes | ≤ 45 | Clinical Blue |
-| Residents, course, workshop | **D. Didactic** | 50–90 | ≈ minutes ÷ 1.5 | ≤ 40 | Clinical Blue / Nature |
-| Thesis defence, job talk | **E. Defence** | 20–45 | ≈ minutes | ≤ 45 | Nature/Lancet |
+| Society meeting, oral abstract (RSNA/ECR/KCR) | **A. Conference oral** | 8–12 | ≈ minutes | ≤ 40 | medsci template |
+| Journal club | **B. Critique** | 20–40 | ≈ minutes | ≤ 50 | medsci template |
+| Grand rounds, tumour board | **C. Case-anchored** | 30–50 | ≈ minutes | ≤ 45 | medsci template |
+| Residents, course, workshop | **D. Didactic** | 50–90 | ≈ minutes ÷ 1.5 | ≤ 40 | medsci template |
+| Thesis defence, job talk | **E. Defence** | 20–45 | ≈ minutes | ≤ 45 | medsci template |
 | Invited keynote, plenary, big-idea talk | **F. Keynote** | 15–45 | free (often many) | **≤ 12** | Editorial Mono / Dark |
 | Public / lay audience, TEDx, patient group | **G. Lay talk** | 10–20 | free | **≤ 12** | Editorial Mono |
 | Investors, IR, grant panel, steering committee | **H. Decision brief** | 10–20 | **≤ 15** | ≤ 25 | Institutional / Editorial |
