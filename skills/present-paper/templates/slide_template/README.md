@@ -51,6 +51,25 @@ grey type. Left empty, it does not show in the
 slide show or in an exported PDF. The research-talk layouts have no section name: a ten-minute
 talk has no sections to name.
 
+That plain look is the default. Some rooms and some speakers find it bare, and a design element
+repeated on every slide is ordinary slide design. `--band` is the option for that: the section name
+on the white layouts becomes a slim band across the top in the palette's section colour, with the
+name in white, the research-talk layouts gain a section name (idx 20), and the title sits a little
+lower (on Imaging · Content and Imaging · Title Only too, which take the title from the master).
+The black Imaging layouts keep their grey section name; Cover, Section and Closing do not change.
+
+```bash
+python3 new_deck.py talk.pptx --type conference-oral --palette pine --band
+python3 build_slide_template.py out/ --palette pine --band      # the template itself, to edit in PowerPoint
+```
+
+The band is the fill of the section-name placeholder, and PowerPoint draws that fill even when the
+placeholder is empty. So on a banded deck give every white slide a section name, or remove the empty
+box (select it and press Delete, or `new_deck.drop_empty_bands(prs)` from a script); a slide without
+the box has no band. `check_slide_tells.py` reads a section name that sits on most slides as
+repeated edge text and may report it; if the band is what you want, record that finding as
+overruled with the reason.
+
 The Section divider is the palette's section colour with a number, a title and one line. Closing
 carries the conclusion in one line and a contact line; the last slide stays up during questions,
 so it says the finding, not "thank you".
@@ -171,8 +190,18 @@ t.post_process(Path("talk.pptx"))                    # after the last save
   themselves carry no animation: on a slide added by hand (the Quiz answer, the findings on the
   Imaging layouts) add the click yourself, in PowerPoint (Animations > Appear) or with this
   function. The starter decks already do. The sample deck is a preview of the layouts and has none.
+- `new_deck.put_rich(slot, lines)` fills a slot like `fill` and turns `**words**` into bold and
+  `[[words]]` into bold in the accent colour (accent 1 on white slides, accent 2 on black ones,
+  written as theme colours so they follow the palette). A lone asterisk, as in `DRB1*07:01`, is
+  left alone. Marks do not nest. Spend the accent once per slide.
+- `new_deck.credit(slide, text)` writes a source line at the foot of the slide: into the layout's
+  source slot where there is one, otherwise into a text box at the same place and size.
+- `build_slide_template.set_cell(tbl, r, c, text, accent=True)` sets the one cell to read in bold
+  accent colour.
+- `new_deck.drop_empty_bands(prs)` removes empty section-name boxes from a deck made with `--band`
+  (see above). Call it last, before saving.
 - A run that contains Hangul needs `lang="ko-KR"` (`new_deck.set_lang`), or PowerPoint breaks
-  lines inside a word.
+  lines inside a word. `fill`, `put_rich` and `credit` set it.
 - Leave a placeholder's position and size alone, or set all four of left, top, width and height.
   Setting one makes python-pptx write the others as zero.
 - Run `post_process` after the last save. It updates the slide, notes and hidden-slide counts and
@@ -194,10 +223,13 @@ speaker note saying what the slide is for. Picture slots are empty.
 | `procedure` | Procedure or technique talk | Cover, principle, roadmap Table, then per technique: Section, Imaging · Case, DSA Pair, 4 Steps, complications, technique Table; Lessons, Take-home, Closing |
 
 The two research starters leave the section-name slot empty; the three teaching starters fill it.
+With `--band`, a starter writes `<Section>` into every band it has no name for, to be overwritten
+or deleted with its box.
 
 ## Colours
 
-`--palette NAME` picks one of three. None uses navy or red.
+`--palette NAME` picks one of three, in `build_slide_template.py` or in `new_deck.py` (which builds
+that variant on the spot, so no second template file is needed). None uses navy or red.
 
 | Role | `mono` (default) | `stone` | `pine` |
 |---|---|---|---|
@@ -277,3 +309,11 @@ position, size and type size from the slide, then from its layout, then from the
 deck filled through this template is measured like any other. Two things they do not read: a
 shrink-to-fit scale PowerPoint applies when text overflows a slot (use `check_text_overflow.py`
 on a render for that), and the default size of a free text box with no size set on its runs.
+
+Render the deck through PowerPoint once before it is shown; LibreOffice hides some faults. On a Mac,
+a scripted export (`osascript` ... `save as PDF`) stops with error -9074 or a timeout when the deck
+sits in a folder PowerPoint has not opened before: a "Grant File Access" window is waiting behind
+it. Copy the deck into PowerPoint's own folder
+(`~/Library/Containers/com.microsoft.Powerpoint/Data/Documents/`), export there and copy the PDF back;
+that folder never asks. Address the deck by name (`save presentation "name.pptx" in ...`), not as the
+active presentation, so a deck you have open is not the one closed.

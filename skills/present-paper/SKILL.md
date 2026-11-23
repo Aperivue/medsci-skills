@@ -80,7 +80,7 @@ one-line preview each (recommended option first, labelled):
 
 | Option | One-line preview |
 |--------|------------------|
-| **medsci template** *(default for new decks)* | `templates/slide_template/`: white, near-black, one accent, no bands or boxes; 31 layouts, palettes mono/stone/pine or your own colours |
+| **medsci template** *(default for new decks)* | `templates/slide_template/`: white, near-black, one accent, no bands or boxes; 31 layouts, palettes mono/stone/pine or your own colours (`new_deck.py --palette`); `--band` adds a section band for a speaker who finds the plain look bare |
 | **Nature / Lancet** | White, navy + coral accent, hairline dividers, Inter/Pretendard — restrained editorial-academic |
 | **Clinical Blue** | White/light-blue, navy-teal, calm and trustworthy, colorblind-safe — grand rounds / CME |
 | **Editorial Mono** | High-contrast black-on-white, oversized type, one accent — single big-message keynote |

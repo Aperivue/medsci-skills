@@ -4528,8 +4528,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 40011,
-      "sha256": "2cb2085924a431c51bbc5ce2843956b23c2690fe3f61c88b0eb80926f2b50fd6"
+      "size": 40111,
+      "sha256": "4962c2b31a365a65740896bae44180e483991f06ab0ddf07affd997f9cf45eb8"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -4563,8 +4563,8 @@
     },
     {
       "path": "skills/present-paper/references/presentation_design_guidelines.md",
-      "size": 7438,
-      "sha256": "83f35db30fd9faf7f00941ad0e716aa0d4041ab19d8cf327eb8a40804d8e0036"
+      "size": 7813,
+      "sha256": "5076d5ec22ef2276c341cb8b87f477212634fc6c441ab626ebeeca4ef0e892fe"
     },
     {
       "path": "skills/present-paper/references/slide_design_principles.md",
@@ -4573,8 +4573,8 @@
     },
     {
       "path": "skills/present-paper/references/slide_template_layouts.md",
-      "size": 3851,
-      "sha256": "29a50336affa2276c6536f9e46ef24fff9e7fe54895fe84bc2c942faca8e2b6e"
+      "size": 5306,
+      "sha256": "ba2c31548b13e458ee034781b0f3e8e8e40d5678c68e48cc0ea5e48f0deed326"
     },
     {
       "path": "skills/present-paper/references/slide_visual_styles/CATALOG.md",
@@ -4733,8 +4733,8 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/README.md",
-      "size": 18783,
-      "sha256": "be36dcca5ddc5d95fb2e66fee323067e38ff4a5a88d99306b65d6aeac4c2c4ed"
+      "size": 21793,
+      "sha256": "0b4043149ba819bb3b1a2fa2e281f556d9fde5405015ccbf443a5773d9104dc5"
     },
     {
       "path": "skills/present-paper/templates/slide_template/build_handout_template.py",
@@ -4743,8 +4743,8 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/build_slide_template.py",
-      "size": 65093,
-      "sha256": "634ad072140b7d69e13d32320291bd4c5b9978ca9e10316d1f58097a62b01598"
+      "size": 68824,
+      "sha256": "7e70065d89250aef9ba6b327b023a0272edcf94fa69482c927f8a9c85ae3c22e"
     },
     {
       "path": "skills/present-paper/templates/slide_template/medsci_handout.docx",
@@ -4758,8 +4758,8 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/new_deck.py",
-      "size": 25925,
-      "sha256": "72b3bc03f616f53f352ced4cff9a4612ec384f0f0291f4b0d090798e24e47f8a"
+      "size": 33551,
+      "sha256": "7eec50ddd6af76f9b67fbb3a5fa747b047d6cedf81d8bf48942c71028274806e"
     },
     {
       "path": "skills/profile-imaging/SKILL.md",

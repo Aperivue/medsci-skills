@@ -62,6 +62,10 @@ Phase 3.5 slide critic scores against them.
 - **Never paste a raw screenshot of a journal table or a multi-panel figure.** Re-draw
   the 2–4 numbers that matter into a clean, large-font native table, or crop to the
   single panel you will narrate.
+- **A talk about your own paper may show that paper's own panels.** Crop to the one panel the
+  slide narrates and use it when its labels can be read at slide size; redraw when they cannot, or
+  when no published panel carries the slide's claim. Showing a figure in a room and handing out
+  the deck are different acts: check the article's licence before the file is shared.
 - A slide table is **≤ ~5 rows × ≤ ~5 columns** at ≥ 16 pt. More than that → move it to
   a backup slide or hand it out.
 - Figure captions on a slide are written **for a listener** (one phrase), not the

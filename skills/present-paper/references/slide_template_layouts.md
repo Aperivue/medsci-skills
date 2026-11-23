@@ -45,6 +45,18 @@ listed in the template README's starter table. They share three choices:
 Not every talk needs every one. Agenda belongs in a talk of more than three parts; Comparison only
 when a contrast carries the claim; References · QR goes after the last slide, off the clock.
 
+## Three choices that are easy to get wrong
+
+- **Black is for radiological images.** The Imaging layouts are black because CT, MR, angiography
+  and ultrasound are read on black. A diagram, a chart, a photograph of a document or a figure
+  from a paper with a white ground goes on a white layout: on black it becomes a white rectangle
+  and the slide reads as a mistake.
+- **The cover carries no content figure.** Title, presenter, affiliation, meeting. The optional
+  picture slot is for an institution's own cover picture; a result panel on the cover is seen
+  before anyone knows what it shows.
+- **Plain or banded is the speaker's call.** The default has no band. `new_deck.py --band` puts
+  the section name in a slim band across the top (template README). Choose once for the deck.
+
 ## Teaching decks
 
 For a lecture, the order that works is: one case that shows why the topic matters, the roadmap
@@ -54,6 +66,17 @@ item. The image comes first and the words appear on click, because the audience 
 on the screen before it looks at the image. Keep the sequence labels and their order fixed through
 the deck. Paste the summary tables into the handout (`medsci_handout.docx`), which also carries the
 sentences the slides left out, so the slides can stay sparse.
+
+What the lectures that hold a room have in common, beyond that order:
+
+- In the first two or three minutes, give one frame the rest hangs on (a decision, a map of the
+  anatomy, a classification), and return to it by name on later slides.
+- One colour means one thing through the deck: the colour of a term in the text is the colour of
+  its arrow or outline on the image.
+- Say what must be remembered and what can be looked up; where no accepted criterion exists, say
+  so.
+- A case that went wrong, with what changed afterwards, teaches more than a third typical one.
+- End each part on its summary table and the deck on three lines; rehearse against the clock.
 
 Use the speaker's own de-identified cases where possible; a lecture built only from journal
 figures is one the audience could have read. De-identify the image file before inserting it (pixels
