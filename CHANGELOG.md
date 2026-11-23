@@ -4,6 +4,11 @@
 
 ### Added
 
+- **A one-page set of slide rules, in English and Korean** (`docs/slide_guide_en.md`,
+  `docs/slide_guide_ko.md`), for people who use the slide template without a coding agent: what
+  one slide carries, figures and images, emphasis and colour, what to leave out, what a medical
+  talk has to respect, which layout to pick and what to check afterwards. The template README
+  links to both.
 - **Demo 6: an example lecture deck.** `demo/06_circle_of_willis_lecture/presentation/` is a
   30-minute resident lecture on the Circle of Willis built with `/present-paper` on the slide
   template: section band, both accents, and the black Imaging layouts for MRA, CTA and DSA, which

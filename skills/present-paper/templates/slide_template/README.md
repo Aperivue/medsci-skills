@@ -36,6 +36,11 @@ template.
 Which layout to use for which slide, and what the research-talk set is for:
 `../../references/slide_template_layouts.md`.
 
+Not using a coding agent? The template is an ordinary PowerPoint file, and a one-page set of slide
+rules sits beside the documentation: [English](https://github.com/Aperivue/medsci-skills/blob/main/docs/slide_guide_en.md),
+[Korean](https://github.com/Aperivue/medsci-skills/blob/main/docs/slide_guide_ko.md). Attach both the
+template and the page to a chat assistant, or follow the page by hand.
+
 ## What it looks like, and why
 
 The research-talk layouts have no band, no rule, no panel and no outlined box. Space and type size
