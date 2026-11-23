@@ -19,6 +19,12 @@
 
 ### Changed
 
+- **`/present-paper`: guidance for borrowed figures, small edits and terms.** The design guidelines
+  now list what a cropped panel must keep (axes, legend, scale bar, panel letter, side and
+  sequence labels on an image), the form of the source line on a slide and what a shared copy adds to it, and what the row for
+  a paper figure in the image log (`assets/SOURCES.md`) records. `SKILL.md` says that a request to change slides changes those slides and
+  what points at them, without a new analysis or a restyle, and the paper analysis fixes one
+  spelling per term for slides, notes and Q&A. No check is added.
 - **Demo 1's talk is rebuilt on the medsci slide template.** `demo/01_wisconsin_bc/presentation/`
   now starts from `new_deck.py` (pine palette, section band) and uses the template's helpers; nine
   slides for ten minutes, every number still read from the analysis tables. The folder gains a

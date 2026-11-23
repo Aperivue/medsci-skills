@@ -66,6 +66,26 @@ Phase 3.5 slide critic scores against them.
   slide narrates and use it when its labels can be read at slide size; redraw when they cannot, or
   when no published panel carries the slide's claim. Showing a figure in a room and handing out
   the deck are different acts: check the article's licence before the file is shared.
+- **A crop keeps what is needed to read the evidence.** Before a cropped panel goes on a slide,
+  look at it at the size it will be shown and check that none of these is cut or covered: the
+  panel letter the slide refers to; both axes with their titles, ticks and units; the legend, the
+  colour bar and the scale bar; group and condition names; a table's header row. On an image:
+  the side marker, the orientation and the plane or sequence label stay; patient fields go (from
+  the pixels and the metadata, not under a shape). Leave a small margin instead of cutting at
+  the ink, and keep the slide's own label or arrow off the figure's labels. If the crop cannot
+  keep them and stay legible, widen it, give the figure the whole slide, split it over two
+  slides, or redraw the few numbers as a table.
+- **Every borrowed figure carries a source line, and a row in the image log.** On the slide, at
+  least: figure and panel, first author, journal, year (`Fig. 2b · Author, Journal 2024`),
+  through the layout's source slot or `new_deck.credit`. A figure you redrew from someone's data
+  says so (`Redrawn from Fig. 2b · ...`); your own unpublished figure needs no line. That line is
+  a citation, not a licence notice: a copy of the deck that leaves the room carries whatever the
+  licence or permission asks for as well (for CC BY, the licence name or link and a note that the
+  panel was cropped or adapted), on the slide or on a credits slide at the end. The log is the one
+  in `references/generated_illustrations.md` §4, `assets/SOURCES.md`; for a panel taken from a
+  paper its row also gives the source figure and panel, the page, how it was extracted and
+  cropped, what was left out on purpose and the slide it is on, so a corrected figure can be
+  re-cut the same way.
 - A slide table is **≤ ~5 rows × ≤ ~5 columns** at ≥ 16 pt. More than that → move it to
   a backup slide or hand it out.
 - Figure captions on a slide are written **for a listener** (one phrase), not the

@@ -4528,8 +4528,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 40111,
-      "sha256": "4962c2b31a365a65740896bae44180e483991f06ab0ddf07affd997f9cf45eb8"
+      "size": 40880,
+      "sha256": "2dd35dec909b3409dd306a05fecaf9243dd43ec9c0a7869ea7ae615c87682f16"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -4548,8 +4548,8 @@
     },
     {
       "path": "skills/present-paper/references/generated_illustrations.md",
-      "size": 6373,
-      "sha256": "f6a711d6be81f33ca18e822c4b8a0d084f32db3f3048c5326073622d9c1a79cc"
+      "size": 6553,
+      "sha256": "f1e7f4a73149d0272e507c159e04e8c28e6809fb342537b4840944596ed5ce37"
     },
     {
       "path": "skills/present-paper/references/medical_presentation_templates.md",
@@ -4563,8 +4563,8 @@
     },
     {
       "path": "skills/present-paper/references/presentation_design_guidelines.md",
-      "size": 7813,
-      "sha256": "5076d5ec22ef2276c341cb8b87f477212634fc6c441ab626ebeeca4ef0e892fe"
+      "size": 9601,
+      "sha256": "3b30235c981c596e8e7062c1d38b7c52f12434925da2e1df4f330d5b0e1a0726"
     },
     {
       "path": "skills/present-paper/references/slide_design_principles.md",

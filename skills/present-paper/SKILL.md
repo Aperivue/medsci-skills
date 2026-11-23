@@ -124,6 +124,10 @@ Read the paper and produce a structured analysis:
 ### Patient/Case Summary Table
 [If applicable — structured table of individual cases or subgroups]
 
+### Terms
+[One spelling per model name, dataset, outcome, metric and abbreviation, with its first-use
+expansion — the slides, the notes and the Q&A sheet use these and no synonyms]
+
 ### Limitations
 1. [Limitation 1]
 
@@ -411,6 +415,9 @@ frames. Three rules keep slides stable:
   caption and credit line too. Judge room showing and published recording or slides
   separately; a figure whose right for a use is unconfirmed is left out of, or replaced in, that
   final version.
+- **A borrowed panel is cropped to stay readable, credited on the slide and logged in
+  `assets/SOURCES.md`** — the checklist and the format are in
+  `references/presentation_design_guidelines.md` §5.
 - **Put the claim in the slide, not in the raster.** A conclusion or headline number drawn *into*
   the PNG stops tracking the talk the moment the bullet above it is edited, and no text search can
   find it. Numbers and conclusions live in the slide's own text.
@@ -509,6 +516,11 @@ A from-scratch generation script must:
   finishes without error.
 
 ### Patch over Rebuild — editing an existing PPTX
+
+**A request to change slides is not a request for a new talk.** Change the slides named and
+whatever points at them (a number repeated in the notes, the take-home, a figure that draws it, the
+companion documents); do not re-analyse the paper, reorder the story or restyle untouched slides.
+Then re-run the deck checks on the whole file and look at the changed slides in a render.
 
 For surgical edits to a supplied deck (textbox width, image crop, font swap, sp3d removal), patch the
 unzipped XML with regex/sed rather than regenerating with `python-pptx`. A from-scratch rebuild
