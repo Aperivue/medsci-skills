@@ -70,6 +70,15 @@ long time after the 2025 versions had replaced them.
   https://www.springer.com/journal/330 — the journal's own file, with no license permitting
   redistribution. `/make-figures` accepts it via `--template /absolute/path.pptx`.
 
+## Figures in the lecture demo
+
+`demo/06_circle_of_willis_lecture/presentation/figures/` holds panels cropped and resized from
+seven open-access articles, each published under a Creative Commons Attribution licence
+(CC BY 4.0). They are redistributed with attribution and are not covered by this repository's MIT
+licence. The article, figure, panel, crop and licence of every file are listed in
+`demo/06_circle_of_willis_lecture/presentation/assets/SOURCES.md`; the built deck and its contact
+sheet contain the same panels with a credit line on each slide.
+
 ## Optional Dependencies
 
 The following external packages are NOT bundled but may be installed separately by the user:

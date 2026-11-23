@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Demo 6: an example lecture deck.** `demo/06_circle_of_willis_lecture/presentation/` is a
+  30-minute resident lecture on the Circle of Willis built with `/present-paper` on the slide
+  template: section band, both accents, and the black Imaging layouts for MRA, CTA and DSA, which
+  no earlier demo showed. Its figures are cropped from seven open-access CC BY articles, credited
+  on each slide and listed with their licences in `assets/SOURCES.md` and
+  `THIRD-PARTY-NOTICES.md`.
 - **`/present-paper`: two accent colours, a set from your own main colours, and the questions that
   choose them.** Every palette of the slide template now has a second accent (amber with `mono`,
   teal with `stone`, plum with `pine`); `put_rich` writes it from `[[2|words]]` and

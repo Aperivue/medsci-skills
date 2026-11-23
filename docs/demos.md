@@ -143,6 +143,15 @@ counterfactual that must fail) &rarr; `model-assessment` (split gate) &rarr; nnU
 `model-assessment` (metrics) &rarr; `make-figures` &rarr; write-up. `bash reproduce.sh` re-runs the gates and the whole
 across-cohort analysis on a laptop; training needs ~50 GPU-hours and says so.
 
+## Demo 6: A lecture deck — the Circle of Willis
+
+Not a study pipeline: an example of `/present-paper` on a teaching talk.
+[`demo/06_circle_of_willis_lecture/presentation/`](../demo/06_circle_of_willis_lecture/presentation/)
+is a 30-minute resident lecture of 22 slides built on the medsci slide template, with the section
+band and the black Imaging layouts for MRA, CTA and DSA. Its figures are cropped from seven
+open-access articles; each is credited on its slide and listed with its licence in
+`assets/SOURCES.md`. They are CC BY material, not covered by this repository's MIT licence.
+
 ## Project Folder Structure
 
 Each demo (and real project) follows this role-based folder layout:
