@@ -600,7 +600,7 @@ def comparison_layout(ids):
 
 
 def limitations_layout(ids):
-    lw = 4.9
+    lw = 3.9     # the name of a limitation is short; the room goes to what it does to the result
     rx = MARGIN + lw + 0.5
     rw = SW - MARGIN - rx
     shapes = [static_label(ids, "Limitation", MARGIN, 1.74, lw),

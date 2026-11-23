@@ -14,8 +14,13 @@ import csv
 import sys
 from pathlib import Path
 
-from pptx import Presentation
-from pptx.util import Inches
+import tempfile
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt   # noqa: E402
+from pptx import Presentation     # noqa: E402
+from pptx.util import Inches      # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 DEMO = HERE.parent
@@ -53,6 +58,26 @@ def ci(row, key):
 COL_W = [2.7, 3.5, 2.0, 2.0, 2.03]     # inches; the interval column is the wide one
 
 
+def scale_strip(path):
+    """The study in four numbers, drawn as one strip: type only, in the palette's ink, accent and grey."""
+    pal = t.PALETTES[PALETTE]
+    items = [(str(n_all), "aspirates"), ("30", "measurements each"), ("3", "classifiers"),
+             (str(n_test), "held out for the test")]
+    plt.rcParams["font.family"] = ["Arial", "DejaVu Sans"]
+    fig = plt.figure(figsize=(12.2, 2.3))
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.set_axis_off()
+    for k, (number, label) in enumerate(items):
+        x = k * 0.25
+        last = k == len(items) - 1
+        ax.text(x, 0.40, number, fontsize=66, fontweight="bold", color="#" + (pal["accent"] if last else pal["ink"]),
+                ha="left", va="baseline")
+        ax.text(x, 0.12, label, fontsize=20, color="#" + pal["muted"], ha="left", va="baseline")
+    fig.savefig(path, dpi=200, transparent=True)
+    plt.close(fig)
+    return path
+
+
 # (layout, section name, {placeholder idx: text}, options)
 SLIDES = [
     ("Cover", None,
@@ -65,11 +90,11 @@ SLIDES = [
      dict(notes="이해관계와 연구비는 없습니다.")),
     ("Content", "Question",
      {0: "Do three routine classifiers differ on the same aspirates?",
-      1: [f"{n_all} fine-needle aspirates, 30 nuclear and cell-shape measurements each",
-          "Reference standard: **histopathology**, malignant or benign",
-          "Logistic regression, random forest, support-vector machine",
-          "Reported to STARD 2015: flow, intervals, and [[a test of the difference]]"]},
-     dict(notes="질문은 하나입니다. 같은 측정값을 넣었을 때 흔히 쓰는 세 모형이 서로 다른가. 점추정치를 나란히 놓는 것으로는 "
+      1: ["Nuclear and cell-shape measurements from fine-needle aspirates",
+          "Reference standard: [[histopathology]], malignant or benign",
+          "Logistic regression, random forest, support-vector machine"]},
+     dict(strip=True,
+          notes="질문은 하나입니다. 같은 측정값을 넣었을 때 흔히 쓰는 세 모형이 서로 다른가. 점추정치를 나란히 놓는 것으로는 "
                 "답이 안 되고, 차이를 검정해야 합니다.")),
     ("Study Design", "Methods",
      {0: f"One aspirate is the unit; {n_test} were held out before fitting",
@@ -110,9 +135,9 @@ SLIDES = [
                 "임계값을 사후에 고르면 낙관 편향이 생기므로 여기서는 고르지 않았습니다.")),
     ("Take-home", "Summary",
      {0: "What to take from this",
-      1: ["The three models were **indistinguishable** in discrimination",
+      1: ["Discrimination: [[no difference]] between the models",
           "Calibration, not AUC, separated them",
-          "Every number on these slides is read from the analysis tables"]},
+          "Every number here is read from the tables"]},
      dict(notes="정리합니다. 판별력은 세 모형이 같았고, 갈린 것은 보정이었습니다. 그리고 이 슬라이드의 숫자는 모두 "
                 "분석 표에서 읽어 온 것이라, 결과가 바뀌면 덱도 같이 바뀝니다. 감사합니다.")),
 ]
@@ -130,6 +155,12 @@ def build(out, band=True):
             nd.put_rich(slot[idx], value)
         if section and 20 in slot:
             nd.fill(slot[20], section)
+        if opt.get("strip"):
+            body = slot[1]                     # all four, or python-pptx writes the others as zero
+            body.left, body.top, body.width, body.height = body.left, body.top, body.width, Inches(2.0)
+            with tempfile.TemporaryDirectory() as tmp:
+                s.shapes.add_picture(str(scale_strip(Path(tmp) / "strip.png")), Inches(t.MARGIN), Inches(4.15),
+                                     width=Inches(t.CW))
         if "picture" in opt:
             nd.fit_picture(slot[30], opt["picture"], opt.get("align", "l"))
         if "table" in opt:
