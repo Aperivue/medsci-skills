@@ -130,7 +130,8 @@ class Shape:
     cx: int
     cy: int
     prst: str = ""
-    max_pt: float = 0.0
+    max_pt: float = 0.0       # largest type on the shape: what a headline is picked by
+    min_pt: float = 0.0       # smallest type on a run with text: what the back row has to read
     has_arrow: bool = False
     is_textbox: bool = False  # <p:cNvSpPr txBox="1"/> — text, not a drawn shape
     is_chrome: bool = False   # small type hugging the top or bottom edge
@@ -195,6 +196,16 @@ def _complete(xfrm: Optional[ET.Element]) -> bool:
     return xfrm is not None and xfrm.find(f"{A}off") is not None and xfrm.find(f"{A}ext") is not None
 
 
+def _points(value: Optional[str]) -> Optional[float]:
+    """A `sz` attribute (hundredths of a point) as points; None when absent or not a number."""
+    if not value:
+        return None
+    try:
+        return int(value) / 100
+    except ValueError:
+        return None
+
+
 def _level_size(container: Optional[ET.Element], lvl: int) -> Optional[float]:
     """Type size a list style gives paragraph level `lvl` (0-based), or None when it gives none."""
     if container is None:
@@ -203,12 +214,7 @@ def _level_size(container: Optional[ET.Element], lvl: int) -> Optional[float]:
     if lvl_el is None:
         return None
     d = lvl_el.find(f"{A}defRPr")
-    if d is None or not d.get("sz"):
-        return None
-    try:
-        return int(d.get("sz")) / 100
-    except ValueError:
-        return None
+    return _points(d.get("sz")) if d is not None else None
 
 
 class Inherited:
@@ -227,20 +233,28 @@ class Inherited:
     `<p:ph type="body" idx="1"/>`.
     """
 
-    def __init__(self, z: zipfile.ZipFile, slide_part: str, cache: Dict[str, ET.Element]):
+    def __init__(self, z: zipfile.ZipFile, slide_part: str, cache: Dict[str, ET.Element],
+                 default_style: Optional[ET.Element] = None):
         self.layout: List[ET.Element] = []
         self.master: List[ET.Element] = []
         self.tx_styles: Optional[ET.Element] = None
-        layout_part = self._rel(z, slide_part, "/slideLayout")
-        if layout_part is None:
+        self.default_style = default_style        # presentation.xml <p:defaultTextStyle>
+        # A layout or master that is missing or cannot be parsed leaves these empty. Placeholders
+        # that needed it then have no geometry, and unmeasurable_text_shapes reports them; a deck
+        # whose text is all explicitly placed is read as before.
+        try:
+            layout_part = self._rel(z, slide_part, "/slideLayout")
+            if layout_part is None:
+                return
+            self.layout = self._placeholders(self._root(z, layout_part, cache))
+            master_part = self._rel(z, layout_part, "/slideMaster")
+            if master_part is None:
+                return
+            master_root = self._root(z, master_part, cache)
+            self.master = self._placeholders(master_root)
+            self.tx_styles = master_root.find(f"{P}txStyles")
+        except ET.ParseError:
             return
-        self.layout = self._placeholders(self._root(z, layout_part, cache))
-        master_part = self._rel(z, layout_part, "/slideMaster")
-        if master_part is None:
-            return
-        master_root = self._root(z, master_part, cache)
-        self.master = self._placeholders(master_root)
-        self.tx_styles = master_root.find(f"{P}txStyles")
 
     @staticmethod
     def _rel(z: zipfile.ZipFile, part: str, suffix: str) -> Optional[str]:
@@ -263,17 +277,26 @@ class Inherited:
             return []
         return [c for c in tree if c.tag.split("}")[-1] in {"sp", "pic"} and _ph(c) is not None]
 
+    @staticmethod
+    def _idx(ph: ET.Element) -> Optional[int]:
+        """Placeholder index as a number; the attribute defaults to 0 when absent."""
+        try:
+            return int(ph.get("idx", "0"))
+        except ValueError:
+            return None
+
     def layout_match(self, ph: ET.Element) -> Optional[ET.Element]:
-        idx, typ = ph.get("idx"), ph.get("type")
+        idx = self._idx(ph)
         if idx is not None:
             for cand in self.layout:
-                if _ph(cand).get("idx", "0") == idx:
+                if self._idx(_ph(cand)) == idx:
                     return cand
-        if typ is not None:
-            want = "title" if typ in TITLE_TYPES else typ
+        # An idx the layout does not have (a slide moved to another layout) inherits nothing:
+        # taking the first placeholder of the same type would hand a section label the geometry
+        # and size of the main body. A title is the exception, found by type.
+        if ph.get("type") in TITLE_TYPES:
             for cand in self.layout:
-                ctyp = _ph(cand).get("type")
-                if ("title" if ctyp in TITLE_TYPES else ctyp) == want:
+                if _ph(cand).get("type") in TITLE_TYPES:
                     return cand
         return None
 
@@ -295,19 +318,21 @@ class Inherited:
         if effective_type in TITLE_TYPES:
             return self.tx_styles.find(f"{P}titleStyle")
         if effective_type in _OWN_STYLE_TYPES:
-            return self.tx_styles.find(f"{P}otherStyle")
+            return None   # date, footer and slide number: sized by their own placeholder or not known
         return self.tx_styles.find(f"{P}bodyStyle")
 
 
-def _placeholder_size(el: ET.Element, chain: List[Optional[ET.Element]]) -> float:
-    """Largest type size among the runs of a placeholder that carry text.
+def _placeholder_sizes(el: ET.Element, chain: List[Optional[ET.Element]]) -> Tuple[float, float]:
+    """(largest, smallest) type size among the runs of a placeholder that carry text.
 
-    A run's own size wins. Without one, the size is the first one found for the paragraph's level
-    in: the shape's list style, the layout placeholder's, the master placeholder's, then the
-    master's text style for that kind of placeholder. This is the nominal size; a shrink-to-fit
-    scale applied when the text overflows is not read.
+    A run's own size wins. Without one, the size is the paragraph's own default
+    (`<a:pPr><a:defRPr sz>`, where a size set on a whole paragraph is written), then the first
+    one found for the paragraph's level in: the shape's list style, the layout placeholder's, the
+    master placeholder's, the master's text style for that kind of placeholder, and the
+    presentation's default text style. This is the nominal size; a shrink-to-fit scale applied
+    when the text overflows is not read. (0, 0) when no run with text has a size anywhere.
     """
-    best = 0.0
+    best, least = 0.0, 0.0
     for p_el in el.iter(f"{A}p"):
         p_pr = p_el.find(f"{A}pPr")
         try:
@@ -316,16 +341,15 @@ def _placeholder_size(el: ET.Element, chain: List[Optional[ET.Element]]) -> floa
             lvl = 0
         inherited: Optional[float] = None
         looked = False
+        own_default = p_pr.find(f"{A}defRPr") if p_pr is not None else None
+        para_size = _points(own_default.get("sz")) if own_default is not None else None
         for run in list(p_el.iter(f"{A}r")) + list(p_el.iter(f"{A}fld")):
             if not "".join(t.text or "" for t in run.iter(f"{A}t")).strip():
                 continue
             r_pr = run.find(f"{A}rPr")
-            size: Optional[float] = None
-            if r_pr is not None and r_pr.get("sz"):
-                try:
-                    size = int(r_pr.get("sz")) / 100
-                except ValueError:
-                    size = None
+            size = _points(r_pr.get("sz")) if r_pr is not None else None
+            if size is None:
+                size = para_size
             if size is None:
                 if not looked:
                     looked = True
@@ -334,12 +358,16 @@ def _placeholder_size(el: ET.Element, chain: List[Optional[ET.Element]]) -> floa
                         if inherited is not None:
                             break
                 size = inherited
-            if size is not None and size > best:
-                best = size
-    return best
+            if size is not None:
+                best = max(best, size)
+                least = size if not least else min(least, size)
+    return best, least
 
 
 def parse_shape(el: ET.Element, kind: str, inh: Optional[Inherited] = None) -> Optional[Shape]:
+    c_nv = el.find(f".//{P}cNvPr")
+    if c_nv is not None and c_nv.get("hidden") in {"1", "true"}:
+        return None   # a hidden shape is not drawn; its text is not on the slide
     xfrm = shape_xfrm(el, kind)
     ph = _ph(el) if kind in {"sp", "pic"} else None
     layout_el: Optional[ET.Element] = None
@@ -350,10 +378,12 @@ def parse_shape(el: ET.Element, kind: str, inh: Optional[Inherited] = None) -> O
         ph_type = ph.get("type") or ""
         if inh is not None:
             layout_el = inh.layout_match(ph)
-            if not ph_type and layout_el is not None:
-                ph_type = _ph(layout_el).get("type") or ""
-            ph_type = ph_type or "body"   # a placeholder with no type anywhere is a content body
-            master_el = inh.master_match(ph_type)
+            if layout_el is not None:
+                # The master placeholder is chosen by the LAYOUT placeholder's type: that is the
+                # link PowerPoint follows, also when the slide's own type attribute disagrees.
+                layout_type = _ph(layout_el).get("type") or "body"
+                master_el = inh.master_match(layout_type)
+                ph_type = ph_type or layout_type
             # No <a:xfrm> on the slide at all is full inheritance, the ordinary case. A partial one
             # is a half-finished assignment and stays unmeasurable (see unmeasurable_text_shapes).
             if _own_xfrm(el) is None:
@@ -398,11 +428,14 @@ def parse_shape(el: ET.Element, kind: str, inh: Optional[Inherited] = None) -> O
         for src in (layout_el, master_el):
             body = src.find(f"{P}txBody") if src is not None else None
             chain.append(body.find(f"{A}lstStyle") if body is not None else None)
-        chain.append(inh.master_style(ph_type))
-        max_pt = _placeholder_size(el, chain)
+        if layout_el is not None:
+            chain.append(inh.master_style(_ph(layout_el).get("type") or "body"))
+            chain.append(inh.default_style)
+        max_pt, min_pt = _placeholder_sizes(el, chain)
     else:
-        sizes = [int(rpr.get("sz")) / 100 for rpr in el.iter(f"{A}rPr") if rpr.get("sz")]
+        sizes = [pt for pt in (_points(rpr.get("sz")) for rpr in el.iter(f"{A}rPr")) if pt]
         max_pt = max(sizes) if sizes else 0.0
+        min_pt = min(sizes) if sizes else 0.0
 
     geom = el.find(f".//{A}prstGeom")
     prst = geom.get("prst", "") if geom is not None else ""
@@ -421,7 +454,7 @@ def parse_shape(el: ET.Element, kind: str, inh: Optional[Inherited] = None) -> O
     is_textbox = cnv is not None and cnv.get("txBox") == "1"
 
     return Shape(kind=kind, text=text, x=x, y=y, cx=cx, cy=cy, prst=prst, max_pt=max_pt,
-                 has_arrow=has_arrow, is_textbox=is_textbox, ph_type=ph_type)
+                 min_pt=min_pt, has_arrow=has_arrow, is_textbox=is_textbox, ph_type=ph_type)
 
 
 def _rels(z: zipfile.ZipFile, part: str) -> List[ET.Element]:
@@ -504,11 +537,13 @@ def unmeasurable_text_shapes(path: Path) -> List[Tuple[int, str, str]]:
     out: List[Tuple[int, str, str]] = []
     with zipfile.ZipFile(path) as z:
         names = [n for n, _notes in slide_parts(z)]
+        parts: Dict[str, ET.Element] = {}
         for i, n in enumerate(names, start=1):
             root = ET.fromstring(z.read(n))
             tree = root.find(f".//{P}cSld/{P}spTree")
             if tree is None:
                 continue
+            inh = Inherited(z, n, parts)
             for child in tree:
                 if child.tag.split("}")[-1] not in {"sp", "graphicFrame", "grpSp"}:
                     continue
@@ -522,6 +557,13 @@ def unmeasurable_text_shapes(path: Path) -> List[Tuple[int, str, str]]:
                         # A graphicFrame has no layout to inherit from: <p:xfrm> is required.
                         head = next((ln.strip() for ln in text.splitlines() if ln.strip()), text)
                         out.append((i, "no <p:xfrm> — table/frame geometry never written", head))
+                    if kind == "sp" and _ph(child) is not None and parse_shape(child, kind, inh) is None:
+                        # Nothing to inherit from: the layout or master is missing, unreadable,
+                        # or has no placeholder for this one. The text is in the file and the
+                        # reader has no position for it.
+                        head = next((ln.strip() for ln in text.splitlines() if ln.strip()), text)
+                        out.append((i, "placeholder with no position on the slide and none found "
+                                       "in its layout or master", head))
                     continue  # an sp/grpSp with no xfrm inherits outright — the correct case
                 off, ext = xfrm.find(f"{A}off"), xfrm.find(f"{A}ext")
                 why: List[str] = []
@@ -558,7 +600,7 @@ def read_deck(path: Path) -> Tuple[List[List[Shape]], List[str], int, int]:
         for n, note_name in slide_parts(z):
             root = ET.fromstring(z.read(n))
             tree = root.find(f".//{P}cSld/{P}spTree")
-            inh = Inherited(z, n, parts)
+            inh = Inherited(z, n, parts, pres.find(f"{P}defaultTextStyle"))
             shapes: List[Shape] = []
             if tree is not None:
                 for child in tree:
@@ -683,6 +725,11 @@ def check_scaffold(slides, notes) -> List[Finding]:
     return out
 
 
+def _divider_number(s: Shape) -> bool:
+    text = s.text.strip()
+    return bool(s.ph_type) and s.ph_type not in TITLE_TYPES and text.isdigit() and len(text) <= 2
+
+
 def check_topic_titles(slides, h) -> List[Finding]:
     """A content slide whose headline is a filing label instead of the finding."""
     out: List[Finding] = []
@@ -706,10 +753,11 @@ def check_topic_titles(slides, h) -> List[Finding]:
         if label not in TOPIC_TITLES:
             continue
         # A divider slide may carry a filing label — that is its whole job. A slide with a body
-        # may not. A divider's own furniture (its number, the page number, edge labels) is not a body.
-        body = [s for s in shapes if s is not head and not s.is_chrome
+        # may not. A divider's own number ("01", "2" in a placeholder of the divider layout) is
+        # not a body; a number typed as content is.
+        body = [s for s in shapes if s is not head
                 and (s.kind in {"pic", "graphicFrame"}
-                     or (s.text and not is_page_number(s.text) and not s.text.strip().isdigit()))]
+                     or (s.text and not _divider_number(s)))]
         if len(body) < 2:
             continue
         out.append(Finding(

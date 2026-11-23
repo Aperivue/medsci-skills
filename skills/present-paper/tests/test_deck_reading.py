@@ -232,8 +232,40 @@ mixed = TMP / "mixed_runs.pptx"
 prs.save(str(mixed))
 shapes, _n, _w, _h = tells.read_deck(mixed)
 mixed_body = next((sh for sh in shapes[0] if sh.text.startswith("inherited size")), None)
-if mixed_body is None or mixed_body.max_pt != body_shape.max_pt:
+if mixed_body is None or body_shape is None or mixed_body.max_pt != body_shape.max_pt:
     fails.append("a placeholder with one explicit small run lost the inherited size of its other run")
+elif mixed_body.min_pt != 9.0:
+    fails.append(f"the 9-pt run beside an inherited one was not kept as the smallest size ({mixed_body.min_pt})")
+if "TYPE_TOO_SMALL" not in verdicts(mixed):
+    fails.append("a 9-pt run passed the type floor because a larger run shares its placeholder")
+
+# A size set on a whole paragraph is written on the paragraph, not on its runs.
+prs = new_deck()
+s = prs.slides.add_slide(prs.slide_layouts[1])
+s.shapes.title.text = "Ablation halved local recurrence"
+tf = s.placeholders[1].text_frame
+tf.text = "Twelve percent against twenty-six"
+tf.paragraphs[0].font.size = Pt(9)
+para_sized = TMP / "paragraph_size.pptx"
+prs.save(str(para_sized))
+shapes, _n, _w, _h = tells.read_deck(para_sized)
+sized = by_text(shapes[0], "Twelve percent against twenty-six")
+if sized is None or sized.max_pt != 9.0:
+    fails.append(f"a 9-pt paragraph default was read as {sized.max_pt if sized else None} pt")
+
+# A placeholder whose layout cannot be found has no position: reported, never silently empty.
+orphan = TMP / "no_layout_rel.pptx"
+with zipfile.ZipFile(inherited_deck) as zin, zipfile.ZipFile(orphan, "w") as zout:
+    for n in zin.namelist():
+        data = zin.read(n)
+        if n == "ppt/slides/_rels/slide1.xml.rels":
+            data = re.sub(rb'<Relationship [^>]*slideLayout[^>]*/>', b"", data)
+        zout.writestr(n, data)
+shapes, _n, _w, _h = tells.read_deck(orphan)
+if shapes[0]:
+    fails.append("placeholders were given a position although the slide has no layout relationship")
+if "ZERO_AREA_TEXT" not in verdicts(orphan):
+    fails.append("text in placeholders with nothing to inherit from was dropped without ZERO_AREA_TEXT")
 
 # An unfilled placeholder is not on the slide: it must not become a shape.
 prs = new_deck()
@@ -242,8 +274,9 @@ s.shapes.title.text = "Ablation halved local recurrence"
 unfilled = TMP / "unfilled.pptx"
 prs.save(str(unfilled))
 shapes, _n, _w, _h = tells.read_deck(unfilled)
-if len(shapes[0]) != 1:
-    fails.append(f"an empty body placeholder was read as a shape ({len(shapes[0])} shapes, expected 1)")
+if [sh.text for sh in shapes[0]] != ["Ablation halved local recurrence"]:
+    fails.append("with the body placeholder left empty, the slide should read as its title alone; "
+                 f"got {[sh.text for sh in shapes[0]]}")
 
 # A partial <a:xfrm> on the slide is still the half-finished assignment ZERO_AREA_TEXT reports.
 prs = new_deck()
@@ -254,6 +287,64 @@ partial = TMP / "partial.pptx"
 prs.save(str(partial))
 if "ZERO_AREA_TEXT" not in verdicts(partial):
     fails.append("a title with a partial <a:xfrm> no longer reports ZERO_AREA_TEXT")
+shapes, _n, _w, _h = tells.read_deck(partial)
+if shapes[0]:
+    fails.append("a title with a partial <a:xfrm> was measured from the layout instead of being "
+                 f"left unmeasurable: {[sh.text for sh in shapes[0]]}")
+
+# The bundled template is where the chain is longest: its Content body is written on the layout
+# as <p:ph idx="1"/> with no type, position or size, and takes all three from the master; its
+# sizes sit in the master's text styles by paragraph level; Key Finding sets its large number in
+# the layout placeholder's own list style. Absolute values, so a wrong lookup cannot agree with itself.
+TEMPLATE = Path(__file__).resolve().parents[1] / "templates" / "slide_template" / "medsci_slides.pptx"
+prs = Presentation(str(TEMPLATE))
+lay = {layout.name: layout for layout in prs.slide_layouts}
+s = prs.slides.add_slide(lay["Content"])
+slots = {ph.placeholder_format.idx: ph for ph in s.placeholders}
+slots[0].text_frame.text = "Ablation halved local recurrence"
+tf = slots[1].text_frame
+tf.text = "Level one line"
+para = tf.add_paragraph()
+para.text, para.level = "Level two line", 1
+s = prs.slides.add_slide(lay["Content"])
+slots = {ph.placeholder_format.idx: ph for ph in s.placeholders}
+slots[0].text_frame.text = "Twelve percent against twenty-six"
+slots[20].text_frame.text = "Section label"
+tf = slots[1].text_frame
+tf.text = "Only a level two line"
+tf.paragraphs[0].level = 1
+s = prs.slides.add_slide(lay["Key Finding"])
+slots = {ph.placeholder_format.idx: ph for ph in s.placeholders}
+slots[0].text_frame.text = "Recurrence fell by half"
+slots[13].text_frame.text = "12%"
+template_deck = TMP / "template_filled.pptx"
+prs.save(str(template_deck))
+shapes, _n, w_emu, h_emu = tells.read_deck(template_deck)
+want = {
+    (0, "Ablation halved local recurrence"): 28.0,          # master titleStyle
+    (0, "Level one line\nLevel two line"): 22.0,            # master bodyStyle, level 1 (the larger)
+    (1, "Only a level two line"): 20.0,                      # master bodyStyle, level 2
+    (1, "Section label"): 20.0,                              # the layout placeholder's list style
+    (2, "12%"): 115.0,                                       # the layout placeholder's own list style
+}
+for (i, text), pt in want.items():
+    sh = by_text(shapes[i], text)
+    if sh is None:
+        fails.append(f"template slide {i + 1}: {text!r} was not read (texts: {[x.text for x in shapes[i]]})")
+    elif sh.max_pt != pt:
+        fails.append(f"template slide {i + 1}: {text!r} read as {sh.max_pt} pt, the template sets {pt}")
+    elif not (0 < sh.cx <= w_emu and 0 < sh.cy <= h_emu):
+        fails.append(f"template slide {i + 1}: {text!r} has no usable geometry ({sh.cx} x {sh.cy})")
+number = by_text(shapes[2], "12%")
+if number is not None and number.y != Inches(1.75):
+    fails.append(f"the Key Finding number sits at y={number.y}; its layout placeholder puts it at "
+                 f"{Inches(1.75)} (a position taken from the master body instead?)")
+two_level = by_text(shapes[0], "Level one line\nLevel two line")
+if two_level is not None and two_level.min_pt != 20.0:
+    fails.append(f"the smallest size of a level-1 plus level-2 body read as {two_level.min_pt}, not 20")
+if len(shapes[0]) != 2:
+    fails.append("the Content slide should read as title and body only; the empty section-name "
+                 f"slot must not be counted (got {[x.text for x in shapes[0]]})")
 
 # Type below the floor in a template-filled placeholder is now seen.
 prs = new_deck()
@@ -311,6 +402,38 @@ path = TMP / "empty_title_placeholder.pptx"
 prs.save(str(path))
 if topic_fired(path) != [1]:
     fails.append("a filing label in a text box passed because the title placeholder was left empty")
+
+# A hidden title placeholder is not the headline: the visible label is.
+prs = new_deck()
+s = titled_slide(prs, "Ablation halved local recurrence", lambda sl: (textbox(sl, "Results", 0.2, 60),
+                                                                    textbox(sl, "Local recurrence 12% against 26%", 5.5, 24)))
+s.shapes.title._element.nvSpPr.cNvPr.set("hidden", "1")
+path = TMP / "hidden_title.pptx"
+prs.save(str(path))
+if topic_fired(path) != [1]:
+    fails.append("a hidden sentence title kept a visible 'Results' label from firing TOPIC_TITLE")
+
+# A label title over one table and a page number is a content slide, as it was before.
+prs = new_deck()
+s = prs.slides.add_slide(prs.slide_layouts[6])
+textbox(s, "Results", 0.4, 40)
+s.shapes.add_table(2, 2, Inches(0.7), Inches(1.6), Inches(11.5), Inches(3))
+textbox(s, "7", 6.9, 12)
+path = TMP / "label_table_pagenumber.pptx"
+prs.save(str(path))
+if topic_fired(path) != [1]:
+    fails.append("'Results' over a table and a page number stopped firing TOPIC_TITLE")
+
+# Numbers typed as content are a body.
+prs = new_deck()
+s = prs.slides.add_slide(prs.slide_layouts[6])
+textbox(s, "Results", 0.4, 40)
+textbox(s, "87", 4.2, 36)      # below the upper half and smaller than the label: the label is the headline
+textbox(s, "2026", 5.6, 36)
+path = TMP / "label_two_numbers.pptx"
+prs.save(str(path))
+if topic_fired(path) != [1]:
+    fails.append("'Results' over two large numbers stopped firing TOPIC_TITLE")
 
 # A divider: a label title with its number and nothing else is allowed to be a label.
 prs = new_deck()

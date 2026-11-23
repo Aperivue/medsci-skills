@@ -12,8 +12,10 @@
   master, and the type size of each run through the list styles of the slide, the layout
   placeholder, the master placeholder and the master's title and body text styles. A placeholder
   left empty is not counted; a partial position written on the slide still reports
-  `ZERO_AREA_TEXT`. Not read: a shrink-to-fit scale, and the default size of a free text box.
-  Expect new findings on decks that passed only because their text was not seen.
+  `ZERO_AREA_TEXT`, and so now does placeholder text whose layout or master cannot be found. The
+  type floor is applied to the smallest run in a block, so a 9-pt run no longer passes beside a
+  larger one; a hidden shape is not read. Not read: a shrink-to-fit scale, and the default size of
+  a free text box. Expect new findings on decks that passed only because their text was not seen.
 - **`/present-paper`: `TOPIC_TITLE` reads the slide's title placeholder.** The headline was taken to
   be the largest type in the upper half of the slide, which picked a large number under a sentence
   title, or a small label when the title's size was inherited. A title placeholder with text in it is

@@ -4618,8 +4618,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget.py",
-      "size": 16210,
-      "sha256": "fa0353b6b651294720a9c077465c020135ac1e6b644e6d284e0cd16cb24db43b"
+      "size": 16313,
+      "sha256": "722d910e13c456313ce1dc1edf13c5f59dcc27c25642e6b2b393975db301f28d"
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget_challenge/make_fixtures.py",
@@ -4663,8 +4663,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_slide_tells.py",
-      "size": 42003,
-      "sha256": "aae20c762ad8942693dc37a5c12f113db293b477b995b3529ac6458353787bc1"
+      "size": 45084,
+      "sha256": "9620ee85a4fdf1a3761a2108348c9bc2411cbd3ea3a6a109a7040679b3f43cd3"
     },
     {
       "path": "skills/present-paper/scripts/check_slide_tells_challenge/make_fixtures.py",
