@@ -70,6 +70,9 @@ the box has no band. `check_slide_tells.py` reads a section name that sits on mo
 repeated edge text and may report it; if the band is what you want, record that finding as
 overruled with the reason.
 
+The repository's first demo (`demo/01_wisconsin_bc/presentation/`) is a nine-slide talk built this
+way, with the same three slides shown plain and banded.
+
 The Section divider is the palette's section colour with a number, a title and one line. Closing
 carries the conclusion in one line and a contact line; the last slide stays up during questions,
 so it says the finding, not "thank you".

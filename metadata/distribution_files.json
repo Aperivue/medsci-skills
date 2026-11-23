@@ -4733,8 +4733,8 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/README.md",
-      "size": 21793,
-      "sha256": "0b4043149ba819bb3b1a2fa2e281f556d9fde5405015ccbf443a5773d9104dc5"
+      "size": 21949,
+      "sha256": "6dfc1593d6fc50f0f4bd85685dee501d5f0501f1d596ec917d5e078dd05d9adb"
     },
     {
       "path": "skills/present-paper/templates/slide_template/build_handout_template.py",
