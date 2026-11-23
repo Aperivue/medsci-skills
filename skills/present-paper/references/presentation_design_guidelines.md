@@ -37,13 +37,27 @@ Phase 3.5 slide critic scores against them.
 
 - **30–35% of every content slide should be empty.** Negative space focuses attention
   and reads as confident, not unfinished.
-- Consistent margins and a single alignment grid. One coral/accent element per slide,
+- Consistent margins and a single alignment grid. One or two accented elements per slide,
   not five.
 
 ## 4. Color — restraint + accessibility (non-negotiable for medical talks)
 
-- **Two to three colors maximum** per deck: one neutral background, one primary
-  (text/structure), one accent (reserved for the single thing that matters on a slide).
+- **A neutral background, one text colour, and at most two accents** per deck. Each accent
+  means one thing from the first slide to the last: the first marks the point of the slide, the
+  second what it is set against (the comparator, the exception, the caution). The colour of a
+  term in the text is the colour of its curve, bar, arrow or table cell. Colour is never the only
+  carrier: the two accents can look alike to a colour-blind reader and do in a greyscale print,
+  so the wording, the position or a label says the same thing.
+- **Emphasise with colour before weight.** A phrase in the accent colour is found at a glance; a
+  bold phrase in the text colour is found only by reading. Mark a phrase, not a sentence, and not
+  more than one or two phrases a slide: when half the slide is coloured, nothing is.
+- **A slide of text alone gets one thing to look at, taken from the study.** A small table of the
+  actual values, the paper's own panel, a plot drawn from the data. Not a row of three or four
+  oversized numbers with captions, which reads as a dashboard and as generated (see
+  `ai_slide_tells.md` §3), and not an icon or stock picture that carries no information.
+- **Short lines do not wrap.** A take-home line, a headline or a label set in large type is cut
+  until it fits on one line; a stray last word on a second line is the first thing the eye lands
+  on. In a two-column arrangement the column of short names is the narrow one.
 - **Contrast ≥ 4.5:1** for all body text (WCAG AA). Dark text on off-white, or light
   text on deep navy — never mid-gray on white.
 - **Do not encode meaning by red/green alone.** ~8% of men have red-green color
@@ -131,7 +145,7 @@ Phase 3.5 slide critic scores against them.
 | G2 | One idea per slide | ≤ 2 assertions; ≤ 6 body lines |
 | G3 | 24-pt floor | Body ≥ 24 pt; nothing the audience must read < 24 pt |
 | G4 | Negative space | ≥ ~30% of the slide is empty |
-| G5 | Color restraint | ≤ 3 colors; 1 accent use per slide |
+| G5 | Color restraint | ≤ 2 accents in the deck, each with one meaning; 1–2 accented phrases per slide |
 | G6 | CVD-safe | No meaning by red/green alone (redundant letter/shape, or Okabe–Ito) |
 | G7 | Contrast | Body text ≥ 4.5:1 on its background |
 | G8 | Tables redrawn | No raw journal-table screenshot; ≤ 5×5 native |

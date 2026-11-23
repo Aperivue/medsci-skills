@@ -4,6 +4,20 @@
 
 ### Added
 
+- **`/present-paper`: two accent colours, a set from your own main colours, and the questions that
+  choose them.** Every palette of the slide template now has a second accent (amber with `mono`,
+  teal with `stone`, plum with `pine`); `put_rich` writes it from `[[2|words]]` and
+  `set_cell(..., accent=2)` puts it in a table cell. `--main HEX [--second HEX]` on
+  `build_slide_template.py` and `new_deck.py` works a whole set out from one or two colours:
+  lightness is adjusted until every pair passes the contrast check, a missing second colour is
+  chosen away from the first without pairing red and green, and `--show-palette` prints the
+  result. When there is no institutional template the skill now asks for the main colours and
+  whether to use the section band before it builds, and offers the older fixed styles only when
+  named. The guidelines say: emphasis by colour before weight, each accent with one meaning for
+  the deck, a text-only slide gets a table or figure from the study and not a row of oversized
+  numbers, and short lines do not wrap. `medsci_slides.pptx` is rebuilt (theme accents 4 and 5
+  changed).
+
 - **`/present-paper`: choose the palette and an optional section band when a deck is started.**
   `new_deck.py OUT.pptx --palette pine --band` builds that variant of the slide template on the
   spot. `--band` (also on `build_slide_template.py`) turns the section name on the white layouts

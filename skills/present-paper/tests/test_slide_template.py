@@ -368,6 +368,68 @@ class SlideTemplate(unittest.TestCase):
         potx, _ = t.build(self.root / "pine", "pine")
         self.assertNotEqual(parts(potx), parts(self.builds[0][0]))
 
+    def test_a_set_from_one_or_two_main_colours(self):
+        from pptx import Presentation
+        A = "{%s}" % t.NS_A
+        for main, second in (("1D6A4F", None), ("0050C8", None), ("C8102E", None), ("FFD400", None),
+                             ("808080", None), ("003876", "F2A900"), ("#5b2c83", "00A3AD")):
+            pal = t.resolve_palette("mono", t.derive_palette(main, second))      # raises if any pair fails
+            self.assertEqual(set(pal), set(t.ROLES))
+            self.assertAlmostEqual(t._hls(pal["accent"])[0], t._hls(t.norm_hex(main))[0], places=2)   # hue kept
+            if second:
+                self.assertAlmostEqual(t._hls(pal["accent_alt"])[0], t._hls(t.norm_hex(second))[0], places=2)
+            self.assertFalse(t._red_green(t._hls(pal["accent"])[0], t._hls(pal["accent_alt"])[0]), main)
+        self.assertEqual(t.derive_palette("0050C8")["accent"], "0050C8")           # readable as given: kept
+        self.assertNotEqual(t.derive_palette("FFD400")["accent"], "FFD400")        # too light on white: darkened
+        self.assertEqual(t.derive_palette("0050C8"), t.derive_palette("#0050c8"))
+        for orange in ("B84B14", "E65E19", "997766", "FF6600"):                    # the chosen second is no green
+            pal = t.derive_palette(orange)
+            self.assertEqual(t.accent_pair_problems(pal), ([], []), orange)
+        with self.assertRaises(t.PaletteError):
+            t.derive_palette("blue")
+        for edge in ("FFFFFF", "000000", "FEFEFE"):                                # the ends of the scale still resolve
+            t.resolve_palette("mono", t.derive_palette(edge))
+            t.resolve_palette("mono", t.derive_palette("0050C8", edge))
+        for same in (("0050C8", "0050C8"), ("0050C8", "0A58D0"), ("808080", "777777")):
+            with self.assertRaises(t.PaletteError):
+                t.derive_palette(*same)
+        errors, warnings = t.accent_pair_problems(t.derive_palette("C8102E", "00843D"))   # allowed, with a note
+        self.assertEqual((errors, len(warnings)), ([], 1))
+        for name, pal in t.PALETTES.items():
+            self.assertEqual(t.accent_pair_problems(pal), ([], []), name)
+        deck = new_deck.make_deck(self.root / "own.pptx", "conference-oral", main="5B2C83", second="00A3AD")
+        theme = parts(deck)["ppt/theme/theme1.xml"].decode()
+        pal = t.derive_palette("5B2C83", "00A3AD")
+        for slot, role in (("accent1", "accent"), ("accent2", "accent_dk"), ("accent4", "accent_alt"),
+                           ("accent5", "accent_alt_dk")):
+            self.assertIn(f'<a:{slot}><a:srgbClr val="{pal[role]}"/></a:{slot}>', theme)
+        for bad in (dict(second="00A3AD"), dict(main="5B2C83", palette="pine"),
+                    dict(main="5B2C83", template=self.builds[0][0])):
+            with self.assertRaises(ValueError):
+                new_deck.make_deck(self.root / "bad.pptx", **bad)
+        self.assertFalse((self.root / "bad.pptx").exists())
+        # the second accent through the helpers, on white and on black
+        prs = Presentation(deck)
+        lay = {l.name: l for l in prs.slide_layouts}
+
+        def colours(shape):
+            return [(r.text, r._r.find(f"{A}rPr/{A}solidFill/{A}schemeClr").get("val"))
+                    for p in shape.text_frame.paragraphs for r in p.runs
+                    if r._r.find(f"{A}rPr/{A}solidFill/{A}schemeClr") is not None]
+        for name, want in (("Content", ("accent1", "accent4")), ("Imaging · Content", ("accent2", "accent5"))):
+            s = prs.slides.add_slide(lay[name])
+            body = {p.placeholder_format.idx: p for p in s.placeholders}[1]
+            new_deck.put_rich(body, "the [[index test]] against the [[2|reference]] in {{braces}} and \\frac{{a}}{b}")
+            self.assertEqual(colours(body), [("index test", want[0]), ("reference", want[1])], name)
+            self.assertEqual(body.text_frame.text, "the index test against the reference in {{braces}} and \\frac{{a}}{b}")
+        ts = prs.slides.add_slide(lay["Result · Table"])
+        tbl = t.plain_table({p.placeholder_format.idx: p for p in ts.placeholders}[21], 2, 2, ["a", "b"])
+        t.set_cell(tbl, 1, 0, "0.91", accent=1)
+        t.set_cell(tbl, 1, 1, "0.80", accent=2)
+        self.assertEqual(colours(tbl.cell(1, 0)) + colours(tbl.cell(1, 1)), [("0.91", "accent1"), ("0.80", "accent4")])
+        with self.assertRaises(ValueError):
+            t.set_cell(tbl, 1, 1, "x", accent=3)
+
     def test_custom_palette_accepted_and_bad_ones_rejected(self):
         pal = t.resolve_palette("mono", {"accent": "#1d6a4f", "ink": "222222"})
         self.assertEqual((pal["accent"], pal["ink"]), ("1D6A4F", "222222"))

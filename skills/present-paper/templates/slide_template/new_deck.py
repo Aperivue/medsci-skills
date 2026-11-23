@@ -9,6 +9,7 @@
     python3 new_deck.py OUT.pptx --type case-conference   case / imaging conference
     python3 new_deck.py OUT.pptx --type procedure         procedure or technique talk
     --palette mono|stone|pine                             colours (default mono, the shipped template)
+    --main HEX [--second HEX]                             or a set worked out from your one or two main colours
     --band                                                section name as a slim band across the top of the
                                                           white slides (default: no band); a starter
                                                           writes <Section> where it has no name. Give
@@ -45,7 +46,8 @@ from pptx.util import Emu, Inches, Pt
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from build_slide_template import (DEFAULT_PALETTE, MARGIN, NS_A, NSDECL, PALETTES, SOURCE_Y, TEMPLATE_NAME,  # noqa: E402
-                                  OutputExists, PaletteError, _text_colour, accent_name, build, luminance, on_dark,
+                                  OutputExists, PaletteError, _text_colour, accent_name, build, derive_palette, luminance,
+                                  on_dark,
                                   plain_table, post_process, publish, put_lines, refuse_existing, set_cell,
                                   theme_fonts)
 
@@ -258,27 +260,31 @@ def fill(shape, value):
     set_lang(shape.text_frame)
 
 
-# **bold** and [[accent]]. Bold needs both asterisks on each side, so a lone asterisk in an allele name
-# (DRB1*07:01) or a footnote mark is left alone, and **DRB1*04:02** is one bold span.
+# **bold**, [[first accent]] and [[2|second accent]]. Bold needs both asterisks on each side, so a lone
+# asterisk in an allele name (DRB1*07:01) or a footnote mark is left alone, and **DRB1*04:02** is one bold span.
+# Braces are not marks: LaTeX and template syntax on a methods slide pass through untouched.
 EMPHASIS = re.compile(r"(\*\*(?:(?!\*\*).)+?\*\*|\[\[(?:(?!\]\]).)+?\]\])")
+SECOND = "2|"
 
 
 def put_rich(shape, lines, emphasis=True):
     """Text into a placeholder, like fill(), with two marks turned into runs:
 
         **words**     bold
-        [[words]]     bold, in the deck's accent colour (accent 1 on white slides, accent 2 on black ones)
+        [[words]]     bold, in the deck's first accent colour
+        [[2|words]]   bold, in the second accent colour
 
-    The colour is written as a theme colour, so it follows the palette. Unmarked text keeps whatever weight the
-    placeholder gives it. emphasis=False drops the marks and writes plain text, for a build without emphasis.
-    Spend the accent once per slide: two accented phrases on a slide compete.
+    The colours are written as theme colours (accent 1 and 4 on white slides, 2 and 5 on black ones), so they
+    follow the palette. Unmarked text keeps whatever weight the placeholder gives it. emphasis=False drops
+    the marks and writes plain text, for a build without emphasis. Give each colour one meaning for the whole
+    deck (the point; what it is set against) and mark a phrase, not a sentence.
 
     lines is a string or a list of "text" / (level, "text"), as for fill(); a newline starts a paragraph and a
     vertical tab a line break. Marks do not nest, and an unclosed mark stays as typed. Written for decks on
-    the medsci template, whose theme puts the two accents in accent 1 and accent 2."""
+    the medsci template, whose theme holds the accents in accent 1, 2, 4 and 5."""
     tf = shape.text_frame
     tf.clear()
-    accent = accent_name(shape.part)
+    accents = (accent_name(shape.part, 1), accent_name(shape.part, 2))
     items = [lines] if isinstance(lines, str) else list(lines)
     k = 0
     for item in items:
@@ -289,7 +295,9 @@ def put_rich(shape, lines, emphasis=True):
             k += 1
             for n, part in enumerate(EMPHASIS.split(line)):
                 marked = n % 2 == 1                    # re.split with one group: the matches are the odd items
-                for m, piece in enumerate((part[2:-2] if marked else part).split("\v")):
+                inner = part[2:-2] if marked else part
+                second = marked and part.startswith("[[" + SECOND) and len(inner) > len(SECOND)
+                for m, piece in enumerate((inner[len(SECOND):] if second else inner).split("\v")):
                     if m:
                         p.add_line_break()
                     if not piece:
@@ -299,7 +307,7 @@ def put_rich(shape, lines, emphasis=True):
                     if marked and emphasis:
                         run.font.bold = True
                         if part.startswith("[["):
-                            _text_colour(run._r.get_or_add_rPr(), accent)
+                            _text_colour(run._r.get_or_add_rPr(), accents[1 if second else 0])
     set_lang(tf)
 
 
@@ -451,18 +459,24 @@ def starter(out, spec):
     post_process(out)
 
 
-def make_deck(out, kind="blank", template=None, force=False, palette=None, band=False):
+def make_deck(out, kind="blank", template=None, force=False, palette=None, band=False, main=None, second=None):
     """Write a new deck to out: a .pptx, or a PowerPoint template if out ends in .potx. It is built under a temporary name in the same folder and moved into
     place when complete. An existing out stops the run unless force is given; the template itself is never
     replaced. A symbolic link at out is replaced by the deck, not followed.
 
-    palette (mono, stone, pine) and band choose a variant of the medsci template, built on the spot; with
-    neither, the deck starts from the shipped file. They cannot be combined with another template."""
+    palette (mono, stone, pine), main with an optional second (one or two main colours, from which the set is
+    worked out) and band choose a variant of the medsci template, built on the spot; with none of them the
+    deck starts from the shipped file. They cannot be combined with another template."""
     out = Path(out)
-    variant = band or (palette is not None and palette != DEFAULT_PALETTE)
-    if template is not None and (band or palette is not None):
-        raise ValueError("--palette and --band build a variant of the medsci template; they cannot be combined "
-                         "with --template")
+    variant = band or main is not None or (palette is not None and palette != DEFAULT_PALETTE)
+    if template is not None and (band or palette is not None or main is not None or second is not None):
+        raise ValueError("--palette, --main and --band build a variant of the medsci template; they cannot be "
+                         "combined with --template")
+    if second is not None and main is None:
+        raise ValueError("--second is the second accent of a set made with --main; give --main too")
+    if main is not None and palette is not None:
+        raise ValueError("give --palette or --main, not both")
+    overrides = derive_palette(main, second) if main is not None else None
     if palette is not None and palette not in PALETTES:
         raise ValueError(f"unknown palette {palette!r}; choose one of {', '.join(sorted(PALETTES))}")
     template = Path(template) if template is not None else HERE / TEMPLATE_NAME
@@ -476,7 +490,7 @@ def make_deck(out, kind="blank", template=None, force=False, palette=None, band=
         tmp = Path(work) / out.name
         if variant:
             vdir = Path(work) / "variant"
-            template, _ = build(vdir, palette or DEFAULT_PALETTE, force=True, band=band)
+            template, _ = build(vdir, palette or DEFAULT_PALETTE, overrides, force=True, band=band)
         blank(Path(template), tmp)
         if kind != "blank":
             starter(tmp, STARTERS[kind])
@@ -491,13 +505,15 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--type", choices=["blank"] + list(STARTERS), default="blank")
     ap.add_argument("--palette", choices=sorted(PALETTES), help=f"colours (default {DEFAULT_PALETTE})")
+    ap.add_argument("--main", metavar="HEX", help="your main colour; the rest of the set is worked out from it")
+    ap.add_argument("--second", metavar="HEX", help="your second colour, with --main (default: chosen from --main)")
     ap.add_argument("--band", action="store_true",
                     help="section name as a band across the top of the white slides (default: no band)")
     ap.add_argument("--template", help=f"another empty template (default: {TEMPLATE_NAME} beside this file)")
     ap.add_argument("--force", action="store_true", help="replace OUT if it exists")
     a = ap.parse_args()
     try:
-        print(make_deck(a.out, a.type, a.template, a.force, a.palette, a.band))
+        print(make_deck(a.out, a.type, a.template, a.force, a.palette, a.band, a.main, a.second))
     except (OutputExists, ValueError, PaletteError) as e:
         raise SystemExit(str(e))
 

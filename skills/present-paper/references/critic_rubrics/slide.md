@@ -39,8 +39,8 @@ item. Return the scored rubric + edit list to the user.
 ## C. Visual hierarchy (Knaflic preattentive)
 
 10. **Size hierarchy** — title > subtitle > body > caption (≥ 4 pt step between levels).
-11. **Color carries meaning** — accent color used on the one element that matters; rest
-    is neutral. Colors ≤ 3 + 1 accent.
+11. **Color carries meaning** — an accent color on the one or two elements that matter; rest
+    is neutral. At most two accents in the deck, each meaning one thing throughout.
 12. **Position priority** — conclusion / take-home placed at slide top, not bottom.
 13. **Direct labels on chart series** — legend only when ≥ 4 series; otherwise label
     each curve / bar / wedge directly.

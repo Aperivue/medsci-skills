@@ -6,7 +6,7 @@ A 10-minute `conference_oral` talk built on the medsci slide template
 ![The nine slides](contact_sheet.png)
 
 `build_deck.py` starts the deck with `new_deck.make_deck(palette="pine", band=True)` and fills it by
-layout name and placeholder idx: `put_rich` for the accent-colour spans, `fit_picture` for the
+layout name and placeholder idx: `put_rich` for the spans in the two accent colours, `fit_picture` for the
 figures the analysis already produced, `plain_table` and `set_cell(accent=True)` for the table.
 `make_deck.sh` builds it and runs the two gates this repository requires of a deck:
 
