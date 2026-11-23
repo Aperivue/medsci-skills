@@ -34,6 +34,7 @@ data = load_breast_cancer()  # 569 samples, zero download
 | [Confusion Matrices](../demo/01_wisconsin_bc/analysis/figures/confusion_matrices.png) | Per-model confusion matrices at threshold 0.5 |
 | [STARD Flow](../demo/01_wisconsin_bc/figures/stard_flow.svg) | D2-generated STARD 2015 flow diagram |
 | [Reporting Checklist](../demo/01_wisconsin_bc/qc/reporting_checklist.md) | STARD 2015 — 60.9% compliance (14/23 applicable) |
+| [Talk](../demo/01_wisconsin_bc/presentation/) | 10-minute conference deck on the medsci slide template, shown plain and with the section band |
 | [Self-Review](../demo/01_wisconsin_bc/qc/self_review.md) | Initial 82 (REVISE) → 88 (PASS) after 1 fix iteration; final 0 major / 1 minor |
 | [Pipeline Log](../demo/01_wisconsin_bc/qc/_pipeline_log.md) | 7-step E2E execution trace |
 

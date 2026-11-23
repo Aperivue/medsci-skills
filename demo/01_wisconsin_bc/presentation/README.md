@@ -1,20 +1,35 @@
-# Presentations
+# Presentation
 
-One 10-minute `conference_oral` talk per demo. Each is built by `build_deck.py` and checked by
-`make_deck.sh`, which runs the two gates this repository requires of a deck:
+A 10-minute `conference_oral` talk built on the medsci slide template
+(`skills/present-paper/templates/slide_template/`), pine palette, with the optional section band.
 
-- `check_slide_tells.py` — the marks that make a deck read as machine-made: chrome on every slide,
-  scaffolding sentences, section-label titles instead of findings, repeated identical shapes,
-  unlabelled arrows.
-- `check_deck_budget.py` — words per slide, slides per minute and a font floor, against the
+![The nine slides](contact_sheet.png)
+
+`build_deck.py` starts the deck with `new_deck.make_deck(palette="pine", band=True)` and fills it by
+layout name and placeholder idx: `put_rich` for the bold and accent spans, `fit_picture` for the
+figures the analysis already produced, `plain_table` and `set_cell(accent=True)` for the table.
+`make_deck.sh` builds it and runs the two gates this repository requires of a deck:
+
+- `check_slide_tells.py`: the marks that make a deck read as machine-made.
+- `check_deck_budget.py`: words per slide, slides per minute and a type-size floor, against the
   archetype declared in `deck.qc`.
 
 **Every number on every slide is read from the shipped artifacts at build time.** There are no
-typed-in figures in the deck scripts; change a result and the deck changes with it. Titles state
-the finding rather than naming the section, and figures are the ones the analysis already produced.
+typed-in figures in the deck script; change a result and the deck changes with it. Titles state
+the finding, and the figures are the ones the analysis produced.
 
-Speaker notes are Korean narrative prose, per the presenter's convention; slide bodies are English.
+Slide text is English; speaker notes are Korean prose, per the presenter's convention.
 
 ```bash
-bash make_deck.sh          # build + both gates
+bash make_deck.sh                              # build + both gates
+python3 build_deck.py --plain plain.pptx       # the same slides without the band
 ```
+
+## Plain or banded
+
+The template's default has no band. The same three slides, same palette and emphasis, with and
+without `--band`:
+
+![Plain against banded](plain_vs_band.png)
+
+Both images are PowerPoint renders of the built decks.

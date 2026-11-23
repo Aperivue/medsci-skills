@@ -17,6 +17,13 @@
   lectures that hold a room have in common; the design guidelines allow a talk about your own
   paper to show its panels when they are legible.
 
+### Changed
+
+- **Demo 1's talk is rebuilt on the medsci slide template.** `demo/01_wisconsin_bc/presentation/`
+  now starts from `new_deck.py` (pine palette, section band) and uses the template's helpers; nine
+  slides for ten minutes, every number still read from the analysis tables. The folder gains a
+  contact sheet and a plain-against-banded image of three slides, both PowerPoint renders.
+
 ### Fixed
 
 - **`/present-paper`: the deck checks now measure text in template placeholders.** A slide filled
