@@ -241,32 +241,31 @@ def derive_palette(main, second=None):
     The result is checked like any palette (resolve_palette) before use."""
     main = norm_hex(main, "main")
     h, _, sat = _hls(main)
-    if second is None:
-        for turn in (150, 210, 240):                      # judged on the colour made, after rounding to hex
-            h2 = (h + turn / 360) % 1.0
-            if h2 >= 335 / 360 or h2 <= 20 / 360:         # a red reads as an error mark, and blue with red as a
-                h2 = 38 / 360                             # stock look: take amber in its place
-            second = _hex(h2, 0.36, min(max(sat, 0.35), 0.60))
-            far = min(abs(h - h2), 1 - abs(h - h2)) * 360 >= 60
-            if far and not _red_green(h, _hls(second)[0]):
-                break
-        else:                                             # a warm or green main at an edge: blue is far from both
-            second = _hex(215 / 360, 0.36, min(max(sat, 0.35), 0.60))
-    else:
-        second = norm_hex(second, "second")
     k, w = FIXED["black"], FIXED["white"]
 
     def on_black(hexv):
         hh, _, ss = _hls(hexv)
         return _toward(_hex(hh, 0.66, min(ss, 0.75)), k, margin=2.5)
 
-    pal = dict(ink=_hex(h, 0.09, min(sat, 0.10)), section=_hex(h, 0.14, min(sat, 0.30)),
-               accent=_toward(main, w), accent_dk=on_black(main), accent_alt=_toward(second, w),
-               accent_alt_dk=on_black(second), muted=_hex(h, 0.40, min(sat, 0.06)),
-               paper=_hex(h, 0.965, min(sat, 0.25)))
-    errors, _ = accent_pair_problems(pal)
-    if errors:
-        raise PaletteError("; ".join(errors))
+    def made(second_hex):
+        return dict(ink=_hex(h, 0.09, min(sat, 0.10)), section=_hex(h, 0.14, min(sat, 0.30)),
+                    accent=_toward(main, w), accent_dk=on_black(main), accent_alt=_toward(second_hex, w),
+                    accent_alt_dk=on_black(second_hex), muted=_hex(h, 0.40, min(sat, 0.06)),
+                    paper=_hex(h, 0.965, min(sat, 0.25)))
+
+    if second is not None:
+        pal = made(norm_hex(second, "second"))
+        errors, _ = accent_pair_problems(pal)
+        if errors:
+            raise PaletteError("; ".join(errors))
+        return pal
+    pal = None
+    for hue in ((h + 150 / 360) % 1.0, (h + 210 / 360) % 1.0, (h + 240 / 360) % 1.0, 215 / 360, 38 / 360, 285 / 360):
+        if hue >= 335 / 360 or hue <= 20 / 360:          # a red reads as an error mark, and blue with red as a
+            hue = 38 / 360                                # stock look: take amber in its place
+        pal = made(_hex(hue, 0.36, min(max(sat, 0.35), 0.60)))
+        if accent_pair_problems(pal) == ([], []):         # judged on the colours made, after rounding
+            break
     return pal
 
 

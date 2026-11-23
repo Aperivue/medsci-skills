@@ -4743,8 +4743,8 @@
     },
     {
       "path": "skills/present-paper/templates/slide_template/build_slide_template.py",
-      "size": 76196,
-      "sha256": "5342551f3ba3b2b79f125e5d7ea79d6c5e0fbfe8f86a0592ab79b8fb28b64282"
+      "size": 76053,
+      "sha256": "596743fa23ad74d06e76170439e9da35049947df0273fc5b762a558b804eccb7"
     },
     {
       "path": "skills/present-paper/templates/slide_template/medsci_handout.docx",
