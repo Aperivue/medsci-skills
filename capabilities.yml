@@ -44,12 +44,12 @@ domains:
     overlaps:
       - verify-refs
       - obsidian-paper-vault
-    rule: Synchronizes verified bibliographic records into Zotero and notes.
+    rule: Synchronizes verified bibliographic records into Zotero and refs.bib; writes no notes.
   pdf_to_vault_notes:
     owner: obsidian-paper-vault
     overlaps:
       - lit-sync
-    rule: Builds Obsidian literature and concept notes from a folder of PDFs; lit-sync builds the same notes from bibliographic records.
+    rule: Sole builder of Obsidian literature and concept notes, from a folder of PDFs or a Zotero collection; lit-sync owns the library and refs.bib.
   submission_packaging:
     owner: sync-submission
     overlaps:

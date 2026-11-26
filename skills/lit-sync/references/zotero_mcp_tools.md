@@ -13,6 +13,7 @@ is missing there, find the tool whose description does the same job.
 | file into collection | `zotero_set_item_collections` | `item_keys` plus `add_to` / `remove_from` | `zotero_manage_collections` |
 | create collection | `zotero_manage_collection` | `action='create'`, `name`, optional `parent_collection` | `zotero_create_collection` |
 | find collection | `zotero_search_collections`, `zotero_get_collections` | | — |
+| attachment path | `zotero_get_attachment_path` | where a stored PDF sits on disk | — |
 
 Prefer a DOI for *add item*: a URL other than doi.org or arxiv.org becomes a bare webpage item,
 which a later DOI lookup does not match. A PMID is accepted directly and yields a journal article

@@ -6,26 +6,26 @@ maturity: official
 when_to_use:
   - User wants to add PMIDs / DOIs / Zotero collection items to the project library
   - After /search-lit when verified candidates need to flow into Zotero + refs.bib
-  - Cross-cutting concept-note extraction from accumulated literature into Obsidian
+  - Adding a folder of PDFs to Zotero (dry-run list first)
   - Refreshing manuscript/_src/refs.bib via Better BibTeX auto-export before a build
   - Opt-in full-text retrieval (Phase 2.7) — disk OA PDFs via /fulltext-retrieval + in-library "Find Available PDF"
 when_NOT_to_use:
   - Pure literature search without sync (use /search-lit)
   - Hand-editing refs.bib (BBT is the sole writer; never touch the file directly)
   - Reference verification audit (use /verify-refs)
+  - Obsidian literature or concept notes (use /obsidian-paper-vault)
 inputs:
   - references/library.bib  # search-lit candidate pool (optional)
   - PMID list, DOI list, or Zotero collection name
+  - a folder of PDFs (optionally with a /fulltext-retrieval retrieval_report.json)
 outputs:
   - references/zotero_collection.json
   - references/fulltext_retrieval.json  # SOLE WRITER; opt-in Phase 2.7 retrieval report
   - manuscript/_src/refs.bib  # SOLE WRITER via Better BibTeX auto-export "Keep updated"
-  - obsidian_literature_notes
 deterministic_scripts:
   - scripts/check_citekey_provenance.py  # citekey ↔ library provenance; the rest uses Zotero MCP + Better BibTeX auto-export; Phase 2.7 invokes /fulltext-retrieval fetch_oa.py
 side_effects:
   - may_update_zotero
-  - may_write_obsidian_notes
   - refreshes_manuscript_refs_bib  # via BBT auto-export
 downstream_consumers:
   - write-paper
@@ -38,17 +38,17 @@ quality_gates:
   - bbt_auto_export_active: Better BibTeX "Keep updated" must be ON for the project collection (a SKILL.md prerequisite)
 forbidden_actions:
   - fabricate_bibliographic_metadata
-  - overwrite_existing_literature_notes
+  - add_pdfs_before_user_reviews_dry_run
   - hand_edit_manuscript_refs_bib  # only Better BibTeX may write
 
 # v2.1 quality card
-purpose: "Sync verified references from .bib into Zotero and Obsidian literature notes, extracting cross-cutting concept notes when enough literature accumulates."
+purpose: "Add verified references (.bib, DOI/PMID list or PDF folder) to Zotero without duplicates and keep refs.bib current through Better BibTeX; audit vault citekeys against the library."
 safety_boundaries:
   - "Bibliographic metadata is never fabricated; only Better BibTeX may write refs.bib."
-  - "Existing literature notes are not overwritten."
+  - "Writes no Obsidian notes (that is /obsidian-paper-vault); PDFs from a folder are added only after the user reviews a dry-run list."
 known_limitations:
   - "Depends on a connected Zotero MCP + Better BibTeX auto-export; degrades to manual without them."
-  - "No standalone demo; effects are in the user's Zotero/Obsidian."
+  - "No standalone demo; effects are in the user's Zotero library."
 validation_commands:
   - "confirm refs.bib mtime refreshed via Better BibTeX"
   - "zotero_find_duplicates after sync"

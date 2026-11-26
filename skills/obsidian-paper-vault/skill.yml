@@ -7,14 +7,15 @@ when_to_use:
   - User has a folder of research PDFs and wants Obsidian literature notes
   - Batch-summarizing papers into one consistent template
   - Building or extending a research "second brain" vault
-  - Extracting atomic concept notes once enough literature notes have accumulated
+  - Notes for papers already in a Zotero collection or a project refs.bib (stored PDFs)
+  - Concept notes across accumulated literature notes, on request
 when_NOT_to_use:
-  - Notes should come from a Zotero collection or refs.bib (use /lit-sync)
+  - Adding papers to Zotero or refreshing refs.bib (use /lit-sync)
   - Literature search without note-building (use /search-lit)
   - Downloading open-access full texts (use /fulltext-retrieval)
   - Verifying citations in a manuscript (use /verify-refs)
 inputs:
-  - a folder of PDF files
+  - a folder of PDF files, or a Zotero collection / refs.bib whose PDFs are stored in Zotero
   - vault root + literature/concept folder names (asked, never assumed)
 outputs:
   - obsidian_literature_notes
@@ -26,9 +27,9 @@ side_effects:
   - may_write_obsidian_notes
   - writes_text_cache  # ~/.local/cache/paper-vault-texts/ by default
 downstream_consumers:
-  - lit-sync  # concept-note extraction over the same vault folders
+  - lit-sync  # citekey audit over citekey-named notes
 ssot_boundary:
-  - Never overwrites an existing note. /lit-sync is the sole writer of manuscript/_src/refs.bib and of citekey-named literature notes; this skill writes title-named notes from PDFs.
+  - Never overwrites an existing note. Sole writer of literature and concept notes (title-named from a PDF folder, citekey-named from Zotero); never adds papers to Zotero or writes refs.bib (that is /lit-sync).
 quality_gates:
   - text_first: batch notes are written from extracted .txt files, never from PDF paths handed to subagents
   - filename_fidelity: every PDF embed link reproduces the source filename character for character

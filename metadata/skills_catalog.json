@@ -336,7 +336,7 @@
       "layer": "A",
       "owner_domain": "zotero_sync",
       "maturity": "official",
-      "description": "Use when references in a .bib file (often from /search-lit) should land in Zotero and Obsidian."
+      "description": "Use when references (a .bib from /search-lit, a DOI/PMID list or a PDF folder) should land in Zotero and keep the manuscript refs.bib current."
     },
     {
       "slug": "ma-scout",
@@ -435,7 +435,7 @@
       "layer": "A",
       "owner_domain": "pdf_to_vault_notes",
       "maturity": "official",
-      "description": "Use when turning a folder of research PDFs into Obsidian notes, even if Obsidian is not named."
+      "description": "Use when turning research papers into Obsidian notes, even if Obsidian is not named, from a PDF folder or a Zotero collection or refs.bib whose PDFs are in Zotero."
     },
     {
       "slug": "orchestrate",
