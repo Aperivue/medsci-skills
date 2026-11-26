@@ -439,11 +439,34 @@ def has_bibtex_et_al(author_field: str) -> bool:
     return bool(re.search(r"\s+and\s+others\s*$", re.sub(r"\s+", " ", author_field).strip(), re.I))
 
 
+_EXTENDED_NAME_KEY = re.compile(r"(?:^|,)\s*(family|given|prefix|suffix|useprefix)\s*=", re.I)
+
+
+def _extended_name_family(name: str) -> str | None:
+    """Family name from a biblatex extended name ("family=Elm, given=Erik, prefix=von, useprefix=true").
+
+    Better BibTeX writes this form for every surname with a particle (de, von, van, ó ...), so a
+    plain "Last, First" split read "family=Elm" as the surname and the audit reported a correct
+    reference as an author MISMATCH. Returns None when the name is not in this form. The particle
+    is kept in front of the family ("von Elm"), matching how a plain BibTeX name with the particle
+    parses and how CrossRef and PubMed give it.
+    """
+    if not _EXTENDED_NAME_KEY.search(name):
+        return None
+    fields: dict[str, str] = {}
+    for part in re.split(r",\s*(?=(?:family|given|prefix|suffix|useprefix)\s*=)", name, flags=re.I):
+        k, _, v = part.partition("=")
+        fields[k.strip().lower()] = v.strip().strip("{}\"").strip()
+    family = fields.get("family", "")
+    prefix = fields.get("prefix", "")
+    return f"{prefix} {family}".strip() if family else ""
+
+
 def parse_bib_authors(author_field: str) -> list:
     """Parse BibTeX author field into a list of family-name strings.
 
-    Handles "Last, First and Last, First" and "First Last and First Last" forms.
-    Strips simple LaTeX accents and braces.
+    Handles "Last, First and Last, First", "First Last and First Last" and the biblatex
+    extended form "family=..., given=..., prefix=...". Strips simple LaTeX accents and braces.
     """
     if not author_field:
         return []
@@ -454,7 +477,10 @@ def parse_bib_authors(author_field: str) -> list:
         n = name.strip()
         if not n:
             continue
-        if "," in n:
+        extended = _extended_name_family(n)
+        if extended is not None:
+            family = extended
+        elif "," in n:
             family = n.split(",", 1)[0].strip()
         else:
             toks = n.split()
@@ -478,6 +504,9 @@ def parse_first_author(raw: str) -> str:
     if bib_m:
         text = bib_m.group(1)
     text = re.split(r"\s+and\s+", text, maxsplit=1)[0]
+    extended = _extended_name_family(text)
+    if extended is not None:
+        return extended
     parts = [p.strip() for p in text.split(",") if p.strip()]
     if not parts:
         return ""

@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **`/verify-refs` no longer reports a correct reference as an author MISMATCH when an author's
+  surname has a particle.** Better BibTeX writes such names in the biblatex extended form
+  (`family=Elm, given=Erik, prefix=von, useprefix=true`); the plain `Last, First` split read
+  `family=Elm` as the surname. Every author named von, van, de, ó and the like was affected, and
+  because `render_pandoc.sh` stops on MISMATCH, so was the build. The particle is now kept in
+  front of the family (`von Elm`), as CrossRef and PubMed give it.
+
 ## [6.5.0] - 2026-11-23
 
 **Re-check two things if you used an earlier version:** (1) `/present-paper`'s deck checks used to
