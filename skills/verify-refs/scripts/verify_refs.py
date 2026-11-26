@@ -439,11 +439,15 @@ def has_bibtex_et_al(author_field: str) -> bool:
     return bool(re.search(r"\s+and\s+others\s*$", re.sub(r"\s+", " ", author_field).strip(), re.I))
 
 
-_EXTENDED_NAME_KEY = re.compile(r"(?:^|,)\s*(family|given|prefix|suffix|useprefix)\s*=", re.I)
+_EXTENDED_NAME_PART = r"(?:(?:family|given|prefix|suffix)(?:-i)?|useprefix)"
+# The form is key=value from the first part on; a plain name that merely contains "given=" is not it.
+_EXTENDED_NAME_KEY = re.compile(r"^\s*" + _EXTENDED_NAME_PART + r"\s*=", re.I)
 
 
 def _extended_name_family(name: str) -> str | None:
     """Family name from a biblatex extended name ("family=Elm, given=Erik, prefix=von, useprefix=true").
+
+    Initials parts (family-i=, given-i=, prefix-i=, suffix-i=) are separate parts, not part of a name.
 
     Better BibTeX writes this form for every surname with a particle (de, von, van, ó ...), so a
     plain "Last, First" split read "family=Elm" as the surname and the audit reported a correct
@@ -454,7 +458,7 @@ def _extended_name_family(name: str) -> str | None:
     if not _EXTENDED_NAME_KEY.search(name):
         return None
     fields: dict[str, str] = {}
-    for part in re.split(r",\s*(?=(?:family|given|prefix|suffix|useprefix)\s*=)", name, flags=re.I):
+    for part in re.split(r",\s*(?=" + _EXTENDED_NAME_PART + r"\s*=)", name, flags=re.I):
         k, _, v = part.partition("=")
         fields[k.strip().lower()] = v.strip().strip("{}\"").strip()
     family = fields.get("family", "")

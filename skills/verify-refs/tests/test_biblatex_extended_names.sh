@@ -38,6 +38,8 @@ assert p("family=Elm, given=Erik, prefix=von, useprefix=true and Altman, Douglas
 assert p("Lee, Jung Hwan and family=Hartaigh, given=Bríain, prefix=ó, useprefix=true and Rizvi, Asim") == ["Lee", "ó Hartaigh", "Rizvi"]
 assert p("family=Ferranti, given=Sarah, prefix=de, useprefix=false") == ["de Ferranti"]
 assert p("family={Smith}, given={John}") == ["Smith"]
+assert p("family=Smith-Jones, family-i=SJ, given=John, given-i=J") == ["Smith-Jones"]
+assert p("family=Elm, prefix=von, prefix-i=v, given=Erik") == ["von Elm"]
 PY
 ck "extended names parse to particle + family" 0 "$?"
 
@@ -57,6 +59,7 @@ spec = importlib.util.spec_from_file_location("vr", sys.argv[1])
 m = importlib.util.module_from_spec(spec); sys.modules["vr"] = m; spec.loader.exec_module(m)
 assert m.parse_bib_authors("Smith, John and Doe, Jane") == ["Smith", "Doe"]
 assert m.parse_bib_authors("John Smith and Jane Doe") == ["Smith", "Doe"]
+assert m.parse_bib_authors("Smith, John, given=x") == ["Smith"]  # plain name with a stray key=value part
 assert m.is_corporate_author_field("family=Elm, given=Erik, prefix=von, useprefix=true") is False
 n = m._normalize_surname
 assert n(m.parse_bib_authors("family=Elm, given=Erik, prefix=von")[0]) == n("von Elm")
