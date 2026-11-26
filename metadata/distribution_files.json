@@ -2158,8 +2158,8 @@
     },
     {
       "path": "skills/lit-sync/SKILL.md",
-      "size": 18551,
-      "sha256": "45ba031478d6b5dd41c85c61eea8b99e3611514a6b04afbfd9b8a2f7edef764b"
+      "size": 19871,
+      "sha256": "1c18c3258e34d87073fc46821f6a5378e9c3ef043f59bca157e8519f01701402"
     },
     {
       "path": "skills/lit-sync/references/bbt_lookup.md",
@@ -2180,6 +2180,11 @@
       "path": "skills/lit-sync/references/locale/ko/note_templates.md",
       "size": 2548,
       "sha256": "6b4e53770834859c8339fcf76c3c744eaf0ffbe02fb45eaad4b97f13e98ec149"
+    },
+    {
+      "path": "skills/lit-sync/references/zotero_mcp_tools.md",
+      "size": 2037,
+      "sha256": "f3f1204b0ffd742e7907ee641631684bc7acc114a5ba54fe2cf88a40280e23fc"
     },
     {
       "path": "skills/lit-sync/scripts/check_citekey_provenance.py",
@@ -3038,8 +3043,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/render_pandoc.sh",
-      "size": 7686,
-      "sha256": "1743def044ae81c741a7d9c2f640294d997f5ce2bc3935588aeba11698bbe3dc"
+      "size": 8402,
+      "sha256": "58f27ba1fae3a38636f4d8ed6bf07a895d395f94f419321e00a70d3b4a5d21b4"
     },
     {
       "path": "skills/manage-refs/scripts/strip_source_metadata.lua",

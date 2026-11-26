@@ -41,6 +41,7 @@
 - `concept_note_template.md`
 - `fulltext_report.md`
 - `locale/` (1 file)
+- `zotero_mcp_tools.md`
 
 **Scripts** (`skills/lit-sync/scripts/`):
 

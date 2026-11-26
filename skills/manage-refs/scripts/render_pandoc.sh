@@ -91,19 +91,31 @@ fi
 if [[ "$SKIP_AUDIT" -eq 0 ]]; then
   VR="${MEDSCI_VERIFY_REFS:-${SCRIPT_DIR}/../../verify-refs/scripts/verify_refs.py}"
   if [[ -f "$VR" ]] && command -v python3 >/dev/null 2>&1; then
-    echo "[render] pre-render reference audit (verify-refs) on $BIB ..." >&2
+    # The audit writes <root>/qc/reference_audit.json. Root it at the project that owns the
+    # .bib, not at the directory the render was started from: run from a parent folder, the
+    # old cwd default dropped a stray qc/ there. Walk up from the .bib to the first directory
+    # holding SSOT.yaml, .git or a manuscript/ folder; with none, use the .bib's own folder.
+    bib_dir="$(cd "$(dirname "$BIB")" && pwd)"
+    audit_root="$bib_dir"
+    d="$bib_dir"
+    while [[ -n "$d" && "$d" != "/" ]]; do
+      if [[ -e "$d/SSOT.yaml" || -e "$d/.git" || -d "$d/manuscript" ]]; then audit_root="$d"; break; fi
+      d="$(dirname "$d")"
+    done
+    audit_json="$audit_root/qc/reference_audit.json"
+    echo "[render] pre-render reference audit (verify-refs) on $BIB -> $audit_json ..." >&2
     set +e
-    audit_out="$(python3 "$VR" "$BIB")"
+    audit_out="$(python3 "$VR" "$BIB" --project-root "$audit_root")"
     audit_rc=$?
     set -e
     [[ -n "$audit_out" ]] && printf '%s\n' "$audit_out" >&2
     n_unverified="$(printf '%s\n' "$audit_out" | sed -n 's/^ *"UNVERIFIED": *\([0-9][0-9]*\).*/\1/p' | head -n 1)"
     if [[ "$audit_rc" -eq 0 && -n "$n_unverified" && "$n_unverified" != "0" ]]; then
-      echo "[render] reference audit: NOT clean — $n_unverified reference(s) UNVERIFIED (nothing confirmed them; no FABRICATED / MISMATCH found). Continuing render; confirm each by hand before submission (see qc/reference_audit.json)." >&2
+      echo "[render] reference audit: NOT clean — $n_unverified reference(s) UNVERIFIED (nothing confirmed them; no FABRICATED / MISMATCH found). Continuing render; confirm each by hand before submission (see $audit_json)." >&2
     elif [[ "$audit_rc" -eq 0 ]]; then
       echo "[render] reference audit: clean" >&2
     elif [[ "$audit_rc" -eq 1 ]]; then
-      echo "ERROR: reference audit found FABRICATED / MISMATCH / duplicate citations (see qc/reference_audit.json)." >&2
+      echo "ERROR: reference audit found FABRICATED / MISMATCH / duplicate citations (see $audit_json)." >&2
       echo "       Fix the .bib (or the Zotero record, since BBT overwrites manual .bib edits), or pass -S to skip (NOT recommended)." >&2
       exit 3
     else
