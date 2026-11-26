@@ -20,7 +20,7 @@ For each entry, collect:
 
 Entries without a PDF on disk get **no note**. List them for the user ("no PDF in Zotero: N"); the
 library side can fetch them (`/lit-sync` Phase 2.7). A note written from metadata alone is an empty
-stub, and a vault of unread stubs is what this skill replaced.
+stub with nothing for the reader to start from.
 
 ## 2. Extract text
 
@@ -46,6 +46,7 @@ these differences:
   `/lit-sync`'s citekey audit reads notes by `notetype: literature` and checks `citekey` and `doi`
   against the library.
 - **PDF line**: the PDF is not in the vault, so instead of `![[file.pdf]]` link to the item:
-  `[Open in Zotero](zotero://select/library/items/{item key})`.
+  `[Open in Zotero](zotero://select/library/items/{item key})` for the personal library, or
+  `zotero://select/groups/{group ID}/items/{item key}` for an item in a group library.
 
 Skip an entry when a note with the same citekey or DOI already exists, and report it.

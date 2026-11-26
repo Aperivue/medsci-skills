@@ -39,7 +39,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [model-card](model-card.md) — Use when a trained medical-imaging model needs its documentation. _(evidence: ci_validator)_
 - [model-scaffold](model-scaffold.md) — Use when you need a runnable PyTorch training repo for a medical-imaging task (segmentation, classification, detection, synthesis, self-supervised, or fine-tuning a pretrained backbone). _(evidence: ci_validator)_
 - [model-selection](model-selection.md) — Use when choosing the model for a medical-imaging study. _(evidence: ci_validator)_
-- [obsidian-paper-vault](obsidian-paper-vault.md) — Use when turning research papers into Obsidian notes, even if Obsidian is not named: a folder of PDFs, or a Zotero collection or refs.bib whose PDFs are in Zotero. _(evidence: manual_workflow)_
+- [obsidian-paper-vault](obsidian-paper-vault.md) — Use when turning research papers into Obsidian notes, even if Obsidian is not named, from a PDF folder or a Zotero collection or refs.bib whose PDFs are in Zotero. _(evidence: manual_workflow)_
 - [orchestrate](orchestrate.md) — Use when the user describes a research goal without naming a skill, or the task spans several skills. _(evidence: demo)_
 - [peer-review](peer-review.md) — Use when reviewing someone else's manuscript for a journal, such as after a review invitation or for a revised R1/R2 version. _(evidence: ci_validator)_
 - [polish-language](polish-language.md) — Use when a manuscript needs a copy-edit for consistency and non-native English clarity. _(evidence: bundled_script)_

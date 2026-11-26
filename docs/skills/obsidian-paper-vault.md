@@ -2,7 +2,7 @@
 
 # obsidian-paper-vault
 
-> Use when turning research papers into Obsidian notes, even if Obsidian is not named: a folder of PDFs, or a Zotero collection or refs.bib whose PDFs are in Zotero. Writes one literature note per paper from its text and proposes concept notes, never overwriting. Adding papers to Zotero is /lit-sync.
+> Use when turning research papers into Obsidian notes, even if Obsidian is not named, from a PDF folder or a Zotero collection or refs.bib whose PDFs are in Zotero. Writes one literature note per paper from its text and proposes concept notes, never overwriting. Adding papers to Zotero is /lit-sync.
 
 **Invoke:** `/obsidian-paper-vault`
 

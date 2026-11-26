@@ -2158,8 +2158,8 @@
     },
     {
       "path": "skills/lit-sync/SKILL.md",
-      "size": 17291,
-      "sha256": "47dd87319395c9b263f86087dde75422d39894f925dc84dc46eebccacef9251c"
+      "size": 17447,
+      "sha256": "2f93246f14c179ac0d3c4ca70b0843694c9171a0d5661aa29df47efa14391f65"
     },
     {
       "path": "skills/lit-sync/references/bbt_autoexport.md",
@@ -2178,8 +2178,8 @@
     },
     {
       "path": "skills/lit-sync/references/pdf_folder_ingest.md",
-      "size": 3118,
-      "sha256": "a715cd19e62808eb66cc71b6e9524e30858c1023b2ec8488e82bfa7b591d855e"
+      "size": 3137,
+      "sha256": "fe0c76137186008fdc0d7deea98b2c53d7e37c8f5d419c6318e1caecb058b792"
     },
     {
       "path": "skills/lit-sync/references/zotero_mcp_tools.md",
@@ -3859,7 +3859,7 @@
     {
       "path": "skills/obsidian-paper-vault/SKILL.md",
       "size": 7419,
-      "sha256": "438a135072880bac2dd7c84f17d508df79b0b8299a9b85202c3ac38e217da33d"
+      "sha256": "64a3becb7798c6becb1ed3f29e79831d48c95dd26ca2dba61aae516eab43fb96"
     },
     {
       "path": "skills/obsidian-paper-vault/assets/example_concept_note.md",
@@ -3908,8 +3908,8 @@
     },
     {
       "path": "skills/obsidian-paper-vault/references/zotero_input.md",
-      "size": 2364,
-      "sha256": "10f0922a3ec64ae01f00bbfdad545bf5321c5faf20832101e0f03ea96ed94c56"
+      "size": 2464,
+      "sha256": "1e5a94bffaa32e59eb2258ea7e839c237181f4b1ba2c79d2282fc2ad939c185d"
     },
     {
       "path": "skills/obsidian-paper-vault/scripts/extract_pdfs.py",

@@ -48,7 +48,7 @@ entries. All bibliographic data in later phases comes from these entries or from
 
 A parsed citekey is not yet a library key: `/search-lit` candidate keys (`Kim_2024_Validation`) are
 provisional, and Better BibTeX mints the real key when Phase 2 adds the item. Never compose a key;
-Step 3.2 §Citekey provenance says where the note's key comes from.
+read it from Better BibTeX (`${CLAUDE_SKILL_DIR}/references/bbt_lookup.md`).
 
 ---
 
@@ -162,12 +162,9 @@ Before entering the 10s polling loop in Step 2.5.2, verify both preconditions. I
 
    > Phase 2.5 skipped: Better BibTeX did not answer on `127.0.0.1:23119` (HTTP `<code>`). Open Zotero, wait for it to finish loading, then re-run `/lit-sync`.
 
-2. **Target refs.bib exists.** The resolved `truth.refs_bib` path from Step 2.5.1 must exist on disk (even empty is OK — BBT will overwrite). On failure print:
+2. **Target refs.bib exists.** The resolved `truth.refs_bib` path from Step 2.5.1 must exist on disk (even empty is OK — BBT will overwrite). If it does not, go to Step 2.5.1c and offer to register the auto-export. If the user agrees and the registration writes the file, continue with Step 2.5.2. If they decline or nothing is written, print:
 
-   > Phase 2.5 skipped: target snapshot `<path>` not found.
-
-   Then offer to register the auto-export for the user (Step 2.5.1c) instead of only pointing at
-   the menu.
+   > Phase 2.5 skipped: target snapshot `<path>` not found. Configure BBT auto-export ("Keep updated") to the SSOT path, then re-run.
 
 In either early-exit, set `refs_bib_refreshed: false` + `reason: "precondition:<which>"` in the
 Step 2.5.3 JSON, tell the user, and return control to the caller. Nothing downstream enforces this
@@ -307,8 +304,8 @@ When the user supplies a folder of PDFs (lecture, study or downloaded papers), a
 with each PDF stored as the item's attachment. Nothing is added before the user has seen a dry-run
 list, because a PDF's first-page DOI can belong to another paper (a journal spread, a supplement,
 an advertisement page). Read `${CLAUDE_SKILL_DIR}/references/pdf_folder_ingest.md` for the steps:
-a `/fulltext-retrieval` report's `consistent` rows are attached to their items directly; every
-other PDF goes through the dry-run list first.
+rows of a `/fulltext-retrieval` report marked `consistent` come into the list already checked;
+every other PDF is checked for the list first.
 
 ### PMID-list ingestion (no .bib)
 When the user supplies a list of PMIDs (e.g., from a HANDOFF or a colleague), resolve PMIDs to DOIs
