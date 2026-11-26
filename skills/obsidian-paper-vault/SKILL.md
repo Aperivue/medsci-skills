@@ -23,7 +23,8 @@ opposite ends and must not overwrite each other.
 
 **Never overwrite an existing note.** If a note for the paper already exists (by title, DOI,
 or citekey), report it and skip. When both skills are in play, `/lit-sync` notes are the
-bibliographic spine; this skill's notes are the read-through summaries.
+bibliographic spine; this skill's notes are the read-through summaries. This skill does not add
+papers to Zotero; to register them in the library, use `/lit-sync`.
 
 ## Step 0: Resolve the vault layout — ask, do not assume
 
