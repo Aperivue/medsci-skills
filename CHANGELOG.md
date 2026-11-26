@@ -2,6 +2,35 @@
 
 ## [Unreleased]
 
+**Re-check if you used `/lit-sync` for Obsidian notes:** it no longer writes them. Notes now come
+only from `/obsidian-paper-vault`, which can start from a Zotero collection or `refs.bib` as well as
+a PDF folder, writes a note only for a paper whose PDF is stored, and creates concept notes only
+when you pick them.
+
+### Changed
+
+- **One skill writes notes, one skill writes the library.** `/lit-sync` and `/obsidian-paper-vault`
+  both wrote literature and concept notes into the same vault folders, each with its own template
+  and concept-extraction procedure. `/lit-sync` now owns only Zotero and `refs.bib` (it keeps the
+  citekey audit, `check_citekey_provenance.py`); `/obsidian-paper-vault` owns all notes. From a
+  Zotero collection it names notes by citekey, adds `notetype`, `citekey` and `doi` so the audit can
+  check them, and links to the Zotero item instead of embedding the PDF. Papers without a stored PDF
+  get no note: a sync used to leave one empty stub per reference, and such stubs mostly stay unread.
+- **Concept notes are proposed, not created.** `/obsidian-paper-vault` lists candidates on request
+  (or offers once at 10+ literature notes) and creates only the ones you pick.
+
+### Added
+
+- **`/lit-sync` takes a folder of PDFs.** Rows of a `/fulltext-retrieval` report marked
+  `consistent` (and whose file hash still matches) are attached to their items. Every other PDF goes
+  into a dry-run table first (DOI found, CrossRef title, whether that title is on page 1–2, already
+  in the library) and is added only after you approve it, because a first-page DOI can belong to
+  another paper.
+- **`/lit-sync` can register the Better BibTeX auto-export** for `refs.bib` through BBT's JSON-RPC
+  `autoexport.add`, after showing you the collection path, format and target path. It then checks
+  that the file is actually written. Tried on Zotero 10.0.9 with Better BibTeX 9.0.77 on macOS only;
+  BBT has no call to list or remove an auto-export, so the manual menu route stays as the fallback.
+
 ### Fixed
 
 - **`/verify-refs` no longer reports a correct reference as an author MISMATCH when an author's

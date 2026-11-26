@@ -1,15 +1,20 @@
 ---
 name: lit-sync
-description: Use when references in a .bib file (often from /search-lit) should land in Zotero and Obsidian. Syncs them to the Zotero library, writes Obsidian literature notes and extracts cross-cutting concept notes once enough accumulate. A folder of PDFs is /obsidian-paper-vault.
+description: Use when references (a .bib from /search-lit, a DOI/PMID list or a PDF folder) should land in Zotero and keep the manuscript refs.bib current. Adds items without duplicates, files them into the project collection and sets up the Better BibTeX auto-export. Obsidian notes are /obsidian-paper-vault.
 metadata:
-  triggers: "lit-sync, 문헌 동기화, 레퍼런스 정리, 개념 노트 추출, lit sync, Zotero 동기화, reference sync, 참고문헌 옵시디언"
+  triggers: "lit-sync, 문헌 동기화, 레퍼런스 정리, lit sync, Zotero 동기화, Zotero에 등록, PDF 폴더 Zotero, reference sync, refs.bib 갱신"
 ---
 
-# Literature Sync: Zotero + Obsidian Pipeline
+# Literature Sync: Zotero + refs.bib
 
-Takes the `.bib` output of `/search-lit` (or any user-specified .bib file), synchronizes the
-references into the Zotero library and Obsidian literature notes, and extracts cross-cutting
-concept notes once enough literature notes accumulate.
+Takes the `.bib` output of `/search-lit` (or any user-specified .bib file, a DOI/PMID list, or a
+folder of PDFs), adds the papers to the Zotero library without duplicates, files them into the
+project collection, and keeps `manuscript/_src/refs.bib` current through Better BibTeX.
+
+This skill writes **no Obsidian notes**. Literature and concept notes are `/obsidian-paper-vault`,
+which can start from the same collection or `refs.bib`. Keeping one writer per note type means one
+template and one concept-extraction procedure, and no library sync that leaves a pile of empty
+stub notes behind.
 
 ## Prerequisites
 
@@ -23,8 +28,6 @@ concept notes once enough literature notes accumulate.
 - Zotero MCP server, with Zotero running. Tool names change between server versions; this skill
   names the function and `${CLAUDE_SKILL_DIR}/references/zotero_mcp_tools.md` maps it to the
   current name. If Zotero cannot be reached, Phase 2 stops and asks (see Phase 2).
-- Obsidian CLI or direct file writing to the vault; vault path from the user's environment
-  (e.g., `$OBSIDIAN_VAULT`).
 
 ## Artifact Contract
 
@@ -54,7 +57,7 @@ Step 3.2 §Citekey provenance says where the note's key comes from.
 The Zotero MCP server must be connected. When it talks to Zotero's local API (no web API key
 configured), the Zotero app must also be open, because every call fails while the app is closed.
 A server set up with a web API key can still work with the app closed. Phase 2.5 needs the app
-either way. If a call fails, do not move on to Phase 3 on your own. A silent skip is how a library can stop receiving papers for weeks without
+either way. If a call fails, do not go on without Zotero on your own. A silent skip is how a library can stop receiving papers for weeks without
 anyone noticing. Stop and tell the user:
 
 > Zotero is not reachable (`<the error>`). Open Zotero (and reconnect the Zotero MCP server if it
@@ -63,9 +66,8 @@ anyone noticing. Stop and tell the user:
 Retry when they answer. Only if the user says to go on without Zotero, write the Step 2.3 file with
 `status: "pending"`, a `reason`, and a `pending` list of the entries not added (citekey, doi, pmid,
 title), put the pending count in the final summary, skip Phase 2.5 (Step 2.5.3 JSON:
-`refs_bib_refreshed: false`, `reason: "zotero_unreachable"`), and go on to Phase 3. Step 2.2 of the
-next `/lit-sync` run picks the list up. Notes written meanwhile follow Step 3.2 §Citekey provenance (`citekey: ""`,
-`_needs-citekey`).
+`refs_bib_refreshed: false`, `reason: "zotero_unreachable"`), and stop. Step 2.2 of the next
+`/lit-sync` run picks the list up.
 
 ### Step 2.1: Determine project collection
 
@@ -162,11 +164,23 @@ Before entering the 10s polling loop in Step 2.5.2, verify both preconditions. I
 
 2. **Target refs.bib exists.** The resolved `truth.refs_bib` path from Step 2.5.1 must exist on disk (even empty is OK — BBT will overwrite). On failure print:
 
-   > Phase 2.5 skipped: target snapshot `<path>` not found. Configure BBT auto-export with "On Change" to the SSOT path, then re-run.
+   > Phase 2.5 skipped: target snapshot `<path>` not found.
+
+   Then offer to register the auto-export for the user (Step 2.5.1c) instead of only pointing at
+   the menu.
 
 In either early-exit, set `refs_bib_refreshed: false` + `reason: "precondition:<which>"` in the
 Step 2.5.3 JSON, tell the user, and return control to the caller. Nothing downstream enforces this
 flag, so telling the user is what stands between a stale `refs.bib` and a manuscript.
+
+### Step 2.5.1c: Register the auto-export (asks first)
+
+When the target `refs.bib` is missing, or it does not refresh after a library change, offer to
+register the Better BibTeX auto-export through its JSON-RPC `autoexport.add`. Show the user the
+collection path, the translator and the target path, and call it only after they agree: Better
+BibTeX has no call that lists or removes an auto-export, so a wrong registration has to be removed
+by hand. Read `${CLAUDE_SKILL_DIR}/references/bbt_autoexport.md` first: it has the call, how to
+confirm the file is written, the versions it was tried on, and the manual fallback.
 
 ### Step 2.5.2: Verify refresh
 
@@ -202,7 +216,7 @@ If refresh failed, set `refs_bib_refreshed: false` and include `reason`.
 **Run only when the user asks for full text** (e.g. "download the PDFs", "fetch full
 text", or a worklist supplied with that intent). Default `/lit-sync` stays metadata-only
 and network-light — do not auto-run this phase. Runs after items are in Zotero (Phase 2)
-and the snapshot is verified (Phase 2.5), before Obsidian notes (Phase 3).
+and the snapshot is verified (Phase 2.5).
 
 Offer both routes below and reconcile them in one report. Retrieve full text only through them:
 never automate authenticated browser sessions, never bypass paywalls or access controls, and never
@@ -246,159 +260,33 @@ a verified paper; a `consistent` status is advisory; unassessed items go to
 
 ---
 
-## Phase 3: Obsidian Literature Notes
+## Phase 3: Hand off — notes and citekey audit
 
-Detect the vault's existing layout before creating notes. If the vault already uses a folder
-structure (including a Korean one), **honor it — never silently rename a user's folders**. For a new
-or unclear vault, default to the English folders `Literature/` and `Concepts/` with the English
-templates (Step 3.2, Step 4.3). For a Korean-structured vault, or a user who prefers Korean notes, use the Korean
-folder layout and Korean-heading templates in
-`${CLAUDE_SKILL_DIR}/references/locale/ko/note_templates.md` (and the vault's own hub-note names).
+`/lit-sync` ends here: its outputs are the Zotero items, `references/zotero_collection.json` and a
+refreshed `refs.bib`. If the user wants Obsidian notes for these papers, hand the project collection
+(or `refs.bib`) to `/obsidian-paper-vault`. Notes are written there, from each paper's text, only
+when asked.
 
-### Step 3.1: Check existing literature notes
+### Citekey audit (vault ↔ library)
 
-```bash
-# Default English layout; substitute the vault's existing folder if one is present
-# (e.g. "02 연구/문헌/" for a Korean-structured vault — see references/locale/ko/note_templates.md).
-ls "$VAULT/Literature/" | grep -v "📊" | wc -l
-```
-
-### Step 3.2: Create literature notes
-
-For each .bib entry, create `Literature/{citekey}.md` (or the vault's existing literature folder).
-**Skip if the file already exists — never overwrite**, because the user may have added highlights
-or personal notes.
-
-#### Citekey provenance — the note filename is a claim about the library
-
-A note's filename and `citekey:` field assert that Zotero has an entry with that key. `[@key]` in a
-manuscript, `[[key]]` between notes, and the Zotero Integration plugin's `{{citekey}}.md` all depend
-on it, and a key that resolves to nothing still looks correct. So the key is **read, never
-composed**:
-
-1. Take it from the Better BibTeX-exported `refs.bib` entry, or ask Better BibTeX
-   (`item.search` over json-rpc — see `${CLAUDE_SKILL_DIR}/references/bbt_lookup.md`).
-2. If the paper is not in Zotero, **add it first** (*add item* by DOI, Phase 2) and let BBT mint
-   the key. Phase 2 owns that step for a reason: a note written ahead of its library entry
-   has no key to be right about.
-3. If it cannot be added (neither DOI nor PMID, or Zotero unreachable), write the note with `citekey: ""` and the tag
-   `_needs-citekey`. An empty field is recoverable; an invented one is not, because nothing
-   downstream can tell it apart from a real key.
-
-Verify before finishing:
+Notes that carry a citekey (written by `/obsidian-paper-vault`, the Zotero Integration plugin, or
+by hand) claim that Zotero has an entry with that key. `[@key]`, `[[key]]` and `{{citekey}}.md` all
+depend on it, and a key that resolves to nothing still looks correct. On request, or before a
+manuscript build that cites from the vault, run:
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_citekey_provenance.py" --vault "$VAULT" --bib "$REFS_BIB"
 ```
 
-`INVENTED` means the note's key is absent but its DOI resolves to a real key; fix it here.
-`MISMATCH` means the key is real but the note's DOI is the library's DOI for another key, so it
-cites another paper; rename to the suggested key (known limit: a note DOI spelled differently from
-the library's, e.g. quoted or braced, never raises it). `UNPARSED` means a literature note's
-frontmatter never closes, so its key was not read. With `--strict` these three exit 1, and a scan
-that finds no literature note exits 2. Match notes to papers by DOI, never by key (`AMBIGUOUS`, `UNUSABLE`, `NO_IDENTIFIER`: see the script's
-`--help`), and search the full library (`--live`) before importing anything it reports missing.
-
-#### Template
-
-```markdown
----
-notetype: literature
-citekey: "{citekey}"
-title: "{title}"
-authors: "{authors}"
-journal: "{journal}"
-year: {year}
-doi: "{doi}"
-pmid: "{pmid}"
-created: "{today}"
-tags:
-  - type/literature
-  - _unread
----
-
-# {title}
-
-## Bibliographic info
-- **Authors**: {authors}
-- **Journal**: {journal}{volume_issue_pages}
-- **Year**: {year}
-- **DOI**: [{doi}](https://doi.org/{doi})
-{pmid_line}
-
-## Key points (in my own words)
-
-## My thoughts
-
-## Related notes
-- [[Research Hub]]
-- [[Papers & Reviews]]
--
--
-```
-
-**Rules:**
-- `notetype: literature` — compatible with the Zotero Integration template.
-- `_unread` tag — change to `_read` later after the user reads the PDF in Zotero and adds highlights.
-- Leave `## Key points` and `## My thoughts` blank — the user fills these in personally.
-- `## Related notes` contains 2 hub links + 2 empty slots (reserved for later concept-note linking).
-- If a PMID is available, add a PubMed link.
-
-### Step 3.3: Result report
-
-```
-Obsidian Literature Notes:
-  Created:   8 notes (new)
-  Skipped:   3 notes (already exist)
-  Location:  Literature/
-  Total in vault: 12 literature notes
-```
-
----
-
-## Phase 4: Concept Extraction (conditional)
-
-### Trigger condition
-
-Run this phase only when there are **≥10** literature notes in the vault. If fewer exist, print a
-status message like "N literature notes — concept extraction unlocks at ≥10" and stop.
-
-### Step 4.1: Cross-cutting concept scan
-
-Read all files under `Literature/*.md` (or the vault's existing literature folder), extract
-keywords from each paper's title, journal, and tags and major concepts from the .bib entry titles,
-and identify **concepts that co-occur across ≥3 literature notes**.
-
-### Step 4.2: Filtering (5 exclusion rules)
-
-Exclude from concept candidates: model names (GPT-4, Claude, etc.), dataset names (MedQA,
-ImageNet, etc.), journal names, institution names, and generic technique names (too unspecific).
-Whatever remains becomes a concept-note candidate.
-
-### Step 4.3: Draft concept note
-
-Create `Concepts/{concept name}.md` (or the vault's existing concept-note folder) from the
-template in `${CLAUDE_SKILL_DIR}/references/concept_note_template.md` (Korean-structured vault:
-the concept template in `references/locale/ko/note_templates.md`).
-
-**Key rules:**
-- **Never auto-fill `## Definition`** — keep the `> TODO` marker; the 2nd-layer note only becomes
-  meaningful once the user writes the definition in their own words.
-- `status` always starts at `🌱Seedling`.
-- At least 4 wikilinks under `## Related notes` (vault convention).
-
-### Step 4.4: Propose to the user
-
-```
-Concept-note candidates (≥3 papers cross-referenced):
-  1. {Concept A} (4 papers)
-  2. {Concept B} (3 papers)
-  3. {Concept C} (5 papers)
-
-Create? (all / selected / skip)
-```
-
-Auto-draft, but create only after user confirmation.
+`INVENTED` means the note's key is absent but its DOI resolves to a real key. `MISMATCH` means the
+key is real but the note's DOI is the library's DOI for another key, so it cites another paper;
+rename to the suggested key (known limit: a note DOI spelled differently from the library's, e.g.
+quoted or braced, never raises it). `UNPARSED` means a literature note's frontmatter never closes,
+so its key was not read. With `--strict` these three exit 1, and a scan that finds no literature
+note exits 2. Match notes to papers by DOI, never by key (`AMBIGUOUS`, `UNUSABLE`, `NO_IDENTIFIER`:
+see the script's `--help`), and search the full library (`--live`) before importing anything it
+reports missing. A key is read from Better BibTeX (`refs.bib`, or `item.search` over json-rpc —
+see `${CLAUDE_SKILL_DIR}/references/bbt_lookup.md`), never composed.
 
 ---
 
@@ -406,17 +294,21 @@ Auto-draft, but create only after user confirmation.
 
 This skill can run without a fresh .bib file.
 
-### Concept extraction only
-On an explicit concept-extraction request, scan existing `Literature/*.md` (or the vault's existing
-literature folder) and run only Phase 4.
-
 ### References tidy
 On a "tidy this project's references" request, locate `.bib` files inside the workspace and run
-Phase 1–3.
+Phase 1–2.5.
 
 ### Zotero sync only
 On a "sync Zotero" request, diff the Zotero collection against the `.bib` file and add whatever is
 missing.
+
+### PDF folder ingestion
+When the user supplies a folder of PDFs (lecture, study or downloaded papers), add them to Zotero
+with each PDF stored as the item's attachment. Nothing is added before the user has seen a dry-run
+list, because a PDF's first-page DOI can belong to another paper (a journal spread, a supplement,
+an advertisement page). Read `${CLAUDE_SKILL_DIR}/references/pdf_folder_ingest.md` for the steps:
+a `/fulltext-retrieval` report's `consistent` rows are attached to their items directly; every
+other PDF goes through the dry-run list first.
 
 ### PMID-list ingestion (no .bib)
 When the user supplies a list of PMIDs (e.g., from a HANDOFF or a colleague), resolve PMIDs to DOIs

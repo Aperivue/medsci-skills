@@ -136,8 +136,7 @@ English defaults, each with a `_ko` sibling below).
 | `skills/render-pdf-doc/templates/reference-table_ko.md` | C-ko | Korean starter; English default is `reference-table.md`. |
 | `skills/orchestrate/references/report_template_ko.md` | C-ko | Korean REPORT variant; English default is `report_template.md`. |
 | `skills/ma-scout/references/project_readme_template_ko.md` | C-ko | Korean PI-facing README variant; English default is `project_readme_template.md`. |
-| `skills/lit-sync/references/locale/ko/note_templates.md` | C-ko | Korean Obsidian vault layout + note templates; English defaults inline in lit-sync SKILL.md. |
-| `skills/obsidian-paper-vault/references/locale/ko/note_templates.md` | C-ko | Korean Obsidian vault layout + note templates for the PDF-side builder; English defaults inline in obsidian-paper-vault SKILL.md. Mirrors the lit-sync ko locale so both skills write one vault the same way. |
+| `skills/obsidian-paper-vault/references/locale/ko/note_templates.md` | C-ko | Korean Obsidian vault layout + note templates for the PDF-side builder; English defaults inline in obsidian-paper-vault SKILL.md. |
 
 ### Reclassified survivors (Korean is functional; remain inventoried)
 
@@ -146,7 +145,7 @@ English defaults, each with a `_ko` sibling below).
 | `skills/fill-icmje-coi/SKILL.md` | D | Body translated; only the `triggers:` line remains. |
 | `skills/render-pdf-doc/SKILL.md` | D | Body + skill.yml translated; only the `triggers:` line remains. |
 | `skills/orchestrate/SKILL.md` | A | PHI prompts + §-name translated; bilingual routing-table recognition phrases kept (functional, validator-skipped table rows). |
-| `skills/lit-sync/SKILL.md` | D | English-default vault/headings; `triggers:` line + honor-existing Korean-folder examples documenting the detect-and-honor behavior. |
+| `skills/lit-sync/SKILL.md` | D | `triggers:` line only (Korean trigger phrases); the skill writes no vault notes. |
 | `skills/obsidian-paper-vault/SKILL.md` | D | English-default vault/headings; `triggers:` line + one honor-existing Korean-folder example documenting the detect-and-honor behavior. |
 | `skills/obsidian-paper-vault/references/workflow.md` | A | Korean folder names appear as honor-what-exists examples of real vault layouts, not as output prose. |
 | `skills/present-paper/references/generate_pptx_templates.py` | A | Legacy Korean slide-marker parser regex (backward compatibility). |

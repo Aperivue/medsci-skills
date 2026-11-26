@@ -2,27 +2,27 @@
 
 # lit-sync
 
-> Use when references in a .bib file (often from /search-lit) should land in Zotero and Obsidian. Syncs them to the Zotero library, writes Obsidian literature notes and extracts cross-cutting concept notes once enough accumulate. A folder of PDFs is /obsidian-paper-vault.
+> Use when references (a .bib from /search-lit, a DOI/PMID list or a PDF folder) should land in Zotero and keep the manuscript refs.bib current. Adds items without duplicates, files them into the project collection and sets up the Better BibTeX auto-export. Obsidian notes are /obsidian-paper-vault.
 
 **Invoke:** `/lit-sync`
 
 ## When to use
 
-`lit-sync` activates on requests such as: lit-sync, 문헌 동기화, 레퍼런스 정리, 개념 노트 추출, lit sync, Zotero 동기화, reference sync, 참고문헌 옵시디언.
+`lit-sync` activates on requests such as: lit-sync, 문헌 동기화, 레퍼런스 정리, lit sync, Zotero 동기화, Zotero에 등록, PDF 폴더 Zotero, reference sync, refs.bib 갱신.
 
 ## Quality Card
 
-**Purpose** — Sync verified references from .bib into Zotero and Obsidian literature notes, extracting cross-cutting concept notes when enough literature accumulates.
+**Purpose** — Add verified references (.bib, DOI/PMID list or PDF folder) to Zotero without duplicates and keep refs.bib current through Better BibTeX; audit vault citekeys against the library.
 
 **Safety boundaries**
 
 - Bibliographic metadata is never fabricated; only Better BibTeX may write refs.bib.
-- Existing literature notes are not overwritten.
+- Writes no Obsidian notes (that is /obsidian-paper-vault); PDFs from a folder are added only after the user reviews a dry-run list.
 
 **Known limitations**
 
 - Depends on a connected Zotero MCP + Better BibTeX auto-export; degrades to manual without them.
-- No standalone demo; effects are in the user's Zotero/Obsidian.
+- No standalone demo; effects are in the user's Zotero library.
 
 **Validation**
 
@@ -37,10 +37,10 @@
 
 **References** (`skills/lit-sync/references/`):
 
+- `bbt_autoexport.md`
 - `bbt_lookup.md`
-- `concept_note_template.md`
 - `fulltext_report.md`
-- `locale/` (1 file)
+- `pdf_folder_ingest.md`
 - `zotero_mcp_tools.md`
 
 **Scripts** (`skills/lit-sync/scripts/`):

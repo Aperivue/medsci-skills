@@ -2,7 +2,7 @@
 
 # obsidian-paper-vault
 
-> Use when turning a folder of research PDFs into Obsidian notes, even if Obsidian is not named. Writes one templated literature note per paper and extracts cross-linked atomic concept notes, never overwriting existing ones. A .bib or Zotero library is /lit-sync.
+> Use when turning research papers into Obsidian notes, even if Obsidian is not named: a folder of PDFs, or a Zotero collection or refs.bib whose PDFs are in Zotero. Writes one literature note per paper from its text and proposes concept notes, never overwriting. Adding papers to Zotero is /lit-sync.
 
 **Invoke:** `/obsidian-paper-vault`
 
@@ -43,6 +43,7 @@
 - `tag-vocabulary.md`
 - `templates.md`
 - `workflow.md`
+- `zotero_input.md`
 
 **Scripts** (`skills/obsidian-paper-vault/scripts/`):
 

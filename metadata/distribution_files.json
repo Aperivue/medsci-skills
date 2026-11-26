@@ -2158,8 +2158,13 @@
     },
     {
       "path": "skills/lit-sync/SKILL.md",
-      "size": 20314,
-      "sha256": "9a7e8f5657cc4c482a5f3473043a1d1aac59adb7ad10c91854721d094d70050d"
+      "size": 17291,
+      "sha256": "47dd87319395c9b263f86087dde75422d39894f925dc84dc46eebccacef9251c"
+    },
+    {
+      "path": "skills/lit-sync/references/bbt_autoexport.md",
+      "size": 3062,
+      "sha256": "6f89bea617d72f1417c5cdc48822e299ca2bb74bff312f87a919911d343c51fa"
     },
     {
       "path": "skills/lit-sync/references/bbt_lookup.md",
@@ -2167,24 +2172,19 @@
       "sha256": "862f4402f5f44861829f165f6df7eecc0c9e03d4824639190d7252fdc0391223"
     },
     {
-      "path": "skills/lit-sync/references/concept_note_template.md",
-      "size": 1052,
-      "sha256": "58ab3eb06d20c5ade0072053b421d5c68f6bd6c015a82603327f0177bc905740"
-    },
-    {
       "path": "skills/lit-sync/references/fulltext_report.md",
       "size": 1590,
       "sha256": "71d371aa2bf697de0cd468daeb1ef495c0e74c32e73def980a1f071d5d828102"
     },
     {
-      "path": "skills/lit-sync/references/locale/ko/note_templates.md",
-      "size": 2548,
-      "sha256": "6b4e53770834859c8339fcf76c3c744eaf0ffbe02fb45eaad4b97f13e98ec149"
+      "path": "skills/lit-sync/references/pdf_folder_ingest.md",
+      "size": 3118,
+      "sha256": "a715cd19e62808eb66cc71b6e9524e30858c1023b2ec8488e82bfa7b591d855e"
     },
     {
       "path": "skills/lit-sync/references/zotero_mcp_tools.md",
-      "size": 2095,
-      "sha256": "416d60e4194d5ae50698c733c5064f68b1266c94f859ce5b4a669d8bd4774a87"
+      "size": 2186,
+      "sha256": "52605d327a716e0882835a1074b0370381394bb2fed8b5a1307dc917c5718eaa"
     },
     {
       "path": "skills/lit-sync/scripts/check_citekey_provenance.py",
@@ -2193,8 +2193,8 @@
     },
     {
       "path": "skills/lit-sync/skill.yml",
-      "size": 2949,
-      "sha256": "648560c259451cfaf060efd40ed667038745868b18718470787e6c21f0cd20b6"
+      "size": 3128,
+      "sha256": "ac4e7c9cadf00012dcb6db5eaa0d01fcd6223cdc827691396481aa65bd9e4e9c"
     },
     {
       "path": "skills/ma-scout/SKILL.md",
@@ -3858,8 +3858,8 @@
     },
     {
       "path": "skills/obsidian-paper-vault/SKILL.md",
-      "size": 6313,
-      "sha256": "996316c59d9cbb053c147e699b0b5fac972e32052689d02e9df9f6b15b9d13d7"
+      "size": 7419,
+      "sha256": "438a135072880bac2dd7c84f17d508df79b0b8299a9b85202c3ac38e217da33d"
     },
     {
       "path": "skills/obsidian-paper-vault/assets/example_concept_note.md",
@@ -3883,8 +3883,8 @@
     },
     {
       "path": "skills/obsidian-paper-vault/references/locale/ko/note_templates.md",
-      "size": 3979,
-      "sha256": "9e31fb6491130e35907d292ed7646150560908174a6d23d98b6dc40e9fb549b3"
+      "size": 3996,
+      "sha256": "1aad937e8844f124fc9c8050d614622ed2581e5cac6e9422d627098830a43036"
     },
     {
       "path": "skills/obsidian-paper-vault/references/subagent-prompt.md",
@@ -3907,19 +3907,24 @@
       "sha256": "1ef1a1fbfeeb60b3b6c119f7249acffb84d0b876e0f2be0541bb4dafe8275860"
     },
     {
+      "path": "skills/obsidian-paper-vault/references/zotero_input.md",
+      "size": 2364,
+      "sha256": "10f0922a3ec64ae01f00bbfdad545bf5321c5faf20832101e0f03ea96ed94c56"
+    },
+    {
       "path": "skills/obsidian-paper-vault/scripts/extract_pdfs.py",
       "size": 3360,
       "sha256": "a35885c525e63496578677d0ae9ca6e5c7c9422e6970809874b1aedf31583d5a"
     },
     {
       "path": "skills/obsidian-paper-vault/skill.yml",
-      "size": 2735,
-      "sha256": "fb696bc14cd57e8ba23a61dc2ed314b421290e11dbba07b0a2ef00363b00f60b"
+      "size": 2882,
+      "sha256": "44d4628663a9a6470b06cab4f9c41e3babb1022898a56bd7d6a0d3debb336568"
     },
     {
       "path": "skills/orchestrate/SKILL.md",
-      "size": 33601,
-      "sha256": "0dbfa8b0365ccf02f61430022d0063020799ccc81d65575e148296f19c4a7484"
+      "size": 33640,
+      "sha256": "d925790b3423d2207d091e0d2ea9e37af51382c51b8e6e99d9a268cbdd9739a0"
     },
     {
       "path": "skills/orchestrate/references/data_flow_contract.md",

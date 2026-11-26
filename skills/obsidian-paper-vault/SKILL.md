@@ -1,29 +1,34 @@
 ---
 name: obsidian-paper-vault
-description: Use when turning a folder of research PDFs into Obsidian notes, even if Obsidian is not named. Writes one templated literature note per paper and extracts cross-linked atomic concept notes, never overwriting existing ones. A .bib or Zotero library is /lit-sync.
+description: Use when turning research papers into Obsidian notes, even if Obsidian is not named: a folder of PDFs, or a Zotero collection or refs.bib whose PDFs are in Zotero. Writes one literature note per paper from its text and proposes concept notes, never overwriting. Adding papers to Zotero is /lit-sync.
 metadata:
   triggers: "obsidian-paper-vault, paper vault, second brain, PDF를 Obsidian 노트로, 논문 요약 노트, 논문 노트 만들어줘, 이 폴더의 PDF 정리해줘, batch process papers, add papers to vault, extract concepts from papers, literature vault"
 ---
 
 # Obsidian Paper Vault
 
-Converts a folder of research PDFs into a two-layer Obsidian vault: **literature notes**
-(one per paper, templated) and **atomic concept notes** (synthesized across papers).
+Converts research papers into a two-layer Obsidian vault: **literature notes** (one per paper,
+templated, written from the paper's text) and **atomic concept notes** (synthesized across papers).
+The papers come from a folder of PDFs, or from a Zotero collection or `refs.bib` whose PDFs are
+stored in Zotero. This is the only medsci skill that writes these notes, and it writes them only
+when asked.
 
 ## Relationship to /lit-sync
 
-Both skills write literature and concept notes into the same vault folders. They enter from
-opposite ends and must not overwrite each other.
+`/lit-sync` owns the library: it adds papers to Zotero, files them into the project collection and
+keeps `manuscript/_src/refs.bib` current. It writes no notes. This skill owns the notes.
 
 | | `/lit-sync` | `obsidian-paper-vault` |
 |---|---|---|
-| Input | Zotero collection / `refs.bib` | a folder of PDFs |
-| Note key | citekey | short descriptive title |
-| Owns | `manuscript/_src/refs.bib` | extracted-text cache |
+| Writes | Zotero items, `refs.bib` (through Better BibTeX) | literature and concept notes |
+| Input | `.bib`, DOI/PMID list, PDF folder | PDF folder, or Zotero collection / `refs.bib` |
+| Note name | — | title (PDF input) or citekey (Zotero input) |
+
+To get a paper into Zotero, use `/lit-sync`; this skill never adds papers to the library. To check
+that the citekeys in the vault exist in the library, use `/lit-sync`'s citekey audit.
 
 **Never overwrite an existing note.** If a note for the paper already exists (by title, DOI,
-or citekey), report it and skip. When both skills are in play, `/lit-sync` notes are the
-bibliographic spine; this skill's notes are the read-through summaries.
+or citekey), report it and skip.
 
 ## Step 0: Resolve the vault layout — ask, do not assume
 
@@ -34,6 +39,11 @@ Establish three paths before writing anything:
    serving this role (`02_research/논문/`, `Papers/`, `文献/`), **honor the existing layout**
    rather than imposing the default.
 3. **Concept notes folder** — default `Concepts/`, same honor-what-exists rule.
+4. **Input** — a PDF folder, or a Zotero collection / `refs.bib`. For the Zotero input, read
+   `references/zotero_input.md` before Step 1: it gathers the stored PDFs under their citekeys,
+   and its notes carry `notetype`, `citekey` and `doi` and link to Zotero instead of embedding
+   the PDF. Papers with no stored PDF get no note (a note with no text is an empty stub); list
+   them instead.
 
 For a vault whose structure is Korean, see `references/locale/ko/note_templates.md` — folder
 names and note headings in Korean, opt-in.
@@ -95,7 +105,11 @@ and report it rather than continuing. This gate is the user's call to waive, not
 Keep `PAPER_QUEUE.md` in the vault with per-paper status (done / pending / skipped / in
 progress) so a 200-paper vault survives across sessions. Update it after each batch.
 
-## Step 4: Extract concept notes once 10+ literature notes exist
+## Step 4: Concept notes — proposed, created on the user's yes
+
+Run on request, or offer it once when the vault has 10 or more literature notes; never create
+concept notes as a side effect of writing literature notes. List the candidates with the number of
+notes each appears in, and create only the ones the user picks.
 
 A phrase earns a concept note when it appears in 3+ notes, carries pedagogical value, and is
 treated differently by different papers. Model names, datasets, and journals are entities,

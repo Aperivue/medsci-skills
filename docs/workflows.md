@@ -109,7 +109,7 @@ Or equivalently: `/write-paper --autonomous` if analysis and figures already exi
 
 The skill set is deliberately *specialized, not consolidated* — each skill owns a distinct artifact or lifecycle step, so the routing stays precise. The boundaries that are easy to confuse:
 
-- **Reference pipeline** — `search-lit` (discover candidates) → `lit-sync` (sole writer of `refs.bib`, syncs Zotero/Obsidian) → `manage-refs` (render CSL / inject CWYW / cross-ref QC, sole writer of the rendered DOCX) → `verify-refs` (read-only audit; never edits `refs.bib`). They are one pipeline, not four overlapping tools.
+- **Reference pipeline** — `search-lit` (discover candidates) → `lit-sync` (sole writer of `refs.bib`, syncs Zotero; notes are `obsidian-paper-vault`) → `manage-refs` (render CSL / inject CWYW / cross-ref QC, sole writer of the rendered DOCX) → `verify-refs` (read-only audit; never edits `refs.bib`). They are one pipeline, not four overlapping tools.
 - **Language passes run in order** — `humanize` (remove AI-writing tells) → `polish-language` (deterministic ESL/house-style consistency: abbreviations, spelling, en-dashes, p-value case) → `academic-aio` (AI-search/GEO visibility). Three sequential passes with non-overlapping jobs.
 - **Manuscript type picks the skill** — `write-paper` (original/IMRAD articles, case reports, MAs) vs `review-paper` (narrative / scoping / systematic literature reviews) vs `revise` (reviewer-response + tracked changes). Different structures and reporting guidelines.
 - **Author vs external reviewer** — `self-review` is your own pre-submission check (anticipated comments); `peer-review` drafts a journal-facing review as an external reviewer. Same domain probes, different user and output.
@@ -169,7 +169,7 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
    │                                                    [cover-letter] -> check-reporting -> revise -> present-paper
    │                                                                                                       │
    └── meta-analysis                                                                                  peer-review
-                         lit-sync (Zotero + Obsidian sync)     author-strategy (PubMed profile analysis)
+                         lit-sync (Zotero + refs.bib sync)     author-strategy (PubMed profile analysis)
 
                               ┌─────────────────────────────────────────────┐
                               │  publish-skill: package any skill above for │

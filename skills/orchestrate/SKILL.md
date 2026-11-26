@@ -43,8 +43,8 @@ yourself — invoke the skill that owns it.
 | **define-variables** | Operationalization | Literature-grounded variable definitions, cutoffs, DB-variable mappings; runs between `/search-lit` and `/write-protocol` for observational studies |
 | **verify-refs** | Reference audit | Read-only PubMed/CrossRef audit of manuscript references; first-author cross-check; sole writer of `qc/reference_audit.json`. Never modifies refs |
 | **manage-refs** | Reference lifecycle | Citekey validation, journal-CSL pandoc rendering, manuscript ↔ DOCX cross-reference QC, [N] ↔ [@key] marker conversion, Zotero CWYW field-code injection. Sole writer of `manuscript_final.docx`, `qc/xref_audit.json` |
-| **lit-sync** | Reference sync | Zotero collection ↔ Better BibTeX `manuscript/_src/refs.bib` ↔ Obsidian literature notes. Sole writer of refs.bib (auto-export); upstream of `manage-refs` |
-| **obsidian-paper-vault** | Vault build | A folder of PDFs → templated Obsidian literature notes + atomic concept notes synthesized across them. Enters the same vault folders as `lit-sync` from the PDF side |
+| **lit-sync** | Reference sync | `.bib` / DOI-PMID list / PDF folder → Zotero collection → Better BibTeX `manuscript/_src/refs.bib`. Sole writer of refs.bib (auto-export); upstream of `manage-refs`; writes no notes |
+| **obsidian-paper-vault** | Vault build | A folder of PDFs, or a Zotero collection / refs.bib with stored PDFs → templated Obsidian literature notes + atomic concept notes on request. Sole writer of notes |
 | **humanize** | Quality | AI-pattern density sweep (<2.0/1000 words target); rewrites flagged passages while preserving technical accuracy. Phase 7.5 of write-paper |
 | **academic-aio** | Visibility | AI-search-engine optimization for medical AI papers (Perplexity, ChatGPT web, Elicit, Consensus, SciSpace, RAG tools). Opt-in checklist; never auto-applies edits |
 | **render-pdf-doc** | Document layout | Non-bibliography academic markdown → PDF (proposal, briefing, anchor doc, IRB cover, reference table), CJK-aware. Boundary opposite of `manage-refs scripts/render_pandoc.sh` |
@@ -102,8 +102,8 @@ it. The rows below cover modes and flags, look-alike skills, and non-English phr
 | "Generate a cover letter" / "Write cover letter for submission" | `/write-paper` (Phase 8+, requires completed manuscript) |
 | "Render manuscript to DOCX" / "Build final .docx" / "Cascade reformat references" / "Apply journal CSL" / "Re-render with Vancouver" / "회람용 docx" / "Zotero CWYW injection" | `/manage-refs` |
 | "Render proposal to PDF" / "Anchor doc PDF" / "한글 학술 PDF" / "Briefing handout PDF" / "IRB cover PDF" / "non-bib markdown → PDF" | `/render-pdf-doc` |
-| "Sync Zotero" / "Refresh refs.bib" / "Better BibTeX export" / "Zotero ↔ Obsidian 동기화" / "literature note 만들어줘" | `/lit-sync` |
-| "PDF를 Obsidian 노트로" / "논문 요약 노트 만들어줘" / "이 폴더의 PDF 정리해줘" / "build a paper vault" / "second brain" / "extract concepts from papers" | `/obsidian-paper-vault` |
+| "Sync Zotero" / "Refresh refs.bib" / "Better BibTeX export" / "Zotero에 등록" / "PDF 폴더를 Zotero에" | `/lit-sync` |
+| "PDF를 Obsidian 노트로" / "논문 요약 노트 만들어줘" / "literature note 만들어줘" / "Zotero 컬렉션으로 노트" / "build a paper vault" / "second brain" / "extract concepts from papers" | `/obsidian-paper-vault` |
 | "ICMJE COI 양식 일괄 생성" / "공저자 COI 폼 만들기" / "Disclosure form batch" | `/fill-icmje-coi` |
 | "AI search optimization" / "Perplexity-friendly abstract" / "RAG visibility" / "GEO checklist" / "Elicit/Consensus 노출" | `/academic-aio` |
 | "Remove AI patterns" / "AI 티 제거" / "humanize this section" / "GPT 흔적 지워줘" | `/humanize` |

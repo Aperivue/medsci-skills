@@ -3,8 +3,8 @@
 > Opt-in Korean variant for `obsidian-paper-vault`. The skill defaults to English folder names
 > (`Literature/`, `Concepts/`) and English note headings. Use this layout when the user's vault
 > already follows a Korean structure — the skill honors an existing layout — or when the user
-> prefers Korean notes. Mirrors the `/lit-sync` ko locale so both skills write the same vault
-> the same way.
+> prefers Korean notes. For notes made from a Zotero collection, add the fields in
+> `../../zotero_input.md` to this template.
 
 ## 폴더 구조 (한국어 vault)
 
