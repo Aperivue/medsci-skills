@@ -17,10 +17,12 @@ concept notes once enough literature notes accumulate.
   read-only. If the current user is a collaborator (no Zotero access per `SSOT.yaml`
   `reference_manager.required_for`), abort with instructions to flag `[@NEW:topic]` placeholders in
   the manuscript and notify the owner.
-- Zotero desktop 7.x + Better BibTeX plugin, with Better BibTeX "Keep updated" auto-export
-  configured to `<project>/manuscript/_src/refs.bib`.
-- Zotero MCP server (if not connected, skip Phase 2; auto-export still refreshes once Zotero is
-  reopened).
+- Zotero desktop 7 or later + Better BibTeX plugin, with Better BibTeX "Keep updated" auto-export
+  configured to `<project>/manuscript/_src/refs.bib`. Writing through Zotero's local API (no web
+  API key, no cloud storage) needs Zotero 10 or later.
+- Zotero MCP server, with Zotero running. Tool names change between server versions; this skill
+  names the function and `${CLAUDE_SKILL_DIR}/references/zotero_mcp_tools.md` maps it to the
+  current name. If Zotero cannot be reached, Phase 2 stops and asks (see Phase 2).
 - Obsidian CLI or direct file writing to the vault; vault path from the user's environment
   (e.g., `$OBSIDIAN_VAULT`).
 
@@ -49,32 +51,52 @@ Step 3.2 §Citekey provenance says where the note's key comes from.
 
 ## Phase 2: Zotero Sync
 
-If the Zotero MCP is not connected, skip this phase (still write the Step 2.3 file with
-`status: "skipped"`) and proceed to Phase 3.
+The Zotero MCP server must be connected. When it talks to Zotero's local API (no web API key
+configured), the Zotero app must also be open, because every call fails while the app is closed.
+A server set up with a web API key can still work with the app closed. Phase 2.5 needs the app
+either way. If a call fails, do not move on to Phase 3 on your own. A silent skip is how a library can stop receiving papers for weeks without
+anyone noticing. Stop and tell the user:
+
+> Zotero is not reachable (`<the error>`). Open Zotero (and reconnect the Zotero MCP server if it
+> is disconnected), then tell me to retry.
+
+Retry when they answer. Only if the user says to go on without Zotero, write the Step 2.3 file with
+`status: "pending"`, a `reason`, and a `pending` list of the entries not added (citekey, doi, pmid,
+title), put the pending count in the final summary, skip Phase 2.5 (Step 2.5.3 JSON:
+`refs_bib_refreshed: false`, `reason: "zotero_unreachable"`), and go on to Phase 3. Step 2.2 of the
+next `/lit-sync` run picks the list up. Notes written meanwhile follow Step 3.2 §Citekey provenance (`citekey: ""`,
+`_needs-citekey`).
 
 ### Step 2.1: Determine project collection
 
 Identify the project from the current working directory or an explicit user override. Reuse a
 recorded collection key; otherwise check existing Zotero collections for the project and, if none
-exists, create one with `zotero_create_collection`. Record the collection key, and report it to the
+exists, create one (*create collection*, see `references/zotero_mcp_tools.md`). Record the collection key, and report it to the
 user when a new collection is created.
 
 ### Step 2.2: Dedupe + add
 
-For each entry:
+For each entry, plus any entries left in the `pending` list of an earlier
+`references/zotero_collection.json` (Phase 2 opening; drop each from the list once it is added or
+found):
 
-1. Use `zotero_search_items` to search by DOI or title — if already present, skip.
-   This search-first step is what prevents duplicates; `zotero_add_by_doi` does **not**
-   dedupe by itself (it fetches CrossRef and creates the item), so never skip the search.
-2. Otherwise call `zotero_add_by_doi` (when a DOI is available) or `zotero_add_by_url` (the PubMed
-   URL, when only a PMID is available). An entry with neither DOI nor PMID is not added: count it
-   as failed and ask the user to add it manually.
-   - `zotero_add_by_doi` accepts an `attach_mode` argument that governs the **OA child-PDF
-     attach attempt at add time** (the installed server treats `linked_url` as "bookmark the
-     PDF URL"; other values download/import). Exact accepted values are server-version-specific —
-     verify against the connected server. Do **not** use `zotero_add_from_file` to attach a PDF to
-     an item added here: it has no parent-item argument and would create a duplicate parent item.
-3. Use `zotero_manage_collections` to place the item in the project collection.
+1. *Search items* by DOI, then by title — if already present, file the existing item into the
+   project collection (*file into collection*) and count it as skipped. Search first even where the
+   server dedupes on add: its match is by DOI/URL, so a title-only entry or an item stored without
+   its DOI would be created twice.
+2. Otherwise *add item* by DOI. With only a PMID, resolve it to a DOI first (§PMID batch import
+   below) and add by DOI; if PubMed has no DOI for it, add by PMID as the identifier
+   (`source_type: "pmid"`, a journal article from PubMed's record) and mark the entry
+   `no_doi: true`. **Never add a PubMed URL**: a URL becomes a bare webpage item that later DOI
+   lookups do not match. Pass the project collection in the add call. An entry with neither DOI
+   nor PMID is not added: count it as failed and ask the user to add it manually.
+   - The add call's attach mode governs the **OA child-PDF attempt at add time** (link the PDF
+     URL, import a copy, or none). Accepted values are server-version-specific: check the
+     connected server's tool description. To attach a local PDF to an item added here, use
+     *attach file* with that item's key; *add item* with a file path creates a new parent item
+     and would duplicate it.
+3. Confirm the item is in the project collection (*file into collection* if the add call did not
+   place it).
 
 ### Step 2.3: Result report
 
@@ -100,8 +122,8 @@ Always write `references/zotero_collection.json` in the project workspace:
 }
 ```
 
-If Zotero is unavailable, write the same file with `status: "skipped"` and a
-human-readable `reason`.
+If the user chose to go on without Zotero (Phase 2 opening), write the same file with
+`status: "pending"`, a human-readable `reason` and the `pending` entry list.
 
 ---
 
@@ -256,10 +278,10 @@ composed**:
 
 1. Take it from the Better BibTeX-exported `refs.bib` entry, or ask Better BibTeX
    (`item.search` over json-rpc — see `${CLAUDE_SKILL_DIR}/references/bbt_lookup.md`).
-2. If the paper is not in Zotero, **add it first** (`zotero_add_by_doi`) and let BBT mint
+2. If the paper is not in Zotero, **add it first** (*add item* by DOI, Phase 2) and let BBT mint
    the key. Phase 2 owns that step for a reason: a note written ahead of its library entry
    has no key to be right about.
-3. If it cannot be added (no DOI, offline), write the note with `citekey: ""` and the tag
+3. If it cannot be added (neither DOI nor PMID, or Zotero unreachable), write the note with `citekey: ""` and the tag
    `_needs-citekey`. An empty field is recoverable; an invented one is not, because nothing
    downstream can tell it apart from a real key.
 
@@ -406,11 +428,11 @@ curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&i
   | jq -r '.result | to_entries[] | select(.key != "uids") | "\(.value.uid)\t\(.value.elocationid)\t\(.value.title)"'
 ```
 
-For items already in the library (found by the Step 2.2 search), use `zotero_manage_collections` to
-attach them to the project collection **without re-adding** — re-adding by URL/PubMed-URL would
-bypass the search dedup and create duplicates. Record both `added` and `existing` items in
+For items already in the library (found by the Step 2.2 search), *file* them into the project
+collection **without re-adding**. Record both `added` and `existing` items in
 `references/zotero_collection.json`. If a PMID has no DOI in PubMed (older or non-indexed papers),
-fall back to `zotero_add_by_url` with the PubMed URL and mark the entry `no_doi: true`.
+add it by PMID (`source_type: "pmid"`), never by its PubMed URL, and mark the entry
+`no_doi: true`.
 
 ### Worklist ingestion (DOI/PMID/Title; no .bib)
 When the user supplies a worklist file (a `.tsv`/`.csv`/`.md` table with a `DOI` column,

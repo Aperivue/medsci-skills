@@ -83,6 +83,28 @@ else
   bad "FABRICATED (rc=$rc): $err"
 fi
 
+# Where the audit file lands. Started from a parent folder, the render used to root the audit at
+# the cwd and left a stray qc/ there. It now walks up from the .bib to the project
+# (SSOT.yaml / .git / manuscript/) and prints the path it wrote.
+mkdir -p "$TMP/parent/proj/manuscript/_src"
+cp "$TMP/refs.bib" "$TMP/parent/proj/manuscript/_src/refs.bib"
+cp "$TMP/ms.md" "$TMP/parent/proj/manuscript/ms.md"
+cat > "$TMP/vr_passthrough.py" <<EOF
+import runpy, sys
+sys.argv = ["$VR_REAL"] + sys.argv[1:] + ["--offline"]
+runpy.run_path("$VR_REAL", run_name="__main__")
+EOF
+err="$(cd "$TMP/parent" && MEDSCI_VERIFY_REFS="$TMP/vr_passthrough.py" bash "$RENDER" -j vancouver \
+         -i proj/manuscript/ms.md -b proj/manuscript/_src/refs.bib -o "$TMP/out2.html" 2>&1 >/dev/null)"
+rc=$?
+proj_real="$(cd "$TMP/parent/proj" && pwd)"
+if [[ -f "$TMP/parent/proj/qc/reference_audit.json" && ! -e "$TMP/parent/qc" \
+      && "$err" == *"$proj_real/qc/reference_audit.json"* ]]; then
+  pass "run from a parent folder -> qc/ in the .bib's project, path printed"
+else
+  bad "audit location (rc=$rc): parent/qc exists=$([[ -e $TMP/parent/qc ]] && echo y || echo n); $err"
+fi
+
 echo
 [[ $fail -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

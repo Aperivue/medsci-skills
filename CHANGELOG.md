@@ -10,6 +10,23 @@
   `family=Elm` as the surname. Every author named von, van, de, ó and the like was affected, and
   because `render_pandoc.sh` stops on MISMATCH, so was the build. The particle is now kept in
   front of the family (`von Elm`), as CrossRef and PubMed give it.
+- **`/lit-sync` calls Zotero MCP tools that exist.** It named `zotero_add_by_doi`,
+  `zotero_add_by_url`, `zotero_add_from_file`, `zotero_create_collection` and
+  `zotero_manage_collections`, which zotero-mcp merged in 0.16 and removed in 0.17. The skill now
+  names each operation by what it does and maps it to the current tool in
+  `references/zotero_mcp_tools.md` (checked against 0.17.4).
+- **`/lit-sync` no longer adds a PMID-only paper by its PubMed URL.** A URL became a webpage item
+  that later DOI lookups did not match. A PMID is resolved to a DOI first; without one it is added
+  as a PMID, which gives a journal article.
+- **`/lit-sync` stops when Zotero cannot be reached** instead of skipping the Zotero phase and going
+  on to notes. With Zotero's local API every call fails while the app is closed, and the skip let a
+  library stop receiving papers unnoticed. If you choose to go on, the entries not added are kept
+  as a `pending` list in `references/zotero_collection.json`.
+- **`render_pandoc.sh` writes its reference audit into the project that owns the `.bib`**, not the
+  folder the render was started from, and prints the path. Run from a parent folder, it left a
+  stray `qc/` there.
+- **`docs/zotero_policy.md`** names the project owner by role and states the Zotero version needed
+  for local-API writes.
 
 ## [6.5.0] - 2026-11-23
 
