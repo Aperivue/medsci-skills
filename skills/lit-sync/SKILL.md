@@ -51,9 +51,10 @@ Step 3.2 §Citekey provenance says where the note's key comes from.
 
 ## Phase 2: Zotero Sync
 
-Zotero is reachable only when the MCP server is connected **and** the Zotero app is open: with the
-local API, every call fails while the app is closed. If either is missing, do not move on to
-Phase 3 on your own. A silent skip is how a library can stop receiving papers for weeks without
+The Zotero MCP server must be connected. When it talks to Zotero's local API (no web API key
+configured), the Zotero app must also be open, because every call fails while the app is closed.
+A server set up with a web API key can still work with the app closed. Phase 2.5 needs the app
+either way. If a call fails, do not move on to Phase 3 on your own. A silent skip is how a library can stop receiving papers for weeks without
 anyone noticing. Stop and tell the user:
 
 > Zotero is not reachable (`<the error>`). Open Zotero (and reconnect the Zotero MCP server if it
@@ -61,8 +62,9 @@ anyone noticing. Stop and tell the user:
 
 Retry when they answer. Only if the user says to go on without Zotero, write the Step 2.3 file with
 `status: "pending"`, a `reason`, and a `pending` list of the entries not added (citekey, doi, pmid,
-title), put the pending count in the final summary, and continue. The next `/lit-sync` run reads
-that list first. Notes written meanwhile follow Step 3.2 §Citekey provenance (`citekey: ""`,
+title), put the pending count in the final summary, skip Phase 2.5 (Step 2.5.3 JSON:
+`refs_bib_refreshed: false`, `reason: "zotero_unreachable"`), and go on to Phase 3. Step 2.2 of the
+next `/lit-sync` run picks the list up. Notes written meanwhile follow Step 3.2 §Citekey provenance (`citekey: ""`,
 `_needs-citekey`).
 
 ### Step 2.1: Determine project collection
@@ -74,7 +76,9 @@ user when a new collection is created.
 
 ### Step 2.2: Dedupe + add
 
-For each entry:
+For each entry, plus any entries left in the `pending` list of an earlier
+`references/zotero_collection.json` (Phase 2 opening; drop each from the list once it is added or
+found):
 
 1. *Search items* by DOI, then by title — if already present, file the existing item into the
    project collection (*file into collection*) and count it as skipped. Search first even where the
@@ -277,7 +281,7 @@ composed**:
 2. If the paper is not in Zotero, **add it first** (*add item* by DOI, Phase 2) and let BBT mint
    the key. Phase 2 owns that step for a reason: a note written ahead of its library entry
    has no key to be right about.
-3. If it cannot be added (no DOI, offline), write the note with `citekey: ""` and the tag
+3. If it cannot be added (neither DOI nor PMID, or Zotero unreachable), write the note with `citekey: ""` and the tag
    `_needs-citekey`. An empty field is recoverable; an invented one is not, because nothing
    downstream can tell it apart from a real key.
 

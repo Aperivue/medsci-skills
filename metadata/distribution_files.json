@@ -2158,8 +2158,8 @@
     },
     {
       "path": "skills/lit-sync/SKILL.md",
-      "size": 19871,
-      "sha256": "1c18c3258e34d87073fc46821f6a5378e9c3ef043f59bca157e8519f01701402"
+      "size": 20314,
+      "sha256": "9a7e8f5657cc4c482a5f3473043a1d1aac59adb7ad10c91854721d094d70050d"
     },
     {
       "path": "skills/lit-sync/references/bbt_lookup.md",
@@ -2183,8 +2183,8 @@
     },
     {
       "path": "skills/lit-sync/references/zotero_mcp_tools.md",
-      "size": 2037,
-      "sha256": "f3f1204b0ffd742e7907ee641631684bc7acc114a5ba54fe2cf88a40280e23fc"
+      "size": 2095,
+      "sha256": "416d60e4194d5ae50698c733c5064f68b1266c94f859ce5b4a669d8bd4774a87"
     },
     {
       "path": "skills/lit-sync/scripts/check_citekey_provenance.py",

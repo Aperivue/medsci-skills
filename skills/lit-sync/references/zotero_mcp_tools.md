@@ -18,8 +18,9 @@ Prefer a DOI for *add item*: a URL other than doi.org or arxiv.org becomes a bar
 which a later DOI lookup does not match. A PMID is accepted directly and yields a journal article
 from PubMed's record, which is the fallback when PubMed lists no DOI.
 
-Writing through Zotero's local API (no web API key) needs Zotero 10 or later and a one-time local
-authorization in the server (`zotero-mcp authorize-local` in 0.17). With the local API, every call
+Writing through Zotero's local API (no web API key) needs Zotero 10 or later (zotero-mcp 0.17.4
+source: "Local API write access (Zotero 10+)") and a one-time local authorization in the server
+(`zotero-mcp authorize-local`). With the local API, every call
 fails while the Zotero app is closed.
 
 Checked against zotero-mcp 0.17.4 (2026-11).
