@@ -40,7 +40,23 @@ sys.modules["vr"] = m
 spec.loader.exec_module(m)
 recs = m.parse_bib(sys.argv[3])
 r = recs[0]
-print(r.doi if sys.argv[2] == "doi" else r.title_guess)
+which = sys.argv[2]
+if which == "doi":
+    print(r.doi)
+elif which == "authors":
+    print("|".join(r.cited_authors))
+elif which == "truncated":
+    print("true" if r.audit_truncated else "false")
+elif which == "mismatch":
+    mm, _ = m.author_cross_check(
+        r.cited_authors, ["Zhu", "Zhang"], r.cited_author_count, 2,
+        first_author_guess=r.first_author_guess,
+        audit_truncated=r.audit_truncated,
+        corporate=r.corporate_author,
+    )
+    print(len(mm))
+else:
+    print(r.title_guess)
 PY
 }
 
@@ -130,6 +146,24 @@ print(len(m.detect_duplicates(m.parse_bib(bib))))
 PY
 )"
 ck "two DOI-last entries sharing a DOI"  1  "$dup"
+
+echo "==== quote-delimited author and title fields ===="
+QUOTED_AUTHOR='@article{fake2020,
+  author = "Hallucinated, Alice and Fabricated, Bob",
+  title  = "A quoted title with {B{\"o}hm} notation",
+  doi    = "10.1056/NEJMoa2001017"
+}'
+QUOTED_NESTED='@article{k2,
+  doi    = "10.1000/xyz789",
+  author = "M{\"u}ller, Hans and {von Elm}, Erik and others",
+  title  = "A multisociety {Delphi} consensus statement"
+}'
+ck "quoted author parsed"               "Hallucinated|Fabricated" "$(field authors "$QUOTED_AUTHOR")"
+ck "quoted fabricated author flagged"   2                         "$(field mismatch "$QUOTED_AUTHOR")"
+ck "quoted title with nested braces"    'A quoted title with {B{\"o}hm} notation' "$(field title "$QUOTED_AUTHOR")"
+ck "quoted author with nested umlaut"   "Muller|von Elm"          "$(field authors "$QUOTED_NESTED")"
+ck "quoted author and-others truncated" "true"                    "$(field truncated "$QUOTED_NESTED")"
+ck "quoted title as last field"         "A multisociety {Delphi} consensus statement" "$(field title "$QUOTED_NESTED")"
 
 echo
 echo "  passed=$pass failed=$fail"
