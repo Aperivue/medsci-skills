@@ -524,6 +524,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_author_normalization.sh
 
+      - name: "Run verify-refs biblatex extended-name test (de/von/ó particles are not an author mismatch)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/verify-refs/tests/test_biblatex_extended_names.sh
+
       - name: "Run verify-refs BibTeX and-others test (a declared et-al is not an author mismatch)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_bibtex_et_al.sh
