@@ -5,7 +5,7 @@
 
 ## Policy summary
 
-Project owner (primary author, typically 유진) maintains the Zotero library with Better BibTeX auto-export. Collaborators work from the committed `refs.bib` snapshot. No collaborator is required to install Zotero.
+Project owner (usually the primary author) maintains the Zotero library with Better BibTeX auto-export. Collaborators work from the committed `refs.bib` snapshot. No collaborator is required to install Zotero.
 
 `SSOT.yaml` records the policy per project:
 
@@ -21,7 +21,7 @@ reference_manager:
 ### Project owner (required_for = project_owner)
 
 **Must have installed**:
-- Zotero desktop (7.x+)
+- Zotero desktop 7 or later (Zotero 10 or later to write through the local API without a web API key)
 - Better BibTeX plugin ([retorque.re/zotero-better-bibtex/](https://retorque.re/zotero-better-bibtex/))
 
 **Must configure**:
@@ -76,7 +76,7 @@ Collaborator checkouts treat `refs.bib` as read-only. Any hand edit is considere
 
 ## Setup checklist (project owner)
 
-- [ ] Zotero 7.x installed
+- [ ] Zotero 7 or later installed (10 or later for local-API writes)
 - [ ] Better BibTeX plugin installed
 - [ ] Project collection created; `collection_key` recorded in `SSOT.yaml`
 - [ ] Better BibTeX "Keep updated" auto-export configured to `manuscript/_src/refs.bib`
