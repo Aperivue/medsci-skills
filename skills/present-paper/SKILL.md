@@ -793,3 +793,4 @@ All outputs go in the user's presentation directory:
 | Manuscript reporting checklist parallel | `/check-reporting` for the same paper | Paper presentations often shadow manuscript revision; reporting-guideline gaps surface in Q&A |
 | Visual abstract / Central Illustration | `/make-figures` visual-abstract templates | Then check the target journal's AI-image policy (JACC prohibits, Radiology allows with disclosure) |
 | References on slides | `/verify-refs` (audit-only) before delivery | Same anti-hallucination gate as manuscript references |
+| Keep the talk's papers in your reference library | `/lit-sync` | This skill does not write to Zotero; `/lit-sync` adds the items without duplicates |

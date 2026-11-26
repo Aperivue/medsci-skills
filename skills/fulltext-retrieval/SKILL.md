@@ -111,6 +111,9 @@ client**. It is user-initiated and depends on the live Zotero session, so record
 manually — they are not reproducible CI evidence. `/lit-sync` Phase 2.7 orchestrates both routes
 and reconciles them in a report.
 
+This skill downloads; it does not add items to Zotero. To register the papers (and their PDFs) in
+the library, hand the DOI list to `/lit-sync`.
+
 ## PDF → Markdown Conversion (Optional)
 
 Convert downloaded PDFs to Markdown when the same papers will be read repeatedly (data extraction

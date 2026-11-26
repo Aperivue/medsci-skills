@@ -32,7 +32,7 @@ or citekey), report it and skip.
 
 ## Step 0: Resolve the vault layout — ask, do not assume
 
-Establish three paths before writing anything:
+Establish these before writing anything:
 
 1. **Vault root** — from the user, or `$OBSIDIAN_VAULT`. Never guess a home-directory path.
 2. **Literature notes folder** — default `Literature/`. If the vault already has a folder
