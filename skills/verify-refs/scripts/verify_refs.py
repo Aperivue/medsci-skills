@@ -197,6 +197,46 @@ def brace_field(entry: str, name: str) -> str:
     return entry[start : j - 1]
 
 
+def bib_field(entry: str, name: str) -> str:
+    """Read a brace- or quote-delimited BibTeX field while tracking inner brace depth.
+
+    Per BibTeX syntax, field values may be delimited by `{...}` or `"..."`, and nested `{...}`
+    groups protect inner double quotes (e.g. `M{\\"u}ller`). Returns "" when the field is absent
+    or uses neither delimiter.
+    """
+    m = re.search(rf"(?<![\w-]){name}\s*=\s*([{{\"])", entry, re.I)
+    if not m:
+        return ""
+    opener = m.group(1)
+    start = m.end()
+    if opener == "{":
+        depth, j = 1, start
+        while j < len(entry) and depth > 0:
+            if entry[j] == "{":
+                depth += 1
+            elif entry[j] == "}":
+                depth -= 1
+            j += 1
+        return entry[start : j - 1]
+    depth, j = 0, start
+    while j < len(entry):
+        c = entry[j]
+        if c == "{":
+            depth += 1
+        elif c == "}" and depth > 0:
+            depth -= 1
+        elif c == '"' and depth == 0:
+            bs = 0
+            k = j - 1
+            while k >= start and entry[k] == "\\":
+                bs += 1
+                k -= 1
+            if bs % 2 == 0:
+                return entry[start:j]
+        j += 1
+    return ""
+
+
 # An entry opens with `@type{` or `@type(`. BibTeX allows whitespace before the `@`, between the
 # type and the delimiter, and the parenthesised form; splitting only at a column-0 `@type{` merged
 # every such entry into the one before it, so only the first was ever looked up while the audit
@@ -276,32 +316,19 @@ def parse_bib(text: str) -> list[RefRecord]:
         key_match = re.match(r"@[ \t]*\w+\s*[{(]\s*([^,]+?)\s*,", entry)
         # Field names are matched whole (`(?<![\w-])`): `title` also matched inside `booktitle`,
         # so a proceedings paper whose booktitle came first was read with the proceedings name.
-        title_match = (re.search(r"(?<![\w-])title\s*=\s*[\{\"](.+?)[\}\"]\s*,", entry, re.I | re.S)
-                       or re.search(r'(?<![\w-])title\s*=\s*"([^"]+)"', entry, re.I))
         # The trailing comma is OPTIONAL: BibTeX does not require one after an entry's LAST field,
         # and `doi` is very often that last field. Requiring it left `record.doi` empty for those
         # entries, which skips the CrossRef check outright and drops the record onto the soft-flagged
         # OpenAlex title path where the author cross-check is disabled — so the anti-fabrication
         # check this skill exists for was silently off for exactly those references. Unlike `title`
-        # on the line above, a DOI never carries brace-protected inner groups (`{Delphi}`), so
-        # stopping at the first `}` is correct here and would truncate there.
+        # below, a DOI never carries brace-protected inner groups (`{Delphi}`), so stopping at the
+        # first `}` is correct here and would truncate there.
         doi_match = re.search(r"(?<![\w-])doi\s*=\s*[\{\"](.+?)[\}\"]\s*,?", entry, re.I | re.S)
         pmid_match = re.search(r"(?<![\w-])pmid\s*=\s*[\{\"]?(\d{5,9})", entry, re.I)
         year_match = re.search(r"(?<![\w-])year\s*=\s*[\{\"]?((?:19|20)\d{2})", entry, re.I)
         raw = normalize_space(entry)
-        author_field = brace_field(entry, "author")
-        # `title` needs the same balanced-brace read, and for the same reason `doi` needed an
-        # optional comma: the regex above requires a trailing comma, so a title that is the entry's
-        # LAST field came back empty. It cannot simply take `,?` — the non-greedy match would then
-        # stop at the inner `}` of a brace-protected group and return "A multisociety {Delphi".
-        # Prefer the balanced read whenever the field is brace-delimited; keep the regex for the
-        # quote-delimited form it already handled.
-        title_braced = brace_field(entry, "title")
-        if title_braced:
-            title_match = None
-            title_text = title_braced
-        else:
-            title_text = title_match.group(1) if title_match else ""
+        author_field = bib_field(entry, "author")
+        title_text = bib_field(entry, "title")
         cited = parse_bib_authors(author_field)
         # v1.3.0: intentional truncate marker (any non-empty `_audit_truncated`)
         trunc_match = re.search(r"_audit_truncated\s*=\s*[\{\"]?([^,}\"]+)", entry, re.I)
